@@ -83,13 +83,15 @@
       <TestAssemblies Include="$(SourceFolder)\Tests\**\*.Tests\bin\$(BuildConfiguration)\**\*.Tests.dll"/>
     </ItemGroup>
 
-    <exec Condition=" '$(APPVEYOR_BUILD_NUMBER)' != '' "
-          Command="$(ToolFolder)\ctt.exe s:&quot;%(TestAssemblies.Identity).config&quot; t:&quot;$(SourceFolder)\Tests\%(TestAssemblies.RecursiveDir)App.AppVeyor.config&quot; d:&quot;%(TestAssemblies.Identity).config&quot; pw"/>
+    <Message Text="AppVeyor: $(APPVEYOR)"/>
 
-    <exec Condition=" '$(APPVEYOR_BUILD_NUMBER)' != '' "
+    <exec Condition=" '$(APPVEYOR)' != '' "
+          Command="$(ToolFolder)\ctt.exe s:&quot;%(TestAssemblies.Identity).config&quot; t:&quot;$(SourceFolder)\Tests\%(TestAssemblies.RecursiveDir)App.AppVeyor.config&quot; d:&quot;%(TestAssemblies.Identity).config&quot; pw v"/>
+
+    <exec Condition=" '$(APPVEYOR)' != '' "
           Command="xunit.console.clr4.x86.exe &quot;%(TestAssemblies.Identity)&quot; /appveyor"/>
 
-    <exec Condition=" '$(APPVEYOR_BUILD_NUMBER)' == '' "
+    <exec Condition=" '$(APPVEYOR)' == '' "
           Command="$(XUnitTasksPath)\xunit.console.clr4.x86.exe &quot;%(TestAssemblies.Identity)&quot;"/>
   </Target>
 
@@ -133,24 +135,6 @@
 
   <Target Name="Build">
     <CallTarget Targets="Package" />
-  </Target>
-
-  <Target Name="Refresh">
-    <!-- Update NuGet dependencies to match package version -->
-
-    <!-- EntityFramework -->
-    <XmlRead XmlFileName="$(SourceFolder)\FluentCommand\packages.config"
-             XPath="/packages/package[@id='EntityFramework']/@version">
-      <Output TaskParameter="Value" ItemName="EntityFrameworkVersion" />
-    </XmlRead>
-
-    <Message Text="EntityFramework Version: @(EntityFrameworkVersion)"/>
-
-    <XmlUpdate XmlFileName="$(SourceFolder)\FluentCommand\FluentCommand.nuspec"
-               Prefix="d" Namespace="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd"
-               XPath="/d:package/d:metadata/d:dependencies/d:dependency[@id='EntityFramework']/@version"
-               Value="@(EntityFrameworkVersion)" />
-
   </Target>
 
 </Project>
