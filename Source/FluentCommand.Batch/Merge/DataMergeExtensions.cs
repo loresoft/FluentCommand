@@ -4,9 +4,10 @@ namespace FluentCommand.Merge
 {
     public static class DataMergeExtensions
     {
-                /// <summary>
+        /// <summary>
         /// Starts a data merge operation with the specified destination table name.
         /// </summary>
+        /// <param name="session">The session to use for the merge.</param>
         /// <param name="destinationTable">Name of the destination table on the server.</param>
         /// <returns>
         /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
@@ -22,6 +23,7 @@ namespace FluentCommand.Merge
         /// <summary>
         /// Starts a data merge operation with the specified destination table name.
         /// </summary>
+        /// <param name="session">The session to use for the merge.</param>
         /// <param name="mergeDefinition">The data merge definition.</param>
         /// <returns>
         /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.

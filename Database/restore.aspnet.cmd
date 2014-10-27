@@ -1,0 +1,1 @@
+Aspnet_regsql.exe -S ".\SQL2014" -U sa -P Password12! -A all

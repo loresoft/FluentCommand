@@ -1,0 +1,1 @@
+sqlcmd -S ".\SQL2014" -U sa -P Password12! -i "%APPVEYOR_BUILD_FOLDER%\Database\SqlServer\Tracker.sql"

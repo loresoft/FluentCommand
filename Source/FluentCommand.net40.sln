@@ -18,6 +18,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{DAB20F77-CEA9-4E2C-B1CB-64E2BB81C7A7}"
 	ProjectSection(SolutionItems) = preProject
 		..\Master.proj = ..\Master.proj
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Global
