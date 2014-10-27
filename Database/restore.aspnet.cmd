@@ -1,1 +1,1 @@
-Aspnet_regsql.exe -S ".\SQL2014" -U sa -P Password12! -A all
+"%windir%\Microsoft.NET\Framework\v4.0.30319\Aspnet_regsql.exe" -S "(local)\SQL2014" -U sa -P Password12! -A all
