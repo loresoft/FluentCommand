@@ -30,19 +30,7 @@ namespace FluentCommand.SqlServer.Tests
             session.Connection.Should().NotBeNull();
             session.Connection.State.Should().Be(ConnectionState.Closed);
         }
-
-        
-        [Fact]
-        public void CreateConnectionNameCompact()
-        {
-            var session = new DataSession("TrackerCompact");
-            session.Should().NotBeNull();
-            session.Connection.Should().NotBeNull();
-            session.Connection.State.Should().Be(ConnectionState.Closed);
-        }
-
-
-        
+       
         [Fact]
         public void CreateMissingConnectonName()
         {

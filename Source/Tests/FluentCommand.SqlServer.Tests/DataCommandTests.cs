@@ -10,10 +10,10 @@ using Xunit;
 
 namespace FluentCommand.SqlServer.Tests
 {
-    
+
     public class DataCommandTests
     {
-        
+
         [Fact]
         public void SqlQuerySingleEntity()
         {
@@ -49,7 +49,7 @@ namespace FluentCommand.SqlServer.Tests
             user.EmailAddress.Should().Be(email);
         }
 
-        
+
         [Fact]
         public void SqlQuerySingleEntityFactory()
         {
@@ -67,7 +67,7 @@ namespace FluentCommand.SqlServer.Tests
             user.EmailAddress.Should().Be(email);
         }
 
-        
+
         [Fact]
         public void SqlQuerySingleEntityFactoryCache()
         {
@@ -77,8 +77,8 @@ namespace FluentCommand.SqlServer.Tests
             string email = "kara.thrace@battlestar.com";
             string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-            var policy = new CacheItemPolicy {SlidingExpiration = TimeSpan.FromMinutes(5)};
-            
+            var policy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromMinutes(5) };
+
             var user = session.Sql(sql)
                 .Parameter("@EmailAddress", email)
                 .UseCache(policy)
@@ -97,7 +97,7 @@ namespace FluentCommand.SqlServer.Tests
 
         }
 
-        
+
         [Fact]
         public void SqlQuerySingleEntityDynamic()
         {
@@ -115,7 +115,7 @@ namespace FluentCommand.SqlServer.Tests
             Assert.Equal<string>(user.EmailAddress, email);
         }
 
-        
+
         [Fact]
         public void SqlQueryEntity()
         {
@@ -151,7 +151,7 @@ namespace FluentCommand.SqlServer.Tests
             users.Should().NotBeEmpty();
         }
 
-        
+
         [Fact]
         public void SqlQueryEntityDynamic()
         {
@@ -169,7 +169,7 @@ namespace FluentCommand.SqlServer.Tests
             users.Should().NotBeEmpty();
         }
 
-        
+
         [Fact]
         public void SqlQueryEntityDynamicCache()
         {
@@ -180,7 +180,7 @@ namespace FluentCommand.SqlServer.Tests
             string email = "%@battlestar.com";
             string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-            var policy = new CacheItemPolicy {SlidingExpiration = TimeSpan.FromMinutes(5)};
+            var policy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromMinutes(5) };
 
             var users = session
                 .Sql(sql)
@@ -203,7 +203,7 @@ namespace FluentCommand.SqlServer.Tests
             cachedUsers.Should().NotBeEmpty();
         }
 
-        
+
         [Fact]
         public void SqlQueryEntityFactory()
         {
@@ -222,7 +222,7 @@ namespace FluentCommand.SqlServer.Tests
             users.Should().NotBeEmpty();
         }
 
-        
+
         [Fact]
         public void SqlQueryTable()
         {
@@ -239,7 +239,7 @@ namespace FluentCommand.SqlServer.Tests
             users.Should().NotBeNull();
         }
 
-        
+
         [Fact]
         public void ProcedureExecuteOut()
         {
@@ -276,70 +276,121 @@ namespace FluentCommand.SqlServer.Tests
             errorCode.Should().Be(0);
         }
 
-        
+
         [Fact]
         public void ProcedureExecuteOutDuplicate()
         {
-            var session = new DataSession("AspNet").Log(Console.WriteLine);
-            session.Log(Console.WriteLine);
-            session.Should().NotBeNull();
 
             Guid? userId = null;
             int errorCode = -1;
 
             var username = "test." + DateTime.Now.Ticks;
             var email = username + "@email.com";
+            int result;
 
-            var result = session.StoredProcedure("[dbo].[aspnet_Membership_CreateUser]")
-                .Parameter("@ApplicationName", "/")
-                .Parameter("@UserName", "paul.welter")
-                .Parameter("@Password", "T@est" + DateTime.Now.Ticks)
-                .Parameter("@Email", email)
-                .Parameter("@PasswordSalt", "test salt")
-                .Parameter<string>("@PasswordQuestion", null)
-                .Parameter<string>("@PasswordAnswer", null)
-                .Parameter("@IsApproved", true)
-                .Parameter("@CurrentTimeUtc", DateTime.UtcNow)
-                .Parameter("@UniqueEmail", 1)
-                .Parameter("@PasswordFormat", 1)
-                .Parameter<Guid?>(parameter => parameter
-                    .Name("@UserId")
-                    .Type(DbType.Guid)
-                    .Output(p => userId = p)
-                    .Direction(ParameterDirection.Output)
-                )
-                .Return<int>(p => errorCode = p)
-                .Execute();
+            using (var session = new DataSession("AspNet").Log(Console.WriteLine))
+            {
+                session.Should().NotBeNull();
+
+                result = session.StoredProcedure("[dbo].[aspnet_Membership_CreateUser]")
+                    .Parameter("@ApplicationName", "/")
+                    .Parameter("@UserName", "paul.welter")
+                    .Parameter("@Password", "T@est" + DateTime.Now.Ticks)
+                    .Parameter("@Email", email)
+                    .Parameter("@PasswordSalt", "test salt")
+                    .Parameter<string>("@PasswordQuestion", null)
+                    .Parameter<string>("@PasswordAnswer", null)
+                    .Parameter("@IsApproved", true)
+                    .Parameter("@CurrentTimeUtc", DateTime.UtcNow)
+                    .Parameter("@UniqueEmail", 1)
+                    .Parameter("@PasswordFormat", 1)
+                    .Parameter<Guid?>(parameter => parameter
+                        .Name("@UserId")
+                        .Type(DbType.Guid)
+                        .Output(p => userId = p)
+                        .Direction(ParameterDirection.Output)
+                    )
+                    .Return<int>(p => errorCode = p)
+                    .Execute();
+
+                // Duplicate
+                result = session.StoredProcedure("[dbo].[aspnet_Membership_CreateUser]")
+                    .Parameter("@ApplicationName", "/")
+                    .Parameter("@UserName", "paul.welter")
+                    .Parameter("@Password", "T@est" + DateTime.Now.Ticks)
+                    .Parameter("@Email", email)
+                    .Parameter("@PasswordSalt", "test salt")
+                    .Parameter<string>("@PasswordQuestion", null)
+                    .Parameter<string>("@PasswordAnswer", null)
+                    .Parameter("@IsApproved", true)
+                    .Parameter("@CurrentTimeUtc", DateTime.UtcNow)
+                    .Parameter("@UniqueEmail", 1)
+                    .Parameter("@PasswordFormat", 1)
+                    .Parameter<Guid?>(parameter => parameter
+                        .Name("@UserId")
+                        .Type(DbType.Guid)
+                        .Output(p => userId = p)
+                        .Direction(ParameterDirection.Output)
+                    )
+                    .Return<int>(p => errorCode = p)
+                    .Execute();
+            }
 
             result.Should().Be(-1);
             errorCode.Should().BeGreaterThan(0);
 
         }
 
-        
+
         [Fact]
         public void ProcedureQueryDynamicOut()
         {
-            var session = new DataSession("AspNet").Log(Console.WriteLine);
-            session.Should().NotBeNull();
-
             int totalRecords = -1;
+            int result = 0;
 
-            var results = session.StoredProcedure("[dbo].[aspnet_Membership_FindUsersByEmail]")
-                .Parameter("@ApplicationName", "/")
-                .Parameter("@EmailToMatch", "%@email.com")
-                .Parameter("@PageIndex", 0)
-                .Parameter("@PageSize", 10)
-                .Return<int>(p => totalRecords = p)
-                .Query()
-                .ToList();
+            Guid userId = Guid.Empty;
+            int errorCode = -1;
+
+            var username = "test." + DateTime.Now.Ticks;
+            var email = username + "@email.com";
+
+            List<dynamic> results;
+            using (var session = new DataSession("AspNet").Log(Console.WriteLine))
+            {
+                session.Should().NotBeNull();
+
+                result = session.StoredProcedure("[dbo].[aspnet_Membership_CreateUser]")
+                    .Parameter("@ApplicationName", "/")
+                    .Parameter("@UserName", username)
+                    .Parameter("@Password", "T@est" + DateTime.Now.Ticks)
+                    .Parameter("@Email", email)
+                    .Parameter("@PasswordSalt", "test salt")
+                    .Parameter<string>("@PasswordQuestion", null)
+                    .Parameter<string>("@PasswordAnswer", null)
+                    .Parameter("@IsApproved", true)
+                    .Parameter("@CurrentTimeUtc", DateTime.UtcNow)
+                    .Parameter("@UniqueEmail", 1)
+                    .Parameter("@PasswordFormat", 1)
+                    .ParameterOut<Guid>("@UserId", p => userId = p)
+                    .Return<int>(p => errorCode = p)
+                    .Execute();
+
+                results = session.StoredProcedure("[dbo].[aspnet_Membership_FindUsersByEmail]")
+                    .Parameter("@ApplicationName", "/")
+                    .Parameter("@EmailToMatch", "%@email.com")
+                    .Parameter("@PageIndex", 0)
+                    .Parameter("@PageSize", 10)
+                    .Return<int>(p => totalRecords = p)
+                    .Query()
+                    .ToList();
+            }
 
             results.Should().NotBeNull();
             results.Count.Should().BeGreaterThan(0);
             totalRecords.Should().BeGreaterThan(0);
         }
 
-        
+
         [Fact]
         public void SqlQueryValue()
         {
@@ -356,7 +407,7 @@ namespace FluentCommand.SqlServer.Tests
             count.Should().BeGreaterThan(0);
         }
 
-        
+
         [Fact]
         public void SqlReader()
         {
@@ -383,7 +434,7 @@ namespace FluentCommand.SqlServer.Tests
             users.Should().NotBeEmpty();
         }
 
-        
+
         [Fact]
         public void SqlQueryMultiple()
         {
@@ -421,7 +472,7 @@ namespace FluentCommand.SqlServer.Tests
 
         }
 
-        
+
         [Fact]
         public void ProcedureExecuteTransaction()
         {
