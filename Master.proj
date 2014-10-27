@@ -84,7 +84,7 @@
     </ItemGroup>
 
     <exec Condition=" '$(APPVEYOR_BUILD_NUMBER)' != '' "
-          Command="$(ToolFolder)\ctt.exe s:&quot;%(TestAssemblies.Identity).config&quot; t:&quot;$(SourceFolder)\%(TestAssemblies.RecursiveDir)App.AppVeyor.config&quot; d:&quot;%(TestAssemblies.Identity).config&quot; pw"/>
+          Command="$(ToolFolder)\ctt.exe s:&quot;%(TestAssemblies.Identity).config&quot; t:&quot;$(SourceFolder)\Tests\%(TestAssemblies.RecursiveDir)App.AppVeyor.config&quot; d:&quot;%(TestAssemblies.Identity).config&quot; pw"/>
 
     <exec Condition=" '$(APPVEYOR_BUILD_NUMBER)' != '' "
           Command="xunit.console.clr4.x86.exe &quot;%(TestAssemblies.Identity)&quot; /appveyor"/>
