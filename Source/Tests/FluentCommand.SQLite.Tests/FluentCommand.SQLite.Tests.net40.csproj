@@ -4,14 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6E614A91-C405-4E6B-9FC8-565ABC293E99}</ProjectGuid>
+    <ProjectGuid>{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FluentCommand.Batch.Tests</RootNamespace>
-    <AssemblyName>FluentCommand.Batch.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>FluentCommand.SQLite.Tests</RootNamespace>
+    <AssemblyName>FluentCommand.SQLite.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>5d570ca9</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,20 +31,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <DefineConstants>NET45;$(DefineConstants)</DefineConstants>
+    <DefineConstants>NET40;$(DefineConstants)</DefineConstants>
     <OutputPath>bin\$(Configuration)\$(TargetFrameworkVersion)</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\$(TargetFrameworkVersion)</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions">
-      <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.dll</HintPath>
+      <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net40\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions.Core">
-      <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net40\FluentAssertions.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\packages\System.Data.SQLite.Core.1.0.94.0\lib\net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
@@ -57,8 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataBulkCopyTests.cs" />
-    <Compile Include="DataMergeGeneratorTests.cs" />
+    <Compile Include="DataCommandTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -69,20 +71,23 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FluentCommand.Batch\FluentCommand.Batch.net45.csproj">
-      <Project>{f0efa3f2-d150-406e-baf9-6adbd56d45a1}</Project>
-      <Name>FluentCommand.Batch.net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\FluentCommand\FluentCommand.net45.csproj">
+    <ProjectReference Include="..\..\FluentCommand\FluentCommand.net40.csproj">
       <Project>{da239204-8738-435e-a218-d8d0fdc59960}</Project>
-      <Name>FluentCommand.net45</Name>
+      <Name>FluentCommand.net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.net45.csproj">
+    <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.net40.csproj">
       <Project>{20303026-ab3d-41f8-b92a-7f80d9e3fa6d}</Project>
-      <Name>FluentCommand.Entities.net45</Name>
+      <Name>FluentCommand.Entities.net40</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\System.Data.SQLite.Core.1.0.94.0\build\net40\System.Data.SQLite.Core.targets" Condition="Exists('..\..\packages\System.Data.SQLite.Core.1.0.94.0\build\net40\System.Data.SQLite.Core.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\System.Data.SQLite.Core.1.0.94.0\build\net40\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\System.Data.SQLite.Core.1.0.94.0\build\net40\System.Data.SQLite.Core.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

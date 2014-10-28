@@ -72,11 +72,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\FluentCommand\FluentCommand.net40.csproj">
       <Project>{da239204-8738-435e-a218-d8d0fdc59960}</Project>
-      <Name>FluentCommand</Name>
+      <Name>FluentCommand.net40</Name>
     </ProjectReference>
     <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.net40.csproj">
       <Project>{20303026-ab3d-41f8-b92a-7f80d9e3fa6d}</Project>
-      <Name>FluentCommand.Entities</Name>
+      <Name>FluentCommand.Entities.net40</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

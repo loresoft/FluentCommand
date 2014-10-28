@@ -3,23 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand", "FluentCommand\FluentCommand.net40.csproj", "{DA239204-8738-435E-A218-D8D0FDC59960}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.net40", "FluentCommand\FluentCommand.net40.csproj", "{DA239204-8738-435E-A218-D8D0FDC59960}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.SqlServer.Tests", "Tests\FluentCommand.SqlServer.Tests\FluentCommand.SqlServer.Tests.net40.csproj", "{124B33B2-E2C2-4F92-897A-345D64940DA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.SqlServer.Tests.net40", "Tests\FluentCommand.SqlServer.Tests\FluentCommand.SqlServer.Tests.net40.csproj", "{124B33B2-E2C2-4F92-897A-345D64940DA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Batch", "FluentCommand.Batch\FluentCommand.Batch.net40.csproj", "{F0EFA3F2-D150-406E-BAF9-6ADBD56D45A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Batch.net40", "FluentCommand.Batch\FluentCommand.Batch.net40.csproj", "{F0EFA3F2-D150-406E-BAF9-6ADBD56D45A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Batch.Tests", "Tests\FluentCommand.Batch.Tests\FluentCommand.Batch.Tests.net40.csproj", "{6E614A91-C405-4E6B-9FC8-565ABC293E99}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Batch.Tests.net40", "Tests\FluentCommand.Batch.Tests\FluentCommand.Batch.Tests.net40.csproj", "{6E614A91-C405-4E6B-9FC8-565ABC293E99}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D2CC6C3D-1442-446B-AA19-1B89A765E1FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Entities", "Tests\FluentCommand.Entities\FluentCommand.Entities.net40.csproj", "{20303026-AB3D-41F8-B92A-7F80D9E3FA6D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Entities.net40", "Tests\FluentCommand.Entities\FluentCommand.Entities.net40.csproj", "{20303026-AB3D-41F8-B92A-7F80D9E3FA6D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{DAB20F77-CEA9-4E2C-B1CB-64E2BB81C7A7}"
 	ProjectSection(SolutionItems) = preProject
 		..\Master.proj = ..\Master.proj
 		..\README.md = ..\README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.SQLite.Tests.net40", "Tests\FluentCommand.SQLite.Tests\FluentCommand.SQLite.Tests.net40.csproj", "{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{20303026-AB3D-41F8-B92A-7F80D9E3FA6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20303026-AB3D-41F8-B92A-7F80D9E3FA6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20303026-AB3D-41F8-B92A-7F80D9E3FA6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,5 +61,6 @@ Global
 		{124B33B2-E2C2-4F92-897A-345D64940DA2} = {D2CC6C3D-1442-446B-AA19-1B89A765E1FF}
 		{6E614A91-C405-4E6B-9FC8-565ABC293E99} = {D2CC6C3D-1442-446B-AA19-1B89A765E1FF}
 		{20303026-AB3D-41F8-B92A-7F80D9E3FA6D} = {D2CC6C3D-1442-446B-AA19-1B89A765E1FF}
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A} = {D2CC6C3D-1442-446B-AA19-1B89A765E1FF}
 	EndGlobalSection
 EndGlobal

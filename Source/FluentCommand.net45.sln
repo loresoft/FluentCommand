@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{DAB20F77
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.SQLite.Tests.net45", "Tests\FluentCommand.SQLite.Tests\FluentCommand.SQLite.Tests.net45.csproj", "{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{20303026-AB3D-41F8-B92A-7F80D9E3FA6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20303026-AB3D-41F8-B92A-7F80D9E3FA6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20303026-AB3D-41F8-B92A-7F80D9E3FA6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,5 +61,6 @@ Global
 		{124B33B2-E2C2-4F92-897A-345D64940DA2} = {D2CC6C3D-1442-446B-AA19-1B89A765E1FF}
 		{6E614A91-C405-4E6B-9FC8-565ABC293E99} = {D2CC6C3D-1442-446B-AA19-1B89A765E1FF}
 		{20303026-AB3D-41F8-B92A-7F80D9E3FA6D} = {D2CC6C3D-1442-446B-AA19-1B89A765E1FF}
+		{7EC60E76-45CE-4760-B43B-A6FEEC0D121A} = {D2CC6C3D-1442-446B-AA19-1B89A765E1FF}
 	EndGlobalSection
 EndGlobal

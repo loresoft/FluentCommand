@@ -102,7 +102,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FluentCommand\FluentCommand.net40.csproj">
       <Project>{da239204-8738-435e-a218-d8d0fdc59960}</Project>
-      <Name>FluentCommand</Name>
+      <Name>FluentCommand.net40</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
