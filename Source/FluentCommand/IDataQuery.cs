@@ -58,6 +58,23 @@ namespace FluentCommand
         TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory) where TEntity : class;
 
         /// <summary>
+        /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <returns>The value of the first column of the first row in the result set.</returns>
+        TValue QueryValue<TValue>();
+
+        /// <summary>
+        /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="convert">The <see langword="delegate"/> to convert the value..</param>
+        /// <returns>
+        /// The value of the first column of the first row in the result set.
+        /// </returns>
+        TValue QueryValue<TValue>(Func<object, TValue> convert);
+
+        /// <summary>
         /// Executes the command against the connection and converts the results to a <see cref="DataTable"/>.
         /// </summary>
         /// <returns>A <see cref="DataTable"/> of the results.</returns>

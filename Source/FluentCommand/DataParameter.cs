@@ -14,6 +14,13 @@ namespace FluentCommand
         private readonly DataCommand _dataCommand;
         private readonly DbParameter _parameter;
 
+        // flags to help parameter property defaults
+        private bool _hasValue = false;
+        private bool _hasDirection = false;
+        private bool _hasCallback = false;
+        private bool _hasType = false;
+        private bool _hasSize = false;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DataParameter{TValue}" /> class.
         /// </summary>
@@ -45,8 +52,18 @@ namespace FluentCommand
         {
             object innerValue = value;
             
-            _parameter.DbType = typeof(TValue).GetUnderlyingType().ToDbType();
+            // guess type only if not already set
+            if (!_hasType)
+            {
+                // handle value type by using actual value
+                Type valueType = value != null ? value.GetType() : typeof(TValue);
+
+                _parameter.DbType = valueType.GetUnderlyingType().ToDbType();
+            }
+
             _parameter.Value = innerValue ?? DBNull.Value;
+
+            _hasValue = true;
 
             return this;
         }
@@ -59,6 +76,7 @@ namespace FluentCommand
         public IDataParameter<TValue> Direction(ParameterDirection parameterDirection)
         {
             _parameter.Direction = parameterDirection;
+            _hasDirection = true;
             return this;
         }
 
@@ -70,6 +88,7 @@ namespace FluentCommand
         public IDataParameter<TValue> Type(DbType dbType)
         {
             _parameter.DbType = dbType;
+            _hasType = true;
             return this;
         }
 
@@ -81,6 +100,7 @@ namespace FluentCommand
         public IDataParameter<TValue> Size(int size)
         {
             _parameter.Size = size;
+            _hasSize = true;
             return this;
         }
 
@@ -91,9 +111,17 @@ namespace FluentCommand
         /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
         public IDataParameter<TValue> Output(Action<TValue> callback)
         {
-            _parameter.Direction = ParameterDirection.InputOutput;
+            // set direction output only if not already set
+            if (!_hasDirection)
+                _parameter.Direction = _hasValue ? ParameterDirection.InputOutput : ParameterDirection.Output;
+            
+            // output parameters must have a size, default to MAX
+            if (!_hasSize)
+                _parameter.Size = -1;
+
             _dataCommand.RegisterCallback(_parameter, callback);
 
+            _hasCallback = true;
             return this;
         }
 
@@ -106,10 +134,13 @@ namespace FluentCommand
         {
             const string parameterName = "@ReturnValue";
 
+            // force name and direction
             _parameter.ParameterName = parameterName;
             _parameter.Direction = ParameterDirection.ReturnValue;
 
             _dataCommand.RegisterCallback(_parameter, callback);
+
+            _hasCallback = true;
 
             return this;
         }

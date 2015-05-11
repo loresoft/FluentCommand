@@ -138,12 +138,16 @@ namespace FluentCommand
         /// </returns>
         public IDataCommand Parameter<TParameter>(string name, TParameter value)
         {
+            // convert to object
             object innerValue = value;
+
+            // handle value type by using actual value
+            Type valueType = value != null ? value.GetType() : typeof(TParameter);
 
             DbParameter parameter = _command.CreateParameter();
             parameter.ParameterName = name;
             parameter.Value = innerValue ?? DBNull.Value;
-            parameter.DbType = typeof(TParameter).GetUnderlyingType().ToDbType();
+            parameter.DbType = valueType.GetUnderlyingType().ToDbType();
             parameter.Direction = ParameterDirection.Input;
 
             return Parameter(parameter);
@@ -164,6 +168,8 @@ namespace FluentCommand
             parameter.ParameterName = name;
             parameter.DbType = typeof(TParameter).GetUnderlyingType().ToDbType();
             parameter.Direction = ParameterDirection.Output;
+            // output parameters must have a size, default to MAX
+            parameter.Size = -1;
 
             RegisterCallback(parameter, callback);
 

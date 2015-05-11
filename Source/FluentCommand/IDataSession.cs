@@ -24,7 +24,8 @@ namespace FluentCommand
         /// Gets the underlying <see cref="T:System.Runtime.Caching.ObjectCache"/> for the session.
         /// </summary>
         System.Runtime.Caching.ObjectCache DataCache { get; }
-        
+
+
         /// <summary>
         /// Starts a database transaction with the specified isolation level.
         /// </summary>
@@ -45,7 +46,8 @@ namespace FluentCommand
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <returns>A fluent <see langword="interface"/> to a data command.</returns>
         IDataCommand StoredProcedure(string storedProcedureName);
-        
+
+
         /// <summary>
         /// Writes log messages to the logger <see langword="delegate"/>.
         /// </summary>
@@ -64,6 +66,7 @@ namespace FluentCommand
         /// </returns>
         IDataSession Cache(System.Runtime.Caching.ObjectCache cache);
         
+
         /// <summary>
         /// Ensures the connection is open.
         /// </summary>
