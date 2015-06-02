@@ -26,6 +26,13 @@ namespace FluentCommand.Batch.Fluent
             return this;
         }
 
+        public BatchBuilder Reader<TReader>()
+            where TReader : IBatchReader
+        {
+            _batchJob.ReaderType = typeof(TReader).FullName;
+            return this;
+        }
+
         public BatchBuilder Description(string description)
         {
             _batchJob.Description = description;

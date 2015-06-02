@@ -22,11 +22,13 @@ namespace FluentCommand.Batch
         IBatchValidator ResolveValidator(string name);
 
         /// <summary>
-        /// Resolves the reader for the specified file extension.
+        /// Resolves the reader for the specified name.
         /// </summary>
-        /// <param name="fileExtension">The file extension.</param>
-        /// <returns>An instance of <see cref="T:IBatchReader"/> if found; otherwise null.</returns>
-        IBatchReader ResolveReader(string fileExtension);
+        /// <param name="name">The reader name.</param>
+        /// <returns>
+        /// An instance of <see cref="T:IBatchReader" /> if found; otherwise null.
+        /// </returns>
+        IBatchReader ResolveReader(string name);
 
         /// <summary>
         /// Resets all cached instances.

@@ -41,10 +41,9 @@ namespace FluentCommand.Batch
             // add select row
             batchJob.SourceFields.Add(new FieldIndex { Name = "- Select -", Index = -1 });
 
-            // read headers
-            string extension = Path.GetExtension(fileName);
-            var reader = _factory.ResolveReader(extension);
+            var reader = _factory.ResolveReader(batchJob.ReaderType);
 
+            // read headers                       
             var sourceFields = reader.ReadHeader(workingFile);
             batchJob.SourceFields.AddRange(sourceFields);
 
@@ -158,8 +157,7 @@ namespace FluentCommand.Batch
                 .Message("Processing working file: '{0}', Mapped Columns: {1}", batchJob.WorkingFile, targetTable.Columns.Count)
                 .Write();
 
-            string extension = Path.GetExtension(batchJob.FileName);
-            var reader = _factory.ResolveReader(extension);
+            var reader = _factory.ResolveReader(batchJob.ReaderType);
 
             // read source data
             var sourceTable = reader.ReadData(batchJob.WorkingFile);
@@ -273,7 +271,7 @@ namespace FluentCommand.Batch
         private bool IsRowNull(DataRow sourceRow)
         {
             var sourceData = sourceRow.ItemArray;
-            return sourceData.All(d => Convert.IsDBNull(d) || d == null || string.IsNullOrWhiteSpace(d as string));
+            return sourceData.All(d => Convert.IsDBNull(d) || string.IsNullOrWhiteSpace(d as string));
 
         }
 

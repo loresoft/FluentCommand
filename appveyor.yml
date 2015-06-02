@@ -1,0 +1,21 @@
+version: 1.0.0.{build}
+environment:
+  Major: 1
+  Minor: 0
+  Revision: 0
+services:
+- mssql2014
+- mysql56
+before_build:
+- .\bootstrap.cmd
+- .\Database\restore.aspnet.cmd
+- .\Database\restore.tracker.cmd
+build:
+  project: Master.proj
+  verbosity: minimal
+test: off
+artifacts:
+- path: Build\*.nupkg
+deploy:
+- provider: Environment
+  name: MyGet

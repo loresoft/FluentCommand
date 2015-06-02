@@ -60,19 +60,19 @@ namespace FluentCommand.Batch
         }
 
         /// <summary>
-        /// Resolves the reader for the specified file extension.
+        /// Resolves the reader for the specified name.
         /// </summary>
-        /// <param name="fileExtension">The file extension.</param>
+        /// <param name="name">The reader name.</param>
         /// <returns>
         /// An instance of <see cref="T:IBatchReader" /> if found; otherwise null.
         /// </returns>
-        public IBatchReader ResolveReader(string fileExtension)
+        public IBatchReader ResolveReader(string name)
         {
-            if (string.IsNullOrWhiteSpace(fileExtension))
+            if (string.IsNullOrWhiteSpace(name))
                 return null;
 
             Func<IBatchReader> factory;
-            if (_readers.TryGetValue(fileExtension, out factory))
+            if (_readers.TryGetValue(name, out factory))
                 return factory();
 
             return null;
@@ -143,18 +143,28 @@ namespace FluentCommand.Batch
 
 
         /// <summary>
-        /// Registers the reader factory with the specified file extension.
+        /// Registers the reader of type <typeparamref name="T"/>.
         /// </summary>
-        /// <param name="fileExtension">The file extension.</param>
+        /// <typeparam name="T">The type of reader to register.</typeparam>
+        /// <returns></returns>
+        public void RegisterReader<T>() where T : IBatchReader, new()
+        {
+            RegisterReader(typeof(T).FullName, () => new T());
+        }
+        
+        /// <summary>
+        /// Registers the reader factory with the specified name.
+        /// </summary>
+        /// <param name="name">The reader name.</param>
         /// <param name="reader">The reader factory to register.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">fileExtension</exception>
-        public void RegisterReader(string fileExtension, Func<IBatchReader> reader)
+        public void RegisterReader(string name, Func<IBatchReader> reader)
         {
-            if (fileExtension == null)
-                throw new ArgumentNullException("fileExtension");
+            if (name == null)
+                throw new ArgumentNullException("name");
 
-            _readers.AddOrUpdate(fileExtension, reader, (k, v) => reader);
+            _readers.AddOrUpdate(name, reader, (k, v) => reader);
         }
 
 

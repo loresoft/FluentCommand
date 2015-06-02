@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentCommand.Extensions;
+using FluentCommand.Logging;
 
 namespace FluentCommand.Batch.Translators
 {
@@ -29,6 +30,10 @@ namespace FluentCommand.Batch.Translators
         {
             if (_isLoaded)
                 return;
+
+            Logger.Trace()
+                .Message("Loading translator data for '{0}'...", this)
+                .Write();
 
             LoadData();
 

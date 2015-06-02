@@ -26,6 +26,14 @@ namespace FluentCommand.Batch
         }
 
         /// <summary>
+        /// Gets or sets the identifier for the BatchJob.
+        /// </summary>
+        /// <value>
+        /// The identifier for the BatchJob.
+        /// </value>
+        public string Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the duplicate handling.
         /// </summary>
         /// <value>
@@ -85,6 +93,15 @@ namespace FluentCommand.Batch
         public string ValidatorType { get; set; }
 
         /// <summary>
+        /// Gets or sets the type of the reader used to load the data.
+        /// </summary>
+        /// <value>
+        /// The type of the reader.
+        /// </value>
+        public string ReaderType { get; set; }
+
+
+        /// <summary>
         /// Gets or sets the name of the user who started the batch job.
         /// </summary>
         /// <value>
@@ -142,9 +159,21 @@ namespace FluentCommand.Batch
         public List<FieldMapping> SourceMapping { get; set; }
 
 
-        internal int Errors { get; set; }
+        /// <summary>
+        /// Gets or sets the number of errors.
+        /// </summary>
+        /// <value>
+        /// The number of errors.
+        /// </value>
+        public int Errors { get; set; }
 
-        internal int Duplicates { get; set; }
+        /// <summary>
+        /// Gets or sets the number of duplicates.
+        /// </summary>
+        /// <value>
+        /// The number of duplicates.
+        /// </value>
+        public int Duplicates { get; set; }
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
