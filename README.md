@@ -1,10 +1,10 @@
-#FluentCommand
+# FluentCommand
 
 Fluent Wrapper for DbCommand.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v9h2sdvcgmo4itj1?svg=true)](https://ci.appveyor.com/project/LoreSoft/fluentcommand)
 
-##Download
+## Download
 
 The FluentCommand library is available on nuget.org via package name `FluentCommand`.
 
@@ -23,7 +23,7 @@ Development builds are available on the myget.org feed.  A development build is 
 In your Package Manager settings add the following package source for development builds:
 <http://www.myget.org/F/loresoft/>
 
-##Features
+## Features
 
 - Fluent wrapper over DbConnection and DbCommand
 - Callback for parameter return values
@@ -34,7 +34,7 @@ In your Package Manager settings add the following package source for developmen
 - Handles multiple result sets
 
 
-##Example
+## Example
 
 Query all users with email domain.  Entity is automaticly created from DataReader.
 
