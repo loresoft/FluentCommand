@@ -513,6 +513,8 @@ namespace FluentCommand
                 _dataSession.EnsureConnection();
 
                 LogCommand();
+
+
                 using (var reader = _command.ExecuteReader())
                 {
                     var query = new QueryMultipleResult(reader);
