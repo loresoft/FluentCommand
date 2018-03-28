@@ -114,6 +114,7 @@ namespace FluentCommand.SqlServer.Tests
                 .Parameter("@EmailAddress", email)
                 .QuerySingle();
 
+
             Assert.NotNull(user);
             Assert.Equal<string>(user.EmailAddress, email);
         }

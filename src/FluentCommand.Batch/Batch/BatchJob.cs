@@ -18,7 +18,6 @@ namespace FluentCommand.Batch
         {
             SourceFields = new List<FieldIndex>();
             SourceMapping = new List<FieldMapping>();
-            UserName = Security.UserHelper.Current();
 
             MaxErrors = 10;
             DuplicateHandling = BatchError.Skip;

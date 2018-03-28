@@ -35,7 +35,7 @@ namespace FluentCommand.SqlServer.Tests
         public void CreateMissingConnectonName()
         {
             Action create = () => new DataSession("Blah");
-            create.ShouldThrow<ConfigurationErrorsException>();
+            create.Should().Throw<ConfigurationErrorsException>();
         }
 
         
@@ -43,7 +43,7 @@ namespace FluentCommand.SqlServer.Tests
         public void CreateMissingPrividerName()
         {
             Action create = () => new DataSession("TrackerNoProvider");
-            create.ShouldThrow<ConfigurationErrorsException>();
+            create.Should().Throw<ConfigurationErrorsException>();
         }
 
         
