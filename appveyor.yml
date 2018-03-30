@@ -1,16 +1,20 @@
-version:2.0.0.{build}
+version: 2.0.0.{build}
 os: Visual Studio 2017
+
 environment:
   ASPNETCORE_ENVIRONMENT: appveyor
+
 init:
   - git config --global core.autocrlf input
-  - ps: $env:GIT_HASH=$env:APPVEYOR_REPO_COMMIT.Substring(0, 7)
+
 services:
-- mssql2014
-- mysql56
+  - mssql2014
+  - mysql56
+
 before_build:
-- .\Database\restore.aspnet.cmd
-- .\Database\restore.tracker.cmd
+  - .\Database\restore.aspnet.cmd
+  - .\Database\restore.tracker.cmd
+
 dotnet_csproj:
   patch: true
   file: 'build\version.props'
@@ -18,14 +22,18 @@ dotnet_csproj:
   package_version: '{version}'
   assembly_version: '{version}'
   file_version: '{version}'
-  informational_version: '{version}+$(GIT_HASH)'
+  informational_version: '{version}'
+
 build_script:
   - dotnet pack FluentCommand.sln -c Release
+
 test_script:
   - dotnet test FluentCommand.sln
+
 artifacts:
 - path: artifacts\*.nupkg
   name: Packages
+
 deploy:
 - provider: Environment
   name: MyGet
