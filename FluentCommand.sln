@@ -17,6 +17,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Batch", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Batch.Tests", "test\FluentCommand.Batch.Tests\FluentCommand.Batch.Tests.csproj", "{CCC34DD0-4706-44CB-AC03-A0E607F449A2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{38D98603-4878-4CFA-ACF5-5BEC1218B149}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		build\common.props = build\common.props
+		build\sourcelink.props = build\sourcelink.props
+		build\version.props = build\version.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
