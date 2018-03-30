@@ -8,8 +8,9 @@ init:
   - git config --global core.autocrlf input
 
 services:
-  - mssql2014
-  - mysql56
+  - mssql2016
+  - mysql
+  - postgresql
 
 before_build:
   - .\Database\restore.aspnet.cmd

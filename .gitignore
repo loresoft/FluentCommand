@@ -236,7 +236,7 @@ _Pvt_Extensions
 .fake/
 
 # Custom
-/Build
+/artifacts
 /Tools
 /*.txt
 /xunit.xml
