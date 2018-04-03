@@ -7,9 +7,6 @@
 
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Transactions" />
   </ItemGroup>
 
 </Project>

@@ -10,21 +10,6 @@ namespace FluentCommand
     public interface IDataQuery : IDisposable
     {
         /// <summary>
-        /// Executes the command against the connection and converts the results to dynamic objects.
-        /// </summary>
-        /// <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1"/> of dynamic objects.</returns>
-        IEnumerable<dynamic> Query();
-
-        /// <summary>
-        /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
-        /// <returns>
-        /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
-        /// </returns>
-        IEnumerable<TEntity> Query<TEntity>() where TEntity : class, new();
-
-        /// <summary>
         /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -35,19 +20,6 @@ namespace FluentCommand
         IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory) where TEntity : class;
 
         /// <summary>
-        /// Executes the query and returns the first row in the result as a dynamic object.
-        /// </summary>
-        /// <returns>A instance of a dynamic object if row exists; otherwise null.</returns>
-        dynamic QuerySingle();
-
-        /// <summary>
-        /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
-        /// <returns>A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.</returns>
-        TEntity QuerySingle<TEntity>() where TEntity : class, new();
-
-        /// <summary>
         /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -56,13 +28,6 @@ namespace FluentCommand
         /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
         /// </returns>
         TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory) where TEntity : class;
-
-        /// <summary>
-        /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <returns>The value of the first column of the first row in the result set.</returns>
-        TValue QueryValue<TValue>();
 
         /// <summary>
         /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.

@@ -50,10 +50,7 @@ namespace FluentCommand
         /// <summary>
         /// Get the disposed state of the object.
         /// </summary>
-        protected bool IsDisposed
-        {
-            get { return _disposeState != 0; }
-        }
+        protected bool IsDisposed => _disposeState != 0;
 
         /// <summary>
         /// Disposes the managed resources.

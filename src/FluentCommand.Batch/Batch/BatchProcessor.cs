@@ -70,10 +70,12 @@ namespace FluentCommand.Batch
             return batchJob;
         }
 
-        public IEnumerable<DataMergeOutputRow> Process(BatchJob batchJob, string connectionName)
+        public IEnumerable<DataMergeOutputRow> Process(BatchJob batchJob, IDataConfiguration dataConfiguration)
         {
             if (batchJob == null)
-                throw new ArgumentNullException("batchJob");
+                throw new ArgumentNullException(nameof(batchJob));
+            if (dataConfiguration == null)
+                throw new ArgumentNullException(nameof(dataConfiguration));
 
             Logger.Info()
                 .Message("Running batch job with file: '{0}'", batchJob.WorkingFile)
@@ -89,21 +91,21 @@ namespace FluentCommand.Batch
             var mergeDefinition = CreateDefinition(batchJob);
 
             // run DataMerge
-            var result = Merge(mergeDefinition, dataTable, connectionName);
+            var result = Merge(mergeDefinition, dataTable, dataConfiguration);
 
             return result;
         }
 
 
 
-        private IEnumerable<DataMergeOutputRow> Merge(DataMergeDefinition mergeDefinition, DataTable dataTable, string connectionName)
+        private IEnumerable<DataMergeOutputRow> Merge(DataMergeDefinition mergeDefinition, DataTable dataTable, IDataConfiguration dataConfiguration)
         {
             Logger.Debug()
                 .Message("Executing batch merge to: '{0}'", mergeDefinition.TargetTable)
                 .Write();
 
             List<DataMergeOutputRow> result;
-            using (var session = new DataSession(connectionName))
+            using (var session = dataConfiguration.CreateSession())
             {
                 result = session
                     .MergeData(mergeDefinition)

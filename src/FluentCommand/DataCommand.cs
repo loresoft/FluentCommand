@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Runtime.Caching;
 using System.Text;
-using FluentCommand.Extensions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentCommand
 {
@@ -16,17 +16,19 @@ namespace FluentCommand
         private readonly Queue<DataCallback> _callbacks;
         private readonly IDataSession _dataSession;
         private readonly DbCommand _command;
-        private CacheItemPolicy _cachePolicy;
+
+        private TimeSpan? _slidingExpiration;
+        private DateTimeOffset? _absoluteExpiration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataCommand" /> class.
         /// </summary>
         /// <param name="dataSession">The data session.</param>
         /// <param name="transaction">The DbTransaction for this DataCommand.</param>
-        internal DataCommand(IDataSession dataSession, DbTransaction transaction)
+        public DataCommand(IDataSession dataSession, DbTransaction transaction)
         {
             _callbacks = new Queue<DataCallback>();
-            _dataSession = dataSession;
+            _dataSession = dataSession ?? throw new ArgumentNullException(nameof(dataSession));
             _command = dataSession.Connection.CreateCommand();
             _command.Transaction = transaction;
         }
@@ -34,10 +36,7 @@ namespace FluentCommand
         /// <summary>
         /// Gets the underlying <see cref="DbCommand"/> for this <see cref="DataCommand"/>.
         /// </summary>
-        public DbCommand Command
-        {
-            get { return _command; }
-        }
+        public DbCommand Command => _command;
 
         /// <summary>
         /// Set the data command with the specified SQL statement.
@@ -83,164 +82,81 @@ namespace FluentCommand
 
 
         /// <summary>
-        /// Adds the parameters to the underlying command.
-        /// </summary>
-        /// <param name="parameters">The <see cref="T:IEnumerable`1"/> of <see cref="T:DbParameter"/>.</param>
-        /// <returns>
-        /// A fluent <see langword="interface" /> to the data command.
-        /// </returns>
-        public IDataCommand Parameter(IEnumerable<DbParameter> parameters)
-        {
-            foreach (var parameter in parameters)
-                _command.Parameters.Add(parameter);
-
-            return this;
-        }
-
-        /// <summary>
         /// Adds the parameter to the underlying command.
         /// </summary>
-        /// <param name="parameter">The <see cref="DbParameter"/> to add.</param>
+        /// <param name="parameter">The <see cref="DbParameter" /> to add.</param>
         /// <returns>
         /// A fluent <see langword="interface" /> to the data command.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="parameter"/> is null</exception>
         public IDataCommand Parameter(DbParameter parameter)
         {
+            if (parameter == null)
+                throw new ArgumentNullException(nameof(parameter));
+
             _command.Parameters.Add(parameter);
             return this;
         }
 
         /// <summary>
-        /// Adds a new parameter with the <see cref="IDataParameter" /> fluent object.
-        /// </summary>
-        /// <typeparam name="TParameter"></typeparam>
-        /// <param name="configurator">The <see langword="delegate" />  to configurator the <see cref="IDataParameter" />.</param>
-        /// <returns>
-        /// A fluent <see langword="interface" /> to the data command.
-        /// </returns>
-        public IDataCommand Parameter<TParameter>(Action<IDataParameter<TParameter>> configurator)
-        {
-            var parameter = _command.CreateParameter();
-
-            configurator(new DataParameter<TParameter>(this, parameter));
-
-            return Parameter(parameter);
-        }
-
-        /// <summary>
-        /// Adds a new parameter with the specified <paramref name="name" /> and <paramref name="value" />.
+        /// Register a return value <paramref name="callback" /> for the specified <paramref name="parameter" />.
         /// </summary>
         /// <typeparam name="TParameter">The type of the parameter value.</typeparam>
-        /// <param name="name">The name of the parameter.</param>
-        /// <param name="value">The value to be added.</param>
-        /// <returns>
-        /// A fluent <see langword="interface" /> to the data command.
-        /// </returns>
-        public IDataCommand Parameter<TParameter>(string name, TParameter value)
-        {
-            // convert to object
-            object innerValue = value;
-
-            // handle value type by using actual value
-            Type valueType = value != null ? value.GetType() : typeof(TParameter);
-
-            DbParameter parameter = _command.CreateParameter();
-            parameter.ParameterName = name;
-            parameter.Value = innerValue ?? DBNull.Value;
-            parameter.DbType = valueType.GetUnderlyingType().ToDbType();
-            parameter.Direction = ParameterDirection.Input;
-
-            return Parameter(parameter);
-        }
-
-        /// <summary>
-        /// Adds a new out parameter with the specified <paramref name="name" /> and <paramref name="callback" />.
-        /// </summary>
-        /// <typeparam name="TParameter">The type of the parameter value.</typeparam>
-        /// <param name="name">The name of the parameter.</param>
+        /// <param name="parameter">The <see cref="IDbDataParameter" /> to add.</param>
         /// <param name="callback">The callback used to get the out value.</param>
         /// <returns>
         /// A fluent <see langword="interface" /> to the data command.
         /// </returns>
-        public IDataCommand ParameterOut<TParameter>(string name, Action<TParameter> callback)
+        public IDataCommand RegisterCallback<TParameter>(DbParameter parameter, Action<TParameter> callback)
         {
-            var parameter = _command.CreateParameter();
-            parameter.ParameterName = name;
-            parameter.DbType = typeof(TParameter).GetUnderlyingType().ToDbType();
-            parameter.Direction = ParameterDirection.Output;
-            // output parameters must have a size, default to MAX
-            parameter.Size = -1;
+            var dataCallback = new DataCallback
+            {
+                Callback = callback,
+                Type = typeof(TParameter),
+                Parameter = parameter
+            };
+            _callbacks.Enqueue(dataCallback);
 
-            RegisterCallback(parameter, callback);
-
-            return Parameter(parameter);
-        }
-
-        /// <summary>
-        /// Adds a new out parameter with the specified <paramref name="name" />, <paramref name="value" /> and <paramref name="callback" />.
-        /// </summary>
-        /// <typeparam name="TParameter">The type of the parameter value.</typeparam>
-        /// <param name="name">The name of the parameter.</param>
-        /// <param name="value">The value to be added.</param>
-        /// <param name="callback">The callback used to get the out value.</param>
-        /// <returns>
-        /// A fluent <see langword="interface" /> to the data command.
-        /// </returns>
-        public IDataCommand ParameterOut<TParameter>(string name, TParameter value, Action<TParameter> callback)
-        {
-            object innerValue = value;
-
-            var parameter = _command.CreateParameter();
-            parameter.ParameterName = name;
-            parameter.Value = innerValue ?? DBNull.Value;
-            parameter.DbType = typeof(TParameter).GetUnderlyingType().ToDbType();
-            parameter.Direction = ParameterDirection.InputOutput;
-
-            RegisterCallback(parameter, callback);
-
-            return Parameter(parameter);
+            return this;
         }
 
 
         /// <summary>
-        /// Adds a new return parameter with the specified <paramref name="callback" />.
+        /// Uses cache to insert and retrieve cached results for the command with the specified <paramref name="slidingExpiration" />.
         /// </summary>
-        /// <typeparam name="TParameter">The type of the parameter value.</typeparam>
-        /// <param name="callback">The callback used to get the return value.</param>
+        /// <param name="slidingExpiration">
+        /// A value that indicates whether a cache entry should be evicted if it has not been accessed in a given span of time.
+        /// </param>
         /// <returns>
         /// A fluent <see langword="interface" /> to the data command.
         /// </returns>
-        public IDataCommand Return<TParameter>(Action<TParameter> callback)
+        /// <exception cref="InvalidOperationException">A command with Output or Return parameters can not be cached.</exception>
+        public IDataCommand UseCache(TimeSpan slidingExpiration)
         {
-            const string parameterName = "@ReturnValue";
-
-            var parameter = _command.CreateParameter();
-            parameter.ParameterName = parameterName;
-            parameter.DbType = typeof(TParameter).GetUnderlyingType().ToDbType();
-            parameter.Direction = ParameterDirection.ReturnValue;
-
-            RegisterCallback(parameter, callback);
-
-            return Parameter(parameter);
-        }
-
-
-        /// <summary>
-        /// Uses <see cref="MemoryCache" /> to insert and retrieve cached results for the command.
-        /// </summary>
-        /// <param name="policy">A <see cref="CacheItemPolicy" /> that contains eviction details for the cache entry..</param>
-        /// <returns>
-        /// A fluent <see langword="interface" /> to the data command.
-        /// </returns>
-        /// <exception cref="System.InvalidOperationException">A command with Output or Return parameters can not be cached.</exception>
-        public IDataCommand UseCache(CacheItemPolicy policy)
-        {
-            _cachePolicy = policy;
-            if (_cachePolicy != null && _callbacks.Count > 0)
+            _slidingExpiration = slidingExpiration;
+            if (_slidingExpiration != null && _callbacks.Count > 0)
                 throw new InvalidOperationException("A command with Output or Return parameters can not be cached.");
 
             return this;
         }
+
+        /// <summary>
+        /// Uses cache to insert and retrieve cached results for the command with the specified <paramref name="absoluteExpiration" />.
+        /// </summary>
+        /// <param name="absoluteExpiration">A value that indicates whether a cache entry should be evicted after a specified duration.</param>
+        /// <returns>
+        /// A fluent <see langword="interface" /> to the data command.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">A command with Output or Return parameters can not be cached.</exception>
+        public IDataCommand UseCache(DateTimeOffset absoluteExpiration)
+        {
+            _absoluteExpiration = absoluteExpiration;
+            if (_absoluteExpiration != null && _callbacks.Count > 0)
+                throw new InvalidOperationException("A command with Output or Return parameters can not be cached.");
+
+            return this;
+        }
+
 
         /// <summary>
         /// Expires cached items that have been cached using the current DataCommand.
@@ -257,36 +173,12 @@ namespace FluentCommand
         public IDataCommand ExpireCache<TEntity>()
         {
             string cacheKey = CacheKey<TEntity>();
-            if (_dataSession.DataCache != null && cacheKey != null)
-                _dataSession.DataCache.Remove(cacheKey);
+            if (_dataSession.Cache != null && cacheKey != null)
+                _dataSession.Cache.Remove(cacheKey);
 
             return this;
         }
-
-
-        /// <summary>
-        /// Executes the command against the connection and converts the results to dynamic objects.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of dynamic objects.
-        /// </returns>
-        public IEnumerable<dynamic> Query()
-        {
-            return Query(DataFactory.DynamicFactory);
-        }
-
-        /// <summary>
-        /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects.
-        /// </summary>
-        /// <typeparam name="TEntity">The type of the entity.</typeparam>
-        /// <returns>
-        /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
-        /// </returns>
-        public IEnumerable<TEntity> Query<TEntity>()
-            where TEntity : class, new()
-        {
-            return Query(DataFactory.EntityFactory<TEntity>);
-        }
+        
 
         /// <summary>
         /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects.
@@ -300,15 +192,14 @@ namespace FluentCommand
             where TEntity : class
         {
             if (factory == null)
-                throw new ArgumentNullException("factory");
+                throw new ArgumentNullException(nameof(factory));
 
             AssertDisposed();
 
             try
             {
                 string cacheKey = CacheKey<TEntity>();
-                var results = GetCache(cacheKey) as List<TEntity>;
-                if (results != null)
+                if (GetCache(cacheKey) is List<TEntity> results)
                     return results;
 
                 results = new List<TEntity>();
@@ -318,7 +209,10 @@ namespace FluentCommand
                 using (var reader = _command.ExecuteReader())
                 {
                     while (reader.Read())
-                        results.Add(factory(reader));
+                    {
+                        var entity = factory(reader);
+                        results.Add(entity);
+                    }
                 }
 
                 TriggerCallbacks();
@@ -333,30 +227,55 @@ namespace FluentCommand
             }
         }
 
-
         /// <summary>
-        /// Executes the query and returns the first row in the result as a dynamic object.
-        /// </summary>
-        /// <returns>
-        /// A instance of a dynamic object if row exists; otherwise null.
-        /// </returns>
-        public dynamic QuerySingle()
-        {
-            return QuerySingle(DataFactory.DynamicFactory);
-        }
-
-        /// <summary>
-        /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object.
+        /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects asynchronously.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
         /// <returns>
-        /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
+        /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
         /// </returns>
-        public TEntity QuerySingle<TEntity>()
-            where TEntity : class, new()
+        /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
+        public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken))
+            where TEntity : class
         {
-            return QuerySingle(DataFactory.EntityFactory<TEntity>);
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            AssertDisposed();
+
+            try
+            {
+                string cacheKey = CacheKey<TEntity>();
+                if (GetCache(cacheKey) is List<TEntity> results)
+                    return results;
+
+                results = new List<TEntity>();
+                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                LogCommand();
+                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                    {
+                        var entity = factory(reader);
+                        results.Add(entity);
+                    }
+                }
+
+                TriggerCallbacks();
+
+                SetCache(cacheKey, results);
+                return results;
+            }
+            finally
+            {
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
         }
+        
 
         /// <summary>
         /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object.
@@ -366,20 +285,19 @@ namespace FluentCommand
         /// <returns>
         /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">factory</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
         public TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory)
             where TEntity : class
         {
             if (factory == null)
-                throw new ArgumentNullException("factory");
+                throw new ArgumentNullException(nameof(factory));
 
             AssertDisposed();
 
             try
             {
                 string cacheKey = CacheKey<TEntity>();
-                var result = GetCache(cacheKey) as TEntity;
-                if (result != null)
+                if (GetCache(cacheKey) is TEntity result)
                     return result;
 
                 _dataSession.EnsureConnection();
@@ -405,18 +323,53 @@ namespace FluentCommand
             }
         }
 
-
         /// <summary>
-        /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.
+        /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object asynchronously.
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
         /// <returns>
-        /// The value of the first column of the first row in the result set.
+        /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
         /// </returns>
-        public TValue QueryValue<TValue>()
+        /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
+        public async Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken))
+            where TEntity : class
         {
-            return QueryValue<TValue>(null);
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            AssertDisposed();
+
+            try
+            {
+                string cacheKey = CacheKey<TEntity>();
+                if (GetCache(cacheKey) is TEntity result)
+                    return result;
+
+                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                LogCommand();
+
+                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
+                        ? factory(reader)
+                        : default(TEntity);
+                }
+
+                TriggerCallbacks();
+
+                SetCache(cacheKey, result);
+                return result;
+            }
+            finally
+            {
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
         }
+        
 
         /// <summary>
         /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.
@@ -456,6 +409,45 @@ namespace FluentCommand
             }
         }
 
+        /// <summary>
+        /// Executes the query and returns the first column of the first row in the result set returned by the query asynchronously. All other columns and rows are ignored.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="convert">The <see langword="delegate" /> to convert the value..</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>
+        /// The value of the first column of the first row in the result set.
+        /// </returns>
+        public async Task<TValue> QueryValueAsync<TValue>(Func<object, TValue> convert, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            AssertDisposed();
+
+            try
+            {
+                string cacheKey = CacheKey<TValue>();
+                var result = GetCache(cacheKey);
+                if (result != null)
+                    return DataFactory.ConvertValue(result, convert);
+
+                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                LogCommand();
+
+                result = await _command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+                var value = DataFactory.ConvertValue(result, convert);
+
+                TriggerCallbacks();
+
+                SetCache(cacheKey, value);
+                return value;
+            }
+            finally
+            {
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
+        }
+
 
         /// <summary>
         /// Executes the command against the connection and converts the results to a <see cref="DataTable" />.
@@ -470,8 +462,7 @@ namespace FluentCommand
             try
             {
                 string cacheKey = CacheKey<DataTable>();
-                var dataTable = GetCache(cacheKey) as DataTable;
-                if (dataTable != null)
+                if (GetCache(cacheKey) is DataTable dataTable)
                     return dataTable;
 
                 _dataSession.EnsureConnection();
@@ -496,6 +487,45 @@ namespace FluentCommand
 
         }
 
+        /// <summary>
+        /// Executes the command against the connection and converts the results to a <see cref="DataTable" /> asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>
+        /// A <see cref="DataTable" /> of the results.
+        /// </returns>
+        public async Task<DataTable> QueryTableAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            AssertDisposed();
+
+            try
+            {
+                string cacheKey = CacheKey<DataTable>();
+                if (GetCache(cacheKey) is DataTable dataTable)
+                    return dataTable;
+
+                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                LogCommand();
+
+                dataTable = new DataTable();
+
+                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                    dataTable.Load(reader);
+
+                TriggerCallbacks();
+
+                SetCache(cacheKey, dataTable);
+                return dataTable;
+            }
+            finally
+            {
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
+
+        }
+
 
         /// <summary>
         /// Executes the command against the connection and sends the resulting <see cref="IDataQuery" /> for reading multiple results sets.
@@ -504,7 +534,7 @@ namespace FluentCommand
         public void QueryMultiple(Action<IDataQuery> queryAction)
         {
             if (queryAction == null)
-                throw new ArgumentNullException("queryAction");
+                throw new ArgumentNullException(nameof(queryAction));
 
             AssertDisposed();
 
@@ -516,6 +546,40 @@ namespace FluentCommand
 
 
                 using (var reader = _command.ExecuteReader())
+                {
+                    var query = new QueryMultipleResult(reader);
+                    queryAction(query);
+                }
+
+                TriggerCallbacks();
+            }
+            finally
+            {
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Executes the command against the connection and sends the resulting <see cref="IDataQueryAsync" /> for reading multiple results sets.
+        /// </summary>
+        /// <param name="queryAction">The query action delegate to pass the open <see cref="IDataQueryAsync" /> for reading multiple results.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        public async Task QueryMultipleAsync(Action<IDataQueryAsync> queryAction, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (queryAction == null)
+                throw new ArgumentNullException(nameof(queryAction));
+
+            AssertDisposed();
+
+            try
+            {
+                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                LogCommand();
+
+
+                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
                 {
                     var query = new QueryMultipleResult(reader);
                     queryAction(query);
@@ -560,6 +624,35 @@ namespace FluentCommand
         }
 
         /// <summary>
+        /// Executes the command against a connection asynchronously.
+        /// </summary>
+        /// <returns>
+        /// The number of rows affected.
+        /// </returns>
+        public async Task<int> ExecuteAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            AssertDisposed();
+
+            try
+            {
+                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                LogCommand();
+
+                int result = await _command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+
+                TriggerCallbacks();
+                return result;
+            }
+            finally
+            {
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
+        }
+
+
+        /// <summary>
         /// Executes the command against the connection and sends the resulting <see cref="IDataReader" /> to the readAction delegate.
         /// </summary>
         /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
@@ -585,27 +678,42 @@ namespace FluentCommand
             }
         }
 
+        /// <summary>
+        /// Executes the command against the connection and sends the resulting <see cref="IDataReader" /> to the readAction delegate.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
+        public async Task ReadAsync(Action<IDataReader> readAction, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            AssertDisposed();
+
+            try
+            {
+                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                LogCommand();
+
+                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                    readAction(reader);
+
+                TriggerCallbacks();
+            }
+            finally
+            {
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
+        }
+
 
         /// <summary>
         /// Disposes the managed resources.
         /// </summary>
         protected override void DisposeManagedResources()
         {
-            if (_command != null)
-                _command.Dispose();
+            _command?.Dispose();
         }
 
-
-        internal void RegisterCallback<TParameter>(DbParameter parameter, Action<TParameter> callback)
-        {
-            var dataCallback = new DataCallback
-            {
-                Callback = callback,
-                Type = typeof(TParameter),
-                Parameter = parameter
-            };
-            _callbacks.Enqueue(dataCallback);
-        }
 
         internal void TriggerCallbacks()
         {
@@ -619,26 +727,27 @@ namespace FluentCommand
             }
         }
 
+
         private string CacheKey<T>()
         {
-            if (_cachePolicy == null)
+            if (_slidingExpiration == null && _absoluteExpiration == null)
                 return null;
 
             int hashCode;
             string connectionString = _command.Connection.ConnectionString;
             string commandText = _command.CommandText;
             var commandType = _command.CommandType;
-            Type type = typeof(T);
+            var type = typeof(T);
 
             unchecked
             {
                 hashCode = 17; // seed with prime
-                hashCode = hashCode * 23 + (connectionString == null ? 0 : connectionString.GetHashCode());
+                hashCode = hashCode * 23 + (connectionString?.GetHashCode() ?? 0);
                 hashCode = hashCode * 23 + commandType.GetHashCode();
-                hashCode = hashCode * 23 + (commandText == null ? 0 : commandText.GetHashCode());
+                hashCode = hashCode * 23 + (commandText?.GetHashCode() ?? 0);
                 hashCode = hashCode * 23 + type.GetHashCode();
 
-                foreach (DbParameter parameter in _command.Parameters)
+                foreach (IDbDataParameter parameter in _command.Parameters)
                 {
                     if (parameter.Direction == ParameterDirection.InputOutput
                         || parameter.Direction == ParameterDirection.Output
@@ -648,21 +757,28 @@ namespace FluentCommand
                     string name = parameter.ParameterName;
                     object value = parameter.Value;
 
-                    hashCode = hashCode * 23 + (name == null ? 0 : name.GetHashCode());
-                    hashCode = hashCode * 23 + (value == null ? 0 : value.GetHashCode());
+                    hashCode = hashCode * 23 + (name?.GetHashCode() ?? 0);
+                    hashCode = hashCode * 23 + (value?.GetHashCode() ?? 0);
                     hashCode = hashCode * 23 + parameter.DbType.GetHashCode();
                 }
             }
 
-            return string.Format("global:novus:data:{0}", hashCode);
+            return $"global:data:{hashCode}";
         }
 
         private object GetCache(string key)
         {
-            if (_cachePolicy == null || key == null)
+            if (_slidingExpiration == null && _absoluteExpiration == null)
                 return null;
 
-            object cacheValue = _dataSession.DataCache.Get(key);
+            if (key == null)
+                return null;
+
+            var cache = _dataSession.Cache;
+            if (cache == null)
+                return null;
+
+            object cacheValue = cache.Get(key);
 
             if (cacheValue != null)
                 _dataSession.WriteLog("Cache Hit: " + key);
@@ -672,22 +788,31 @@ namespace FluentCommand
 
         private void SetCache(string key, object value)
         {
-            if (_cachePolicy == null || key == null || value == null)
+            if (_slidingExpiration == null && _absoluteExpiration == null)
                 return;
 
-            var item = new CacheItem(key, value);
+            if (key == null || value == null)
+                return;
+
+            var cache = _dataSession.Cache;
+            if (cache == null)
+                return;
 
             _dataSession.WriteLog("Cache Set: " + key);
 
-            _dataSession.DataCache.Set(item, _cachePolicy);
+            if (_absoluteExpiration.HasValue)
+                cache.Set(key, value, _absoluteExpiration.Value);
+            else
+                cache.Set(key, value, _slidingExpiration.Value);
         }
+
 
         private void LogCommand()
         {
             LogCommand(_dataSession.WriteLog, _command);
         }
 
-        private static void LogCommand(Action<string> writer, DbCommand command)
+        private static void LogCommand(Action<string> writer, IDbCommand command)
         {
             if (writer == null)
                 return;
@@ -696,23 +821,24 @@ namespace FluentCommand
             buffer.AppendLine();
 
             const string parameterFormat = "-- {0}: {1} {2} (Size = {3}; Precision = {4}; Scale = {5}) [{6}]";
-            foreach (DbParameter parameter in command.Parameters)
+            foreach (IDataParameter parameter in command.Parameters)
             {
                 int precision = 0;
                 int scale = 0;
+                int size = 0;
 
-                var dataParameter = parameter as IDbDataParameter;
-                if (dataParameter != null)
+                if (parameter is IDbDataParameter dataParameter)
                 {
                     precision = dataParameter.Precision;
                     scale = dataParameter.Scale;
+                    size = dataParameter.Size;
                 }
 
                 buffer.AppendFormat(parameterFormat,
                     parameter.ParameterName,
                     parameter.Direction,
                     parameter.DbType,
-                    parameter.Size,
+                    size,
                     precision,
                     scale,
                     parameter.Value);

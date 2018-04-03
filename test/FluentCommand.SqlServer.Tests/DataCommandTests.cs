@@ -1,23 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
-using System.Runtime.Caching;
 using FluentAssertions;
 using FluentCommand.Extensions;
 using FluentCommand.Entities;
+using Microsoft.Extensions.Configuration;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests
 {
 
-    public class DataCommandTests
+    public class DataCommandTests : DataTestBase
     {
+
+        public DataCommandTests(ITestOutputHelper output) : base(output)
+        {
+
+        }
+
 
         [Fact]
         public void SqlQuerySingleEntity()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "kara.thrace@battlestar.com";
@@ -53,7 +61,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQuerySingleEntityFactory()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "kara.thrace@battlestar.com";
@@ -71,17 +79,15 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQuerySingleEntityFactoryCache()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "kara.thrace@battlestar.com";
             string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-            var policy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromMinutes(5) };
-
             var user = session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .UseCache(policy)
+                .UseCache(TimeSpan.FromMinutes(5))
                 .QuerySingle<User>();
 
             user.Should().NotBeNull();
@@ -89,7 +95,7 @@ namespace FluentCommand.SqlServer.Tests
 
             var cachedUser = session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .UseCache(policy)
+                .UseCache(TimeSpan.FromMinutes(5))
                 .QuerySingle<User>();
 
             cachedUser.Should().NotBeNull();
@@ -101,7 +107,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQuerySingleEntityDynamic()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "kara.thrace@battlestar.com";
@@ -119,7 +125,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryEntity()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -155,7 +161,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryEntityDynamic()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -173,19 +179,16 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryEntityDynamicCache()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
-
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
             string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-            var policy = new CacheItemPolicy { SlidingExpiration = TimeSpan.FromMinutes(5) };
-
             var users = session
                 .Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .UseCache(policy)
+                .UseCache(TimeSpan.FromMinutes(5))
                 .Query()
                 .ToList();
 
@@ -195,7 +198,7 @@ namespace FluentCommand.SqlServer.Tests
             var cachedUsers = session
                 .Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .UseCache(policy)
+                .UseCache(TimeSpan.FromMinutes(5))
                 .Query()
                 .ToList();
 
@@ -207,8 +210,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryEntityFactory()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
-            session.Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -226,7 +228,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryTable()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -251,7 +253,7 @@ namespace FluentCommand.SqlServer.Tests
             var email = username + "@email.com";
 
             int result;
-            using (var session = new DataSession("AspNet").Log(Console.WriteLine))
+            using (var session = GetConfiguration("AspNet").CreateSession())
             {
                 session.Should().NotBeNull();
                 result = session.StoredProcedure("[dbo].[aspnet_Membership_CreateUser]")
@@ -288,7 +290,7 @@ namespace FluentCommand.SqlServer.Tests
             var email = username + "@email.com";
             int result;
 
-            using (var session = new DataSession("AspNet").Log(Console.WriteLine))
+            using (var session = GetConfiguration("AspNet").CreateSession())
             {
                 session.Should().NotBeNull();
 
@@ -355,7 +357,7 @@ namespace FluentCommand.SqlServer.Tests
             var email = username + "@email.com";
 
             List<dynamic> results;
-            using (var session = new DataSession("AspNet").Log(Console.WriteLine))
+            using (var session = GetConfiguration("AspNet").CreateSession())
             {
                 session.Should().NotBeNull();
 
@@ -394,7 +396,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryValue()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -411,7 +413,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlReader()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -448,7 +450,7 @@ namespace FluentCommand.SqlServer.Tests
             List<Role> roles = null;
             List<Priority> priorities = null;
 
-            using (var session = new DataSession("Tracker").Log(Console.WriteLine))
+            using (var session = GetConfiguration("Tracker").CreateSession())
             {
                 session.Should().NotBeNull();
                 session.Sql(sql)
@@ -476,7 +478,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void ProcedureExecuteTransaction()
         {
-            var session = new DataSession("AspNet").Log(Console.WriteLine);
+            var session = GetConfiguration("AspNet").CreateSession();
             session.Should().NotBeNull();
 
             var transaction = session.BeginTransaction(IsolationLevel.Unspecified);
@@ -510,6 +512,5 @@ namespace FluentCommand.SqlServer.Tests
 
             transaction.Commit();
         }
-
     }
 }

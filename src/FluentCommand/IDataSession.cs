@@ -1,7 +1,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentCommand
 {
@@ -21,17 +22,17 @@ namespace FluentCommand
         DbTransaction Transaction { get; }
 
         /// <summary>
-        /// Gets the underlying <see cref="T:System.Runtime.Caching.ObjectCache"/> for the session.
+        /// Gets the underlying <see cref="IDataCache"/> for the session.
         /// </summary>
-        System.Runtime.Caching.ObjectCache DataCache { get; }
+        IDataCache Cache { get; }
 
 
         /// <summary>
         /// Starts a database transaction with the specified isolation level.
         /// </summary>
         /// <param name="isolationLevel">Specifies the isolation level for the transaction.</param>
-        /// <returns>An <see cref="IDbTransaction"/> representing the new transaction.</returns>
-        IDbTransaction BeginTransaction(IsolationLevel isolationLevel);
+        /// <returns>A <see cref="DbTransaction"/> representing the new transaction.</returns>
+        DbTransaction BeginTransaction(IsolationLevel isolationLevel);
 
         /// <summary>
         /// Starts a data command with the specified SQL.
@@ -46,31 +47,21 @@ namespace FluentCommand
         /// <param name="storedProcedureName">Name of the stored procedure.</param>
         /// <returns>A fluent <see langword="interface"/> to a data command.</returns>
         IDataCommand StoredProcedure(string storedProcedureName);
-
-
-        /// <summary>
-        /// Writes log messages to the logger <see langword="delegate"/>.
-        /// </summary>
-        /// <param name="logger">The logger <see langword="delegate"/> to write messages to.</param>
-        /// <returns>
-        /// A fluent <see langword="interface" /> to a data session.
-        /// </returns>
-        IDataSession Log(Action<string> logger);
-
-        /// <summary>
-        /// Set the underlying <see cref="T:System.Runtime.Caching.ObjectCache"/> used to store cached result.
-        /// </summary>
-        /// <param name="cache">The <see cref="T:System.Runtime.CachingObjectCache"/> used to store cached results.</param>
-        /// <returns>
-        /// A fluent <see langword="interface" /> to a data session.
-        /// </returns>
-        IDataSession Cache(System.Runtime.Caching.ObjectCache cache);
         
 
         /// <summary>
         /// Ensures the connection is open.
         /// </summary>
         void EnsureConnection();
+
+        /// <summary>
+        /// Ensures the connection is open asynchronous.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <exception cref="InvalidOperationException">Failed to open connection</exception>
+        Task EnsureConnectionAsync(CancellationToken cancellationToken = default(CancellationToken));
+
 
         /// <summary>
         /// Releases the connection.

@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Runtime.Caching;
 using FluentAssertions;
-using FluentCommand.Extensions;
 using FluentCommand.Entities;
+using FluentCommand.Extensions;
+using FluentCommand.SQLite.Tests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests
 {
 
-    public class DataCommandTests
+    public class DataCommandTests : DatabaseTestBase
     {
+        public DataCommandTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+        {
+        }
 
         [Fact]
         public void SqlQuerySingleEntity()
@@ -22,7 +24,7 @@ namespace FluentCommand.SqlServer.Tests
             string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
             User user;
-            using (var session = new DataSession("Tracker").Log(Console.WriteLine))
+            using (var session = GetConfiguration("Tracker").CreateSession())
             {
                 session.Should().NotBeNull();
 
@@ -56,7 +58,7 @@ namespace FluentCommand.SqlServer.Tests
         //[Fact]
         //public void SqlQuerySingleEntityFactory()
         //{
-        //    var session = new DataSession("Tracker").Log(Console.WriteLine);
+        //    var session = GetConfiguration("Tracker").CreateSession();
         //    session.Should().NotBeNull();
 
         //    string email = "kara.thrace@battlestar.com";
@@ -74,7 +76,7 @@ namespace FluentCommand.SqlServer.Tests
         //[Fact]
         //public void SqlQuerySingleEntityFactoryCache()
         //{
-        //    var session = new DataSession("Tracker").Log(Console.WriteLine);
+        //    var session = GetConfiguration("Tracker").CreateSession();
         //    session.Should().NotBeNull();
 
         //    string email = "kara.thrace@battlestar.com";
@@ -104,7 +106,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQuerySingleEntityDynamic()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "kara.thrace@battlestar.com";
@@ -123,7 +125,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryEntity()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -158,7 +160,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryEntityDynamic()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -176,7 +178,7 @@ namespace FluentCommand.SqlServer.Tests
         //[Fact]
         //public void SqlQueryEntityDynamicCache()
         //{
-        //    var session = new DataSession("Tracker").Log(Console.WriteLine);
+        //    var session = GetConfiguration("Tracker").CreateSession();
 
         //    session.Should().NotBeNull();
 
@@ -210,7 +212,7 @@ namespace FluentCommand.SqlServer.Tests
         //[Fact]
         //public void SqlQueryEntityFactory()
         //{
-        //    var session = new DataSession("Tracker").Log(Console.WriteLine);
+        //    var session = GetConfiguration("Tracker").CreateSession();
         //    session.Log(Console.WriteLine);
         //    session.Should().NotBeNull();
 
@@ -229,7 +231,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryTable()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -246,7 +248,7 @@ namespace FluentCommand.SqlServer.Tests
         [Fact]
         public void SqlQueryValue()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -263,7 +265,7 @@ namespace FluentCommand.SqlServer.Tests
         //[Fact]
         //public void SqlReader()
         //{
-        //    var session = new DataSession("Tracker").Log(Console.WriteLine);
+        //    var session = GetConfiguration("Tracker").CreateSession();
         //    session.Should().NotBeNull();
 
         //    string email = "%@battlestar.com";
@@ -300,7 +302,7 @@ namespace FluentCommand.SqlServer.Tests
         //    List<Role> roles = null;
         //    List<Priority> priorities = null;
 
-        //    using (var session = new DataSession("Tracker").Log(Console.WriteLine))
+        //    using (var session = GetConfiguration("Tracker").CreateSession())
         //    {
         //        session.Should().NotBeNull();
         //        session.Sql(sql)

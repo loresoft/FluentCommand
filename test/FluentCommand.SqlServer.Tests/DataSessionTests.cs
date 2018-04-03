@@ -4,23 +4,25 @@ using System.Data;
 using System.Data.SqlClient;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests
 {
-    
-    public class DataSessionTests
+    public class DataSessionTests : DataTestBase
     {
-        
+        public DataSessionTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         [Fact]
         public void CreateConnectionName()
         {
-            var session = new DataSession("Tracker");
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
             session.Connection.Should().NotBeNull();
             session.Connection.State.Should().Be(ConnectionState.Closed);
         }
 
-        
         [Fact]
         public void CreateConnection()
         {
@@ -32,25 +34,16 @@ namespace FluentCommand.SqlServer.Tests
         }
        
         [Fact]
-        public void CreateMissingConnectonName()
+        public void CreateMissingConnectionName()
         {
-            Action create = () => new DataSession("Blah");
-            create.Should().Throw<ConfigurationErrorsException>();
+            Action create = () => GetConfiguration("Blah").CreateSession();
+            create.Should().Throw<InvalidOperationException>();
         }
-
-        
-        [Fact]
-        public void CreateMissingPrividerName()
-        {
-            Action create = () => new DataSession("TrackerNoProvider");
-            create.Should().Throw<ConfigurationErrorsException>();
-        }
-
         
         [Fact]
         public void EnsureConnectionByName()
         {
-            var session = new DataSession("Tracker");
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
             session.Connection.Should().NotBeNull();
             session.Connection.State.Should().Be(ConnectionState.Closed);
@@ -61,7 +54,5 @@ namespace FluentCommand.SqlServer.Tests
             session.ReleaseConnection();
             session.Connection.State.Should().Be(ConnectionState.Closed);
         }
-
-       
     }
 }

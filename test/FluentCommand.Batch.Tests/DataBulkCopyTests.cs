@@ -5,17 +5,21 @@ using FluentCommand.Bulk;
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace FluentCommand.Batch.Tests
 {
     
-    public class DataBulkCopyTests
+    public class DataBulkCopyTests : DataTestBase
     {
-        
+        public DataBulkCopyTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         [Fact]
         public void WriteServerAutoMap()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -65,7 +69,7 @@ namespace FluentCommand.Batch.Tests
         [Fact]
         public void WriteServer()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";
@@ -123,7 +127,7 @@ namespace FluentCommand.Batch.Tests
         [Fact]
         public void WriteServerMapping()
         {
-            var session = new DataSession("Tracker").Log(Console.WriteLine);
+            var session = GetConfiguration("Tracker").CreateSession();
             session.Should().NotBeNull();
 
             string email = "%@battlestar.com";

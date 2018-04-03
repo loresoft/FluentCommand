@@ -11,22 +11,21 @@ namespace FluentCommand
     /// <typeparam name="TValue">The type of the value.</typeparam>
     public class DataParameter<TValue> : IDataParameter<TValue>
     {
-        private readonly DataCommand _dataCommand;
+        private readonly IDataCommand _dataCommand;
         private readonly DbParameter _parameter;
 
         // flags to help parameter property defaults
-        private bool _hasValue = false;
-        private bool _hasDirection = false;
-        private bool _hasCallback = false;
-        private bool _hasType = false;
-        private bool _hasSize = false;
+        private bool _hasValue;
+        private bool _hasDirection;
+        private bool _hasType;
+        private bool _hasSize;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataParameter{TValue}" /> class.
         /// </summary>
         /// <param name="dataCommand">The data command.</param>
         /// <param name="parameter">The parameter.</param>
-        internal DataParameter(DataCommand dataCommand, DbParameter parameter)
+        internal DataParameter(IDataCommand dataCommand, DbParameter parameter)
         {
             _dataCommand = dataCommand;
             _parameter = parameter;
@@ -121,7 +120,6 @@ namespace FluentCommand
 
             _dataCommand.RegisterCallback(_parameter, callback);
 
-            _hasCallback = true;
             return this;
         }
 
@@ -139,8 +137,6 @@ namespace FluentCommand
             _parameter.Direction = ParameterDirection.ReturnValue;
 
             _dataCommand.RegisterCallback(_parameter, callback);
-
-            _hasCallback = true;
 
             return this;
         }

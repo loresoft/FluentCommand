@@ -7,6 +7,6 @@ namespace FluentCommand.Batch
     public interface IBatchProcessor
     {
         BatchJob ExtractFields(BatchJob batchJob, string fileName, string workingFile);
-        IEnumerable<DataMergeOutputRow> Process(BatchJob batchJob, string connectionName);
+        IEnumerable<DataMergeOutputRow> Process(BatchJob batchJob, IDataConfiguration dataConfiguration);
     }
 }
