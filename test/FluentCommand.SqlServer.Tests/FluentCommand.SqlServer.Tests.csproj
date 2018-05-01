@@ -8,11 +8,13 @@
   <ItemGroup>
     <None Remove="Scripts\Script001.Tracker.Schema.sql" />
     <None Remove="Scripts\Script002.Tracker.Data.sql" />
+    <None Remove="Scripts\Script003.Tracker.StoredProcedure.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Scripts\Script001.Tracker.Schema.sql" />
     <EmbeddedResource Include="Scripts\Script002.Tracker.Data.sql" />
+    <EmbeddedResource Include="Scripts\Script003.Tracker.StoredProcedure.sql" />
   </ItemGroup>
 
   <ItemGroup>

@@ -98,7 +98,6 @@ namespace FluentCommand.Batch.Tests
                     map.Mapping(u => u.Id, "Id");
                     map.Mapping(u => u.EmailAddress, "EmailAddress");
                 })
-                .Mapping("Id", "Id")
                 .Mapping("IsEmailAddressConfirmed", "IsEmailAddressConfirmed")
                 .Mapping("DisplayName", "DisplayName")
                 .Mapping("PasswordHash", "PasswordHash")
