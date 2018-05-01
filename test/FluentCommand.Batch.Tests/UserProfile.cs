@@ -12,7 +12,7 @@ namespace FluentCommand.Batch.Tests
             Property(p => p.FirstName).DataSource<FirstNameSource>();
             Property(p => p.LastName).DataSource<LastNameSource>();
             Property(p => p.DisplayName).Value(u => $"{u.FirstName} {u.LastName}");
-            Property(p => p.EmailAddress).Value(u => $"{u.FirstName}.{u.LastName}@mailinator.com");
+            Property(p => p.EmailAddress).Value(u => $"{u.FirstName}.{u.LastName}.{DateTime.Now.Ticks}@mailinator.com");
             Property(p => p.IsEmailAddressConfirmed).Value(true);
             Property(p => p.PasswordHash).DataSource<PasswordSource>();
             Property(p => p.IsDeleted).Value(false);

@@ -262,7 +262,7 @@ namespace FluentCommand.SQLite.Tests
                 {
                     while (reader.Read())
                     {
-                        var user = DataFactory.DynamicFactory(reader);
+                        var user = ReaderFactory.DynamicFactory(reader);
                         users.Add(user);
                     }
                 });

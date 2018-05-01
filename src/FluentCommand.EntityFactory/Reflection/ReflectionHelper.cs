@@ -7,8 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
-using FluentCommand.Extensions;
-
 
 namespace FluentCommand.Reflection
 {
@@ -32,7 +30,7 @@ namespace FluentCommand.Reflection
         public static string ExtractPropertyName<TValue>(Expression<Func<TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractPropertyName(propertyExpression.Body as MemberExpression);
         }
@@ -56,7 +54,7 @@ namespace FluentCommand.Reflection
         public static string ExtractPropertyName<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractPropertyName(propertyExpression.Body as MemberExpression);
         }
@@ -100,7 +98,7 @@ namespace FluentCommand.Reflection
         public static string ExtractColumnName<TValue>(Expression<Func<TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractColumnName(propertyExpression.Body as MemberExpression);
         }
@@ -124,7 +122,7 @@ namespace FluentCommand.Reflection
         public static string ExtractColumnName<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractColumnName(propertyExpression.Body as MemberExpression);
         }
@@ -154,7 +152,7 @@ namespace FluentCommand.Reflection
             string columnName = property.Name;
             var display = Attribute.GetCustomAttribute(property, typeof(ColumnAttribute)) as ColumnAttribute;
 
-            if (display != null && display.Name.HasValue())
+            if (display != null && !string.IsNullOrEmpty(display.Name))
                 columnName = display.Name;
 
             return columnName;
@@ -171,7 +169,7 @@ namespace FluentCommand.Reflection
         public static PropertyInfo ExtractPropertyInfo<TValue>(Expression<Func<TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractPropertyInfo(propertyExpression.Body as MemberExpression);
         }
@@ -187,7 +185,7 @@ namespace FluentCommand.Reflection
         public static PropertyInfo ExtractPropertyInfo<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
         {
             if (propertyExpression == null)
-                throw new ArgumentNullException("propertyExpression");
+                throw new ArgumentNullException(nameof(propertyExpression));
 
             return ExtractPropertyInfo(propertyExpression.Body as MemberExpression);
         }
@@ -205,11 +203,11 @@ namespace FluentCommand.Reflection
         public static PropertyInfo ExtractPropertyInfo(MemberExpression memberExpression)
         {
             if (memberExpression == null)
-                throw new ArgumentException("The expression is not a member access expression.", "memberExpression");
+                throw new ArgumentException("The expression is not a member access expression.", nameof(memberExpression));
 
             var property = memberExpression.Member as PropertyInfo;
             if (property == null)
-                throw new ArgumentException("The member access expression does not access a property.", "memberExpression");
+                throw new ArgumentException("The member access expression does not access a property.", nameof(memberExpression));
 
             return property;
         }
@@ -426,7 +424,7 @@ namespace FluentCommand.Reflection
         public static bool IsOverriding(this MethodInfo method)
         {
             if (method == null)
-                throw new ArgumentNullException("method");
+                throw new ArgumentNullException(nameof(method));
 
             return method.DeclaringType != method.GetBaseDefinition().DeclaringType;
         }

@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentCommand.Extensions;
 
 namespace FluentCommand
 {
@@ -388,14 +389,14 @@ namespace FluentCommand
                 string cacheKey = CacheKey<TValue>();
                 var result = GetCache(cacheKey);
                 if (result != null)
-                    return DataFactory.ConvertValue(result, convert);
+                    return result.ConvertValue(convert);
 
                 _dataSession.EnsureConnection();
 
                 LogCommand();
 
                 result = _command.ExecuteScalar();
-                var value = DataFactory.ConvertValue(result, convert);
+                var value = result.ConvertValue(convert);
 
                 TriggerCallbacks();
 
@@ -427,14 +428,14 @@ namespace FluentCommand
                 string cacheKey = CacheKey<TValue>();
                 var result = GetCache(cacheKey);
                 if (result != null)
-                    return DataFactory.ConvertValue(result, convert);
+                    return result.ConvertValue(convert);
 
                 await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
 
                 LogCommand();
 
                 result = await _command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
-                var value = DataFactory.ConvertValue(result, convert);
+                var value = result.ConvertValue(convert);
 
                 TriggerCallbacks();
 

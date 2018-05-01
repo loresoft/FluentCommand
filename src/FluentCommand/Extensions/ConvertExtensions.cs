@@ -588,5 +588,30 @@ namespace FluentCommand.Extensions
             return true;
         }
 
+
+        /// <summary>
+        /// Converts the result to the TValue type.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="result">The result to convert.</param>
+        /// <param name="convert">The optional convert function.</param>
+        /// <returns>The converted value.</returns>
+        public static TValue ConvertValue<TValue>(this object result, Func<object, TValue> convert = null)
+        {
+            TValue value;
+
+            if (result == null || result == DBNull.Value)
+                value = default(TValue);
+            else if (result is TValue)
+                value = (TValue)result;
+            else if (convert != null)
+                value = convert(result);
+            else
+                value = (TValue)Convert.ChangeType(result, typeof(TValue));
+
+            return value;
+        }
+
+
     }
 }

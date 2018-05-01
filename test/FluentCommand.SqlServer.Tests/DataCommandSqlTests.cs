@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using FluentAssertions;
-using FluentCommand.Extensions;
 using FluentCommand.Entities;
-using Microsoft.Extensions.Configuration;
+using FluentCommand.Extensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -264,7 +262,7 @@ namespace FluentCommand.SqlServer.Tests
                 {
                     while (reader.Read())
                     {
-                        var user = DataFactory.DynamicFactory(reader);
+                        var user = ReaderFactory.DynamicFactory(reader);
                         users.Add(user);
                     }
                 });

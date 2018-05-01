@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentCommand.Extensions;
 
 namespace FluentCommand
 {
@@ -127,7 +128,7 @@ namespace FluentCommand
                 ? _reader.GetValue(0)
                 : default(TValue);
 
-            var value = DataFactory.ConvertValue(result, convert);
+            var value = result.ConvertValue(convert);
 
             return value;
         }
@@ -149,7 +150,7 @@ namespace FluentCommand
                 ? _reader.GetValue(0)
                 : default(TValue);
 
-            var value = DataFactory.ConvertValue(result, convert);
+            var value = result.ConvertValue(convert);
 
             return value;
         }

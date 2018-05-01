@@ -7,33 +7,10 @@ using FluentCommand.Reflection;
 namespace FluentCommand
 {
     /// <summary>
-    /// A class with data factory methods.
+    /// A class with data reader factory methods.
     /// </summary>
-    public static class DataFactory
+    public static class ReaderFactory
     {
-        /// <summary>
-        /// Converts the result to the TValue type.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <param name="result">The result to convert.</param>
-        /// <param name="convert">The optional convert function.</param>
-        /// <returns>The converted value.</returns>
-        public static TValue ConvertValue<TValue>(object result, Func<object, TValue> convert = null)
-        {
-            TValue value;
-
-            if (result == null || result == DBNull.Value)
-                value = default(TValue);
-            else if (result is TValue)
-                value = (TValue)result;
-            else if (convert != null)
-                value = convert(result);
-            else
-                value = (TValue)Convert.ChangeType(result, typeof(TValue));
-
-            return value;
-        }
-
         /// <summary>
         /// A factory for creating TEntity objects from the current row in the <see cref="IDataReader" />.
         /// </summary>

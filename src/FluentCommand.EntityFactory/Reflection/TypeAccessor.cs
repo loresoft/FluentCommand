@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using FluentCommand.Extensions;
 
 #if SILVERLIGHT
 using Novus.Common.Collections;
 #else
-using System.Collections.Concurrent;
+
 #endif
 
 namespace FluentCommand.Reflection
