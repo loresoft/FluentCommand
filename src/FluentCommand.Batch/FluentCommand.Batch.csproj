@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework>net45</TargetFramework>
+    <RootNamespace>FluentCommand</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

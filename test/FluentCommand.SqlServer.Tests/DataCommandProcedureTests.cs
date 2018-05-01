@@ -1,0 +1,146 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using FluentAssertions;
+using FluentCommand.Entities;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace FluentCommand.SqlServer.Tests
+{
+    public class DataCommandProcedureTests : DatabaseTestBase
+    {
+        public DataCommandProcedureTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+        {
+        }
+
+        [Fact]
+        public void ProcedureQueryParameterOut()
+        {
+            long total = -1;
+
+            var email = "%@battlestar.com";
+
+            List<User> users;
+            using (var session = GetConfiguration().CreateSession())
+            {
+                session.Should().NotBeNull();
+                users = session.StoredProcedure("[dbo].[UserListByEmailAddress]")
+                    .Parameter("@EmailAddress", email)
+                    .Parameter("@Offset", 0)
+                    .Parameter("@Size", 10)
+                    .Parameter<long>(parameter => parameter
+                        .Name("@Total")
+                        .Type(DbType.Int64)
+                        .Output(v => total = v)
+                        .Direction(ParameterDirection.Output)
+                    )
+                    .Query<User>()
+                    .ToList();
+            }
+
+            users.Should().NotBeEmpty();
+            total.Should().Be(6);
+        }
+
+        [Fact]
+        public void ProcedureExecuteUpsert()
+        {
+
+            User user = null;
+            int errorCode = -1;
+
+            var userId = Guid.NewGuid();
+            var username = "test." + DateTime.Now.Ticks;
+            var email = username + "@email.com";
+
+            using (var session = GetConfiguration().CreateSession())
+            {
+                session.Should().NotBeNull();
+
+                user = session.StoredProcedure("[dbo].[UserUpsert]")
+                    .Parameter("@Id", userId)
+                    .Parameter("@EmailAddress", email)
+                    .Parameter("@IsEmailAddressConfirmed", true)
+                    .Parameter("@DisplayName", "Unit Test")
+                    .Parameter("@PasswordHash", "T@est" + DateTime.Now.Ticks)
+                    .Parameter<string>("@ResetHash", null)
+                    .Parameter<string>("@InviteHash", null)
+                    .Parameter("@AccessFailedCount", 0)
+                    .Parameter("@LockoutEnabled", false)
+                    .Parameter("@IsDeleted", false)
+                    .Return<int>(p => errorCode = p)
+                    .QuerySingle<User>();
+            }
+
+            errorCode.Should().Be(0);
+
+            user.Should().NotBeNull();
+            user.Id.Should().Be(userId);
+            user.Created.Should().NotBe(default(DateTimeOffset));
+            user.Updated.Should().NotBe(default(DateTimeOffset));
+        }
+
+        [Fact]
+        public void ProcedureExecuteReturn()
+        {
+            int result = -1;
+            long total = -1;
+
+            var email = "william.adama@battlestar.com";
+
+            using (var session = GetConfiguration().CreateSession())
+            {
+                session.Should().NotBeNull();
+                result = session.StoredProcedure("[dbo].[UserCountByEmailAddress]")
+                    .Parameter("@EmailAddress", email)
+                    .Return<long>(p => total = p)
+                    .Execute();
+            }
+
+            result.Should().Be(-1);
+            total.Should().Be(1);
+        }
+
+        [Fact]
+        public void ProcedureExecuteTransaction()
+        {
+            var session = GetConfiguration().CreateSession();
+            session.Should().NotBeNull();
+
+            var transaction = session.BeginTransaction(IsolationLevel.Unspecified);
+            transaction.Should().NotBeNull();
+
+            int errorCode = -1;
+
+            var userId = Guid.NewGuid();
+            var username = "test." + DateTime.Now.Ticks;
+            var email = username + "@email.com";
+
+
+            var user = session.StoredProcedure("[dbo].[UserUpsert]")
+                .Parameter("@Id", userId)
+                .Parameter("@EmailAddress", email)
+                .Parameter("@IsEmailAddressConfirmed", true)
+                .Parameter("@DisplayName", "Unit Test")
+                .Parameter("@PasswordHash", "T@est" + DateTime.Now.Ticks)
+                .Parameter<string>("@ResetHash", null)
+                .Parameter<string>("@InviteHash", null)
+                .Parameter("@AccessFailedCount", 0)
+                .Parameter("@LockoutEnabled", false)
+                .Parameter("@IsDeleted", false)
+                .Return<int>(p => errorCode = p)
+                .QuerySingle<User>();
+
+            errorCode.Should().Be(0);
+
+            user.Should().NotBeNull();
+            user.Id.Should().Be(userId);
+            user.Created.Should().NotBe(default(DateTimeOffset));
+            user.Updated.Should().NotBe(default(DateTimeOffset));
+
+            transaction.Commit();
+        }
+    }
+}

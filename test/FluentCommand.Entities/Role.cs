@@ -6,18 +6,15 @@ namespace FluentCommand.Entities
 {
     public class Role
     {
-        public Role()
-        {
-            Users = new List<User>();
-        }
-
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime ModifiedDate { get; set; }
-        public Byte[] RowVersion { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTimeOffset Updated { get; set; }
+        public string UpdatedBy { get; set; }
+        public byte[] RowVersion { get; set; }
 
-        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<User> Users { get; set; } = new List<User>();
     }
 }

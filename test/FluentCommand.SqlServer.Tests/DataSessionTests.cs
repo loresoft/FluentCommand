@@ -8,16 +8,16 @@ using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests
 {
-    public class DataSessionTests : DataTestBase
+    public class DataSessionTests : DatabaseTestBase
     {
-        public DataSessionTests(ITestOutputHelper output) : base(output)
+        public DataSessionTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
         {
         }
 
         [Fact]
         public void CreateConnectionName()
         {
-            var session = GetConfiguration("Tracker").CreateSession();
+            var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
             session.Connection.Should().NotBeNull();
             session.Connection.State.Should().Be(ConnectionState.Closed);
@@ -32,18 +32,11 @@ namespace FluentCommand.SqlServer.Tests
             session.Connection.Should().NotBeNull();
             session.Connection.State.Should().Be(ConnectionState.Closed);
         }
-       
-        [Fact]
-        public void CreateMissingConnectionName()
-        {
-            Action create = () => GetConfiguration("Blah").CreateSession();
-            create.Should().Throw<InvalidOperationException>();
-        }
-        
+              
         [Fact]
         public void EnsureConnectionByName()
         {
-            var session = GetConfiguration("Tracker").CreateSession();
+            var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
             session.Connection.Should().NotBeNull();
             session.Connection.State.Should().Be(ConnectionState.Closed);

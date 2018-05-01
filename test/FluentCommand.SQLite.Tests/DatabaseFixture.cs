@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Data.SQLite;
 using System.IO;
+using System.Reflection;
 using System.Text;
+using DbUp;
+using DbUp.Engine.Output;
 using Microsoft.Extensions.Configuration;
 using Xunit.Abstractions;
 
 namespace FluentCommand.SQLite.Tests
 {
-    public class DatabaseFixture : IDisposable
+    public class DatabaseFixture : IUpgradeLog, IDisposable
     {
+        private readonly StringBuilder _buffer;
         private readonly StringWriter _logger;
 
         public DatabaseFixture()
         {
-            _logger = new StringWriter();
+            _buffer = new StringBuilder();
+            _logger = new StringWriter(_buffer);
 
             ResolveConnectionString();
 
@@ -23,31 +28,23 @@ namespace FluentCommand.SQLite.Tests
 
         public string ConnectionString { get; set; }
 
+        public string ConnectionName { get; set; } = "Tracker";
 
         private void CreateDatabase()
         {
-            using (var connection = new SQLiteConnection(ConnectionString))
-            {
-                connection.Open();
+            var upgrader = DeployChanges.To
+                    .SQLiteDatabase(ConnectionString)
+                    .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
+                    .LogTo(this)
+                    .Build();
 
-                using (var schemaCommand = connection.CreateCommand())
-                {
-                    schemaCommand.CommandType = System.Data.CommandType.Text;
-                    schemaCommand.CommandText = Data.SqlStatements.TrackerSchema;
-                    var schemaResult = schemaCommand.ExecuteNonQuery();
+            var result = upgrader.PerformUpgrade();
 
-                    _logger.WriteLine($"Created Schema: '{schemaResult}'");
-                }
+            if (result.Successful)
+                return;
 
-                using (var dataCommand = connection.CreateCommand())
-                {
-                    dataCommand.CommandType = System.Data.CommandType.Text;
-                    dataCommand.CommandText = Data.SqlStatements.TrackerData;
-                    var dataResult = dataCommand.ExecuteNonQuery();
-
-                    _logger.WriteLine($"Created Data: '{dataResult}'");
-                }
-            }
+            _logger.WriteLine($"Exception: '{result.Error}'");
+            throw result.Error;
         }
 
         private void ResolveConnectionString()
@@ -65,15 +62,40 @@ namespace FluentCommand.SQLite.Tests
 
         public void Report(ITestOutputHelper output)
         {
+            if (_buffer.Length == 0)
+                return;
+
+            _logger.Flush();
             output.WriteLine(_logger.ToString());
 
             // reset logger
-            _logger.GetStringBuilder().Clear();
+            _buffer.Clear();
         }
+
 
         public void Dispose()
         {
 
         }
+
+
+        public void WriteInformation(string format, params object[] args)
+        {
+            _logger.Write("INFO : ");
+            _logger.WriteLine(format, args);
+        }
+
+        public void WriteError(string format, params object[] args)
+        {
+            _logger.Write("ERROR: ");
+            _logger.WriteLine(format, args);
+        }
+
+        public void WriteWarning(string format, params object[] args)
+        {
+            _logger.Write("WARN : ");
+            _logger.WriteLine(format, args);
+        }
+
     }
 }

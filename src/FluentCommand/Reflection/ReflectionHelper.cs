@@ -6,19 +6,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using FluentCommand.Extensions;
 
 
 namespace FluentCommand.Reflection
 {
+    /// <summary>
+    /// Reflection helper methods
+    /// </summary>
     public static class ReflectionHelper
     {
-        private static readonly Type _stringType = typeof(string);
-        private static readonly Type _byteArrayType = typeof(byte[]);
-        private static readonly Type _nullableType = typeof(Nullable<>);
-
         /// <summary>
         /// Extracts the property name from a property expression.
         /// </summary>
@@ -70,8 +68,6 @@ namespace FluentCommand.Reflection
         /// <returns>
         /// The name of the property.
         /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="memberExpression"/> is null.</exception>
-        ///   
         /// <exception cref="ArgumentException">Thrown when the expression is:<br/>
         /// Not a <see cref="MemberExpression"/><br/>
         /// The <see cref="MemberExpression"/> does not represent a property.<br/>
@@ -83,7 +79,7 @@ namespace FluentCommand.Reflection
 
             var getMethod = property.GetGetMethod(true);
             if (getMethod.IsStatic)
-                throw new ArgumentException("The referenced property is a static property.", "memberExpression");
+                throw new ArgumentException("The referenced property is a static property.", nameof(memberExpression));
 
             return memberExpression.Member.Name;
         }
@@ -153,7 +149,7 @@ namespace FluentCommand.Reflection
 
             var getMethod = property.GetGetMethod(true);
             if (getMethod.IsStatic)
-                throw new ArgumentException("The referenced property is a static property.", "memberExpression");
+                throw new ArgumentException("The referenced property is a static property.", nameof(memberExpression));
 
             string columnName = property.Name;
             var display = Attribute.GetCustomAttribute(property, typeof(ColumnAttribute)) as ColumnAttribute;
@@ -165,6 +161,13 @@ namespace FluentCommand.Reflection
         }
 
 
+        /// <summary>
+        /// Extracts the property information.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="propertyExpression">The property expression.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">propertyExpression</exception>
         public static PropertyInfo ExtractPropertyInfo<TValue>(Expression<Func<TValue>> propertyExpression)
         {
             if (propertyExpression == null)
@@ -173,6 +176,14 @@ namespace FluentCommand.Reflection
             return ExtractPropertyInfo(propertyExpression.Body as MemberExpression);
         }
 
+        /// <summary>
+        /// Extracts the property information.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="propertyExpression">The property expression.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">propertyExpression</exception>
         public static PropertyInfo ExtractPropertyInfo<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
         {
             if (propertyExpression == null)
@@ -181,6 +192,16 @@ namespace FluentCommand.Reflection
             return ExtractPropertyInfo(propertyExpression.Body as MemberExpression);
         }
 
+        /// <summary>
+        /// Extracts the property information.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">
+        /// The expression is not a member access expression. - memberExpression
+        /// or
+        /// The member access expression does not access a property. - memberExpression
+        /// </exception>
         public static PropertyInfo ExtractPropertyInfo(MemberExpression memberExpression)
         {
             if (memberExpression == null)
@@ -198,13 +219,14 @@ namespace FluentCommand.Reflection
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>Returns a type dealing with <see cref="Nullable"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="type"/> is <see langword="null"/></exception>
         public static Type GetUnderlyingType(this Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             Type t = type;
-            bool isNullable = t.IsGenericType && (t.GetGenericTypeDefinition() == _nullableType);
+            bool isNullable = t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(Nullable<>));
             if (isNullable)
                 return Nullable.GetUnderlyingType(t);
 
@@ -325,19 +347,19 @@ namespace FluentCommand.Reflection
             if (desiredType == valueType)
                 return value;
 
-            bool isNullable = desiredType.IsGenericType && (desiredType.GetGenericTypeDefinition() == _nullableType);
+            bool isNullable = desiredType.IsGenericType && (desiredType.GetGenericTypeDefinition() == typeof(Nullable<>));
             if (isNullable)
             {
                 if (value == null)
                     return null;
-                if (_stringType == valueType && Convert.ToString(value) == String.Empty)
+                if (typeof(string) == valueType && Convert.ToString(value) == String.Empty)
                     return null;
             }
 
             desiredType = GetUnderlyingType(desiredType);
 
             if ((desiredType.IsPrimitive || typeof(decimal) == desiredType)
-                && _stringType == valueType
+                && typeof(string) == valueType
                 && String.IsNullOrEmpty((string)value))
                 return 0;
 
@@ -348,28 +370,36 @@ namespace FluentCommand.Reflection
             if (typeof(Guid) == desiredType)
                 return new Guid(value.ToString());
 
-            if (desiredType.IsEnum && _stringType == valueType)
+            if (desiredType.IsEnum && typeof(string) == valueType)
                 return Enum.Parse(desiredType, value.ToString(), true);
 
-            bool isBinary = desiredType.IsArray && _byteArrayType == desiredType;
+            bool isBinary = desiredType.IsArray && typeof(byte[]) == desiredType;
 
-            if (isBinary && _stringType == valueType)
+            if (isBinary && typeof(string) == valueType)
             {
                 byte[] bytes = Convert.FromBase64String((string)value);
                 return bytes;
             }
 
-            isBinary = valueType.IsArray && _byteArrayType == valueType;
+            isBinary = valueType.IsArray && typeof(byte[]) == valueType;
 
-            if (isBinary && _stringType == desiredType)
+            if (isBinary && typeof(string) == desiredType)
             {
                 byte[] bytes = (byte[])value;
                 return Convert.ToBase64String(bytes);
             }
 
+            if (typeof(DateTime) == valueType && typeof(DateTimeOffset) == desiredType && value is DateTime dateTime)
+            {
+                if (dateTime.Kind == DateTimeKind.Local)
+                    dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+
+                return new DateTimeOffset(dateTime, TimeSpan.Zero);
+            }
+
             try
             {
-                if (_stringType == desiredType)
+                if (typeof(string) == desiredType)
                     return value.ToString();
 
                 return Convert.ChangeType(value, desiredType, Thread.CurrentThread.CurrentCulture);
@@ -378,7 +408,7 @@ namespace FluentCommand.Reflection
             {
 #if !SILVERLIGHT
                 TypeConverter converter = TypeDescriptor.GetConverter(desiredType);
-                if (converter != null && converter.CanConvertFrom(valueType))
+                if (converter.CanConvertFrom(valueType))
                     return converter.ConvertFrom(value);
 #endif
                 throw;

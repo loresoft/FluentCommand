@@ -9,12 +9,7 @@ init:
 
 services:
   - mssql2016
-  - mysql
   - postgresql
-
-before_build:
-  - .\Database\restore.aspnet.cmd
-  - .\Database\restore.tracker.cmd
 
 dotnet_csproj:
   patch: true
@@ -26,10 +21,10 @@ dotnet_csproj:
   informational_version: '{version}'
 
 build_script:
-  - dotnet pack FluentCommand.sln -c Release
+  - dotnet pack FluentCommand.sln --configuration Release --include-symbols --include-source 
 
 test_script:
-  - dotnet test FluentCommand.sln
+  - dotnet test FluentCommand.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
 artifacts:
 - path: artifacts\*.nupkg

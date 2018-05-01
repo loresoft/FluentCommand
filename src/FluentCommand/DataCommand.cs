@@ -730,6 +730,9 @@ namespace FluentCommand
 
         private string CacheKey<T>()
         {
+            if (_dataSession.Cache == null)
+                return null;
+
             if (_slidingExpiration == null && _absoluteExpiration == null)
                 return null;
 

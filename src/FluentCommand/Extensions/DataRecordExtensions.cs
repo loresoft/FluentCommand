@@ -56,6 +56,35 @@ namespace FluentCommand.Extensions
             return dataRecord.IsDBNull(ordinal) ? (byte?)null : dataRecord.GetByte(ordinal);
         }
 
+        /// <summary>Gets a stream of bytes from the  specified column.</summary>
+        /// <param name="dataRecord">The data record.</param>
+        /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+        /// <returns>A stream of bytes of the specified column.</returns>
+        /// <remarks>Returns empty array for <see langword="null"/>.</remarks>
+        public static byte[] GetBytes(this IDataRecord dataRecord, string name)
+        {
+            int ordinal = dataRecord.GetOrdinal(name);
+            if (dataRecord.IsDBNull(ordinal))
+                return new byte[0];
+
+            //get the length of data
+            long size = dataRecord.GetBytes(ordinal, 0, null, 0, 0);  
+            byte[] buffer = new byte[size];
+
+            int bufferSize = 1024;
+            long bytesRead = 0;
+            int offset = 0;
+
+            while (bytesRead < size)
+            {
+                bytesRead += dataRecord.GetBytes(ordinal, offset, buffer, offset, bufferSize);
+                offset += bufferSize;
+            }
+
+            return buffer;
+        }
+
+
         /// <summary>
         /// Reads a stream of bytes from the specified column offset into the buffer as an array, starting at the given buffer offset.
         /// </summary>
@@ -154,6 +183,48 @@ namespace FluentCommand.Extensions
         {
             int ordinal = dataRecord.GetOrdinal(name);
             return dataRecord.IsDBNull(ordinal) ? (DateTime?)null : dataRecord.GetDateTime(ordinal);
+        }
+
+        /// <summary>Gets the date and time data value of the specified field.</summary>
+        /// <param name="dataRecord">The data record.</param>
+        /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+        /// <returns>The date and time data value of the specified field.</returns>
+        /// <remarks>Returns DateTime.MinValue for <see langword="null"/>.</remarks>
+        public static DateTimeOffset GetDateTimeOffset(this IDataRecord dataRecord, string name)
+        {
+            int ordinal = dataRecord.GetOrdinal(name);
+            if (dataRecord.IsDBNull(ordinal))
+                return DateTimeOffset.MinValue;
+
+            var value = dataRecord.GetValue(ordinal);
+            if (value is DateTimeOffset offset)
+                return offset;
+
+            var date = dataRecord.GetDateTime(ordinal);
+            date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+
+            return new DateTimeOffset(date, TimeSpan.Zero);
+        }
+
+        /// <summary>Gets the date and time data value of the specified field.</summary>
+        /// <param name="dataRecord">The data record.</param>
+        /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+        /// <returns>The date and time data value of the specified field.</returns>
+        /// <remarks>Returns DateTime.MinValue for <see langword="null"/>.</remarks>
+        public static DateTimeOffset? GetDateTimeOffsetNull(this IDataRecord dataRecord, string name)
+        {
+            int ordinal = dataRecord.GetOrdinal(name);
+            if (dataRecord.IsDBNull(ordinal))
+                return null;
+
+            var value = dataRecord.GetValue(ordinal);
+            if (value is DateTimeOffset offset)
+                return offset;
+
+            var date = dataRecord.GetDateTime(ordinal);
+            date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+
+            return new DateTimeOffset(date, TimeSpan.Zero);
         }
 
         /// <summary>Gets the fixed-position numeric value of the specified field.</summary>

@@ -58,7 +58,10 @@ namespace FluentCommand
                     continue;
 
                 var value = reader.GetValue(i);
-                memberAccessor.SetValue(entity, value);
+                var fieldType = reader.GetFieldType(i);
+
+                var coerceValue = ReflectionHelper.CoerceValue(memberAccessor.MemberType, fieldType, value);
+                memberAccessor.SetValue(entity, coerceValue);
             }
 
             return entity;

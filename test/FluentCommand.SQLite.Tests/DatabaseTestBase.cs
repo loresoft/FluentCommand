@@ -21,12 +21,12 @@ namespace FluentCommand.SQLite.Tests
         public DatabaseFixture Fixture { get; }
 
 
-        protected IDataConfiguration GetConfiguration(string connectionName)
+        protected IDataConfiguration GetConfiguration()
         {
             var dataConfiguration  = new DataConfiguration(
                 SQLiteFactory.Instance, 
                 Fixture.ConnectionString, 
-                null, 
+                DataCache.Default, 
                 Output.WriteLine);
 
             return dataConfiguration;

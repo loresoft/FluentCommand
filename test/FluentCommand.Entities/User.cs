@@ -6,34 +6,30 @@ namespace FluentCommand.Entities
 {
     public class User
     {
-        public User()
-        {
-            Audits = new List<Audit>();
-            AssignedTasks = new List<Task>();
-            CreatedTasks = new List<Task>();
-            Roles = new List<Role>();
-        }
-
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string EmailAddress { get; set; }
+        public bool IsEmailAddressConfirmed { get; set; }
+        public string DisplayName { get; set; }
+        public string PasswordHash { get; set; }
+        public string ResetHash { get; set; }
+        public string InviteHash { get; set; }
+        public int AccessFailedCount { get; set; }
+        public bool LockoutEnabled { get; set; }
+        public DateTimeOffset? LockoutEnd { get; set; }
+        public DateTimeOffset? LastLogin { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTimeOffset Updated { get; set; }
+        public string UpdatedBy { get; set; }
+        public byte[] RowVersion { get; set; }
+
+        public virtual ICollection<Audit> Audits { get; set; } = new List<Audit>();
+        public virtual ICollection<Task> AssignedTasks { get; set; } = new List<Task>();
+        public virtual ICollection<Task> CreatedTasks { get; set; } = new List<Task>();
+        public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
+
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public Byte[] Avatar { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime ModifiedDate { get; set; }
-        public Byte[] RowVersion { get; set; }
-        public string PasswordHash { get; set; }
-        public string PasswordSalt { get; set; }
-        public string Comment { get; set; }
-        public bool IsApproved { get; set; }
-        public DateTime? LastLoginDate { get; set; }
-        public DateTime LastActivityDate { get; set; }
-        public DateTime? LastPasswordChangeDate { get; set; }
-        public string AvatarType { get; set; }
-
-        public virtual ICollection<Audit> Audits { get; set; }
-        public virtual ICollection<Task> AssignedTasks { get; set; }
-        public virtual ICollection<Task> CreatedTasks { get; set; }
-        public virtual ICollection<Role> Roles { get; set; }
     }
 }

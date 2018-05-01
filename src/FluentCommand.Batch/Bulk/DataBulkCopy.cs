@@ -108,7 +108,7 @@ namespace FluentCommand.Bulk
         /// <summary>
         /// Preserve source identity values. When not specified, identity values are assigned by the destination.
         /// </summary>
-        /// <param name="value">true to preservesource identity values; otherwise, false.</param>
+        /// <param name="value">true to preserve source identity values; otherwise, false.</param>
         /// <returns>
         /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
         /// </returns>
@@ -270,10 +270,15 @@ namespace FluentCommand.Bulk
         /// <returns>
         /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null"/></exception>
         public IDataBulkCopy Mapping<TEntity>(Action<DataBulkCopyMapping<TEntity>> builder)
         {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
             var dataMapping = new DataBulkCopyMapping<TEntity>(this);
             builder(dataMapping);
+
             return this;
         }
 
