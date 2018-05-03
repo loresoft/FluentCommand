@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" Version="1.1.1" />
+    <PackageReference Include="coverlet.msbuild" Version="1.2.0" />
     <PackageReference Include="DataGenerator" Version="4.0.0.19" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.1" />

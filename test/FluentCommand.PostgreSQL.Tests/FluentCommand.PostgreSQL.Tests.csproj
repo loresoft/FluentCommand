@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" Version="1.1.1" />
+    <PackageReference Include="coverlet.msbuild" Version="1.2.0" />
     <PackageReference Include="dbup-postgresql" Version="4.1.0" />
     <PackageReference Include="Npgsql" Version="3.2.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.1" />
