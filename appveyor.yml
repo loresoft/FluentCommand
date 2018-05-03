@@ -20,11 +20,16 @@ dotnet_csproj:
   file_version: '{version}'
   informational_version: '{version}'
 
-build_script:
-  - dotnet pack FluentCommand.sln --configuration Release --include-symbols --include-source 
+configuration: Release
 
-test_script:
-  - dotnet test FluentCommand.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+before_build:
+- .\bootstrap.cmd
+
+build:
+  project: master.proj
+  verbosity: normal
+
+test: off
 
 artifacts:
 - path: artifacts\*.nupkg
