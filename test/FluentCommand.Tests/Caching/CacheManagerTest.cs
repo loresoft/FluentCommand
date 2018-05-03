@@ -206,13 +206,12 @@ namespace FluentCommand.Tests.Caching
 
             cacheManager.CacheItemExpired += (sender, args) =>
             {
-                _output.WriteLine($"Item Expired: {args.CacheItem.Key}");
                 expiredHandle.Set();
             };
 
             string key = "key" + DateTime.Now.Ticks;
             object value = "value" + DateTime.Now.Ticks;
-            var expiration = TimeSpan.FromMilliseconds(100);
+            var expiration = TimeSpan.FromMilliseconds(200);
 
             var cachePolicy = new CachePolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.Add(expiration) };
 
@@ -224,7 +223,7 @@ namespace FluentCommand.Tests.Caching
             var cachedValue = cacheManager.Get(key);
             cachedValue.Should().NotBeNull();
 
-            Thread.Sleep(500);
+            expiredHandle.WaitOne(1000);
 
             cachedValue = cacheManager.Get(key);
             cachedValue.Should().BeNull();
