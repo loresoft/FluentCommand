@@ -1,4 +1,4 @@
-version: 2.0.0.{build}
+doversion: 2.0.0.{build}
 os: Visual Studio 2017
 
 environment:
@@ -24,11 +24,7 @@ build_script:
   - dotnet pack FluentCommand.sln --configuration Release --include-symbols --include-source 
 
 test_script:
-  - dotnet test test\FluentCommand.Tests\FluentCommand.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-  - dotnet test test\FluentCommand.SqlServer.Tests\FluentCommand.SqlServer.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-  - dotnet test test\FluentCommand.SQLite.Tests\FluentCommand.SQLite.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-  - dotnet test test\FluentCommand.PostgreSQL.Tests\FluentCommand.PostgreSQL.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-  - dotnet test test\FluentCommand.Batch.Tests\FluentCommand.Batch.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+  - dotnet test FluentCommand.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
 artifacts:
 - path: artifacts\*.nupkg
