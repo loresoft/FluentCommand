@@ -4,6 +4,8 @@ Fluent Wrapper for DbCommand.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v9h2sdvcgmo4itj1?svg=true)](https://ci.appveyor.com/project/LoreSoft/fluentcommand)
 
+[![Coverage Status](https://coveralls.io/repos/github/loresoft/FluentCommand/badge.svg?branch=netcore)](https://coveralls.io/github/loresoft/FluentCommand?branch=netcore)
+
 ## Download
 
 The FluentCommand library is available on nuget.org via package name `FluentCommand`.
