@@ -9,15 +9,14 @@ using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests
 {
-
-    public class DataCommandSqlTests : DatabaseTestBase
+    public class DataCommandSqlAsyncTests : DatabaseTestBase
     {
-        public DataCommandSqlTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+        public DataCommandSqlAsyncTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
         {
         }
 
         [Fact]
-        public void SqlQuerySingleEntity()
+        public async System.Threading.Tasks.Task SqlQuerySingleEntityAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -25,9 +24,9 @@ namespace FluentCommand.SqlServer.Tests
             string email = "kara.thrace@battlestar.com";
             string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-            var user = session.Sql(sql)
+            var user = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .QuerySingle(r => new User
+                .QuerySingleAsync(r => new User
                 {
                     Id = r.GetGuid("Id"),
                     EmailAddress = r.GetString("EmailAddress"),
@@ -53,7 +52,7 @@ namespace FluentCommand.SqlServer.Tests
         }
 
         [Fact]
-        public void SqlQuerySingleEntityFactory()
+        public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -61,16 +60,16 @@ namespace FluentCommand.SqlServer.Tests
             string email = "kara.thrace@battlestar.com";
             string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-            var user = session.Sql(sql)
+            var user = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .QuerySingle<User>();
+                .QuerySingleAsync<User>();
 
             user.Should().NotBeNull();
             user.EmailAddress.Should().Be(email);
         }
 
         [Fact]
-        public void SqlQuerySingleEntityFactoryCache()
+        public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryCacheAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -78,18 +77,18 @@ namespace FluentCommand.SqlServer.Tests
             string email = "kara.thrace@battlestar.com";
             string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-            var user = session.Sql(sql)
+            var user = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
                 .UseCache(TimeSpan.FromMinutes(5))
-                .QuerySingle<User>();
+                .QuerySingleAsync<User>();
 
             user.Should().NotBeNull();
             user.EmailAddress.Should().Be(email);
 
-            var cachedUser = session.Sql(sql)
+            var cachedUser = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
                 .UseCache(TimeSpan.FromMinutes(5))
-                .QuerySingle<User>();
+                .QuerySingleAsync<User>();
 
             cachedUser.Should().NotBeNull();
             cachedUser.EmailAddress.Should().Be(email);
@@ -97,7 +96,7 @@ namespace FluentCommand.SqlServer.Tests
         }
 
         [Fact]
-        public void SqlQuerySingleEntityDynamic()
+        public async System.Threading.Tasks.Task SqlQuerySingleEntityDynamicAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -105,16 +104,16 @@ namespace FluentCommand.SqlServer.Tests
             string email = "kara.thrace@battlestar.com";
             string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-            dynamic user = session.Sql(sql)
+            dynamic user = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .QuerySingle();
+                .QuerySingleAsync();
 
             Assert.NotNull(user);
             Assert.Equal<string>(user.EmailAddress, email);
         }
 
         [Fact]
-        public void SqlQueryEntity()
+        public async System.Threading.Tasks.Task SqlQueryEntityAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -122,9 +121,9 @@ namespace FluentCommand.SqlServer.Tests
             string email = "%@battlestar.com";
             string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-            var users = session.Sql(sql)
+            var users = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .Query(r => new User
+                .QueryAsync(r => new User
                 {
                     Id = r.GetGuid("Id"),
                     EmailAddress = r.GetString("EmailAddress"),
@@ -150,7 +149,7 @@ namespace FluentCommand.SqlServer.Tests
         }
 
         [Fact]
-        public void SqlQueryEntityDynamic()
+        public async System.Threading.Tasks.Task SqlQueryEntityDynamicAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -158,16 +157,16 @@ namespace FluentCommand.SqlServer.Tests
             string email = "%@battlestar.com";
             string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-            IEnumerable<dynamic> users = session.Sql(sql)
+            IEnumerable<dynamic> users = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .Query();
+                .QueryAsync();
 
             users.Should().NotBeNull();
             users.Should().NotBeEmpty();
         }
 
         [Fact]
-        public void SqlQueryEntityDynamicCache()
+        public async System.Threading.Tasks.Task SqlQueryEntityDynamicCacheAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -175,29 +174,31 @@ namespace FluentCommand.SqlServer.Tests
             string email = "%@battlestar.com";
             string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-            var users = session
+            var users = await session
                 .Sql(sql)
                 .Parameter("@EmailAddress", email)
                 .UseCache(TimeSpan.FromMinutes(5))
-                .Query()
-                .ToList();
+                .QueryAsync();
 
-            users.Should().NotBeNull();
-            users.Should().NotBeEmpty();
+            var userList = users.ToList();
 
-            var cachedUsers = session
+            userList.Should().NotBeNull();
+            userList.Should().NotBeEmpty();
+
+            var cachedUsers = await session
                 .Sql(sql)
                 .Parameter("@EmailAddress", email)
                 .UseCache(TimeSpan.FromMinutes(5))
-                .Query()
-                .ToList();
+                .QueryAsync();
 
-            cachedUsers.Should().NotBeNull();
-            cachedUsers.Should().NotBeEmpty();
+            var cachedList = cachedUsers.ToList();
+
+            cachedList.Should().NotBeNull();
+            cachedList.Should().NotBeEmpty();
         }
 
         [Fact]
-        public void SqlQueryEntityFactory()
+        public async System.Threading.Tasks.Task SqlQueryEntityFactoryAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -205,16 +206,16 @@ namespace FluentCommand.SqlServer.Tests
             string email = "%@battlestar.com";
             string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-            var users = session.Sql(sql)
+            var users = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .Query<User>();
+                .QueryAsync<User>();
 
             users.Should().NotBeNull();
             users.Should().NotBeEmpty();
         }
 
         [Fact]
-        public void SqlQueryTable()
+        public async System.Threading.Tasks.Task SqlQueryTableAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -222,15 +223,15 @@ namespace FluentCommand.SqlServer.Tests
             string email = "%@battlestar.com";
             string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-            var users = session.Sql(sql)
+            var users = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .QueryTable();
+                .QueryTableAsync();
 
             users.Should().NotBeNull();
         }
 
         [Fact]
-        public void SqlQueryValue()
+        public async System.Threading.Tasks.Task SqlQueryValueAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -238,15 +239,15 @@ namespace FluentCommand.SqlServer.Tests
             string email = "%@battlestar.com";
             string sql = "select Count(*) from [User] where EmailAddress like @EmailAddress";
 
-            var count = session.Sql(sql)
+            var count = await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .QueryValue<int>();
+                .QueryValueAsync<int>();
 
             count.Should().BeGreaterThan(0);
         }
 
         [Fact]
-        public void SqlReader()
+        public async System.Threading.Tasks.Task SqlReaderAsync()
         {
             var session = GetConfiguration().CreateSession();
             session.Should().NotBeNull();
@@ -256,9 +257,9 @@ namespace FluentCommand.SqlServer.Tests
 
             var users = new List<dynamic>();
 
-            session.Sql(sql)
+            await session.Sql(sql)
                 .Parameter("@EmailAddress", email)
-                .Read(reader =>
+                .ReadAsync(reader =>
                 {
                     while (reader.Read())
                     {
@@ -272,7 +273,7 @@ namespace FluentCommand.SqlServer.Tests
         }
 
         [Fact]
-        public void SqlQueryMultiple()
+        public async System.Threading.Tasks.Task SqlQueryMultipleAsync()
         {
 
             string email = "kara.thrace@battlestar.com";
@@ -287,13 +288,13 @@ namespace FluentCommand.SqlServer.Tests
             using (var session = GetConfiguration().CreateSession())
             {
                 session.Should().NotBeNull();
-                session.Sql(sql)
+                await session.Sql(sql)
                     .Parameter("@EmailAddress", email)
-                    .QueryMultiple(q =>
+                    .QueryMultipleAsync(async q =>
                     {
-                        user = q.QuerySingle<User>();
-                        roles = q.Query<Role>().ToList();
-                        priorities = q.Query<Priority>().ToList();
+                        user = await q.QuerySingleAsync<User>();
+                        roles = (await q.QueryAsync<Role>()).ToList();
+                        priorities = (await q.QueryAsync<Priority>()).ToList();
                     });
             }
 

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentCommand.Extensions;
 
 namespace FluentCommand
@@ -163,6 +165,20 @@ namespace FluentCommand
         public static TValue QueryValue<TValue>(this IDataQuery dataQuery)
         {
             return dataQuery.QueryValue<TValue>(null);
+        }
+
+        /// <summary>
+        /// Executes the query and returns the first column of the first row in the result set returned by the query asynchronously. All other columns and rows are ignored.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="dataQuery">The <see cref="IDataQuery"/> for this extension method.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>
+        /// The value of the first column of the first row in the result set.
+        /// </returns>
+        public static Task<TValue> QueryValueAsync<TValue>(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return dataQuery.QueryValueAsync<TValue>(null, cancellationToken);
         }
 
     }
