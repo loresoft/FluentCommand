@@ -328,7 +328,7 @@ namespace FluentCommand.Reflection
         /// a value of a different type.
         /// </summary>
         /// <param name="desiredType">
-        /// Type to which the value should be coerced.MO
+        /// Type to which the value should be coerced.
         /// </param>
         /// <param name="valueType">
         /// Original type of the value.
@@ -403,6 +403,14 @@ namespace FluentCommand.Reflection
             {
                 byte[] bytes = (byte[])value;
                 return Convert.ToBase64String(bytes);
+            }
+
+            if (typeof(DateTime) == valueType && typeof(DateTimeOffset) == desiredType && value is DateTime dateTime)
+            {
+                if (dateTime.Kind == DateTimeKind.Local)
+                    dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+
+                return new DateTimeOffset(dateTime, TimeSpan.Zero);
             }
 
             try
