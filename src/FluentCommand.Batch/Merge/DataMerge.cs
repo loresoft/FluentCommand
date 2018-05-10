@@ -176,7 +176,6 @@ namespace FluentCommand.Merge
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="data">The data to be merged.</param>
-        /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
         /// <returns>
         /// A collection of <see cref="T:DataMergeOutput`1" /> instances.
         /// </returns>

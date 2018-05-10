@@ -341,7 +341,6 @@ namespace FluentCommand.Extensions
         /// <returns>
         /// A 16-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
         /// </returns>
-        [CLSCompliant(false)]
         public static ushort ToUInt16(this string value)
         {
             if (value == null)
@@ -361,7 +360,6 @@ namespace FluentCommand.Extensions
         /// <returns>
         /// A 16-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
         /// </returns>
-        [CLSCompliant(false)]
         public static ushort ToUInt16(this string value, IFormatProvider provider)
         {
             if (value == null)
@@ -380,7 +378,6 @@ namespace FluentCommand.Extensions
         /// <returns>
         /// A 32-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
         /// </returns>
-        [CLSCompliant(false)]
         public static uint ToUInt32(this string value)
         {
             if (value == null)
@@ -400,7 +397,6 @@ namespace FluentCommand.Extensions
         /// <returns>
         /// A 32-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
         /// </returns>
-        [CLSCompliant(false)]
         public static uint ToUInt32(this string value, IFormatProvider provider)
         {
             if (value == null)
@@ -419,7 +415,6 @@ namespace FluentCommand.Extensions
         /// <returns>
         /// A 64-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
         /// </returns>
-        [CLSCompliant(false)]
         public static ulong ToUInt64(this string value)
         {
             if (value == null)
@@ -439,7 +434,6 @@ namespace FluentCommand.Extensions
         /// <returns>
         /// A 64-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
         /// </returns>
-        [CLSCompliant(false)]
         public static ulong ToUInt64(this string value, IFormatProvider provider)
         {
             if (value == null)

@@ -109,7 +109,7 @@ namespace FluentCommand.SQLite.Tests
                 .QuerySingleAsync();
 
             Assert.NotNull(user);
-            Assert.Equal<string>(user.EmailAddress, email);
+            Assert.Equal(user.EmailAddress, email);
         }
 
         [Fact]
