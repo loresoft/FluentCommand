@@ -7,7 +7,7 @@
     <SourceFolder>$(MSBuildProjectDirectory)\src</SourceFolder>
     <TestFolder>$(MSBuildProjectDirectory)\test</TestFolder>
 
-    <CoverallsPath>$(ToolFolder)\coveralls.net\tools</CoverallsPath>
+    <CoverallsPath>$(ToolFolder)</CoverallsPath>
     <MSBuildCommunityTasksPath>$(ToolFolder)\MSBuildTasks\tools</MSBuildCommunityTasksPath>
   </PropertyGroup>
 
