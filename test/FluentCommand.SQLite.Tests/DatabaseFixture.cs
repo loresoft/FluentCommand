@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using DbUp;
 using DbUp.Engine.Output;
-using Microsoft.Extensions.Configuration;
 using Xunit.Abstractions;
 
 namespace FluentCommand.SQLite.Tests

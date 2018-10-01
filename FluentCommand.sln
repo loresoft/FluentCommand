@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{38D98603
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
 		build\common.props = build\common.props
+		Master.proj = Master.proj
 		build\sourcelink.props = build\sourcelink.props
 		build\version.props = build\version.props
 	EndProjectSection
