@@ -31,7 +31,10 @@ build_script:
   - dotnet pack FluentCommand.sln --configuration Release --include-symbols --include-source 
 
 test_script:
-  - dotnet test FluentCommand.sln --configuration Release
+  - dotnet test test\FluentCommand.Tests --configuration Release
+  - dotnet test test\FluentCommand.Batch.Tests--configuration Release
+  - dotnet test test\FluentCommand.SqlServer.Tests --configuration Release
+  - dotnet test test\FluentCommand.PostgreSQL.Tests --configuration Release
 
 artifacts:
 - path: artifacts\*.nupkg
