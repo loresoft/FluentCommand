@@ -32,7 +32,7 @@ build_script:
 
 test_script:
   - dotnet test test\FluentCommand.Tests --configuration Release
-  - dotnet test test\FluentCommand.Batch.Tests--configuration Release
+  - dotnet test test\FluentCommand.Batch.Tests --configuration Release
   - dotnet test test\FluentCommand.SqlServer.Tests --configuration Release
   - dotnet test test\FluentCommand.PostgreSQL.Tests --configuration Release
 
