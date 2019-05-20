@@ -24,14 +24,17 @@ dotnet_csproj:
 
 configuration: Release
 
-before_build:
-- .\bootstrap.cmd
+install:
+  - dotnet tool install --global coveralls.net
 
-build:
-  project: master.proj
-  verbosity: normal
+build_script:
+  - dotnet pack FluentCommand.sln --configuration Release --include-symbols --include-source 
 
-test: off
+test_script:
+  - dotnet test test\FluentCommand.Tests --configuration Release
+  - dotnet test test\FluentCommand.Batch.Tests --configuration Release
+  - dotnet test test\FluentCommand.SqlServer.Tests --configuration Release
+  - dotnet test test\FluentCommand.PostgreSQL.Tests --configuration Release
 
 artifacts:
 - path: artifacts\*.nupkg
