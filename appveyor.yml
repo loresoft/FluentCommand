@@ -22,19 +22,17 @@ dotnet_csproj:
   file_version: '{version}'
   informational_version: '{version}'
 
-configuration: Release
-
 install:
   - dotnet tool install --global coveralls.net
 
 build_script:
-  - dotnet pack FluentCommand.sln --configuration Release --include-symbols --include-source 
+  - dotnet pack FluentCommand.sln --configuration Release --include-symbols --include-source
 
 test_script:
-  - dotnet test test\FluentCommand.Tests --configuration Release
-  - dotnet test test\FluentCommand.Batch.Tests --configuration Release
-  - dotnet test test\FluentCommand.SqlServer.Tests --configuration Release
-  - dotnet test test\FluentCommand.PostgreSQL.Tests --configuration Release
+  - dotnet test FluentCommand.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
+
+after_test:
+  - csmacnz.coveralls --useRelativePaths --multiple --input "opencover=test\FluentCommand.Tests\coverage.opencover.xml;opencover=test\FluentCommand.Batch.Tests\coverage.opencover.xml;opencover=test\FluentCommand.SqlServer.Tests\coverage.opencover.xml"
 
 artifacts:
 - path: artifacts\*.nupkg
