@@ -11,7 +11,7 @@
   <PropertyGroup Label="Package">
     <Product>FluentCommand</Product>
     <Description>Fluent Wrapper for DbCommand</Description>
-    <Copyright>Copyright (c) 2018 LoreSoft</Copyright>
+    <Copyright>Copyright (c) 2019 LoreSoft</Copyright>
     <Authors>LoreSoft</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageOutputPath>$(SolutionDir)artifacts</PackageOutputPath>
