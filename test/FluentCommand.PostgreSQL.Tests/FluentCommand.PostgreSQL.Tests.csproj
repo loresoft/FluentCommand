@@ -39,10 +39,6 @@
     <PackageReference Include="FluentAssertions" Version="5.6.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\FluentCommand.EntityFactory\FluentCommand.EntityFactory.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand\FluentCommand.csproj" />

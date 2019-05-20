@@ -416,7 +416,7 @@ namespace FluentCommand.Bulk
             var sqlConnection = _dataSession.Connection as SqlConnection;
             if (sqlConnection == null)
                 throw new InvalidOperationException(
-                    "Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.");
+                    "Bulk-Copy only supported by SQL Server.  Make sure DataSession was created with a valid SqlConnection.");
 
             var sqlTransaction = _dataSession.Transaction as SqlTransaction;
 

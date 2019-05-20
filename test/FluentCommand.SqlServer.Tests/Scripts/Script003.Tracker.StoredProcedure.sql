@@ -204,3 +204,39 @@ BEGIN
 
     SET NOCOUNT OFF;
 END
+
+GO 
+
+IF OBJECT_ID('[dbo].[ImportUsers]') IS NULL
+BEGIN
+    EXEC('CREATE PROCEDURE [dbo].[ImportUsers] AS SET NOCOUNT ON;')
+END
+
+GO
+
+ALTER PROCEDURE [dbo].[ImportUsers]
+    @userTable [dbo].[UserImportType] READONLY
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    MERGE [dbo].[User] WITH (ROWLOCK) AS D
+    USING @userTable AS S
+        ON D.[EmailAddress] = S.[EmailAddress]
+    WHEN MATCHED THEN
+        UPDATE SET
+            D.[DisplayName] = S.[DisplayName]
+    WHEN NOT MATCHED THEN
+        INSERT
+        (
+            [EmailAddress],
+            [DisplayName]
+        )
+        VALUES
+        (
+            S.[EmailAddress],
+            S.[DisplayName]
+        );
+
+    SET NOCOUNT OFF;
+END

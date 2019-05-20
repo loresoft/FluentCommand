@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using DataGenerator;
+using DataGenerator.Sources;
 using FluentAssertions;
 using FluentCommand.Entities;
 using Xunit;
@@ -142,5 +144,33 @@ namespace FluentCommand.SqlServer.Tests
 
             transaction.Commit();
         }
+
+        [Fact]
+        public void ProcedureExecuteMerge()
+        {
+            var generator = Generator.Create(c => c
+                .ExcludeName("xunit")
+                .Entity<UserImport>(e =>
+                {
+                    e.AutoMap();
+
+                    e.Property(p => p.DisplayName).DataSource<NameSource>();
+                    e.Property(p => p.EmailAddress).Value(u => $"{u.DisplayName}.{Guid.NewGuid()}@mailinator.com");
+                })
+            );
+            var users = generator.List<UserImport>(100);
+
+            int result;
+            using (var session = GetConfiguration().CreateSession())
+            {
+                session.Should().NotBeNull();
+                result = session.StoredProcedure("[dbo].[ImportUsers]")
+                    .SqlParameter("@userTable", users)
+                    .Execute();
+            }
+
+            result.Should().Be(-1);
+        }
+
     }
 }

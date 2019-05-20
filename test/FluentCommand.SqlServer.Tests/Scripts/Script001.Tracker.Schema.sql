@@ -32,7 +32,7 @@ CREATE TABLE [dbo].[Priority] (
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Role]') AND type in (N'U'))
 CREATE TABLE [dbo].[Role] (
-    [Id] uniqueidentifier NOT NULL,
+    [Id] uniqueidentifier NOT NULL DEFAULT (NEWSEQUENTIALID()),
     [Name] nvarchar(256) NOT NULL,
     [Description] nvarchar(MAX) NULL,
     [Created] datetimeoffset NOT NULL DEFAULT (sysutcdatetime()),
@@ -60,7 +60,7 @@ CREATE TABLE [dbo].[Status] (
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Task]') AND type in (N'U'))
 CREATE TABLE [dbo].[Task] (
-    [Id] uniqueidentifier NOT NULL,
+    [Id] uniqueidentifier NOT NULL DEFAULT (NEWSEQUENTIALID()),
     [StatusId] int NOT NULL,
     [PriorityId] int NULL,
     [Title] nvarchar(255) NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE [dbo].[TaskExtended] (
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[User]') AND type in (N'U'))
 CREATE TABLE [dbo].[User] (
-    [Id] uniqueidentifier NOT NULL,
+    [Id] uniqueidentifier NOT NULL DEFAULT (NEWSEQUENTIALID()),
     [EmailAddress] nvarchar(256) NOT NULL,
     [IsEmailAddressConfirmed] bit NOT NULL DEFAULT (0),
     [DisplayName] nvarchar(256) NOT NULL,
@@ -115,7 +115,7 @@ CREATE TABLE [dbo].[User] (
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserLogin]') AND type in (N'U'))
 CREATE TABLE [dbo].[UserLogin] (
-    [Id] uniqueidentifier NOT NULL,
+    [Id] uniqueidentifier NOT NULL DEFAULT (NEWSEQUENTIALID()),
     [EmailAddress] nvarchar(256) NOT NULL,
     [UserId] uniqueidentifier NULL,
     [UserAgent] nvarchar(MAX) NULL,
@@ -142,6 +142,13 @@ CREATE TABLE [dbo].[UserRole] (
     CONSTRAINT [PK_UserRole] PRIMARY KEY ([UserId], [RoleId])
 );
 
+-- Types
+CREATE TYPE [dbo].[UserImportType] AS TABLE 
+(
+    [EmailAddress] [nvarchar](256) NOT NULL,
+    [DisplayName] [nvarchar](256) NOT NULL,
+    PRIMARY KEY ([EmailAddress])
+);
 
 -- Foreign Keys
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Task_Priority_PriorityId]') AND parent_object_id = OBJECT_ID(N'[dbo].[Task]'))

@@ -20,10 +20,10 @@ namespace FluentCommand
         /// <returns>
         /// A fluent <see langword="interface" /> to the data command.
         /// </returns>
-        public static IDataCommand Parameter<T>(this IDataCommand dataCommand, string name, IEnumerable<T> data)
+        public static IDataCommand SqlParameter<T>(this IDataCommand dataCommand, string name, IEnumerable<T> data)
         {
             var dataTable = data.ToDataTable<T>();
-            return Parameter(dataCommand, name, dataTable);
+            return SqlParameter(dataCommand, name, dataTable);
         }
 
         /// <summary>
@@ -35,12 +35,13 @@ namespace FluentCommand
         /// <returns>
         /// A fluent <see langword="interface" /> to the data command.
         /// </returns>
-        public static IDataCommand Parameter(this IDataCommand dataCommand, string name, DataTable dataTable)
+        public static IDataCommand SqlParameter(this IDataCommand dataCommand, string name, DataTable dataTable)
         {
             var parameter = dataCommand.Command.CreateParameter();
             var sqlParameter = parameter as SqlParameter;
             if (sqlParameter == null)
-                throw new InvalidOperationException("Parameter type not supported by current database connection. Can't cast parameter to Sql Server SqlParameter instance.");
+                throw new InvalidOperationException(
+                    "SqlParameter only supported by SQL Server.  Make sure DataSession was created with a valid SqlConnection.");
 
             sqlParameter.ParameterName = name;
             sqlParameter.Value = dataTable;
