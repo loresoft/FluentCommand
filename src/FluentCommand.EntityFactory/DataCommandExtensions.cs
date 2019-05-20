@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -108,7 +105,7 @@ namespace FluentCommand
         {
             return dataQuery.QuerySingleAsync(ReaderFactory.DynamicFactory, cancellationToken);
         }
-        
+
         /// <summary>
         /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object asynchronously.
         /// </summary>

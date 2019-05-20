@@ -141,7 +141,7 @@ namespace FluentCommand.Merge
                 .Where(c => c.IsIgnored)
                 .Select(c => c.SourceColumn);
 
-            var dataTable = data.ToDataTable(ignoreNames, false);
+            var dataTable = data.ToDataTable(ignoreNames);
             return Merge(dataTable);
         }
 
@@ -190,7 +190,7 @@ namespace FluentCommand.Merge
                 .Where(c => c.IsIgnored)
                 .Select(c => c.SourceColumn);
 
-            var dataTable = data.ToDataTable(ignoreNames, false);
+            var dataTable = data.ToDataTable(ignoreNames);
             return MergeOutput(dataTable);
         }
 

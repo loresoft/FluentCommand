@@ -18,7 +18,7 @@ namespace FluentCommand.Bulk
         private readonly List<SqlBulkCopyColumnMapping> _mapping;
         private readonly List<string> _ignoreColumns;
         private readonly List<int> _ignoreOrdinal;
-        
+
         private SqlBulkCopyOptions _options = SqlBulkCopyOptions.Default;
         private int? _batchSize;
         private int? _bulkCopyTimeout;
@@ -439,7 +439,7 @@ namespace FluentCommand.Bulk
 
             // filter out ignored columns
             var mappings = _mapping
-                .Where(m => !_ignoreColumns.Contains(m.SourceColumn) 
+                .Where(m => !_ignoreColumns.Contains(m.SourceColumn)
                     && !_ignoreOrdinal.Contains(m.SourceOrdinal));
 
             foreach (var mapping in mappings)

@@ -1,7 +1,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Linq.Expressions;
-using FluentCommand.Reflection;
+using System.Reflection;
 
 namespace FluentCommand.Bulk
 {
@@ -32,7 +32,7 @@ namespace FluentCommand.Bulk
         /// </returns>
         public DataBulkCopyMapping<TEntity> Mapping<TValue>(Expression<Func<TEntity, TValue>> sourceProperty)
         {
-            var propertyName = ReflectionHelper.ExtractColumnName(sourceProperty);
+            var propertyName = ExtractColumnName(sourceProperty);
             _bulkCopy.Mapping(propertyName, propertyName);
 
             return this;
@@ -49,12 +49,12 @@ namespace FluentCommand.Bulk
         /// </returns>
         public DataBulkCopyMapping<TEntity> Mapping<TValue>(Expression<Func<TEntity, TValue>> sourceProperty, string destinationColumn)
         {
-            var propertyName = ReflectionHelper.ExtractColumnName(sourceProperty);
+            var propertyName = ExtractColumnName(sourceProperty);
             _bulkCopy.Mapping(propertyName, destinationColumn);
 
             return this;
         }
-        
+
         /// <summary>
         /// Creates a new column mapping, using a Lamba express to refer to source column and a column ordinal for the target column.
         /// </summary>
@@ -66,12 +66,12 @@ namespace FluentCommand.Bulk
         /// </returns>
         public DataBulkCopyMapping<TEntity> Mapping<TValue>(Expression<Func<TEntity, TValue>> sourceProperty, int destinationOrdinal)
         {
-            var propertyName = ReflectionHelper.ExtractColumnName(sourceProperty);
+            var propertyName = ExtractColumnName(sourceProperty);
             _bulkCopy.Mapping(propertyName, destinationOrdinal);
 
             return this;
         }
-        
+
         /// <summary>
         /// Ignores the specified source column by removing it from the mapped columns collection.
         /// </summary>
@@ -82,11 +82,32 @@ namespace FluentCommand.Bulk
         /// </returns>
         public DataBulkCopyMapping<TEntity> Ignore<TValue>(Expression<Func<TEntity, TValue>> sourceProperty)
         {
-            var propertyName = ReflectionHelper.ExtractColumnName(sourceProperty);
+            var propertyName = ExtractColumnName(sourceProperty);
             _bulkCopy.Ignore(propertyName);
 
             return this;
         }
 
+
+        private string ExtractColumnName<TValue>(Expression<Func<TEntity, TValue>> sourceProperty)
+        {
+            var memberExpression = sourceProperty.Body as MemberExpression;
+            if (memberExpression == null)
+                throw new ArgumentException("The expression is not a member access expression.", nameof(memberExpression));
+
+            var property = memberExpression.Member as PropertyInfo;
+            if (property == null)
+                throw new ArgumentException("The member access expression does not access a property.", nameof(memberExpression));
+
+            var column = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
+            if (!string.IsNullOrEmpty(column?.Name))
+                return column.Name;
+
+            var display = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
+            if (!string.IsNullOrEmpty(display?.Name))
+                return display.Name;
+
+            return property.Name;
+        }
     }
 }
