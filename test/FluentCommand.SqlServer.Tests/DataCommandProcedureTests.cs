@@ -155,7 +155,7 @@ namespace FluentCommand.SqlServer.Tests
                     e.AutoMap();
 
                     e.Property(p => p.DisplayName).DataSource<NameSource>();
-                    e.Property(p => p.EmailAddress).Value(u => $"{u.DisplayName}.{Guid.NewGuid()}@mailinator.com");
+                    e.Property(p => p.EmailAddress).Value(u => $"{u.FirstName}.{u.LastName}.{Guid.NewGuid()}@mailinator.com");
                 })
             );
             var users = generator.List<UserImport>(100);

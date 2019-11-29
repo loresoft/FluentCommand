@@ -27,20 +27,22 @@ namespace FluentCommand.Batch.Tests
             );
 
             var users = generator.List<User>(100);
-            
-            var session = GetConfiguration().CreateSession();
-            session.Should().NotBeNull();
 
-            session.BulkCopy("[User]")
-                .AutoMap()
-                .Ignore("RowVersion")
-                .Ignore("FirstName")
-                .Ignore("LastName")
-                .Ignore("Audits")
-                .Ignore("AssignedTasks")
-                .Ignore("CreatedTasks")
-                .Ignore("Roles")
-                .WriteToServer(users);
+            using (var session = GetConfiguration().CreateSession())
+            {
+                session.Should().NotBeNull();
+
+                session.BulkCopy("[User]")
+                    .AutoMap()
+                    .Ignore("RowVersion")
+                    .Ignore("FirstName")
+                    .Ignore("LastName")
+                    .Ignore("Audits")
+                    .Ignore("AssignedTasks")
+                    .Ignore("CreatedTasks")
+                    .Ignore("Roles")
+                    .WriteToServer(users);
+            }
         }
 
         

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -22,7 +22,7 @@ namespace FluentCommand.SqlServer.Tests
 
         protected IDataConfiguration GetConfiguration()
         {
-            var dataConfiguration  = new DataConfiguration(
+            IDataConfiguration dataConfiguration  = new DataConfiguration(
                 SqlClientFactory.Instance, 
                 Fixture.ConnectionString,
                 DataCache.Default, 

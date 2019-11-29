@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
-using FluentCommand;
 using FluentCommand.Extensions;
+using Microsoft.Data.SqlClient;
 
 namespace FluentCommand.Merge
 {
@@ -124,6 +123,19 @@ namespace FluentCommand.Merge
             return this;
         }
 
+        /// <summary>
+        /// Sets the mode for how the merge will be processed.
+        /// </summary>
+        /// <param name="mergeMode">The merge mode.</param>
+        /// <returns>
+        /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+        /// </returns>
+        public IDataMerge Mode(DataMergeMode mergeMode)
+        {
+            _mergeDefinition.Mode = mergeMode;
+            return this;
+        }
+
 
         /// <summary>
         /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/>.
@@ -133,10 +145,6 @@ namespace FluentCommand.Merge
         /// <returns>The number of rows processed.</returns>
         public int Merge<TEntity>(IEnumerable<TEntity> data)
         {
-            // validate definition
-            if (!Validate(_mergeDefinition))
-                return 0;
-
             var ignoreNames = _mergeDefinition.Columns
                 .Where(c => c.IsIgnored)
                 .Select(c => c.SourceColumn);
@@ -146,9 +154,9 @@ namespace FluentCommand.Merge
         }
 
         /// <summary>
-        /// Merges the specified <paramref name="table"/> into the <see cref="TargetTable"/>.
+        /// Merges the specified <paramref name="tableData"/> into the <see cref="TargetTable"/>.
         /// </summary>
-        /// <param name="table">The table data to be merged.</param>
+        /// <param name="tableData">The table data to be merged.</param>
         /// <returns>The number of rows processed.</returns>
         /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
         /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
@@ -162,10 +170,10 @@ namespace FluentCommand.Merge
         /// or
         /// NativeType is require for column merge definition
         /// </exception>
-        public int Merge(DataTable table)
+        public int Merge(DataTable tableData)
         {
             int result = 0;
-            Merge(table, command => result = command.ExecuteNonQuery());
+            Merge(tableData, command => result = command.ExecuteNonQuery());
 
             return result;
         }
@@ -182,10 +190,6 @@ namespace FluentCommand.Merge
         public IEnumerable<DataMergeOutputRow> MergeOutput<TEntity>(IEnumerable<TEntity> data)
             where TEntity : class
         {
-            // validate definition
-            if (!Validate(_mergeDefinition))
-                return null;
-
             var ignoreNames = _mergeDefinition.Columns
                 .Where(c => c.IsIgnored)
                 .Select(c => c.SourceColumn);
@@ -213,10 +217,6 @@ namespace FluentCommand.Merge
         {
             // update definition to include output
             _mergeDefinition.IncludeOutput = true;
-
-            // validate definition
-            if (!Validate(_mergeDefinition))
-                return null;
 
             var results = new List<DataMergeOutputRow>();
             var columns = _mergeDefinition.Columns
@@ -261,10 +261,13 @@ namespace FluentCommand.Merge
         }
 
 
-        private void Merge(DataTable table, Action<IDbCommand> executeFactory)
+        private void Merge(DataTable tableData, Action<IDbCommand> executeFactory)
         {
+            var isBulk = _mergeDefinition.Mode == DataMergeMode.BulkCopy
+                         || (_mergeDefinition.Mode == DataMergeMode.Auto && tableData.Rows.Count > 1000);
+
             // Step 1, validate definition
-            if (!Validate(_mergeDefinition))
+            if (!Validate(_mergeDefinition, isBulk))
                 return;
 
             try
@@ -277,31 +280,42 @@ namespace FluentCommand.Merge
                         "Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.");
 
                 var sqlTransaction = _dataSession.Transaction as SqlTransaction;
+                string mergeSql;
 
-                // Step 2, create temp table
-                string tableSql = DataMergeGenerator.BuildTable(_mergeDefinition);
-                using (var tableCommand = _dataSession.Connection.CreateCommand())
+                if (isBulk)
                 {
-                    tableCommand.CommandText = tableSql;
-                    tableCommand.CommandType = CommandType.Text;
-                    tableCommand.Transaction = sqlTransaction;
+                    // Step 2, create temp table
+                    string tableSql = DataMergeGenerator.BuildTable(_mergeDefinition);
+                    using (var tableCommand = _dataSession.Connection.CreateCommand())
+                    {
+                        tableCommand.CommandText = tableSql;
+                        tableCommand.CommandType = CommandType.Text;
+                        tableCommand.Transaction = sqlTransaction;
 
-                    tableCommand.ExecuteNonQuery();
+                        tableCommand.ExecuteNonQuery();
+                    }
+
+                    // Step 3, bulk copy into temp table
+                    using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                    {
+                        bulkCopy.DestinationTableName = _mergeDefinition.TemporaryTable;
+                        bulkCopy.BatchSize = 1000;
+                        foreach (var mergeColumn in _mergeDefinition.Columns.Where(c => !c.IsIgnored && c.CanBulkCopy))
+                            bulkCopy.ColumnMappings.Add(mergeColumn.SourceColumn, mergeColumn.SourceColumn);
+
+                        bulkCopy.WriteToServer(tableData);
+                    }
+
+                    // Step 4, merge sql
+                    mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition);
+                }
+                else
+                {
+                    // build merge from data
+                    mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition, tableData);
                 }
 
-                // Step 3, bulk copy into temp table
-                using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
-                {
-                    bulkCopy.DestinationTableName = _mergeDefinition.TemporaryTable;
-                    bulkCopy.BatchSize = 1000;
-                    foreach (var mergeColumn in _mergeDefinition.Columns.Where(c => !c.IsIgnored && c.CanBulkCopy))
-                        bulkCopy.ColumnMappings.Add(mergeColumn.SourceColumn, mergeColumn.SourceColumn);
-
-                    bulkCopy.WriteToServer(table);
-                }
-
-                // Step 4, run merge sql
-                string mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition);
+                // run merge statement
                 using (var mergeCommand = _dataSession.Connection.CreateCommand())
                 {
                     mergeCommand.CommandText = mergeSql;
@@ -323,6 +337,7 @@ namespace FluentCommand.Merge
         /// Validates the specified merge definition.
         /// </summary>
         /// <param name="mergeDefinition">The merge definition.</param>
+        /// <param name="isBulk"><c>true</c> if date merge mode is bulk copy; otherwise <c>false</c>.</param>
         /// <returns></returns>
         /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
         /// TargetTable is require for the merge definition.
@@ -335,7 +350,7 @@ namespace FluentCommand.Merge
         /// or
         /// NativeType is require for column merge definition.
         /// </exception>
-        public static bool Validate(DataMergeDefinition mergeDefinition)
+        public static bool Validate(DataMergeDefinition mergeDefinition, bool isBulk)
         {
             if (mergeDefinition.TargetTable.IsNullOrEmpty())
                 throw new ValidationException("TargetTable is require for the merge definition.");
@@ -370,7 +385,7 @@ namespace FluentCommand.Merge
                 if (column.TargetColumn.IsNullOrEmpty())
                     column.TargetColumn = column.SourceColumn;
 
-                if (column.NativeType.IsNullOrEmpty())
+                if (isBulk && column.NativeType.IsNullOrEmpty())
                     throw new ValidationException("NativeType is require for column '{0}' merge definition.".FormatWith(column.SourceColumn));
             }
 

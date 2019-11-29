@@ -7,15 +7,13 @@ namespace FluentCommand.Merge
     /// </summary>
     public class DataMergeColumnMapping : IDataColumnMapping
     {
-        private readonly DataMergeColumn _mergeColumn;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DataMergeColumnMapping"/> class.
         /// </summary>
         /// <param name="mergeColumn">The merge column definition to be updated.</param>
         public DataMergeColumnMapping(DataMergeColumn mergeColumn)
         {
-            _mergeColumn = mergeColumn;
+            MergeColumn = mergeColumn;
         }
 
         /// <summary>
@@ -24,10 +22,7 @@ namespace FluentCommand.Merge
         /// <value>
         /// The data merge column being updated.
         /// </value>
-        public DataMergeColumn MergeColumn
-        {
-            get { return _mergeColumn; }
-        }
+        public DataMergeColumn MergeColumn { get; }
 
         /// <summary>
         /// Sets the source column name used to read from source data.

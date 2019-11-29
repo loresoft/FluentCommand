@@ -135,25 +135,39 @@ CREATE TABLE IF NOT EXISTS "UserRole" (
 
 
 -- Foreign Keys
-ALTER TABLE IF EXISTS "Task"
+ALTER TABLE "Task"
+    DROP CONSTRAINT IF EXISTS "FK_Task_Priority_PriorityId";
+ALTER TABLE "Task"
     ADD CONSTRAINT "FK_Task_Priority_PriorityId" FOREIGN KEY ("PriorityId") REFERENCES "Priority" ("Id");
 
-ALTER TABLE IF EXISTS "Task"
+ALTER TABLE "Task"
+    DROP CONSTRAINT IF EXISTS "FK_Task_Status_StatusId";
+ALTER TABLE "Task"
     ADD CONSTRAINT "FK_Task_Status_StatusId" FOREIGN KEY ("StatusId") REFERENCES "Status" ("Id");
 
-ALTER TABLE IF EXISTS "Task"
+ALTER TABLE "Task"
+    DROP CONSTRAINT IF EXISTS "FK_Task_User_AssignedId";
+ALTER TABLE "Task"
     ADD CONSTRAINT "FK_Task_User_AssignedId" FOREIGN KEY ("AssignedId") REFERENCES "User" ("Id");
 
-ALTER TABLE IF EXISTS "TaskExtended"
+ALTER TABLE "TaskExtended"
+    DROP CONSTRAINT IF EXISTS "FK_TaskExtended_Task_TaskId";
+ALTER TABLE "TaskExtended"
     ADD CONSTRAINT "FK_TaskExtended_Task_TaskId" FOREIGN KEY ("TaskId") REFERENCES "Task" ("Id");
 
-ALTER TABLE IF EXISTS "UserLogin"
+ALTER TABLE "UserLogin"
+    DROP CONSTRAINT IF EXISTS "FK_UserLogin_User_UserId";
+ALTER TABLE "UserLogin"
     ADD CONSTRAINT "FK_UserLogin_User_UserId" FOREIGN KEY ("UserId") REFERENCES "User" ("Id");
 
-ALTER TABLE IF EXISTS "UserRole"
+ALTER TABLE "UserRole"
+    DROP CONSTRAINT IF EXISTS "FK_UserRole_Role_RoleId";
+ALTER TABLE "UserRole"
     ADD CONSTRAINT "FK_UserRole_Role_RoleId" FOREIGN KEY ("RoleId") REFERENCES "Role" ("Id");
 
-ALTER TABLE IF EXISTS "UserRole"
+ALTER TABLE "UserRole"
+    DROP CONSTRAINT IF EXISTS "FK_UserRole_User_UserId";
+ALTER TABLE "UserRole"
     ADD CONSTRAINT "FK_UserRole_User_UserId" FOREIGN KEY ("UserId") REFERENCES "User" ("Id");
 
 

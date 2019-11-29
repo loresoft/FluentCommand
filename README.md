@@ -35,70 +35,124 @@ In your Package Manager settings add the following package source for developmen
 - Create Dynamic objects from DataReader
 - Handles multiple result sets
 
+### Configuration
 
-## Example
+Configuration for SQL Server
+
+```c#
+IDataConfiguration dataConfiguration  = new DataConfiguration(
+    SqlClientFactory.Instance, 
+    ConnectionString
+);
+```
+
+### Example
 
 Query all users with email domain.  Entity is automaticly created from DataReader.
 
-    string email = "%@battlestar.com";
-    string sql = "select * from [User] where EmailAddress like @EmailAddress";
+```c#
+string email = "%@battlestar.com";
+string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-    List<User> users;
-    using (var session = new DataSession("Tracker").Log(Console.WriteLine))
-    {
-        users = session            
-            .Sql(sql)
-            .Parameter("@EmailAddress", email)
-            .Query<User>();
-    }
+List<User> users;
+using (var session = configuration.CreateSession())
+{
+    users = session            
+        .Sql(sql)
+        .Parameter("@EmailAddress", email)
+        .Query<User>();
+}
+```
 
 Execute a stored procedure with out parameters
 
-    Guid userId = Guid.Empty;
-    int errorCode = -1;
+```c#
+Guid userId = Guid.Empty;
+int errorCode = -1;
 
-    var username = "test." + DateTime.Now.Ticks;
-    var email = username + "@email.com";
+var username = "test." + DateTime.Now.Ticks;
+var email = username + "@email.com";
 
-    int result;
-    using (var session = new DataSession("AspNet").Log(Console.WriteLine))
-    {
-        result = session.StoredProcedure("[dbo].[aspnet_Membership_CreateUser]")
-            .Parameter("@ApplicationName", "/")
-            .Parameter("@UserName", username)
-            .Parameter("@Password", "T@est" + DateTime.Now.Ticks)
-            .Parameter("@Email", email)
-            .Parameter("@PasswordSalt", "test salt")
-            .Parameter<string>("@PasswordQuestion", null)
-            .Parameter<string>("@PasswordAnswer", null)
-            .Parameter("@IsApproved", true)
-            .Parameter("@CurrentTimeUtc", DateTime.UtcNow)
-            .Parameter("@UniqueEmail", 1)
-            .Parameter("@PasswordFormat", 1)
-            .ParameterOut<Guid>("@UserId", p => userId = p)
-            .Return<int>(p => errorCode = p)
-            .Execute();
-    }
+int result;
+using (var session = configuration.CreateSession())
+{
+    result = session.StoredProcedure("[dbo].[aspnet_Membership_CreateUser]")
+        .Parameter("@ApplicationName", "/")
+        .Parameter("@UserName", username)
+        .Parameter("@Password", "T@est" + DateTime.Now.Ticks)
+        .Parameter("@Email", email)
+        .Parameter("@PasswordSalt", "test salt")
+        .Parameter<string>("@PasswordQuestion", null)
+        .Parameter<string>("@PasswordAnswer", null)
+        .Parameter("@IsApproved", true)
+        .Parameter("@CurrentTimeUtc", DateTime.UtcNow)
+        .Parameter("@UniqueEmail", 1)
+        .Parameter("@PasswordFormat", 1)
+        .ParameterOut<Guid>("@UserId", p => userId = p)
+        .Return<int>(p => errorCode = p)
+        .Execute();
+}
+```
 
 Query for user by email address.  Also return Role and Status entities.
 
-    string email = "kara.thrace@battlestar.com";
-    string sql = "select * from [User] where EmailAddress = @EmailAddress; " +
-                 "select * from [Status]; " +
-                 "select * from [Priority]; ";
+```c#
+string email = "kara.thrace@battlestar.com";
+string sql = "select * from [User] where EmailAddress = @EmailAddress; " +
+             "select * from [Status]; " +
+             "select * from [Priority]; ";
 
-    User user = null;
-    List<Status> status = null;
-    List<Priority> priorities = null;
+User user = null;
+List<Status> status = null;
+List<Priority> priorities = null;
 
-    using (var session = new DataSession("Tracker").Log(Console.WriteLine))
-    {
-        session.Sql(sql)
-            .Parameter("@EmailAddress", email)
-            .QueryMultiple(q =>
-            {
-                user = q.QuerySingle<User>();
-                status = q.Query<Status>().ToList();
-                priorities = q.Query<Priority>().ToList();
-            });
-    }
+using (var session = configuration.CreateSession())
+{
+    session.Sql(sql)
+        .Parameter("@EmailAddress", email)
+        .QueryMultiple(q =>
+        {
+            user = q.QuerySingle<User>();
+            status = q.Query<Status>().ToList();
+            priorities = q.Query<Priority>().ToList();
+        });
+}
+```
+
+## SQL Server Features
+
+    PM> Install-Package FluentCommand.SqlServer
+
+### Bulk Copy
+
+Using SQL Server bulk copy feature to import a lot of data.
+
+```c#
+using (var session = configuration.CreateSession())
+{
+    session.BulkCopy("[User]")
+        .AutoMap()
+        .Ignore("RowVersion")
+        .WriteToServer(users);
+}
+```
+
+### Merge Data
+
+Generate and merge data into a table
+
+```c#
+var users = generator.List<UserImport>(100);
+
+int result;
+using (var session = configuration.CreateSession())
+{
+    result = session
+        .MergeData("dbo.User")
+        .Map<UserImport>(m => m
+            .AutoMap()
+            .Column(p => p.EmailAddress).Key()
+        )
+        .Merge(users);
+}
+```

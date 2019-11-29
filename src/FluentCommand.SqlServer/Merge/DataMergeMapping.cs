@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using FluentCommand.Extensions;
-using FluentCommand.Reflection;
 
 namespace FluentCommand.Merge
 {
@@ -41,8 +41,32 @@ namespace FluentCommand.Merge
         /// </returns>
         public IDataColumnMapping Column<TValue>(Expression<Func<TEntity, TValue>> sourceProperty)
         {
-            string sourceColumn = ReflectionHelper.ExtractPropertyName(sourceProperty);
+            if (sourceProperty == null)
+                throw new ArgumentNullException(nameof(sourceProperty));
+
+            string sourceColumn = ExtractName(sourceProperty);
             return Column(sourceColumn);
+        }
+
+        private string ExtractName<TValue>(Expression<Func<TEntity, TValue>> propertyExpression)
+        {
+            var memberExpression = propertyExpression.Body as MemberExpression;
+            if (memberExpression == null)
+                throw new ArgumentException("The expression is not a member access expression.", nameof(propertyExpression));
+
+            var property = memberExpression.Member as PropertyInfo;
+            if (property == null)
+                throw new ArgumentException("The member access expression does not access a property.", nameof(propertyExpression));
+
+            var column = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
+            if (!string.IsNullOrEmpty(column?.Name))
+                return column.Name;
+
+            var display = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
+            if (!string.IsNullOrEmpty(display?.Name))
+                return display.Name;
+
+            return property.Name;
         }
     }
 
@@ -51,15 +75,13 @@ namespace FluentCommand.Merge
     /// </summary>
     public class DataMergeMapping : IDataMergeMapping
     {
-        private readonly DataMergeDefinition _mergeDefinition;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DataMergeMapping"/> class.
         /// </summary>
         /// <param name="mergeDefinition">The data merge definition.</param>
         public DataMergeMapping(DataMergeDefinition mergeDefinition)
         {
-            _mergeDefinition = mergeDefinition;
+            MergeDefinition = mergeDefinition;
         }
 
         /// <summary>
@@ -68,10 +90,7 @@ namespace FluentCommand.Merge
         /// <value>
         /// The current data merge definition.
         /// </value>
-        public DataMergeDefinition MergeDefinition
-        {
-            get { return _mergeDefinition; }
-        }
+        public DataMergeDefinition MergeDefinition { get; }
 
         /// <summary>
         /// Start column mapping for the specified source column name.

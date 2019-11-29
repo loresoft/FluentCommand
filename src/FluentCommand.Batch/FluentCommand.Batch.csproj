@@ -12,11 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FluentCommand.EntityFactory\FluentCommand.EntityFactory.csproj" />
+    <ProjectReference Include="..\FluentCommand.SqlServer\FluentCommand.SqlServer.csproj" />
     <ProjectReference Include="..\FluentCommand\FluentCommand.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
   </ItemGroup>
 
 </Project>

@@ -10,6 +10,8 @@ namespace FluentCommand.Entities
         public string EmailAddress { get; set; }
         public bool IsEmailAddressConfirmed { get; set; }
         public string DisplayName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string PasswordHash { get; set; }
         public string ResetHash { get; set; }
         public string InviteHash { get; set; }
@@ -29,7 +31,5 @@ namespace FluentCommand.Entities
         public virtual ICollection<Task> CreatedTasks { get; set; } = new List<Task>();
         public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
     }
 }

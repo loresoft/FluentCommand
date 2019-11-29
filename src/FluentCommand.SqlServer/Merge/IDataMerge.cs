@@ -74,6 +74,15 @@ namespace FluentCommand.Merge
         IDataMerge Map<TEntity>(Action<DataMergeMapping<TEntity>> builder);
 
         /// <summary>
+        /// Sets the mode for how the merge will be processed.
+        /// </summary>
+        /// <param name="mergeMode">The merge mode.</param>
+        /// <returns>
+        /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+        /// </returns>
+        IDataMerge Mode(DataMergeMode mergeMode);
+
+        /// <summary>
         /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/>.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -82,9 +91,9 @@ namespace FluentCommand.Merge
         int Merge<TEntity>(IEnumerable<TEntity> data);
 
         /// <summary>
-        /// Merges the specified <paramref name="table"/> into the <see cref="TargetTable"/>.
+        /// Merges the specified <paramref name="tableData"/> into the <see cref="TargetTable"/>.
         /// </summary>
-        /// <param name="table">The table data to be merged.</param>
+        /// <param name="tableData">The table data to be merged.</param>
         /// <returns>The number of rows processed.</returns>
         /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
         /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
@@ -98,7 +107,7 @@ namespace FluentCommand.Merge
         /// or
         /// NativeType is require for column merge definition
         /// </exception>
-        int Merge(DataTable table);
+        int Merge(DataTable tableData);
 
         /// <summary>
         /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/> capturing the changes in the result.
@@ -125,5 +134,6 @@ namespace FluentCommand.Merge
         /// or
         /// NativeType is require for column merge definition</exception>
         IEnumerable<DataMergeOutputRow> MergeOutput(DataTable table);
+
     }
 }

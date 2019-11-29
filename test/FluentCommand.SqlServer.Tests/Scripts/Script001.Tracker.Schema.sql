@@ -97,6 +97,8 @@ CREATE TABLE [dbo].[User] (
     [EmailAddress] nvarchar(256) NOT NULL,
     [IsEmailAddressConfirmed] bit NOT NULL DEFAULT (0),
     [DisplayName] nvarchar(256) NOT NULL,
+    [FirstName] nvarchar(256) NULL,
+    [LastName] nvarchar(256) NULL,
     [PasswordHash] nvarchar(MAX) NULL,
     [ResetHash] nvarchar(MAX) NULL,
     [InviteHash] nvarchar(MAX) NULL,
@@ -147,6 +149,8 @@ CREATE TYPE [dbo].[UserImportType] AS TABLE
 (
     [EmailAddress] [nvarchar](256) NOT NULL,
     [DisplayName] [nvarchar](256) NOT NULL,
+    [FirstName] nvarchar(256) NULL,
+    [LastName] nvarchar(256) NULL,
     PRIMARY KEY ([EmailAddress])
 );
 

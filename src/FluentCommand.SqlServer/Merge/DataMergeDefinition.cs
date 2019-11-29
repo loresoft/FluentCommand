@@ -22,6 +22,7 @@ namespace FluentCommand.Merge
             TemporaryTable = "#Merge" + DateTime.Now.Ticks;
             IncludeInsert = true;
             IncludeUpdate = true;
+            Mode = DataMergeMode.Auto;
         }
 
         /// <summary>
@@ -88,7 +89,14 @@ namespace FluentCommand.Merge
         /// </value>
         public List<DataMergeColumn> Columns { get; set; }
 
-
+        /// <summary>
+        /// Gets or sets the mode for how the merge will be processed.
+        /// </summary>
+        /// <value>
+        /// The mode for how the merge will be processed.
+        /// </value>
+        /// <seealso cref="DataMergeMode"/>
+        public DataMergeMode Mode { get; set; }
 
         /// <summary>
         /// Creates new instance of <see cref="DataMergeDefinition"/> with properties from type <typeparamref name="TEntity"/> auto mapped.

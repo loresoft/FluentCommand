@@ -156,6 +156,8 @@ BEGIN
         t.[EmailAddress], 
         t.[IsEmailAddressConfirmed], 
         t.[DisplayName], 
+        t.[FirstName], 
+        t.[LastName], 
         t.[PasswordHash], 
         t.[ResetHash], 
         t.[InviteHash], 
@@ -225,17 +227,23 @@ BEGIN
         ON D.[EmailAddress] = S.[EmailAddress]
     WHEN MATCHED THEN
         UPDATE SET
-            D.[DisplayName] = S.[DisplayName]
+            D.[DisplayName] = S.[DisplayName],
+            D.[FirstName] = S.[FirstName],
+            D.[LastName] = S.[LastName]
     WHEN NOT MATCHED THEN
         INSERT
         (
             [EmailAddress],
-            [DisplayName]
+            [DisplayName],
+            [FirstName],
+            [LastName]
         )
         VALUES
         (
             S.[EmailAddress],
-            S.[DisplayName]
+            S.[DisplayName],
+            S.[FirstName],
+            S.[LastName]
         );
 
     SET NOCOUNT OFF;
