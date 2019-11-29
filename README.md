@@ -4,7 +4,13 @@ Fluent Wrapper for DbCommand.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/v9h2sdvcgmo4itj1?svg=true)](https://ci.appveyor.com/project/LoreSoft/fluentcommand)
 
-[![Coverage Status](https://coveralls.io/repos/github/loresoft/FluentCommand/badge.svg?branch=netcore)](https://coveralls.io/github/loresoft/FluentCommand?branch=netcore)
+[![Coverage Status](https://coveralls.io/repos/github/loresoft/FluentCommand/badge.svg?branch=master)](https://coveralls.io/github/loresoft/FluentCommand?branch=master)
+
+| Package | Version |
+| :--- | :--- |
+| [FluentCommand](https://www.nuget.org/packages/FluentCommand/) |  [![FluentCommand](https://img.shields.io/nuget/v/FluentCommand.svg)](https://www.nuget.org/packages/FluentCommand/) |
+| [FluentCommand.EntityFactory](https://www.nuget.org/packages/FluentCommand.EntityFactory/) |  [![FluentCommand.EntityFactory](https://img.shields.io/nuget/v/FluentCommand.EntityFactory.svg)](https://www.nuget.org/packages/FluentCommand.EntityFactory/) |
+| [FluentCommand.SqlServer](https://www.nuget.org/packages/FluentCommand.SqlServer/) |  [![FluentCommand.SqlServer](https://img.shields.io/nuget/v/FluentCommand.SqlServer.svg)](https://www.nuget.org/packages/FluentCommand.SqlServer/) |
 
 ## Download
 
