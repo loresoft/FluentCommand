@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentCommand.Extensions;
 using Microsoft.Data.SqlClient;
 
@@ -143,14 +146,14 @@ namespace FluentCommand.Merge
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="data">The data to be merged.</param>
         /// <returns>The number of rows processed.</returns>
-        public int Merge<TEntity>(IEnumerable<TEntity> data)
+        public int Execute<TEntity>(IEnumerable<TEntity> data)
         {
             var ignoreNames = _mergeDefinition.Columns
                 .Where(c => c.IsIgnored)
                 .Select(c => c.SourceColumn);
 
             var dataTable = data.ToDataTable(ignoreNames);
-            return Merge(dataTable);
+            return Execute(dataTable);
         }
 
         /// <summary>
@@ -170,10 +173,61 @@ namespace FluentCommand.Merge
         /// or
         /// NativeType is require for column merge definition
         /// </exception>
-        public int Merge(DataTable tableData)
+        public int Execute(DataTable tableData)
         {
             int result = 0;
             Merge(tableData, command => result = command.ExecuteNonQuery());
+
+            return result;
+        }
+
+        /// <summary>
+        /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/> asynchronously.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="data">The data to be merged.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>The number of rows processed.</returns>
+        public async Task<int> ExecuteAsync<TEntity>(IEnumerable<TEntity> data, CancellationToken cancellationToken = default)
+        {
+            var ignoreNames = _mergeDefinition.Columns
+                .Where(c => c.IsIgnored)
+                .Select(c => c.SourceColumn);
+
+            var dataTable = data.ToDataTable(ignoreNames);
+            var result = await ExecuteAsync(dataTable, cancellationToken);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Merges the specified <paramref name="tableData"/> into the <see cref="TargetTable"/> asynchronously.
+        /// </summary>
+        /// <param name="tableData">The table data to be merged.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>The number of rows processed.</returns>
+        /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
+        /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
+        /// TargetTable is require for the merge definition.
+        /// or
+        /// At least one column is required for the merge definition.
+        /// or
+        /// At least one column is required to be marked as a key for the merge definition.
+        /// or
+        /// SourceColumn is require for column merge definition
+        /// or
+        /// NativeType is require for column merge definition
+        /// </exception>
+        public async Task<int> ExecuteAsync(DataTable tableData, CancellationToken cancellationToken = default)
+        {
+            int result = 0;
+            await MergeAsync(tableData, cancellationToken, async (command, token) =>
+                {
+                    result = await command
+                        .ExecuteNonQueryAsync(token)
+                        .ConfigureAwait(false);
+
+                }).ConfigureAwait(false);
 
             return result;
         }
@@ -187,7 +241,7 @@ namespace FluentCommand.Merge
         /// <returns>
         /// A collection of <see cref="T:DataMergeOutput`1" /> instances.
         /// </returns>
-        public IEnumerable<DataMergeOutputRow> MergeOutput<TEntity>(IEnumerable<TEntity> data)
+        public IEnumerable<DataMergeOutputRow> ExecuteOutput<TEntity>(IEnumerable<TEntity> data)
             where TEntity : class
         {
             var ignoreNames = _mergeDefinition.Columns
@@ -195,7 +249,7 @@ namespace FluentCommand.Merge
                 .Select(c => c.SourceColumn);
 
             var dataTable = data.ToDataTable(ignoreNames);
-            return MergeOutput(dataTable);
+            return ExecuteOutput(dataTable);
         }
 
         /// <summary>
@@ -213,7 +267,7 @@ namespace FluentCommand.Merge
         /// SourceColumn is require for column merge definition
         /// or
         /// NativeType is require for column merge definition</exception>
-        public IEnumerable<DataMergeOutputRow> MergeOutput(DataTable table)
+        public IEnumerable<DataMergeOutputRow> ExecuteOutput(DataTable table)
         {
             // update definition to include output
             _mergeDefinition.IncludeOutput = true;
@@ -260,8 +314,97 @@ namespace FluentCommand.Merge
             return results;
         }
 
+        /// <summary>
+        /// Merges the specified <paramref name="data" /> into the <see cref="TargetTable" /> capturing the changes in the result asynchronously.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="data">The data to be merged.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A collection of <see cref="T:DataMergeOutput`1" /> instances.
+        /// </returns>
+        public async Task<IEnumerable<DataMergeOutputRow>> ExecuteOutputAsync<TEntity>(IEnumerable<TEntity> data, CancellationToken cancellationToken = default)
+            where TEntity : class
+        {
+            var ignoreNames = _mergeDefinition.Columns
+                .Where(c => c.IsIgnored)
+                .Select(c => c.SourceColumn);
 
-        private void Merge(DataTable tableData, Action<IDbCommand> executeFactory)
+            var dataTable = data.ToDataTable(ignoreNames);
+
+            var results = await ExecuteOutputAsync(dataTable, cancellationToken)
+                .ConfigureAwait(false);
+
+            return results;
+        }
+
+        /// <summary>
+        /// Merges the specified <paramref name="table" /> into the <see cref="TargetTable" /> capturing the changes in the result asynchronously.
+        /// </summary>
+        /// <param name="table">The table data to be merged.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A collection of the merge output in a dictionary.
+        /// </returns>
+        /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
+        /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">TargetTable is require for the merge definition.
+        /// or
+        /// At least one column is required for the merge definition.
+        /// or
+        /// At least one column is required to be marked as a key for the merge definition.
+        /// or
+        /// SourceColumn is require for column merge definition
+        /// or
+        /// NativeType is require for column merge definition</exception>
+        public async Task<IEnumerable<DataMergeOutputRow>> ExecuteOutputAsync(DataTable table, CancellationToken cancellationToken = default)
+        {
+            // update definition to include output
+            _mergeDefinition.IncludeOutput = true;
+
+            var results = new List<DataMergeOutputRow>();
+            var columns = _mergeDefinition.Columns
+                .Where(c => c.IsIgnored == false)
+                .ToList();
+
+            // run merge capturing output
+            await MergeAsync(table, cancellationToken, async (command, token) =>
+            {
+                using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false))
+                {
+                    var originalReader = new DataReaderWrapper(reader, DataMergeGenerator.OriginalPrefix);
+                    var currentReader = new DataReaderWrapper(reader, DataMergeGenerator.CurrentPrefix);
+
+                    while (await reader.ReadAsync(token).ConfigureAwait(false))
+                    {
+                        var output = new DataMergeOutputRow();
+
+                        string action = reader.GetString("Action");
+                        output.Action = action;
+
+                        // copy to dictionary
+                        foreach (var column in columns)
+                        {
+                            string name = column.SourceColumn;
+
+                            var outputColumn = new DataMergeOutputColumn();
+                            outputColumn.Name = name;
+                            outputColumn.Original = originalReader.GetValue(name);
+                            outputColumn.Current = currentReader.GetValue(name);
+                            outputColumn.Type = currentReader.GetFieldType(name);
+
+                            output.Columns.Add(outputColumn);
+                        }
+
+                        results.Add(output);
+                    }
+                }
+            });
+
+            return results;
+        }
+
+
+        private void Merge(DataTable tableData, Action<DbCommand> executeFactory)
         {
             var isBulk = _mergeDefinition.Mode == DataMergeMode.BulkCopy
                          || (_mergeDefinition.Mode == DataMergeMode.Auto && tableData.Rows.Count > 1000);
@@ -332,6 +475,83 @@ namespace FluentCommand.Merge
             }
         }
 
+        private async Task MergeAsync(DataTable tableData, CancellationToken cancellationToken, Func<DbCommand, CancellationToken, Task> executeFactory)
+        {
+            var isBulk = _mergeDefinition.Mode == DataMergeMode.BulkCopy
+                         || (_mergeDefinition.Mode == DataMergeMode.Auto && tableData.Rows.Count > 1000);
+
+            // Step 1, validate definition
+            if (!Validate(_mergeDefinition, isBulk))
+                return;
+
+            try
+            {
+                await _dataSession
+                    .EnsureConnectionAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                var sqlConnection = _dataSession.Connection as SqlConnection;
+                if (sqlConnection == null)
+                    throw new InvalidOperationException(
+                        "Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.");
+
+                var sqlTransaction = _dataSession.Transaction as SqlTransaction;
+                string mergeSql;
+
+                if (isBulk)
+                {
+                    // Step 2, create temp table
+                    string tableSql = DataMergeGenerator.BuildTable(_mergeDefinition);
+                    using (var tableCommand = _dataSession.Connection.CreateCommand())
+                    {
+                        tableCommand.CommandText = tableSql;
+                        tableCommand.CommandType = CommandType.Text;
+                        tableCommand.Transaction = sqlTransaction;
+
+                        await tableCommand
+                            .ExecuteNonQueryAsync(cancellationToken)
+                            .ConfigureAwait(false);
+                    }
+
+                    // Step 3, bulk copy into temp table
+                    using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                    {
+                        bulkCopy.DestinationTableName = _mergeDefinition.TemporaryTable;
+                        bulkCopy.BatchSize = 1000;
+                        foreach (var mergeColumn in _mergeDefinition.Columns.Where(c => !c.IsIgnored && c.CanBulkCopy))
+                            bulkCopy.ColumnMappings.Add(mergeColumn.SourceColumn, mergeColumn.SourceColumn);
+
+                        await bulkCopy
+                            .WriteToServerAsync(tableData, cancellationToken)
+                            .ConfigureAwait(false);
+                    }
+
+                    // Step 4, merge sql
+                    mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition);
+                }
+                else
+                {
+                    // build merge from data
+                    mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition, tableData);
+                }
+
+                // run merge statement
+                using (var mergeCommand = _dataSession.Connection.CreateCommand())
+                {
+                    mergeCommand.CommandText = mergeSql;
+                    mergeCommand.CommandType = CommandType.Text;
+                    mergeCommand.Transaction = sqlTransaction;
+
+                    // run merge with factory
+                    await executeFactory(mergeCommand, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                _dataSession.ReleaseConnection();
+            }
+        }
 
         /// <summary>
         /// Validates the specified merge definition.

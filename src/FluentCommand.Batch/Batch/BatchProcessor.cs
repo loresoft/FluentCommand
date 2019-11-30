@@ -109,7 +109,7 @@ namespace FluentCommand.Batch
             {
                 result = session
                     .MergeData(mergeDefinition)
-                    .MergeOutput(dataTable)
+                    .ExecuteOutput(dataTable)
                     .ToList();
             }
             return result;

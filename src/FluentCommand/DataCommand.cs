@@ -238,7 +238,7 @@ namespace FluentCommand
         /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
         /// </returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-        public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default)
             where TEntity : class
         {
             if (factory == null)
@@ -309,7 +309,7 @@ namespace FluentCommand
                 {
                     result = reader.Read()
                         ? factory(reader)
-                        : default(TEntity);
+                        : default;
                 }
 
                 TriggerCallbacks();
@@ -334,7 +334,7 @@ namespace FluentCommand
         /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
         /// </returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-        public async Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default)
             where TEntity : class
         {
             if (factory == null)
@@ -356,7 +356,7 @@ namespace FluentCommand
                 {
                     result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
                         ? factory(reader)
-                        : default(TEntity);
+                        : default;
                 }
 
                 TriggerCallbacks();
@@ -419,7 +419,7 @@ namespace FluentCommand
         /// <returns>
         /// The value of the first column of the first row in the result set.
         /// </returns>
-        public async Task<TValue> QueryValueAsync<TValue>(Func<object, TValue> convert, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TValue> QueryValueAsync<TValue>(Func<object, TValue> convert, CancellationToken cancellationToken = default)
         {
             AssertDisposed();
 
@@ -495,7 +495,7 @@ namespace FluentCommand
         /// <returns>
         /// A <see cref="DataTable" /> of the results.
         /// </returns>
-        public async Task<DataTable> QueryTableAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<DataTable> QueryTableAsync(CancellationToken cancellationToken = default)
         {
             AssertDisposed();
 
@@ -566,7 +566,7 @@ namespace FluentCommand
         /// </summary>
         /// <param name="queryAction">The query action delegate to pass the open <see cref="IDataQueryAsync" /> for reading multiple results.</param>
         /// <param name="cancellationToken">The cancellation instruction.</param>
-        public async Task QueryMultipleAsync(Action<IDataQueryAsync> queryAction, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task QueryMultipleAsync(Action<IDataQueryAsync> queryAction, CancellationToken cancellationToken = default)
         {
             if (queryAction == null)
                 throw new ArgumentNullException(nameof(queryAction));
@@ -630,7 +630,7 @@ namespace FluentCommand
         /// <returns>
         /// The number of rows affected.
         /// </returns>
-        public async Task<int> ExecuteAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<int> ExecuteAsync(CancellationToken cancellationToken = default)
         {
             AssertDisposed();
 
@@ -684,7 +684,7 @@ namespace FluentCommand
         /// </summary>
         /// <param name="cancellationToken">The cancellation instruction.</param>
         /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
-        public async Task ReadAsync(Action<IDataReader> readAction, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task ReadAsync(Action<IDataReader> readAction, CancellationToken cancellationToken = default)
         {
             AssertDisposed();
 

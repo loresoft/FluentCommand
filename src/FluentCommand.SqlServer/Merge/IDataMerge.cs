@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentCommand.Merge
 {
@@ -82,13 +84,14 @@ namespace FluentCommand.Merge
         /// </returns>
         IDataMerge Mode(DataMergeMode mergeMode);
 
+
         /// <summary>
         /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/>.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="data">The data to be merged.</param>
         /// <returns>The number of rows processed.</returns>
-        int Merge<TEntity>(IEnumerable<TEntity> data);
+        int Execute<TEntity>(IEnumerable<TEntity> data);
 
         /// <summary>
         /// Merges the specified <paramref name="tableData"/> into the <see cref="TargetTable"/>.
@@ -107,7 +110,37 @@ namespace FluentCommand.Merge
         /// or
         /// NativeType is require for column merge definition
         /// </exception>
-        int Merge(DataTable tableData);
+        int Execute(DataTable tableData);
+
+        /// <summary>
+        /// Merges the specified <paramref name="data"/> into the <see cref="DataMerge.TargetTable"/> asynchronously.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="data">The data to be merged.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>The number of rows processed.</returns>
+        Task<int> ExecuteAsync<TEntity>(IEnumerable<TEntity> data, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Merges the specified <paramref name="tableData"/> into the <see cref="DataMerge.TargetTable"/> asynchronously.
+        /// </summary>
+        /// <param name="tableData">The table data to be merged.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>The number of rows processed.</returns>
+        /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
+        /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
+        /// TargetTable is require for the merge definition.
+        /// or
+        /// At least one column is required for the merge definition.
+        /// or
+        /// At least one column is required to be marked as a key for the merge definition.
+        /// or
+        /// SourceColumn is require for column merge definition
+        /// or
+        /// NativeType is require for column merge definition
+        /// </exception>
+        Task<int> ExecuteAsync(DataTable tableData, CancellationToken cancellationToken = default);
+
 
         /// <summary>
         /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/> capturing the changes in the result.
@@ -115,7 +148,7 @@ namespace FluentCommand.Merge
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="data">The data to be merged.</param>
         /// <returns>A collection of <see cref="T:DataMergeOutput`1"/> instances.</returns>
-        IEnumerable<DataMergeOutputRow> MergeOutput<TEntity>(IEnumerable<TEntity> data)
+        IEnumerable<DataMergeOutputRow> ExecuteOutput<TEntity>(IEnumerable<TEntity> data)
             where TEntity : class;
 
         /// <summary>
@@ -133,7 +166,38 @@ namespace FluentCommand.Merge
         /// SourceColumn is require for column merge definition
         /// or
         /// NativeType is require for column merge definition</exception>
-        IEnumerable<DataMergeOutputRow> MergeOutput(DataTable table);
+        IEnumerable<DataMergeOutputRow> ExecuteOutput(DataTable table);
+        
+        /// <summary>
+        /// Merges the specified <paramref name="data" /> into the <see cref="DataMerge.TargetTable" /> capturing the changes in the result asynchronously.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="data">The data to be merged.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A collection of <see cref="T:DataMergeOutput`1" /> instances.
+        /// </returns>
+        Task<IEnumerable<DataMergeOutputRow>> ExecuteOutputAsync<TEntity>(IEnumerable<TEntity> data, CancellationToken cancellationToken = default)
+            where TEntity : class;
 
+        /// <summary>
+        /// Merges the specified <paramref name="table" /> into the <see cref="DataMerge.TargetTable" /> capturing the changes in the result asynchronously.
+        /// </summary>
+        /// <param name="table">The table data to be merged.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A collection of the merge output in a dictionary.
+        /// </returns>
+        /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
+        /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">TargetTable is require for the merge definition.
+        /// or
+        /// At least one column is required for the merge definition.
+        /// or
+        /// At least one column is required to be marked as a key for the merge definition.
+        /// or
+        /// SourceColumn is require for column merge definition
+        /// or
+        /// NativeType is require for column merge definition</exception>
+        Task<IEnumerable<DataMergeOutputRow>> ExecuteOutputAsync(DataTable table, CancellationToken cancellationToken = default);
     }
 }
