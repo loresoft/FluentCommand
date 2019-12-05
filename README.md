@@ -150,15 +150,15 @@ Generate and merge data into a table
 ```c#
 var users = generator.List<UserImport>(100);
 
-int result;
+int rows;
 using (var session = configuration.CreateSession())
 {
-    result = session
+    rows = session
         .MergeData("dbo.User")
         .Map<UserImport>(m => m
             .AutoMap()
             .Column(p => p.EmailAddress).Key()
         )
-        .Merge(users);
+        .Execute(users);
 }
 ```
