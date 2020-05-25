@@ -498,7 +498,7 @@ namespace FluentCommand.Extensions
             }
 
             // check nullable
-            if (input == null && type.IsNullable())
+            if ((input == null || input.IsNullOrEmpty()) && type.IsNullable())
             {
                 value = null;
                 return true;
@@ -578,8 +578,8 @@ namespace FluentCommand.Extensions
                 return true;
             }
 
-            value = input;
-            return true;
+            value = default;
+            return false;
         }
 
 

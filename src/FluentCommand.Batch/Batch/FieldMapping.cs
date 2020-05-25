@@ -178,7 +178,7 @@ namespace FluentCommand.Batch
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}, DataType: {1}", base.ToString(), DataType);
+            return $"{base.ToString()}, DataType: {DataType}";
         }
     }
 }

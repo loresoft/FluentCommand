@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace FluentCommand.Batch
+﻿namespace FluentCommand.Import
 {
     /// <summary>
-    /// Field definition 
+    /// Import field mapping
     /// </summary>
-    public class FieldIndex
+    public class FieldMap
     {
         /// <summary>
         /// Gets or sets the field index.
