@@ -19,11 +19,14 @@ namespace FluentCommand.Import
         /// <returns>An instance of <see cref="DataTable"/>.</returns>
         public virtual DataTable CreateTable(ImportDefinition importDefinition)
         {
+            if (importDefinition == null)
+                throw new ArgumentNullException(nameof(importDefinition));
+
             var dataTable = new DataTable("#Import" + DateTime.Now.Ticks);
 
             foreach (var definitionColumn in importDefinition.Fields)
             {
-                var dataType = Nullable.GetUnderlyingType(definitionColumn.DataType) 
+                var dataType = Nullable.GetUnderlyingType(definitionColumn.DataType)
                     ?? definitionColumn.DataType;
 
                 var dataColumn = new DataColumn
@@ -46,6 +49,12 @@ namespace FluentCommand.Import
         /// <returns>An instance of <see cref="DataTable" />.</returns>
         public DataTable CreateTable(ImportDefinition importDefinition, ImportData importData)
         {
+            if (importDefinition == null)
+                throw new ArgumentNullException(nameof(importDefinition));
+
+            if (importData == null)
+                throw new ArgumentNullException(nameof(importData));
+
             var dataTable = CreateTable(importDefinition);
             return PopulateTable(dataTable, importDefinition, importData);
         }
@@ -59,6 +68,15 @@ namespace FluentCommand.Import
         /// <returns></returns>
         public virtual DataTable PopulateTable(DataTable dataTable, ImportDefinition importDefinition, ImportData importData)
         {
+            if (dataTable == null)
+                throw new ArgumentNullException(nameof(dataTable));
+
+            if (importDefinition == null)
+                throw new ArgumentNullException(nameof(importDefinition));
+
+            if (importData == null)
+                throw new ArgumentNullException(nameof(importData));
+
             var rows = importData.Data.Length;
             if (rows == 0)
                 return dataTable;
@@ -69,7 +87,7 @@ namespace FluentCommand.Import
             foreach (var row in importData.Data)
             {
                 var dataRow = dataTable.NewRow();
-                
+
                 PopulateRow(dataRow, fields, mappings, row);
 
                 dataTable.Rows.Add(dataRow);
@@ -93,7 +111,7 @@ namespace FluentCommand.Import
             foreach (var field in fields)
             {
                 var index = GetIndex(field, mappings, columns);
-                if (!index.HasValue) 
+                if (!index.HasValue)
                     continue;
 
                 var input = row[index.Value];

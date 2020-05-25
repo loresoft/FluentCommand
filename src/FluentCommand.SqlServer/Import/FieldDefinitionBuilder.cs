@@ -100,7 +100,7 @@ namespace FluentCommand.Import
         /// <exception cref="ArgumentNullException">when value is null</exception>
         public FieldDefinitionBuilder Expression(string value)
         {
-            if (value == null) 
+            if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
             _fieldDefinition.MatchExpressions.Add(value);

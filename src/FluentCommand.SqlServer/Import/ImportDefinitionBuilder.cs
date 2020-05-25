@@ -17,8 +17,10 @@ namespace FluentCommand.Import
         /// <exception cref="ArgumentNullException">importDefinition</exception>
         public ImportDefinitionBuilder(ImportDefinition importDefinition)
         {
-            _importDefinition = importDefinition 
-                                ?? throw new ArgumentNullException(nameof(importDefinition));
+            if (importDefinition == null)
+                throw new ArgumentNullException(nameof(importDefinition));
+
+            _importDefinition = importDefinition;
         }
 
         /// <summary>
@@ -39,12 +41,12 @@ namespace FluentCommand.Import
         /// <param name="builder">The fluent builder action.</param>
         /// <returns>Fluent builder for <see cref="ImportDefinition"/></returns>
         /// <exception cref="ArgumentNullException">when the builder action in null</exception>
-        public ImportDefinitionBuilder Map(Action<FieldDefinitionBuilder> builder)
+        public ImportDefinitionBuilder Field(Action<FieldDefinitionBuilder> builder)
         {
-            if (builder == null) 
+            if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
-            return Map(null, builder);
+            return Field(null, builder);
         }
 
         /// <summary>
@@ -56,9 +58,9 @@ namespace FluentCommand.Import
         /// Fluent builder for <see cref="ImportDefinition" />
         /// </returns>
         /// <exception cref="ArgumentNullException">when the builder action in null</exception>
-        public ImportDefinitionBuilder Map(string fieldName, Action<FieldDefinitionBuilder> builder)
+        public ImportDefinitionBuilder Field(string fieldName, Action<FieldDefinitionBuilder> builder)
         {
-            if (builder == null) 
+            if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
             var fieldMapping = _importDefinition.Fields.FirstOrDefault(m => m.FieldName == fieldName);
@@ -84,7 +86,7 @@ namespace FluentCommand.Import
         /// <param name="fieldName">Name of the field to map.</param>
         /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
         /// <exception cref="ArgumentNullException">when the field name in null</exception>
-        public FieldDefinitionBuilder Map(string fieldName)
+        public FieldDefinitionBuilder Field(string fieldName)
         {
             var fieldMapping = _importDefinition.Fields.FirstOrDefault(m => m.FieldName == fieldName);
             if (fieldMapping == null)

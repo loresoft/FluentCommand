@@ -16,23 +16,23 @@ namespace FluentCommand.SqlServer.Tests
         {
             var userDefinition = ImportDefinition.Build(b => b
                 .ImportName("User")
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("Email Address")
                     .FieldName("EmailAddress")
                     .DataType<string>()
                     .Required()
                 )
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("First Name")
                     .FieldName("FirstName")
                     .DataType<string>()
                 )
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("Last Name")
                     .FieldName("LastName")
                     .DataType<string>()
                 )
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("Validated")
                     .FieldName("IsValidated")
                     .DataType<bool>()
@@ -64,28 +64,28 @@ namespace FluentCommand.SqlServer.Tests
         {
             var userDefinition = ImportDefinition.Build(b => b
                 .ImportName("User")
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("Email Address")
                     .FieldName("EmailAddress")
                     .DataType<string>()
                     .Required()
                 )
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("First Name")
                     .FieldName("FirstName")
                     .DataType<string>()
                 )
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("Last Name")
                     .FieldName("LastName")
                     .DataType<string>()
                 )
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("Validated")
                     .FieldName("IsValidated")
                     .DataType<bool>()
                 )
-                .Map(f => f
+                .Field(f => f
                     .DisplayName("Lockout Count")
                     .FieldName("LockoutCount")
                     .DataType<int?>()
