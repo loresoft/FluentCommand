@@ -13,6 +13,8 @@ namespace FluentCommand.Import
         /// </summary>
         public ImportDefinition()
         {
+            CanInsert = true;
+            CanUpdate = true;
             Fields = new List<FieldDefinition>();
         }
 
@@ -22,7 +24,31 @@ namespace FluentCommand.Import
         /// <value>
         /// The name of the import.
         /// </value>
-        public string ImportName { get; set; }
+        public string Name { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the target table to merge the uploaded data into.
+        /// </summary>
+        /// <value>
+        /// The target table name.
+        /// </value>
+        public string TargetTable { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether data can be inserted that doesn't exists in the <see cref="TargetTable"/>.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if data can be inserted; otherwise, <c>false</c>.
+        /// </value>
+        public bool CanInsert { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether data can be updated when it exists in the <see cref="TargetTable"/>.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if data can be updated; otherwise, <c>false</c>.
+        /// </value>
+        public bool CanUpdate { get; set; }
 
         /// <summary>
         /// Gets or sets the list of field definitions.
@@ -31,7 +57,7 @@ namespace FluentCommand.Import
         /// The list of field definitions.
         /// </value>
         public List<FieldDefinition> Fields { get; set; }
-
+        
 
         /// <summary>
         /// Builds an <see cref="ImportDefinition"/> using the specified builder action.

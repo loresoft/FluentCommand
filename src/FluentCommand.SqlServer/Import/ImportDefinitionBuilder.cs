@@ -29,11 +29,56 @@ namespace FluentCommand.Import
         /// <param name="name">The import name value.</param>
         /// <returns>Fluent builder for <see cref="ImportDefinition"/></returns>
         /// <exception cref="ArgumentNullException">when value is null</exception>
-        public ImportDefinitionBuilder ImportName(string name)
+        public ImportDefinitionBuilder Name(string name)
         {
-            _importDefinition.ImportName = name;
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
+            _importDefinition.Name = name;
             return this;
         }
+        
+        /// <summary>
+        /// Sets the target table for the <see cref="ImportDefinition"/>
+        /// </summary>
+        /// <param name="name">The target table name.</param>
+        /// <returns>Fluent builder for <see cref="ImportDefinition"/></returns>
+        /// <exception cref="ArgumentNullException">when value is null</exception>
+        public ImportDefinitionBuilder TargetTable(string name)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+            
+            _importDefinition.TargetTable = name;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets weather data can be inserted into target table for the <see cref="ImportDefinition" />
+        /// </summary>
+        /// <param name="value">if set to <c>true</c> allow inserts.</param>
+        /// <returns>
+        /// Fluent builder for <see cref="ImportDefinition" />
+        /// </returns>
+        public ImportDefinitionBuilder CanInsert(bool value = true)
+        {
+            _importDefinition.CanInsert = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets weather data can be updated in target table for the <see cref="ImportDefinition" />
+        /// </summary>
+        /// <param name="value">if set to <c>true</c> allow updates.</param>
+        /// <returns>
+        /// Fluent builder for <see cref="ImportDefinition" />
+        /// </returns>
+        public ImportDefinitionBuilder CanUpdate(bool value = true)
+        {
+            _importDefinition.CanUpdate = value;
+            return this;
+        }
+
 
         /// <summary>
         /// Maps import fields with specified fluent <paramref name="builder"/> action.
@@ -63,10 +108,10 @@ namespace FluentCommand.Import
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
 
-            var fieldMapping = _importDefinition.Fields.FirstOrDefault(m => m.FieldName == fieldName);
+            var fieldMapping = _importDefinition.Fields.FirstOrDefault(m => m.Name == fieldName);
             if (fieldMapping == null)
             {
-                fieldMapping = new FieldDefinition { FieldName = fieldName };
+                fieldMapping = new FieldDefinition { Name = fieldName };
                 _importDefinition.Fields.Add(fieldMapping);
             }
 
@@ -88,10 +133,13 @@ namespace FluentCommand.Import
         /// <exception cref="ArgumentNullException">when the field name in null</exception>
         public FieldDefinitionBuilder Field(string fieldName)
         {
-            var fieldMapping = _importDefinition.Fields.FirstOrDefault(m => m.FieldName == fieldName);
+            if (fieldName == null) 
+                throw new ArgumentNullException(nameof(fieldName));
+
+            var fieldMapping = _importDefinition.Fields.FirstOrDefault(m => m.Name == fieldName);
             if (fieldMapping == null)
             {
-                fieldMapping = new FieldDefinition { FieldName = fieldName };
+                fieldMapping = new FieldDefinition { Name = fieldName };
                 _importDefinition.Fields.Add(fieldMapping);
             }
 

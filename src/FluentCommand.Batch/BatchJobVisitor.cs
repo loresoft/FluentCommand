@@ -16,20 +16,9 @@ namespace FluentCommand.Batch
         /// <param name="batchJob">The <see cref="BatchJob"/> to visit.</param>
         public virtual void Visit(BatchJob batchJob)
         {
-            foreach (var item in batchJob.SourceFields)
-                VisitFieldIndex(item);
-
-            foreach (var item in batchJob.SourceMapping)
+            foreach (var item in batchJob.Fields)
                 VisitFieldMapping(item);
 
-        }
-
-        /// <summary>
-        /// Visits the specified <see cref="FieldIndex"/>.
-        /// </summary>
-        /// <param name="fieldIndex">The <see cref="FieldIndex"/> to visit.</param>
-        public virtual void VisitFieldIndex(FieldIndex fieldIndex)
-        {
         }
 
         /// <summary>

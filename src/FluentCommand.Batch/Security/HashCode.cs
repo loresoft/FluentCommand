@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FluentCommand.Security
+﻿namespace FluentCommand.Batch.Security
 {
     /// <summary>
     /// An immutable hash code structure

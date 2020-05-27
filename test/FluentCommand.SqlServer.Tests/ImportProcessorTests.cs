@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentCommand.Import;
+using Moq;
 using Xunit;
 
 namespace FluentCommand.SqlServer.Tests
@@ -15,7 +16,7 @@ namespace FluentCommand.SqlServer.Tests
         public void CreateTable()
         {
             var userDefinition = ImportDefinition.Build(b => b
-                .ImportName("User")
+                .Name("User")
                 .Field(f => f
                     .DisplayName("Email Address")
                     .FieldName("EmailAddress")
@@ -40,10 +41,11 @@ namespace FluentCommand.SqlServer.Tests
             );
 
             userDefinition.Should().NotBeNull();
-            userDefinition.ImportName.Should().Be("User");
+            userDefinition.Name.Should().Be("User");
             userDefinition.Fields.Count.Should().Be(4);
 
-            var importProcessor = new ImportProcessor();
+            var dataSessionMock = new Mock<IDataSession>();
+            var importProcessor = new ImportProcessor(dataSessionMock.Object);
             importProcessor.Should().NotBeNull();
 
             var dataTable = importProcessor.CreateTable(userDefinition);
@@ -63,7 +65,7 @@ namespace FluentCommand.SqlServer.Tests
         public void CreateAndPopulateTable()
         {
             var userDefinition = ImportDefinition.Build(b => b
-                .ImportName("User")
+                .Name("User")
                 .Field(f => f
                     .DisplayName("Email Address")
                     .FieldName("EmailAddress")
@@ -93,7 +95,7 @@ namespace FluentCommand.SqlServer.Tests
             );
 
             userDefinition.Should().NotBeNull();
-            userDefinition.ImportName.Should().Be("User");
+            userDefinition.Name.Should().Be("User");
             userDefinition.Fields.Count.Should().Be(5);
 
             var importData = new ImportData();
@@ -108,12 +110,14 @@ namespace FluentCommand.SqlServer.Tests
             };
             importData.Data = new[]
             {
+                new[] {"EmailAddress", "IsValidated", "LastName", "FirstName", "LockoutCount"},
                 new[] {"user1@email.com", "true", "last1", "first1", ""},
                 new[] {"user2@email.com", "false", "", "first2", ""},
                 new[] {"user3@email.com", "", "last3", "first3", "2"},
             };
 
-            var importProcessor = new ImportProcessor();
+            var dataSessionMock = new Mock<IDataSession>();
+            var importProcessor = new ImportProcessor(dataSessionMock.Object);
             importProcessor.Should().NotBeNull();
 
             var dataTable = importProcessor.CreateTable(userDefinition, importData);

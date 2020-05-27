@@ -20,19 +20,5 @@ namespace FluentCommand.Batch
         /// <param name="name">The name of the validator.</param>
         /// <returns>An instance of <see cref="T:IBatchValidator"/> if found; otherwise null.</returns>
         IBatchValidator ResolveValidator(string name);
-
-        /// <summary>
-        /// Resolves the reader for the specified name.
-        /// </summary>
-        /// <param name="name">The reader name.</param>
-        /// <returns>
-        /// An instance of <see cref="T:IBatchReader" /> if found; otherwise null.
-        /// </returns>
-        IBatchReader ResolveReader(string name);
-
-        /// <summary>
-        /// Resets all cached instances.
-        /// </summary>
-        void Reset();
     }
 }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
+using FluentCommand.Batch.Security;
 using FluentCommand.Extensions;
-using FluentCommand.Security;
 
 namespace FluentCommand.Batch.Validation
 {
@@ -36,8 +35,8 @@ namespace FluentCommand.Batch.Validation
         protected IList<string> SelectFields(BatchJob batchJob, IEnumerable<string> fields)
         {
             var selectFields = batchJob
-                .SourceMapping
-                .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.IsIncluded)
+                .Fields
+                .Where(b => b.Index.HasValue || b.Default.HasValue)
                 .Select(b => b.Name)
                 .Intersect(fields)
                 .ToList();
@@ -49,8 +48,8 @@ namespace FluentCommand.Batch.Validation
         protected void CheckForNull(BatchJob batchJob, DataRow targetRow)
         {
             var requiredFields = batchJob
-                .SourceMapping
-                .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.IsIncluded && b.CanBeNull == false)
+                .Fields
+                .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.CanBeNull == false)
                 .Select(b => b.Name)
                 .ToList();
 
@@ -70,8 +69,8 @@ namespace FluentCommand.Batch.Validation
         protected void CheckForDuplicate(BatchJob batchJob, DataRow targetRow)
         {
             var keyFields = batchJob
-                .SourceMapping
-                .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.IsIncluded && b.IsKey)
+                .Fields
+                .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.IsKey)
                 .Select(b => b.Name)
                 .ToList();
 
@@ -92,5 +91,5 @@ namespace FluentCommand.Batch.Validation
 
             throw new DuplicateException(message);
         }
-}
+    }
 }

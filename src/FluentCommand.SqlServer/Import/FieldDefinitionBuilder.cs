@@ -34,7 +34,7 @@ namespace FluentCommand.Import
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            _fieldDefinition.FieldName = value;
+            _fieldDefinition.Name = value;
 
             return this;
         }
@@ -82,13 +82,53 @@ namespace FluentCommand.Import
         }
 
         /// <summary>
+        /// Sets whether the field is a key.
+        /// </summary>
+        /// <param name="value">if set to <c>true</c> field is key.</param>
+        /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
+        public FieldDefinitionBuilder IsKey(bool value = true)
+        {
+            _fieldDefinition.IsKey = value;
+
+            if (!value)
+                return this;
+
+            // defaults for a key field
+            _fieldDefinition.CanUpdate = false;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Set whether the field can insert a value.
+        /// </summary>
+        /// <param name="value">if set to <c>true</c> field can insert.</param>
+        /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
+        public FieldDefinitionBuilder CanInsert(bool value = true)
+        {
+            _fieldDefinition.CanInsert = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Set whether the field can update a value.
+        /// </summary>
+        /// <param name="value">if set to <c>true</c> field can update.</param>
+        /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
+        public FieldDefinitionBuilder CanUpdate(bool value = true)
+        {
+            _fieldDefinition.CanUpdate = value;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the field as required for the <see cref="FieldDefinition"/>
         /// </summary>
         /// <param name="value">The required field value.</param>
         /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
         public FieldDefinitionBuilder Required(bool value = true)
         {
-            _fieldDefinition.Required = value;
+            _fieldDefinition.IsRequired = value;
             return this;
         }
 

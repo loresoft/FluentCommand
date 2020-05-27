@@ -13,6 +13,8 @@ namespace FluentCommand.Import
         /// </summary>
         public FieldDefinition()
         {
+            CanInsert = true;
+            CanUpdate = true;
             MatchExpressions = new List<string>();
         }
 
@@ -30,7 +32,7 @@ namespace FluentCommand.Import
         /// <value>
         /// The name of the field.
         /// </value>
-        public string FieldName { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the field.
@@ -41,12 +43,36 @@ namespace FluentCommand.Import
         public Type DataType { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this field is a key.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this field is a key; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this field can insert.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this field can insert; otherwise, <c>false</c>.
+        /// </value>
+        public bool CanInsert { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this field can update.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this field can update; otherwise, <c>false</c>.
+        /// </value>
+        public bool CanUpdate { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this <see cref="FieldDefinition"/> is required.
         /// </summary>
         /// <value>
         ///   <c>true</c> if required; otherwise, <c>false</c>.
         /// </value>
-        public bool Required { get; set; }
+        public bool IsRequired { get; set; }
 
         /// <summary>
         /// Gets or sets the list match expressions.
@@ -64,7 +90,7 @@ namespace FluentCommand.Import
         /// </returns>
         public override string ToString()
         {
-            return $"Display: {DisplayName}, Name: {FieldName}, DataType: {DataType?.Name}";
+            return $"Display: {DisplayName}, Name: {Name}, DataType: {DataType?.Name}";
         }
 
     }

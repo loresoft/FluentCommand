@@ -25,7 +25,7 @@ namespace FluentCommand.Batch
         /// Visits the specified <see cref="BatchJob" />.
         /// </summary>
         /// <param name="batchJob">The <see cref="BatchJob" /> to visit.</param>
-        /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
+        /// <exception cref="ValidationException">
         /// Missing key column.  Please select a column to be the key.
         /// or
         /// Missing column selection.  Please select a column to be included.
@@ -33,14 +33,14 @@ namespace FluentCommand.Batch
         public override void Visit(BatchJob batchJob)
         {
             // must have key
-            var keyColumn = batchJob.SourceMapping.FirstOrDefault(m => m.IsKey);
-            if (keyColumn == null || keyColumn.IsIncluded == false)
-                throw new ValidationException("Missing key column.  Please select a column to be the key.");
+            var keyColumn = batchJob.Fields.FirstOrDefault(m => m.IsKey);
+            if (keyColumn == null)
+                throw new ValidationException("Missing key field.  Please select a field to be the key.");
 
             // must have column
-            bool hasColumn = batchJob.SourceMapping.Any(m => m.IsIncluded && !m.IsKey);
+            bool hasColumn = batchJob.Fields.Any(m => (m.Index.HasValue || m.Default.HasValue) && !m.IsKey);
             if (!hasColumn)
-                throw new ValidationException("Missing column selection.  Please select a column to be included.");
+                throw new ValidationException("Missing field selection.  Please select a field to be included.");
 
             base.Visit(batchJob);
         }
@@ -49,13 +49,13 @@ namespace FluentCommand.Batch
         /// Visits the specified <see cref="FieldMapping" />.
         /// </summary>
         /// <param name="fieldMapping">The <see cref="FieldMapping" /> to visit.</param>
-        /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">Missing source column mapping.  Please select a source column.</exception>
+        /// <exception cref="ValidationException">Missing source column mapping.  Please select a source column.</exception>
         public override void VisitFieldMapping(FieldMapping fieldMapping)
         {
             var c = fieldMapping;
 
-            if (c.IsIncluded && (c.Index == null || c.Index == -1))
-                throw new ValidationException("Missing source column mapping.  Please select a source column for '" + c.DisplayName + "'.");
+            if (c.Required && (c.Index == null || c.Index == -1))
+                throw new ValidationException("Missing required field mapping.  Please select a source field for '" + c.DisplayName + "'.");
 
             base.VisitFieldMapping(fieldMapping);
         }

@@ -2,6 +2,9 @@
 
 namespace FluentCommand.Merge
 {
+    /// <summary>
+    /// <see cref="IDataSession"/> extension methods
+    /// </summary>
     public static class DataMergeExtensions
     {
         /// <summary>

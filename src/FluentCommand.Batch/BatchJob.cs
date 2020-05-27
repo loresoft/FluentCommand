@@ -16,8 +16,9 @@ namespace FluentCommand.Batch
         /// </summary>
         public BatchJob()
         {
-            SourceFields = new List<FieldIndex>();
-            SourceMapping = new List<FieldMapping>();
+            Fields = new List<FieldMapping>();
+
+            Id = Guid.NewGuid().ToString();
 
             MaxErrors = 10;
             DuplicateHandling = BatchError.Skip;
@@ -71,11 +72,6 @@ namespace FluentCommand.Batch
         public string FileName { get; set; }
 
         /// <summary>
-        /// Gets or sets the working file path. This is the file on disk that will be read.
-        /// </summary>
-        public string WorkingFile { get; set; }
-
-        /// <summary>
         /// Gets or sets the name of the entity type.  This is used for audit logs.
         /// </summary>
         /// <value>
@@ -90,14 +86,6 @@ namespace FluentCommand.Batch
         /// The type of the validator.
         /// </value>
         public string ValidatorType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of the reader used to load the data.
-        /// </summary>
-        /// <value>
-        /// The type of the reader.
-        /// </value>
-        public string ReaderType { get; set; }
 
 
         /// <summary>
@@ -115,6 +103,7 @@ namespace FluentCommand.Batch
         /// The target table name.
         /// </value>
         public string TargetTable { get; set; }
+
 
         /// <summary>
         /// Gets or sets a value indicating whether data can be inserted that doesn't exists in the <see cref="TargetTable"/>.
@@ -142,20 +131,21 @@ namespace FluentCommand.Batch
 
 
         /// <summary>
-        /// Gets or sets the source fields from the uploaded file.
-        /// </summary>
-        /// <value>
-        /// The source field names and indexes.
-        /// </value>
-        public List<FieldIndex> SourceFields { get; set; }
-
-        /// <summary>
         /// Gets or sets the source mapping. The mappings define how the uploaded data should be translated into the target format.
         /// </summary>
         /// <value>
         /// The source mapping.
         /// </value>
-        public List<FieldMapping> SourceMapping { get; set; }
+        public List<FieldMapping> Fields { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the data to be imported.
+        /// </summary>
+        /// <value>
+        /// The data to be imported.
+        /// </value>
+        public string[][] Data { get; set; }
 
 
         /// <summary>

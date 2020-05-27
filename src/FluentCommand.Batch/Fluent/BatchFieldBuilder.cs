@@ -13,9 +13,9 @@ namespace FluentCommand.Batch.Fluent
             _fieldMapping = fieldMapping;
         }
 
-        public BatchFieldBuilder Ordinal(int value)
+        public BatchFieldBuilder Index(int? index)
         {
-            _fieldMapping.Ordinal = value;
+            _fieldMapping.Index = index;
             return this;
         }
 
@@ -36,16 +36,31 @@ namespace FluentCommand.Batch.Fluent
             _fieldMapping.NativeType = value;
             return this;
         }
+        
+        public BatchFieldBuilder DataType<T>()
+        {
+            _fieldMapping.DataType = typeof(T);
+            return this;
+        }
 
-        public BatchFieldBuilder DataType(DbType value)
+        public BatchFieldBuilder DataType(Type value)
         {
             _fieldMapping.DataType = value;
             return this;
         }
 
+
         public BatchFieldBuilder IsKey(bool value = true)
         {
             _fieldMapping.IsKey = value;
+
+            if (!value) 
+                return this;
+
+            // defaults for a key field
+            _fieldMapping.CanBeKey = true;
+            _fieldMapping.CanUpdate = false;
+
             return this;
         }
 
@@ -80,9 +95,9 @@ namespace FluentCommand.Batch.Fluent
         }
 
 
-        public BatchFieldBuilder Tag(string value)
+        public BatchFieldBuilder Required(bool value = true)
         {
-            _fieldMapping.Tags.Add(value);
+            _fieldMapping.Required = value;
             return this;
         }
 
@@ -90,11 +105,8 @@ namespace FluentCommand.Batch.Fluent
         public BatchFieldBuilder Default(FieldDefault? value)
         {
             _fieldMapping.Default = value;
-            if (value.HasValue && value != FieldDefault.Static)
-            {
-                _fieldMapping.IsIncluded = true;
+            if (value.HasValue && value != FieldDefault.Static) 
                 _fieldMapping.CanMap = false;
-            }
 
             return this;
         }
@@ -106,7 +118,7 @@ namespace FluentCommand.Batch.Fluent
 
             if (!Equals(value, null))
             {
-                _fieldMapping.IsIncluded = true;
+                _fieldMapping.Required = true;
                 _fieldMapping.CanMap = false;
             }
 
@@ -132,6 +144,12 @@ namespace FluentCommand.Batch.Fluent
         }
 
 
+        public BatchFieldBuilder Expression(string text)
+        {
+            Match(match => match.Text(text).UseRegex());
+            return this;
+        }
+
         public BatchFieldBuilder Match(string text)
         {
             Match(match => match.Text(text));
@@ -148,5 +166,6 @@ namespace FluentCommand.Batch.Fluent
 
             return this;
         }
+
     }
 }

@@ -16,20 +16,11 @@ namespace FluentCommand.Batch
         {
             TranslatorSources = new List<string>();
             MatchDefinitions = new List<FieldMatch>();
-            Tags = new List<string>();
 
             CanInsert = true;
             CanUpdate = true;
             CanMap = true;
         }
-
-        /// <summary>
-        /// Gets or sets the field ordinal.  This is used to determine column order for the temporary table.
-        /// </summary>
-        /// <value>
-        /// The ordinal.
-        /// </value>
-        public int Ordinal { get; set; }
 
         /// <summary>
         /// Gets or sets the field display name.
@@ -53,7 +44,7 @@ namespace FluentCommand.Batch
         /// <value>
         /// The type of the data.
         /// </value>
-        public DbType DataType { get; set; }
+        public Type DataType { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this field is a key.
@@ -123,14 +114,13 @@ namespace FluentCommand.Batch
 
 
         /// <summary>
-        /// Gets or sets a value indicating whether this field is included.
+        /// Gets or sets a value indicating whether this field is required.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this field is included; otherwise, <c>false</c>.
+        /// <c>true</c> if this field is required; otherwise, <c>false</c>.
         /// </value>
-        public bool IsIncluded { get; set; }
-
-
+        public bool Required { get; set; }
+        
 
         /// <summary>
         /// Gets or sets the list of available translator sources.
@@ -155,14 +145,6 @@ namespace FluentCommand.Batch
         /// The type of the translator.
         /// </value>
         public string TranslatorType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the tags for this field.
-        /// </summary>
-        /// <value>
-        /// The tags for this field.
-        /// </value>
-        public List<string> Tags { get; set; }
 
 
         /// <summary>

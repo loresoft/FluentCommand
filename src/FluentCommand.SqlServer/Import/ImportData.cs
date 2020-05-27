@@ -31,5 +31,12 @@ namespace FluentCommand.Import
         /// </value>
         public List<FieldMap> Mappings { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether data has a header row.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if data has a header row; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasHeader { get; set; } = true;
     }
 }

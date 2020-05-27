@@ -19,17 +19,10 @@ namespace FluentCommand.Batch.Fluent
             return this;
         }
 
-        public BatchBuilder Validator<TValicator>()
-            where TValicator : IBatchValidator
+        public BatchBuilder Validator<TValidator>()
+            where TValidator : IBatchValidator
         {
-            _batchJob.ValidatorType = typeof(TValicator).FullName;
-            return this;
-        }
-
-        public BatchBuilder Reader<TReader>()
-            where TReader : IBatchReader
-        {
-            _batchJob.ReaderType = typeof(TReader).FullName;
+            _batchJob.ValidatorType = typeof(TValidator).FullName;
             return this;
         }
 
@@ -64,25 +57,25 @@ namespace FluentCommand.Batch.Fluent
         }
 
 
-        public BatchBuilder Map(Action<BatchFieldBuilder> builder)
+        public BatchBuilder Field(Action<BatchFieldBuilder> builder)
         {
             var fieldMapping = new FieldMapping();
 
             var fieldBuilder = new BatchFieldBuilder(fieldMapping);
             builder(fieldBuilder);
 
-            _batchJob.SourceMapping.Add(fieldMapping);
+            _batchJob.Fields.Add(fieldMapping);
 
             return this;
         }
 
-        public BatchBuilder Map(string name, Action<BatchFieldBuilder> builder)
+        public BatchBuilder Field(string name, Action<BatchFieldBuilder> builder)
         {
-            var fieldMapping = _batchJob.SourceMapping.FirstOrDefault(m => m.Name == name);
+            var fieldMapping = _batchJob.Fields.FirstOrDefault(m => m.Name == name);
             if (fieldMapping == null)
             {
                 fieldMapping = new FieldMapping { Name = name };
-                _batchJob.SourceMapping.Add(fieldMapping);
+                _batchJob.Fields.Add(fieldMapping);
             }
 
             var fieldBuilder = new BatchFieldBuilder(fieldMapping);
@@ -91,13 +84,13 @@ namespace FluentCommand.Batch.Fluent
             return this;
         }
 
-        public BatchFieldBuilder Map(string name)
+        public BatchFieldBuilder Field(string name)
         {
-            var fieldMapping = _batchJob.SourceMapping.FirstOrDefault(m => m.Name == name);
+            var fieldMapping = _batchJob.Fields.FirstOrDefault(m => m.Name == name);
             if (fieldMapping == null)
             {
                 fieldMapping = new FieldMapping { Name = name };
-                _batchJob.SourceMapping.Add(fieldMapping);
+                _batchJob.Fields.Add(fieldMapping);
             }
 
             var fieldBuilder = new BatchFieldBuilder(fieldMapping);
