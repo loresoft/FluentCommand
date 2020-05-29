@@ -15,7 +15,8 @@ namespace FluentCommand.Import
         {
             CanInsert = true;
             CanUpdate = true;
-            MatchExpressions = new List<string>();
+            CanMap = true;
+            Expressions = new List<string>();
         }
 
         /// <summary>
@@ -67,6 +68,14 @@ namespace FluentCommand.Import
         public bool CanUpdate { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this field can be mapped by the users.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this field can be mapped; otherwise, <c>false</c>.
+        /// </value>
+        public bool CanMap { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this <see cref="FieldDefinition"/> is required.
         /// </summary>
         /// <value>
@@ -74,13 +83,31 @@ namespace FluentCommand.Import
         /// </value>
         public bool IsRequired { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets the default value generation.
+        /// </summary>
+        /// <value>
+        /// The default value generation.
+        /// </value>
+        public FieldDefault? Default { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default value.
+        /// </summary>
+        /// <value>
+        /// The default value.
+        /// </value>
+        public object DefaultValue { get; set; }
+
+
         /// <summary>
         /// Gets or sets the list match expressions.
         /// </summary>
         /// <value>
         /// The list match expressions.
         /// </value>
-        public List<string> MatchExpressions { get; set; }
+        public List<string> Expressions { get; set; }
 
         /// <summary>
         /// Converts to string.

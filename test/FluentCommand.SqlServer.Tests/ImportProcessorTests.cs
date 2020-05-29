@@ -10,47 +10,31 @@ using Xunit;
 
 namespace FluentCommand.SqlServer.Tests
 {
-    public class ImportProcessorTests
+    public class ImportProcessorTests : ImportProcessor
     {
-        [Fact]
-        public void CreateTable()
+        public ImportProcessorTests() : base(Mock.Of<IDataSession>())
         {
-            var userDefinition = ImportDefinition.Build(b => b
-                .Name("User")
-                .Field(f => f
-                    .DisplayName("Email Address")
-                    .FieldName("EmailAddress")
-                    .DataType<string>()
-                    .Required()
-                )
-                .Field(f => f
-                    .DisplayName("First Name")
-                    .FieldName("FirstName")
-                    .DataType<string>()
-                )
-                .Field(f => f
-                    .DisplayName("Last Name")
-                    .FieldName("LastName")
-                    .DataType<string>()
-                )
-                .Field(f => f
-                    .DisplayName("Validated")
-                    .FieldName("IsValidated")
-                    .DataType<bool>()
-                )
-            );
+        }
 
+        [Fact]
+        public void CreateTableTest()
+        {
+            var userDefinition = CreateDefinition();
             userDefinition.Should().NotBeNull();
             userDefinition.Name.Should().Be("User");
-            userDefinition.Fields.Count.Should().Be(4);
+            userDefinition.Fields.Count.Should().Be(5);
+            
+            var importData = CreateImportData();
+            importData.Should().NotBeNull();
 
-            var dataSessionMock = new Mock<IDataSession>();
-            var importProcessor = new ImportProcessor(dataSessionMock.Object);
-            importProcessor.Should().NotBeNull();
+            var importContext = new ImportProcessContext(userDefinition, importData, "test@email.com");
+            importContext.Should().NotBeNull();
+            importContext.Definition.Should().NotBeNull();
+            importContext.ImportData.Should().NotBeNull();
 
-            var dataTable = importProcessor.CreateTable(userDefinition);
+            var dataTable = this.CreateTable(importContext);
             dataTable.Should().NotBeNull();
-            dataTable.Columns.Count.Should().Be(4);
+            dataTable.Columns.Count.Should().Be(5);
             dataTable.Columns[0].ColumnName.Should().Be("EmailAddress");
             dataTable.Columns[0].DataType.Should().Be<string>();
             dataTable.Columns[1].ColumnName.Should().Be("FirstName");
@@ -60,85 +44,44 @@ namespace FluentCommand.SqlServer.Tests
             dataTable.Columns[3].ColumnName.Should().Be("IsValidated");
             dataTable.Columns[3].DataType.Should().Be<bool>();
         }
-
+        
         [Fact]
         public void CreateAndPopulateTable()
         {
-            var userDefinition = ImportDefinition.Build(b => b
-                .Name("User")
-                .Field(f => f
-                    .DisplayName("Email Address")
-                    .FieldName("EmailAddress")
-                    .DataType<string>()
-                    .Required()
-                )
-                .Field(f => f
-                    .DisplayName("First Name")
-                    .FieldName("FirstName")
-                    .DataType<string>()
-                )
-                .Field(f => f
-                    .DisplayName("Last Name")
-                    .FieldName("LastName")
-                    .DataType<string>()
-                )
-                .Field(f => f
-                    .DisplayName("Validated")
-                    .FieldName("IsValidated")
-                    .DataType<bool>()
-                )
-                .Field(f => f
-                    .DisplayName("Lockout Count")
-                    .FieldName("LockoutCount")
-                    .DataType<int?>()
-                )
-            );
-
+            var userDefinition = CreateDefinition();
             userDefinition.Should().NotBeNull();
             userDefinition.Name.Should().Be("User");
             userDefinition.Fields.Count.Should().Be(5);
 
-            var importData = new ImportData();
-            importData.FileName = "Testing.csv";
-            importData.Mappings = new List<FieldMap>
-            {
-                new FieldMap {Name = "EmailAddress", Index = 0},
-                new FieldMap {Name = "IsValidated", Index = 1},
-                new FieldMap {Name = "LastName", Index = 2},
-                new FieldMap {Name = "FirstName", Index = 3},
-                new FieldMap {Name = "LockoutCount", Index = 4},
-            };
-            importData.Data = new[]
-            {
-                new[] {"EmailAddress", "IsValidated", "LastName", "FirstName", "LockoutCount"},
-                new[] {"user1@email.com", "true", "last1", "first1", ""},
-                new[] {"user2@email.com", "false", "", "first2", ""},
-                new[] {"user3@email.com", "", "last3", "first3", "2"},
-            };
+            var importData = CreateImportData();
+            importData.Should().NotBeNull();
 
-            var dataSessionMock = new Mock<IDataSession>();
-            var importProcessor = new ImportProcessor(dataSessionMock.Object);
-            importProcessor.Should().NotBeNull();
+            var importContext = new ImportProcessContext(userDefinition, importData, "test@email.com");
+            importContext.Should().NotBeNull();
+            importContext.Definition.Should().NotBeNull();
+            importContext.ImportData.Should().NotBeNull();
 
-            var dataTable = importProcessor.CreateTable(userDefinition, importData);
+
+            var dataTable = this.CreateTable(importContext);
             dataTable.Should().NotBeNull();
             
             dataTable.Columns.Count.Should().Be(5);
-
             dataTable.Columns[0].ColumnName.Should().Be("EmailAddress");
             dataTable.Columns[0].DataType.Should().Be<string>();
-            
+
             dataTable.Columns[1].ColumnName.Should().Be("FirstName");
             dataTable.Columns[1].DataType.Should().Be<string>();
-            
+
             dataTable.Columns[2].ColumnName.Should().Be("LastName");
             dataTable.Columns[2].DataType.Should().Be<string>();
-            
+
             dataTable.Columns[3].ColumnName.Should().Be("IsValidated");
             dataTable.Columns[3].DataType.Should().Be<bool>();
 
             dataTable.Columns[4].ColumnName.Should().Be("LockoutCount");
             dataTable.Columns[4].DataType.Should().Be<int>();
+
+            this.PopulateTable(importContext, dataTable);
 
             dataTable.Rows.Count.Should().Be(3);
 
@@ -160,6 +103,94 @@ namespace FluentCommand.SqlServer.Tests
             dataTable.Rows[2][3].Should().Be(false);
             dataTable.Rows[2][4].Should().Be(2);
 
+        }
+
+        [Theory]
+        [InlineData("1", typeof(int), 1)]
+        [InlineData("true", typeof(bool), true)]
+        [InlineData("", typeof(int?), null)]
+        [InlineData("", typeof(int), 0)]
+        [InlineData("test", typeof(string), "test")]
+        public void ConvertValueTest(string value, Type type, object expected)
+        {
+            var fieldDefinition = new FieldDefinition();
+            fieldDefinition.Name = "Test";
+            fieldDefinition.DataType = type;
+
+            var convertedValue = ConvertValue(fieldDefinition, value);
+            Assert.Equal(convertedValue, expected);
+        }
+
+        [Theory]
+        [InlineData(FieldDefault.UserName, null, "test@user.com")]
+        [InlineData(FieldDefault.Static, "testing123", "testing123")]
+        [InlineData(FieldDefault.Static, 42, 42)]
+        public void GetDefaultTest(FieldDefault fieldDefault, object defaultValue, object expected)
+        {
+            var fieldDefinition = new FieldDefinition();
+            fieldDefinition.Name = "Test";
+            fieldDefinition.Default = fieldDefault;
+            fieldDefinition.DefaultValue = defaultValue;
+
+            var resultValue = GetDefault(fieldDefinition, "test@user.com");
+            Assert.Equal(resultValue, expected);
+        }
+
+        private static ImportData CreateImportData()
+        {
+            var importData = new ImportData();
+            importData.FileName = "Testing.csv";
+            importData.Mappings = new List<FieldMap>
+            {
+                new FieldMap {Name = "EmailAddress", Index = 0},
+                new FieldMap {Name = "IsValidated", Index = 1},
+                new FieldMap {Name = "LastName", Index = 2},
+                new FieldMap {Name = "FirstName", Index = 3},
+                new FieldMap {Name = "LockoutCount", Index = 4},
+            };
+            importData.Data = new[]
+            {
+                new[] {"EmailAddress", "IsValidated", "LastName", "FirstName", "LockoutCount"},
+                new[] {"user1@email.com", "true", "last1", "first1", ""},
+                new[] {"user2@email.com", "false", "", "first2", ""},
+                new[] {"user3@email.com", "", "last3", "first3", "2"},
+            };
+            return importData;
+        }
+
+        private static ImportDefinition CreateDefinition()
+        {
+            var userDefinition = ImportDefinition.Build(b => b
+                .Name("User")
+                .Field(f => f
+                    .DisplayName("Email Address")
+                    .FieldName("EmailAddress")
+                    .DataType<string>()
+                    .Required()
+                )
+                .Field(f => f
+                    .DisplayName("First Name")
+                    .FieldName("FirstName")
+                    .DataType<string>()
+                )
+                .Field(f => f
+                    .DisplayName("Last Name")
+                    .FieldName("LastName")
+                    .DataType<string>()
+                )
+                .Field(f => f
+                    .DisplayName("Validated")
+                    .FieldName("IsValidated")
+                    .DataType<bool>()
+                )
+                .Field(f => f
+                    .DisplayName("Lockouts")
+                    .FieldName("LockoutCount")
+                    .DataType<int?>()
+                )
+            );
+
+            return userDefinition;
         }
 
     }

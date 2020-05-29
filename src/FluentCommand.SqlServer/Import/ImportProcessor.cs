@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
@@ -27,25 +26,59 @@ namespace FluentCommand.Import
 
 
         /// <summary>
-        /// Create a <see cref="DataTable"/> instance using the specified <paramref name="importDefinition" />.
+        /// Merge data using the specified <paramref name="importDefinition" /> and <paramref name="importData" />.
         /// </summary>
-        /// <param name="importDefinition">The import definition to create DataTable from.</param>
-        /// <returns>An instance of <see cref="DataTable"/>.</returns>
-        public virtual DataTable CreateTable(ImportDefinition importDefinition)
+        /// <param name="importDefinition">The import definition.</param>
+        /// <param name="importData">The import data.</param>
+        /// <param name="username">The name of the user importing the data.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The results of the import</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="importData" /> or <paramref name="importDefinition" /> is null</exception>
+        public virtual async Task<ImportResult> MergeDataAsync(ImportDefinition importDefinition, ImportData importData, string username, CancellationToken cancellationToken = default)
         {
+            if (importData == null)
+                throw new ArgumentNullException(nameof(importData));
             if (importDefinition == null)
                 throw new ArgumentNullException(nameof(importDefinition));
 
+            var context = new ImportProcessContext(importDefinition, importData, username);
+
+            var dataTable = CreateTable(context);
+            PopulateTable(context, dataTable);
+
+            var mergeDefinition = CreateMergeDefinition(context);
+
+            var result = await _dataSession
+                .MergeData(mergeDefinition)
+                .ExecuteAsync(dataTable, cancellationToken);
+
+            return new ImportResult { Processed = result };
+        }
+
+
+        /// <summary>
+        /// Create a <see cref="DataTable" /> instance using the specified <paramref name="importContext" />.
+        /// </summary>
+        /// <param name="importContext">The import context to create DataTable from.</param>
+        /// <returns>
+        /// An instance of <see cref="DataTable" />.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">importContext is null</exception>
+        protected virtual DataTable CreateTable(ImportProcessContext importContext)
+        {
+            if (importContext == null)
+                throw new ArgumentNullException(nameof(importContext));
+
             var dataTable = new DataTable("#Import" + DateTime.Now.Ticks);
 
-            foreach (var definitionColumn in importDefinition.Fields)
+            foreach (var field in importContext.MappedFields)
             {
-                var dataType = Nullable.GetUnderlyingType(definitionColumn.DataType)
-                    ?? definitionColumn.DataType;
+                var dataType = Nullable.GetUnderlyingType(field.Definition.DataType)
+                               ?? field.Definition.DataType;
 
                 var dataColumn = new DataColumn
                 {
-                    ColumnName = definitionColumn.Name,
+                    ColumnName = field.Definition.Name,
                     DataType = dataType
                 };
 
@@ -56,103 +89,34 @@ namespace FluentCommand.Import
         }
 
         /// <summary>
-        /// Create and populates a <see cref="DataTable" /> instance using the specified <paramref name="importDefinition" /> and <paramref name="importData" />.
+        /// Populates the <see cref="DataTable" /> with the specified <paramref name="importContext" />.
         /// </summary>
-        /// <param name="importDefinition">The import definition to create DataTable from.</param>
-        /// <param name="importData">The import data.</param>
-        /// <returns>An instance of <see cref="DataTable" />.</returns>
-        public DataTable CreateTable(ImportDefinition importDefinition, ImportData importData)
-        {
-            if (importDefinition == null)
-                throw new ArgumentNullException(nameof(importDefinition));
-
-            if (importData == null)
-                throw new ArgumentNullException(nameof(importData));
-
-            var dataTable = CreateTable(importDefinition);
-            return PopulateTable(dataTable, importDefinition, importData);
-        }
-
-        /// <summary>
-        /// Merge data using the specified <paramref name="importDefinition" /> and <paramref name="importData"/>.
-        /// </summary>
-        /// <param name="importDefinition">The import definition.</param>
-        /// <param name="importData">The import data.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="importData" /> or <paramref name="importDefinition" /> is null 
-        /// </exception>
-        public async Task<ImportResult> MergeDataAsync(ImportDefinition importDefinition, ImportData importData, CancellationToken cancellationToken = default)
-        {
-            if (importData == null)
-                throw new ArgumentNullException(nameof(importData));
-            if (importDefinition == null)
-                throw new ArgumentNullException(nameof(importDefinition));
-
-            var dataTable = CreateTable(importDefinition, importData);
-
-            var result = await MergeDataAsync(dataTable, importDefinition, cancellationToken);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Merges the specified <paramref name="dataTable" /> using the <paramref name="importDefinition" />.
-        /// </summary>
-        /// <param name="dataTable">The data table to merge.</param>
-        /// <param name="importDefinition">The import definition.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="dataTable" /> or <paramref name="importDefinition" /> is null 
-        /// </exception>
-        public virtual async Task<ImportResult> MergeDataAsync(DataTable dataTable, ImportDefinition importDefinition, CancellationToken cancellationToken = default)
-        {
-            if (dataTable == null) 
-                throw new ArgumentNullException(nameof(dataTable));
-            if (importDefinition == null) 
-                throw new ArgumentNullException(nameof(importDefinition));
-
-            var mergeDefinition = CreateMergeDefinition(dataTable, importDefinition);
-
-            var result = await _dataSession
-                .MergeData(mergeDefinition)
-                .ExecuteAsync(dataTable, cancellationToken);
-
-            return new ImportResult { Processed = result };
-        }
-
-        
-        /// <summary>
-        /// Populates the <see cref="DataTable"/> with the specified <paramref name="importData" />.
-        /// </summary>
+        /// <param name="importContext">The import context.</param>
         /// <param name="dataTable">The data table to populate.</param>
-        /// <param name="importDefinition">The import definition.</param>
-        /// <param name="importData">The import data.</param>
-        /// <returns></returns>
-        protected virtual DataTable PopulateTable(DataTable dataTable, ImportDefinition importDefinition, ImportData importData)
+        /// <returns>
+        /// The <see cref="DataTable" /> with the populated data.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// dataTable or importContext is null
+        /// </exception>
+        protected virtual DataTable PopulateTable(ImportProcessContext importContext, DataTable dataTable)
         {
             if (dataTable == null)
                 throw new ArgumentNullException(nameof(dataTable));
 
-            if (importDefinition == null)
-                throw new ArgumentNullException(nameof(importDefinition));
+            if (importContext == null)
+                throw new ArgumentNullException(nameof(importContext));
 
-            if (importData == null)
-                throw new ArgumentNullException(nameof(importData));
-
-            if (importData.Data == null || importData.Data.Length == 0)
+            var data = importContext.ImportData.Data;
+            if (data == null || data.Length == 0)
                 return dataTable;
 
-            var rows = importData.Data.Length;
-            var fields = importDefinition.Fields;
-            var mappings = importData.Mappings;
-            var startIndex = importData.HasHeader ? 1 : 0;
+            var rows = data.Length;
+            var startIndex = importContext.ImportData.HasHeader ? 1 : 0;
 
             for (var index = startIndex; index < rows; index++)
             {
-                var row = importData.Data[index];
+                var row = data[index];
 
                 // skip empty row
                 if (row.All(string.IsNullOrWhiteSpace))
@@ -160,7 +124,7 @@ namespace FluentCommand.Import
 
                 var dataRow = dataTable.NewRow();
 
-                PopulateRow(dataRow, fields, mappings, row);
+                PopulateRow(importContext, dataRow, row);
 
                 dataTable.Rows.Add(dataRow);
             }
@@ -169,28 +133,33 @@ namespace FluentCommand.Import
         }
 
         /// <summary>
-        /// Populates the <see cref="DataRow"/> using the specified <paramref name="mappings"/>.
+        /// Populates the <see cref="DataRow" /> using the specified <paramref name="row" />.
         /// </summary>
+        /// <param name="importContext">The import context.</param>
         /// <param name="dataRow">The data row to populate.</param>
-        /// <param name="fields">The list of field definitions.</param>
-        /// <param name="mappings">The field mappings.</param>
-        /// <param name="row">The imported data row.</param>
-        /// <returns></returns>
-        protected virtual DataRow PopulateRow(DataRow dataRow, List<FieldDefinition> fields, List<FieldMap> mappings, string[] row)
+        /// <param name="row">The imported source data row.</param>
+        /// <returns>
+        /// The <see cref="DataRow" /> with the populated data.
+        /// </returns>
+        protected virtual DataRow PopulateRow(ImportProcessContext importContext, DataRow dataRow, string[] row)
         {
-            var columns = row.Length;
-
-            foreach (var field in fields)
+            foreach (var field in importContext.MappedFields)
             {
-                var index = GetIndex(field, mappings, columns);
+                if (field.Definition.Default.HasValue)
+                {
+                    dataRow[field.Definition.Name] = GetDefault(field.Definition, importContext.UserName);
+                    continue;
+                }
+
+                var index = field.FieldMap.Index;
                 if (!index.HasValue)
                     continue;
 
                 var value = row[index.Value];
 
-                var convertValue = ConvertValue(field, value);
+                var convertValue = ConvertValue(field.Definition, value);
 
-                dataRow[field.Name] = convertValue ?? DBNull.Value;
+                dataRow[field.Definition.Name] = convertValue ?? DBNull.Value;
             }
 
             return dataRow;
@@ -210,43 +179,41 @@ namespace FluentCommand.Import
         }
 
         /// <summary>
-        /// Gets the field index for the specified field.
+        /// Gets the default value for the specified <paramref name="fieldDefinition"/>.
         /// </summary>
         /// <param name="fieldDefinition">The field definition.</param>
-        /// <param name="mappings">The list of field mappings.</param>
-        /// <param name="columns">The number of columns in the import file.</param>
-        /// <returns>The field index</returns>
-        /// <exception cref="InvalidOperationException">Missing import index map for field</exception>
-        /// <exception cref="IndexOutOfRangeException">The import mapped index for a field is out of range</exception>
-        protected virtual int? GetIndex(FieldDefinition fieldDefinition, List<FieldMap> mappings, int columns)
+        /// <param name="username">The username.</param>
+        /// <returns></returns>
+        protected virtual object GetDefault(FieldDefinition fieldDefinition, string username)
         {
-            var name = fieldDefinition.Name;
-            var field = mappings.FirstOrDefault(m => m.Name == name);
-
-            if (field == null)
-            {
-                if (fieldDefinition.IsRequired)
-                    throw new InvalidOperationException($"Missing import index map for '{name}'");
-
+            var fieldDefault = fieldDefinition?.Default;
+            if (!fieldDefault.HasValue)
                 return null;
-            }
 
-            var index = field.Index;
-            if (index >= columns)
-                throw new IndexOutOfRangeException($"The import mapped index '{index}' for field '{name}' is out of range of '{columns}'");
+            if (fieldDefault.Value == FieldDefault.CurrentDate)
+                return DateTimeOffset.UtcNow;
 
-            return index;
+            if (fieldDefault.Value == FieldDefault.Static)
+                return fieldDefinition.DefaultValue;
+
+            if (fieldDefault.Value == FieldDefault.UserName)
+                return username;
+
+            return null;
         }
 
         /// <summary>
-        /// Creates a <see cref="DataMergeDefinition"/> from the specified <paramref name="dataTable"/> and <paramref name="importDefinition"/>.
+        /// Creates a <see cref="DataMergeDefinition" /> from the specified <paramref name="importContext" />.
         /// </summary>
-        /// <param name="dataTable">The data table.</param>
-        /// <param name="importDefinition">The import definition.</param>
-        /// <returns>An instance of <see cref="DataMergeDefinition"/></returns>
+        /// <param name="importContext">The import context.</param>
+        /// <returns>
+        /// An instance of <see cref="DataMergeDefinition" />
+        /// </returns>
         /// <exception cref="InvalidOperationException">Could not find matching field definition for data column</exception>
-        protected virtual DataMergeDefinition CreateMergeDefinition(DataTable dataTable, ImportDefinition importDefinition)
+        protected virtual DataMergeDefinition CreateMergeDefinition(ImportProcessContext importContext)
         {
+            var importDefinition = importContext.Definition;
+
             var mergeDefinition = new DataMergeDefinition();
             mergeDefinition.TargetTable = importDefinition.TargetTable;
             mergeDefinition.IncludeInsert = importDefinition.CanInsert;
@@ -256,18 +223,17 @@ namespace FluentCommand.Import
             var mergeMapping = new DataMergeMapping(mergeDefinition);
 
             // map included columns
-            foreach (DataColumn column in dataTable.Columns)
+            foreach (var fieldMapping in importContext.MappedFields)
             {
-                var name = column.ColumnName;
-                var fieldDefinition = importDefinition.Fields.FirstOrDefault(m => m.Name == name);
-                if (fieldDefinition == null)
-                    throw new InvalidOperationException($"Could not find matching field definition for column '{name}'");
+                var fieldDefinition = fieldMapping.Definition;
+                var nativeType = SqlTypeMapping.NativeType(fieldDefinition.DataType);
 
                 mergeMapping
-                    .Column(name)
+                    .Column(fieldDefinition.Name)
                     .Insert(fieldDefinition.CanInsert)
                     .Update(fieldDefinition.CanUpdate)
-                    .Key(fieldDefinition.IsKey);
+                    .Key(fieldDefinition.IsKey)
+                    .NativeType(nativeType);
             }
 
             return mergeDefinition;

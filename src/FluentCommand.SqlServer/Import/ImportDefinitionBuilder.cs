@@ -23,6 +23,7 @@ namespace FluentCommand.Import
             _importDefinition = importDefinition;
         }
 
+
         /// <summary>
         /// Sets the import name for the <see cref="ImportDefinition"/>
         /// </summary>

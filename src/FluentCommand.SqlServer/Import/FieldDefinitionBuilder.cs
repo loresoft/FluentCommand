@@ -94,6 +94,7 @@ namespace FluentCommand.Import
                 return this;
 
             // defaults for a key field
+            _fieldDefinition.IsRequired = true;
             _fieldDefinition.CanUpdate = false;
 
             return this;
@@ -122,6 +123,17 @@ namespace FluentCommand.Import
         }
 
         /// <summary>
+        /// Set whether the field can be mapped.
+        /// </summary>
+        /// <param name="value">if set to <c>true</c> field can be mapped.</param>
+        /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
+        public FieldDefinitionBuilder CanMap(bool value = true)
+        {
+            _fieldDefinition.CanMap = value;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the field as required for the <see cref="FieldDefinition"/>
         /// </summary>
         /// <param name="value">The required field value.</param>
@@ -129,6 +141,37 @@ namespace FluentCommand.Import
         public FieldDefinitionBuilder Required(bool value = true)
         {
             _fieldDefinition.IsRequired = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the default value for this field.
+        /// </summary>
+        /// <param name="value">The type of field default to use.</param>
+        /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
+        public FieldDefinitionBuilder Default(FieldDefault? value)
+        {
+            _fieldDefinition.Default = value;
+
+            if (value.HasValue && value != FieldDefault.Static)
+                _fieldDefinition.CanMap = false;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the default value for this field.
+        /// </summary>
+        /// <param name="value">The default value to use.</param>
+        /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
+        public FieldDefinitionBuilder Default(object value)
+        {
+            _fieldDefinition.DefaultValue = value;
+            _fieldDefinition.Default = FieldDefault.Static;
+
+            if (!Equals(value, null)) 
+                _fieldDefinition.CanMap = false;
+
             return this;
         }
 
@@ -143,7 +186,7 @@ namespace FluentCommand.Import
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            _fieldDefinition.MatchExpressions.Add(value);
+            _fieldDefinition.Expressions.Add(value);
 
             return this;
         }
@@ -159,7 +202,7 @@ namespace FluentCommand.Import
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
 
-            _fieldDefinition.MatchExpressions.AddRange(values);
+            _fieldDefinition.Expressions.AddRange(values);
 
             return this;
         }
