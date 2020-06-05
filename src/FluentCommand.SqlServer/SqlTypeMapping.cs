@@ -30,7 +30,9 @@ namespace FluentCommand
 
         public static string NativeType(Type type)
         {
-            _nativeType.TryGetValue(type, out var value);
+            var dataType = Nullable.GetUnderlyingType(type) ?? type;
+
+            _nativeType.TryGetValue(dataType, out var value);
 
             return value ?? "sql_variant";
         }
