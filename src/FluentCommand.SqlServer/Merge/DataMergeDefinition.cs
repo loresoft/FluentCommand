@@ -139,7 +139,7 @@ namespace FluentCommand.Merge
             {
                 string sourceColumn = p.Name;
                 string targetColumn = sourceColumn;
-                string nativeType = null;
+                string nativeType = SqlTypeMapping.NativeType(p.PropertyType);
 
                 var columnAttribute = p.Attributes
                     .OfType<ColumnAttribute>()
