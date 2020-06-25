@@ -35,7 +35,7 @@ after_test:
   - csmacnz.coveralls --useRelativePaths --multiple --input "opencover=test\FluentCommand.Tests\coverage.netcoreapp2.1.opencover.xml;opencover=test\FluentCommand.Batch.Tests\coverage.netcoreapp2.1.opencover.xml;opencover=test\FluentCommand.SqlServer.Tests\coverage.netcoreapp2.1.opencover.xml"
 
 artifacts:
-- path: artifacts\*.nupkg
+- path: artifacts\*.*nupkg
   name: Packages
 
 deploy:

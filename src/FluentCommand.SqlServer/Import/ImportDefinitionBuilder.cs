@@ -38,7 +38,7 @@ namespace FluentCommand.Import
             _importDefinition.Name = name;
             return this;
         }
-        
+
         /// <summary>
         /// Sets the target table for the <see cref="ImportDefinition"/>
         /// </summary>
@@ -49,7 +49,7 @@ namespace FluentCommand.Import
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
-            
+
             _importDefinition.TargetTable = name;
             return this;
         }
@@ -134,7 +134,7 @@ namespace FluentCommand.Import
         /// <exception cref="ArgumentNullException">when the field name in null</exception>
         public FieldDefinitionBuilder Field(string fieldName)
         {
-            if (fieldName == null) 
+            if (fieldName == null)
                 throw new ArgumentNullException(nameof(fieldName));
 
             var fieldMapping = _importDefinition.Fields.FirstOrDefault(m => m.Name == fieldName);
