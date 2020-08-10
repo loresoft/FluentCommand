@@ -12,7 +12,8 @@ namespace FluentCommand.SqlServer.Tests
 {
     public class ImportProcessorTests : ImportProcessor
     {
-        public ImportProcessorTests() : base(Mock.Of<IDataSession>())
+        public ImportProcessorTests() 
+            : base(Mock.Of<IDataSession>(), Activator.CreateInstance)
         {
         }
 

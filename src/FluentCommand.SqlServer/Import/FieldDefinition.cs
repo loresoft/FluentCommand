@@ -100,6 +100,13 @@ namespace FluentCommand.Import
         /// </value>
         public object DefaultValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the field translator <see cref="Type"/>.
+        /// </summary>
+        /// <value>
+        /// The field translator <see cref="Type"/>.
+        /// </value>
+        public Type Translator { get; set; }
 
         /// <summary>
         /// Gets or sets the list match expressions.

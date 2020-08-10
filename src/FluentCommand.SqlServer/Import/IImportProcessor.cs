@@ -11,7 +11,7 @@ namespace FluentCommand.Import
     public interface IImportProcessor
     {
         /// <summary>
-        /// Merge data using the specified <paramref name="importDefinition" /> and <paramref name="importData" />.
+        /// Import data using the specified <paramref name="importDefinition" /> and <paramref name="importData" />.
         /// </summary>
         /// <param name="importDefinition">The import definition.</param>
         /// <param name="importData">The import data.</param>
@@ -19,6 +19,6 @@ namespace FluentCommand.Import
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The results of the import</returns>
         /// <exception cref="ArgumentNullException"><paramref name="importData" /> or <paramref name="importDefinition" /> is null</exception>
-        Task<ImportResult> MergeDataAsync(ImportDefinition importDefinition, ImportData importData, string username, CancellationToken cancellationToken = default);
+        Task<ImportResult> ImportAsync(ImportDefinition importDefinition, ImportData importData, string username, CancellationToken cancellationToken = default);
     }
 }

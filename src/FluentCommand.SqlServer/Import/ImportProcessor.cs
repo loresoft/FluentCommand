@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,19 +16,22 @@ namespace FluentCommand.Import
     public class ImportProcessor : IImportProcessor
     {
         private readonly IDataSession _dataSession;
+        private readonly ImportFactory _importFactory;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ImportProcessor"/> class.
+        /// Initializes a new instance of the <see cref="ImportProcessor" /> class.
         /// </summary>
         /// <param name="dataSession">The data session.</param>
-        public ImportProcessor(IDataSession dataSession)
+        /// <param name="importFactory">The service provider factory.</param>
+        public ImportProcessor(IDataSession dataSession, ImportFactory importFactory)
         {
             _dataSession = dataSession;
+            _importFactory = importFactory;
         }
 
 
         /// <summary>
-        /// Merge data using the specified <paramref name="importDefinition" /> and <paramref name="importData" />.
+        /// Import data using the specified <paramref name="importDefinition" /> and <paramref name="importData" />.
         /// </summary>
         /// <param name="importDefinition">The import definition.</param>
         /// <param name="importData">The import data.</param>
@@ -34,7 +39,7 @@ namespace FluentCommand.Import
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The results of the import</returns>
         /// <exception cref="ArgumentNullException"><paramref name="importData" /> or <paramref name="importDefinition" /> is null</exception>
-        public virtual async Task<ImportResult> MergeDataAsync(ImportDefinition importDefinition, ImportData importData, string username, CancellationToken cancellationToken = default)
+        public virtual async Task<ImportResult> ImportAsync(ImportDefinition importDefinition, ImportData importData, string username, CancellationToken cancellationToken = default)
         {
             if (importData == null)
                 throw new ArgumentNullException(nameof(importData));
@@ -173,9 +178,17 @@ namespace FluentCommand.Import
         /// <returns>The convert value.</returns>
         protected virtual object ConvertValue(FieldDefinition field, string value)
         {
-            value.TryConvert(field.DataType, out var convertValue);
+            if (field.Translator == null)
+            {
+                value.TryConvert(field.DataType, out var convertValue);
+                return convertValue;
+            }
 
-            return convertValue;
+            var translator = _importFactory(field.Translator) as IFieldTranslator;
+            if (translator == null)
+                throw new InvalidOperationException($"Failed to create translator for field '{field.Name}'");
+
+            return translator.Translate(value);
         }
 
         /// <summary>

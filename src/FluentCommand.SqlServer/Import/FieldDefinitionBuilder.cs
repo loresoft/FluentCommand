@@ -72,9 +72,12 @@ namespace FluentCommand.Import
         }
 
         /// <summary>
-        /// Sets the data type for the <see cref="FieldDefinition"/>
+        /// Sets the data type for the <see cref="FieldDefinition" />
         /// </summary>
-        /// <returns>Fluent builder for <see cref="FieldDefinition"/></returns>
+        /// <typeparam name="T">The field type</typeparam>
+        /// <returns>
+        /// Fluent builder for <see cref="FieldDefinition" />
+        /// </returns>
         public FieldDefinitionBuilder DataType<T>()
         {
             _fieldDefinition.DataType = typeof(T);
@@ -169,7 +172,7 @@ namespace FluentCommand.Import
             _fieldDefinition.DefaultValue = value;
             _fieldDefinition.Default = FieldDefault.Static;
 
-            if (!Equals(value, null)) 
+            if (!Equals(value, null))
                 _fieldDefinition.CanMap = false;
 
             return this;
@@ -206,5 +209,20 @@ namespace FluentCommand.Import
 
             return this;
         }
+
+        /// <summary>
+        /// Sets the field translator type for the <see cref="FieldDefinition" />
+        /// </summary>
+        /// <typeparam name="T">The type of translator</typeparam>
+        /// <returns>
+        /// Fluent builder for <see cref="FieldDefinition" />
+        /// </returns>
+        public FieldDefinitionBuilder Translator<T>() 
+            where T : IFieldTranslator
+        {
+            _fieldDefinition.Translator = typeof(T);
+            return this;
+        }
+
     }
 }
