@@ -112,13 +112,13 @@ namespace FluentCommand.SqlServer.Tests
         [InlineData("", typeof(int?), null)]
         [InlineData("", typeof(int), 0)]
         [InlineData("test", typeof(string), "test")]
-        public void ConvertValueTest(string value, Type type, object expected)
+        public async Task ConvertValueTest(string value, Type type, object expected)
         {
             var fieldDefinition = new FieldDefinition();
             fieldDefinition.Name = "Test";
             fieldDefinition.DataType = type;
 
-            var convertedValue = ConvertValue(null, fieldDefinition, value);
+            var convertedValue = await ConvertValue(null, fieldDefinition, value);
             Assert.Equal(convertedValue, expected);
         }
 
