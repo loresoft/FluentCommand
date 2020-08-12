@@ -57,7 +57,22 @@ namespace FluentCommand.Import
         /// The list of field definitions.
         /// </value>
         public List<FieldDefinition> Fields { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the maximum number of errors.
+        /// </summary>
+        /// <value>
+        /// The maximum number of errors.
+        /// </value>
+        public int MaxErrors { get; set; }
+
+        /// <summary>
+        /// Gets or sets the data row validator type.
+        /// </summary>
+        /// <value>
+        /// The data row validator type.
+        /// </value>
+        public Type Validator { get; set; }
 
         /// <summary>
         /// Builds an <see cref="ImportDefinition"/> using the specified builder action.

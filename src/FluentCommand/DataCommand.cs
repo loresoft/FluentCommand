@@ -190,7 +190,6 @@ namespace FluentCommand
         /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
         /// </returns>
         public IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory)
-            where TEntity : class
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
@@ -239,7 +238,6 @@ namespace FluentCommand
         /// </returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
         public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default)
-            where TEntity : class
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
@@ -288,7 +286,6 @@ namespace FluentCommand
         /// </returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
         public TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory)
-            where TEntity : class
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
@@ -335,7 +332,6 @@ namespace FluentCommand
         /// </returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
         public async Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default)
-            where TEntity : class
         {
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));

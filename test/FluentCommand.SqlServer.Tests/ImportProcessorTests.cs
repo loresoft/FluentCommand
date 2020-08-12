@@ -28,7 +28,7 @@ namespace FluentCommand.SqlServer.Tests
             var importData = CreateImportData();
             importData.Should().NotBeNull();
 
-            var importContext = new ImportProcessContext(userDefinition, importData, "test@email.com");
+            var importContext = new ImportProcessContext(userDefinition, importData, "test@email.com", Activator.CreateInstance);
             importContext.Should().NotBeNull();
             importContext.Definition.Should().NotBeNull();
             importContext.ImportData.Should().NotBeNull();
@@ -57,7 +57,7 @@ namespace FluentCommand.SqlServer.Tests
             var importData = CreateImportData();
             importData.Should().NotBeNull();
 
-            var importContext = new ImportProcessContext(userDefinition, importData, "test@email.com");
+            var importContext = new ImportProcessContext(userDefinition, importData, "test@email.com", Activator.CreateInstance);
             importContext.Should().NotBeNull();
             importContext.Definition.Should().NotBeNull();
             importContext.ImportData.Should().NotBeNull();
@@ -118,7 +118,7 @@ namespace FluentCommand.SqlServer.Tests
             fieldDefinition.Name = "Test";
             fieldDefinition.DataType = type;
 
-            var convertedValue = ConvertValue(fieldDefinition, value);
+            var convertedValue = ConvertValue(null, fieldDefinition, value);
             Assert.Equal(convertedValue, expected);
         }
 

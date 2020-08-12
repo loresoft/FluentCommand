@@ -21,8 +21,7 @@ namespace FluentCommand
         /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
         /// </returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-        Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken))
-            where TEntity : class;
+        Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object asynchronously.
@@ -34,8 +33,7 @@ namespace FluentCommand
         /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
         /// </returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-        Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken))
-            where TEntity : class;
+        Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Executes the query and returns the first column of the first row in the result set returned by the query asynchronously. All other columns and rows are ignored.

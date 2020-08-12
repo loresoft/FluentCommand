@@ -17,7 +17,7 @@ namespace FluentCommand
         /// <returns>
         /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
         /// </returns>
-        IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory) where TEntity : class;
+        IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory);
 
         /// <summary>
         /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object.
@@ -27,7 +27,7 @@ namespace FluentCommand
         /// <returns>
         /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
         /// </returns>
-        TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory) where TEntity : class;
+        TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory);
 
         /// <summary>
         /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.

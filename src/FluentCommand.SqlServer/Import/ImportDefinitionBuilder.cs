@@ -147,5 +147,32 @@ namespace FluentCommand.Import
             var fieldBuilder = new FieldDefinitionBuilder(fieldMapping);
             return fieldBuilder;
         }
+
+
+        /// <summary>
+        /// Sets the maximum number of errors for the <see cref="ImportDefinition" />
+        /// </summary>
+        /// <returns>
+        /// Fluent builder for <see cref="ImportDefinition" />
+        /// </returns>
+        public ImportDefinitionBuilder MaxErrors(int value)
+        {
+            _importDefinition.MaxErrors = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the import validator type for the <see cref="ImportDefinition" />
+        /// </summary>
+        /// <typeparam name="T">The type of translator</typeparam>
+        /// <returns>
+        /// Fluent builder for <see cref="FieldDefinition" />
+        /// </returns>
+        public ImportDefinitionBuilder Validator<T>()
+            where T : IImportValidator
+        {
+            _importDefinition.Validator = typeof(T);
+            return this;
+        }
     }
 }

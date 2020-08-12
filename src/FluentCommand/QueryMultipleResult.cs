@@ -34,7 +34,7 @@ namespace FluentCommand
         /// <returns>
         /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
         /// </returns>
-        public IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory) where TEntity : class
+        public IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory)
         {
             NextResult();
 
@@ -57,7 +57,7 @@ namespace FluentCommand
         /// <returns>
         /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
         /// </returns>
-        public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken)) where TEntity : class
+        public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken))
         {
             await NextResultAsync(cancellationToken).ConfigureAwait(false);
 
@@ -80,7 +80,7 @@ namespace FluentCommand
         /// <returns>
         /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
         /// </returns>
-        public TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory) where TEntity : class
+        public TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory)
         {
             NextResult();
 
@@ -100,7 +100,7 @@ namespace FluentCommand
         /// <returns>
         /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
         /// </returns>
-        public async Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken)) where TEntity : class
+        public async Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default(CancellationToken))
         {
             await NextResultAsync(cancellationToken).ConfigureAwait(false);
 

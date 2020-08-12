@@ -1,4 +1,6 @@
-﻿namespace FluentCommand.Import
+﻿using System.Threading.Tasks;
+
+namespace FluentCommand.Import
 {
 
     /// <summary>
@@ -11,6 +13,6 @@
         /// </summary>
         /// <param name="original">The original value.</param>
         /// <returns>The translated value</returns>
-        object Translate(string original);
+        Task<object> Translate(string original);
     }
 }

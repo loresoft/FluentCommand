@@ -10,18 +10,24 @@ namespace FluentCommand.Import
     public class ImportProcessContext
     {
         private readonly Lazy<IReadOnlyList<ImportFieldMapping>> _mappedFields;
+        private readonly Dictionary<Type, object> _serviceCache;
+        private readonly ImportFactory _importFactory;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ImportProcessContext"/> class.
+        /// Initializes a new instance of the <see cref="ImportProcessContext" /> class.
         /// </summary>
         /// <param name="definition">The definition.</param>
         /// <param name="importData">The import data.</param>
         /// <param name="userName">Name of the user.</param>
-        public ImportProcessContext(ImportDefinition definition, ImportData importData, string userName)
+        /// <param name="importFactory">The import service factory.</param>
+        public ImportProcessContext(ImportDefinition definition, ImportData importData, string userName, ImportFactory importFactory)
         {
             Definition = definition;
+            _serviceCache = new Dictionary<Type, object>();
             ImportData = importData;
             UserName = userName;
+            _importFactory = importFactory;
+            Errors = new List<Exception>();
 
             _mappedFields = new Lazy<IReadOnlyList<ImportFieldMapping>>(GetMappedFields);
         }
@@ -57,6 +63,33 @@ namespace FluentCommand.Import
         /// The mapped fields.
         /// </value>
         public IReadOnlyList<ImportFieldMapping> MappedFields => _mappedFields.Value;
+
+
+        /// <summary>
+        /// Gets or sets the list errors that occurred.
+        /// </summary>
+        /// <value>
+        /// The list errors that occurred.
+        /// </value>
+        public List<Exception> Errors { get; set; }
+
+
+        /// <summary>
+        /// Gets the service instance.
+        /// </summary>
+        /// <param name="type">The type of service.</param>
+        /// <returns></returns>
+        public object GetService(Type type)
+        {
+            if (_serviceCache.TryGetValue(type, out object instance))
+                return instance;
+
+            instance = _importFactory(type);
+            _serviceCache.Add(type, instance);
+
+            return instance;
+        }
+
 
         private List<ImportFieldMapping> GetMappedFields()
         {

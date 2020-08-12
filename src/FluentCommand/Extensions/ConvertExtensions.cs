@@ -25,7 +25,7 @@ namespace FluentCommand.Extensions
                 return result;
 
             string v = value.Trim();
-            
+
             if (string.Equals(v, "t", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(v, "true", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(v, "y", StringComparison.OrdinalIgnoreCase)
@@ -88,7 +88,14 @@ namespace FluentCommand.Extensions
                 return new DateTime(0L);
 
             DateTime result;
-            DateTime.TryParse(value, out result);
+            if (DateTime.TryParse(value, out result))
+                return result;
+
+            if (DateTime.TryParseExact(value, "M/d/yyyy hh:mm:ss tt", CultureInfo.CurrentCulture, DateTimeStyles.None, out result))
+                return result;
+
+            if (DateTime.TryParseExact(value, "M/d/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out result))
+                return result;
 
             return result;
         }
@@ -107,7 +114,14 @@ namespace FluentCommand.Extensions
                 return new DateTime(0L);
 
             DateTime result;
-            DateTime.TryParse(value, provider, DateTimeStyles.None, out result);
+            if (DateTime.TryParse(value, out result))
+                return result;
+
+            if (DateTime.TryParseExact(value, "M/d/yyyy hh:mm:ss tt", provider, DateTimeStyles.None, out result))
+                return result;
+
+            if (DateTime.TryParseExact(value, "M/d/yyyy", provider, DateTimeStyles.None, out result))
+                return result;
 
             return result;
         }
@@ -124,8 +138,7 @@ namespace FluentCommand.Extensions
             if (value == null)
                 return 0M;
 
-            decimal result;
-            decimal.TryParse(value, out result);
+            decimal.TryParse(value, NumberStyles.Currency, CultureInfo.CurrentCulture, out var result);
 
             return result;
         }
@@ -143,8 +156,7 @@ namespace FluentCommand.Extensions
             if (value == null)
                 return 0M;
 
-            decimal result;
-            decimal.TryParse(value, NumberStyles.Number, provider, out result);
+            decimal.TryParse(value, NumberStyles.Currency, provider, out var result);
 
             return result;
         }
@@ -503,6 +515,8 @@ namespace FluentCommand.Extensions
                 value = null;
                 return true;
             }
+
+            input = input?.Trim();
 
             Type underlyingType = type.GetUnderlyingType();
 

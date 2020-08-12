@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
-using FluentCommand.Batch.Security;
 using FluentCommand.Extensions;
 
 namespace FluentCommand.Batch.Validation

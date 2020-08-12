@@ -46,10 +46,10 @@ namespace FluentCommand.Import
             if (importDefinition == null)
                 throw new ArgumentNullException(nameof(importDefinition));
 
-            var context = new ImportProcessContext(importDefinition, importData, username);
+            var context = new ImportProcessContext(importDefinition, importData, username, _importFactory);
 
             var dataTable = CreateTable(context);
-            PopulateTable(context, dataTable);
+            await PopulateTable(context, dataTable);
 
             var mergeDefinition = CreateMergeDefinition(context);
 
@@ -57,7 +57,7 @@ namespace FluentCommand.Import
                 .MergeData(mergeDefinition)
                 .ExecuteAsync(dataTable, cancellationToken);
 
-            return new ImportResult { Processed = result };
+            return new ImportResult { Processed = result, Errors = context.Errors };
         }
 
 
@@ -104,7 +104,7 @@ namespace FluentCommand.Import
         /// <exception cref="ArgumentNullException">
         /// dataTable or importContext is null
         /// </exception>
-        protected virtual DataTable PopulateTable(ImportProcessContext importContext, DataTable dataTable)
+        protected virtual async Task<DataTable> PopulateTable(ImportProcessContext importContext, DataTable dataTable)
         {
             if (dataTable == null)
                 throw new ArgumentNullException(nameof(dataTable));
@@ -129,9 +129,9 @@ namespace FluentCommand.Import
 
                 var dataRow = dataTable.NewRow();
 
-                PopulateRow(importContext, dataRow, row);
-
-                dataTable.Rows.Add(dataRow);
+                var valid = await PopulateRow(importContext, dataRow, row);
+                if (valid)
+                    dataTable.Rows.Add(dataRow);
             }
 
             return dataTable;
@@ -146,37 +146,62 @@ namespace FluentCommand.Import
         /// <returns>
         /// The <see cref="DataRow" /> with the populated data.
         /// </returns>
-        protected virtual DataRow PopulateRow(ImportProcessContext importContext, DataRow dataRow, string[] row)
+        protected virtual async Task<bool> PopulateRow(ImportProcessContext importContext, DataRow dataRow, string[] row)
         {
-            foreach (var field in importContext.MappedFields)
+            try
             {
-                if (field.Definition.Default.HasValue)
+                foreach (var field in importContext.MappedFields)
                 {
-                    dataRow[field.Definition.Name] = GetDefault(field.Definition, importContext.UserName);
-                    continue;
+                    if (field.Definition.Default.HasValue)
+                    {
+                        dataRow[field.Definition.Name] = GetDefault(field.Definition, importContext.UserName);
+                        continue;
+                    }
+
+                    var index = field.FieldMap.Index;
+                    if (!index.HasValue)
+                        continue;
+
+                    var value = row[index.Value];
+
+                    var convertValue = await ConvertValue(importContext, field.Definition, value);
+
+                    dataRow[field.Definition.Name] = convertValue ?? DBNull.Value;
                 }
 
-                var index = field.FieldMap.Index;
-                if (!index.HasValue)
-                    continue;
+                if (importContext.Definition.Validator == null)
+                    return true;
 
-                var value = row[index.Value];
+                var validator = importContext.GetService(importContext.Definition.Validator) as IImportValidator;
+                if (validator == null)
+                    throw new InvalidOperationException($"Failed to create data row validator '{importContext.Definition.Validator}'");
 
-                var convertValue = ConvertValue(field.Definition, value);
+                await validator.ValidateRow(importContext.Definition, dataRow);
 
-                dataRow[field.Definition.Name] = convertValue ?? DBNull.Value;
+                return true;
             }
+            catch (Exception ex)
+            {
+                importContext.Errors.Add(ex);
 
-            return dataRow;
+                if (importContext.Errors.Count > importContext.Definition.MaxErrors)
+                    throw;
+
+                return false;
+            }
         }
 
         /// <summary>
-        /// Converts the source string value into the correct data type using specified <paramref name="field"/> definition.
+        /// Converts the source string value into the correct data type using specified <paramref name="field" /> definition.
         /// </summary>
+        /// <param name="importContext">The import context.</param>
         /// <param name="field">The field definition.</param>
         /// <param name="value">The source value.</param>
-        /// <returns>The convert value.</returns>
-        protected virtual object ConvertValue(FieldDefinition field, string value)
+        /// <returns>
+        /// The convert value.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">Failed to create translator for field '{field.Name}'</exception>
+        protected virtual async Task<object> ConvertValue(ImportProcessContext importContext, FieldDefinition field, string value)
         {
             if (field.Translator == null)
             {
@@ -184,11 +209,13 @@ namespace FluentCommand.Import
                 return convertValue;
             }
 
-            var translator = _importFactory(field.Translator) as IFieldTranslator;
+            var translator = importContext.GetService(field.Translator) as IFieldTranslator;
             if (translator == null)
                 throw new InvalidOperationException($"Failed to create translator for field '{field.Name}'");
 
-            return translator.Translate(value);
+
+            var translatedValue = await translator.Translate(value);
+            return translatedValue;
         }
 
         /// <summary>

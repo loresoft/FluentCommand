@@ -1,4 +1,4 @@
-﻿namespace FluentCommand.Batch.Security
+﻿namespace FluentCommand
 {
     /// <summary>
     /// An immutable hash code structure
@@ -6,7 +6,7 @@
     /// <remarks>
     /// Implements the Jon Skeet suggested implementation of GetHashCode(). 
     /// </remarks>
-    public struct HashCode
+    public readonly struct HashCode
     {
         /// <summary>
         /// The prime multiplier used to combine hash codes.
@@ -30,17 +30,14 @@
         /// <value>
         /// The hash code seed value.
         /// </value>
-        public static HashCode Seed
-        {
-            get { return new HashCode(17); }
-        }
+        public static HashCode Seed => new HashCode(17);
 
         /// <summary>
         /// Combines this hash code with the hash code of specified <paramref name="value" />.
         /// </summary>
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="value">The value to combine hash codes with.</param>
-        /// <returns>A new hash code compined with this and the values hash codes.</returns>
+        /// <returns>A new hash code combined with this and the values hash codes.</returns>
         public HashCode Combine<T>(T value)
         {
             var h = Equals(value, default(T)) ? 0 : value.GetHashCode();
