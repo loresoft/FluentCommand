@@ -47,7 +47,7 @@ namespace FluentCommand.SqlServer.Tests
         }
         
         [Fact]
-        public void CreateAndPopulateTable()
+        public async Task CreateAndPopulateTable()
         {
             var userDefinition = CreateDefinition();
             userDefinition.Should().NotBeNull();
@@ -82,7 +82,7 @@ namespace FluentCommand.SqlServer.Tests
             dataTable.Columns[4].ColumnName.Should().Be("LockoutCount");
             dataTable.Columns[4].DataType.Should().Be<int>();
 
-            this.PopulateTable(importContext, dataTable);
+            await PopulateTable(importContext, dataTable);
 
             dataTable.Rows.Count.Should().Be(3);
 

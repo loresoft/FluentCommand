@@ -38,6 +38,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Json", "src\FluentCommand.Json\FluentCommand.Json.csproj", "{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +86,10 @@ Global
 		{536C4B33-C1D8-495B-A282-97F525BF994D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{536C4B33-C1D8-495B-A282-97F525BF994D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{536C4B33-C1D8-495B-A282-97F525BF994D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

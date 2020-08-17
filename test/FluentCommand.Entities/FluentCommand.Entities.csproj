@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
 </Project>
