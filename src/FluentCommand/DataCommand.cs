@@ -695,7 +695,7 @@ namespace FluentCommand
 
             var buffer = new StringBuilder();
             buffer
-                .AppendLine($"{resultText} DbCommand ({elapsed}ms) CommandType='{commandType}', CommandTimeout='{commandTimeout}']")
+                .AppendLine($"{resultText} DbCommand ({elapsed}ms) [CommandType='{commandType}', CommandTimeout='{commandTimeout}']")
                 .AppendLine(command.CommandText);
 
             const string parameterFormat = "-- {0}: {1} {2} (Size = {3}; Precision = {4}; Scale = {5}) [{6}]";
