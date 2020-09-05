@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
+using Microsoft.Data.SqlClient;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -146,6 +147,44 @@ namespace FluentCommand.SqlServer.Tests
 
             users.Should().NotBeNull();
             users.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task SqlQueryEntityErrorAsync()
+        {
+            var session = GetConfiguration().CreateSession();
+            session.Should().NotBeNull();
+
+            string email = "%@battlestar.com";
+            string sql = "select * from [Blah].[User] where EmailAddress like @EmailAddress";
+
+            Func<System.Threading.Tasks.Task> action = async () =>
+            {
+                var users = await session.Sql(sql)
+                    .Parameter("@EmailAddress", email)
+                    .QueryAsync(r => new User
+                    {
+                        Id = r.GetGuid("Id"),
+                        EmailAddress = r.GetString("EmailAddress"),
+                        IsEmailAddressConfirmed = r.GetBoolean("IsEmailAddressConfirmed"),
+                        DisplayName = r.GetString("DisplayName"),
+                        PasswordHash = r.GetString("PasswordHash"),
+                        ResetHash = r.GetString("ResetHash"),
+                        InviteHash = r.GetString("InviteHash"),
+                        AccessFailedCount = r.GetInt32("AccessFailedCount"),
+                        LockoutEnabled = r.GetBoolean("LockoutEnabled"),
+                        LockoutEnd = r.GetDateTimeOffsetNull("LockoutEnd"),
+                        LastLogin = r.GetDateTimeOffsetNull("LastLogin"),
+                        IsDeleted = r.GetBoolean("IsDeleted"),
+                        Created = r.GetDateTimeOffset("Created"),
+                        CreatedBy = r.GetString("CreatedBy"),
+                        Updated = r.GetDateTimeOffset("Updated"),
+                        UpdatedBy = r.GetString("UpdatedBy"),
+                        RowVersion = r.GetBytes("RowVersion"),
+                    });
+            };
+
+            await action.Should().ThrowAsync<SqlException>();
         }
 
         [Fact]

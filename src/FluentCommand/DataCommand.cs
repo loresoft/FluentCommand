@@ -691,7 +691,7 @@ namespace FluentCommand
             var elapsed = duration.TotalMilliseconds;
             var commandType = command.CommandType;
             var commandTimeout = command.CommandTimeout;
-            var resultText = exception == null ? "Executed" : "Failed Executing";
+            var resultText = exception == null ? "Executed" : "Error Executing";
 
             var buffer = new StringBuilder();
             buffer
