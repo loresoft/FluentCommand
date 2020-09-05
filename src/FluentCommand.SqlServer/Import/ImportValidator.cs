@@ -29,7 +29,7 @@ namespace FluentCommand.Import
         /// <param name="importDefinition">The import definition.</param>
         /// <param name="targetRow">The target row.</param>
         /// <returns></returns>
-        public Task ValidateRow(ImportDefinition importDefinition, DataRow targetRow)
+        public virtual Task ValidateRow(ImportDefinition importDefinition, DataRow targetRow)
         {
             // check for DBNull or null
             CheckForNull(importDefinition, targetRow);
@@ -47,7 +47,7 @@ namespace FluentCommand.Import
         /// <param name="importDefinition">The import definition.</param>
         /// <param name="targetRow">The target row.</param>
         /// <exception cref="ValidationException">When a required field is null</exception>
-        protected void CheckForNull(ImportDefinition importDefinition, DataRow targetRow)
+        protected virtual void CheckForNull(ImportDefinition importDefinition, DataRow targetRow)
         {
             var requiredFields = importDefinition
                 .Fields
@@ -74,7 +74,7 @@ namespace FluentCommand.Import
         /// <param name="importDefinition">The import definition.</param>
         /// <param name="targetRow">The target row.</param>
         /// <exception cref="ValidationException">When key is duplicate</exception>
-        protected void CheckForDuplicate(ImportDefinition importDefinition, DataRow targetRow)
+        protected virtual void CheckForDuplicate(ImportDefinition importDefinition, DataRow targetRow)
         {
             var keyFields = importDefinition
                 .Fields

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -173,13 +174,13 @@ namespace FluentCommand
         /// </remarks>
         public IDataCommand ExpireCache<TEntity>()
         {
-            string cacheKey = CacheKey<TEntity>();
+            string cacheKey = CacheKey<TEntity>(true);
             if (_dataSession.Cache != null && cacheKey != null)
                 _dataSession.Cache.Remove(cacheKey);
 
             return this;
         }
-        
+
 
         /// <summary>
         /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects.
@@ -194,37 +195,19 @@ namespace FluentCommand
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            AssertDisposed();
-
-            try
+            return QueryFactory(() =>
             {
-                string cacheKey = CacheKey<TEntity>();
-                if (GetCache(cacheKey) is List<TEntity> results)
-                    return results;
+                var results = new List<TEntity>();
 
-                results = new List<TEntity>();
-                _dataSession.EnsureConnection();
-
-                LogCommand();
-                using (var reader = _command.ExecuteReader())
+                using var reader = _command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        var entity = factory(reader);
-                        results.Add(entity);
-                    }
+                    var entity = factory(reader);
+                    results.Add(entity);
                 }
 
-                TriggerCallbacks();
-
-                SetCache(cacheKey, results);
                 return results;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+            }, true);
         }
 
         /// <summary>
@@ -242,39 +225,22 @@ namespace FluentCommand
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            AssertDisposed();
-
-            try
+            return await QueryFactoryAsync(async (token) =>
             {
-                string cacheKey = CacheKey<TEntity>();
-                if (GetCache(cacheKey) is List<TEntity> results)
-                    return results;
+                var results = new List<TEntity>();
 
-                results = new List<TEntity>();
-                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-                LogCommand();
-                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+                using var reader = await _command.ExecuteReaderAsync(token);
+                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-                    {
-                        var entity = factory(reader);
-                        results.Add(entity);
-                    }
+                    var entity = factory(reader);
+                    results.Add(entity);
                 }
 
-                TriggerCallbacks();
-
-                SetCache(cacheKey, results);
                 return results;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+
+            }, true, cancellationToken).ConfigureAwait(false);
         }
-        
+
 
         /// <summary>
         /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object.
@@ -290,35 +256,15 @@ namespace FluentCommand
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            AssertDisposed();
-
-            try
+            return QueryFactory(() =>
             {
-                string cacheKey = CacheKey<TEntity>();
-                if (GetCache(cacheKey) is TEntity result)
-                    return result;
+                using var reader = _command.ExecuteReader();
+                var result = reader.Read()
+                    ? factory(reader)
+                    : default;
 
-                _dataSession.EnsureConnection();
-
-                LogCommand();
-
-                using (var reader = _command.ExecuteReader())
-                {
-                    result = reader.Read()
-                        ? factory(reader)
-                        : default;
-                }
-
-                TriggerCallbacks();
-
-                SetCache(cacheKey, result);
                 return result;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+            }, true);
         }
 
         /// <summary>
@@ -336,37 +282,17 @@ namespace FluentCommand
             if (factory == null)
                 throw new ArgumentNullException(nameof(factory));
 
-            AssertDisposed();
-
-            try
+            return await QueryFactoryAsync(async (token) =>
             {
-                string cacheKey = CacheKey<TEntity>();
-                if (GetCache(cacheKey) is TEntity result)
-                    return result;
+                using var reader = await _command.ExecuteReaderAsync(token).ConfigureAwait(false);
+                var result = await reader.ReadAsync(token).ConfigureAwait(false)
+                   ? factory(reader)
+                   : default;
 
-                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-                LogCommand();
-
-                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
-                        ? factory(reader)
-                        : default;
-                }
-
-                TriggerCallbacks();
-
-                SetCache(cacheKey, result);
                 return result;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+            }, true, cancellationToken).ConfigureAwait(false);
         }
-        
+
 
         /// <summary>
         /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.
@@ -378,32 +304,13 @@ namespace FluentCommand
         /// </returns>
         public TValue QueryValue<TValue>(Func<object, TValue> convert)
         {
-            AssertDisposed();
-
-            try
+            return QueryFactory(() =>
             {
-                string cacheKey = CacheKey<TValue>();
-                var result = GetCache(cacheKey);
-                if (result != null)
-                    return result.ConvertValue(convert);
-
-                _dataSession.EnsureConnection();
-
-                LogCommand();
-
-                result = _command.ExecuteScalar();
+                var result = _command.ExecuteScalar();
                 var value = result.ConvertValue(convert);
 
-                TriggerCallbacks();
-
-                SetCache(cacheKey, value);
                 return value;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+            }, true);
         }
 
         /// <summary>
@@ -417,32 +324,13 @@ namespace FluentCommand
         /// </returns>
         public async Task<TValue> QueryValueAsync<TValue>(Func<object, TValue> convert, CancellationToken cancellationToken = default)
         {
-            AssertDisposed();
-
-            try
+            return await QueryFactoryAsync(async (token) =>
             {
-                string cacheKey = CacheKey<TValue>();
-                var result = GetCache(cacheKey);
-                if (result != null)
-                    return result.ConvertValue(convert);
-
-                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-                LogCommand();
-
-                result = await _command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+                var result = await _command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
                 var value = result.ConvertValue(convert);
 
-                TriggerCallbacks();
-
-                SetCache(cacheKey, value);
                 return value;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+            }, true, cancellationToken).ConfigureAwait(false);
         }
 
 
@@ -454,34 +342,15 @@ namespace FluentCommand
         /// </returns>
         public DataTable QueryTable()
         {
-            AssertDisposed();
-
-            try
+            return QueryFactory(() =>
             {
-                string cacheKey = CacheKey<DataTable>();
-                if (GetCache(cacheKey) is DataTable dataTable)
-                    return dataTable;
+                var dataTable = new DataTable();
 
-                _dataSession.EnsureConnection();
+                using var reader = _command.ExecuteReader();
+                dataTable.Load(reader);
 
-                LogCommand();
-
-                dataTable = new DataTable();
-
-                using (var reader = _command.ExecuteReader())
-                    dataTable.Load(reader);
-
-                TriggerCallbacks();
-
-                SetCache(cacheKey, dataTable);
                 return dataTable;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
-
+            }, true);
         }
 
         /// <summary>
@@ -493,34 +362,16 @@ namespace FluentCommand
         /// </returns>
         public async Task<DataTable> QueryTableAsync(CancellationToken cancellationToken = default)
         {
-            AssertDisposed();
-
-            try
+            return await QueryFactoryAsync(async (token) =>
             {
-                string cacheKey = CacheKey<DataTable>();
-                if (GetCache(cacheKey) is DataTable dataTable)
-                    return dataTable;
+                var dataTable = new DataTable();
 
-                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+                using var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+                dataTable.Load(reader);
 
-                LogCommand();
-
-                dataTable = new DataTable();
-
-                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
-                    dataTable.Load(reader);
-
-                TriggerCallbacks();
-
-                SetCache(cacheKey, dataTable);
                 return dataTable;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
 
+            }, true, cancellationToken).ConfigureAwait(false);
         }
 
 
@@ -533,28 +384,15 @@ namespace FluentCommand
             if (queryAction == null)
                 throw new ArgumentNullException(nameof(queryAction));
 
-            AssertDisposed();
-
-            try
+            QueryFactory(() =>
             {
-                _dataSession.EnsureConnection();
+                using var reader = _command.ExecuteReader();
+                var query = new QueryMultipleResult(reader);
+                queryAction(query);
 
-                LogCommand();
+                return true;
+            }, false);
 
-
-                using (var reader = _command.ExecuteReader())
-                {
-                    var query = new QueryMultipleResult(reader);
-                    queryAction(query);
-                }
-
-                TriggerCallbacks();
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
         }
 
         /// <summary>
@@ -567,28 +405,14 @@ namespace FluentCommand
             if (queryAction == null)
                 throw new ArgumentNullException(nameof(queryAction));
 
-            AssertDisposed();
-
-            try
+            await QueryFactoryAsync(async (token) =>
             {
-                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+                using var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+                var query = new QueryMultipleResult(reader);
+                queryAction(query);
 
-                LogCommand();
-
-
-                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
-                {
-                    var query = new QueryMultipleResult(reader);
-                    queryAction(query);
-                }
-
-                TriggerCallbacks();
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+                return true;
+            }, false, cancellationToken).ConfigureAwait(false);
         }
 
 
@@ -600,24 +424,11 @@ namespace FluentCommand
         /// </returns>
         public int Execute()
         {
-            AssertDisposed();
-
-            try
+            return QueryFactory(() =>
             {
-                _dataSession.EnsureConnection();
-
-                LogCommand();
-
                 int result = _command.ExecuteNonQuery();
-
-                TriggerCallbacks();
                 return result;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+            }, false);
         }
 
         /// <summary>
@@ -628,24 +439,12 @@ namespace FluentCommand
         /// </returns>
         public async Task<int> ExecuteAsync(CancellationToken cancellationToken = default)
         {
-            AssertDisposed();
-
-            try
+            return await QueryFactoryAsync(async (token) =>
             {
-                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-                LogCommand();
-
                 int result = await _command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
 
-                TriggerCallbacks();
                 return result;
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+            }, false, cancellationToken).ConfigureAwait(false);
         }
 
 
@@ -655,24 +454,13 @@ namespace FluentCommand
         /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
         public void Read(Action<IDataReader> readAction)
         {
-            AssertDisposed();
-
-            try
+            QueryFactory(() =>
             {
-                _dataSession.EnsureConnection();
+                using var reader = _command.ExecuteReader();
+                readAction(reader);
 
-                LogCommand();
-
-                using (var reader = _command.ExecuteReader())
-                    readAction(reader);
-
-                TriggerCallbacks();
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+                return true;
+            }, false);
         }
 
         /// <summary>
@@ -682,24 +470,13 @@ namespace FluentCommand
         /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
         public async Task ReadAsync(Action<IDataReader> readAction, CancellationToken cancellationToken = default)
         {
-            AssertDisposed();
-
-            try
+            await QueryFactoryAsync(async (token) =>
             {
-                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+                using var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+                readAction(reader);
 
-                LogCommand();
-
-                using (var reader = await _command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
-                    readAction(reader);
-
-                TriggerCallbacks();
-            }
-            finally
-            {
-                _dataSession.ReleaseConnection();
-                Dispose();
-            }
+                return true;
+            }, false, cancellationToken).ConfigureAwait(false);
         }
 
 
@@ -725,8 +502,102 @@ namespace FluentCommand
         }
 
 
-        private string CacheKey<T>()
+        private TResult QueryFactory<TResult>(Func<TResult> query, bool supportCache)
         {
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            AssertDisposed();
+
+            var watch = Stopwatch.StartNew();
+            try
+            {
+                var cacheKey = CacheKey<TResult>(supportCache);
+                if (GetCache(cacheKey) is TResult results)
+                    return results;
+
+                _dataSession.EnsureConnection();
+
+                results = query();
+
+                TriggerCallbacks();
+
+                SetCache(cacheKey, results);
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                watch.Stop();
+                LogCommand(watch.Elapsed, ex);
+
+                throw;
+            }
+            finally
+            {
+                // if catch block didn't already log
+                if (watch.IsRunning)
+                {
+                    watch.Stop();
+                    LogCommand(watch.Elapsed);
+                }
+
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
+        }
+
+        private async Task<TResult> QueryFactoryAsync<TResult>(Func<CancellationToken, Task<TResult>> query, bool supportCache, CancellationToken cancellationToken = default)
+        {
+            if (query == null)
+                throw new ArgumentNullException(nameof(query));
+
+            AssertDisposed();
+
+            var watch = Stopwatch.StartNew();
+            try
+            {
+                var cacheKey = CacheKey<TResult>(supportCache);
+                if (GetCache(cacheKey) is TResult results)
+                    return results;
+
+                await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+                results = await query(cancellationToken).ConfigureAwait(false);
+
+                TriggerCallbacks();
+
+                SetCache(cacheKey, results);
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                watch.Stop();
+                LogCommand(watch.Elapsed, ex);
+
+                throw;
+            }
+            finally
+            {
+                // if catch block didn't already log
+                if (watch.IsRunning)
+                {
+                    watch.Stop();
+                    LogCommand(watch.Elapsed);
+                }
+
+                _dataSession.ReleaseConnection();
+                Dispose();
+            }
+        }
+
+
+        private string CacheKey<T>(bool supportCache)
+        {
+            if (!supportCache)
+                return null;
+
             if (_dataSession.Cache == null)
                 return null;
 
@@ -807,18 +678,25 @@ namespace FluentCommand
         }
 
 
-        private void LogCommand()
+        private void LogCommand(TimeSpan duration, Exception exception = null)
         {
-            LogCommand(_dataSession.WriteLog, _command);
+            LogCommand(_dataSession.WriteLog, _command, duration, exception);
         }
 
-        private static void LogCommand(Action<string> writer, IDbCommand command)
+        private static void LogCommand(Action<string> writer, IDbCommand command, TimeSpan duration, Exception exception = null)
         {
             if (writer == null)
                 return;
 
-            var buffer = new StringBuilder(command.CommandText);
-            buffer.AppendLine();
+            var elapsed = duration.TotalMilliseconds;
+            var commandType = command.CommandType;
+            var commandTimeout = command.CommandTimeout;
+            var resultText = exception == null ? "Executed" : "Failed Executing";
+
+            var buffer = new StringBuilder();
+            buffer
+                .AppendLine($"{resultText} DbCommand ({elapsed}ms) CommandType='{commandType}', CommandTimeout='{commandTimeout}']")
+                .AppendLine(command.CommandText);
 
             const string parameterFormat = "-- {0}: {1} {2} (Size = {3}; Precision = {4}; Scale = {5}) [{6}]";
             foreach (IDataParameter parameter in command.Parameters)
