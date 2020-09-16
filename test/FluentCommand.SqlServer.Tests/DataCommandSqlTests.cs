@@ -347,5 +347,23 @@ namespace FluentCommand.SqlServer.Tests
 
         }
 
+        [Fact]
+        public void SqlQueryEntityTimeOut()
+        {
+            var session = GetConfiguration().CreateSession();
+            session.Should().NotBeNull();
+
+            string email = "%@battlestar.com";
+            string sql = "select * from [User] where EmailAddress like @EmailAddress";
+
+            var dataCommand = session.Sql(sql);
+
+            dataCommand
+                .CommandTimeout(TimeSpan.FromMinutes(5))
+                .Parameter("@EmailAddress", email);
+
+            dataCommand.Command.CommandTimeout.Should().Be(300);
+        }
+
     }
 }

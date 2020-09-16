@@ -14,6 +14,22 @@ namespace FluentCommand
     public static class DataCommandExtensions
     {
         /// <summary>
+        /// Sets the wait time before terminating the attempt to execute a command and generating an error.
+        /// </summary>
+        /// <param name="dataCommand">The <see cref="IDataCommand"/> for this extension method.</param>
+        /// <param name="timeSpan">The <see cref="TimeSpan"/> to wait for the command to execute.</param>
+        /// <returns>
+        /// A fluent <see langword="interface" /> to the data command.
+        /// </returns>
+        public static IDataCommand CommandTimeout(this IDataCommand dataCommand, TimeSpan timeSpan)
+        {
+            var timeout = Convert.ToInt32(timeSpan.TotalSeconds);
+            dataCommand.CommandTimeout(timeout);
+            return dataCommand;
+        }
+
+
+        /// <summary>
         /// Adds the parameters to the underlying command.
         /// </summary>
         /// <param name="dataCommand">The <see cref="IDataCommand"/> for this extension method.</param>
