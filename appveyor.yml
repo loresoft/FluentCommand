@@ -1,4 +1,4 @@
-version: 6.0.0.{build}
+version: 7.0.0.{build}
 os: Visual Studio 2019
 
 environment:
@@ -10,7 +10,7 @@ init:
   - git config --global core.autocrlf input
 
 services:
-  - mssql2017
+  - mssql2019
   - postgresql
 
 dotnet_csproj:

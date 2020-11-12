@@ -22,7 +22,7 @@ namespace FluentCommand
         /// </returns>
         public static IDataCommand SqlParameter<T>(this IDataCommand dataCommand, string name, IEnumerable<T> data)
         {
-            var dataTable = data.ToDataTable<T>();
+            var dataTable = data.ToDataTable();
             return SqlParameter(dataCommand, name, dataTable);
         }
 
