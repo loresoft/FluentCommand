@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LangVersion>8.0</LangVersion>
@@ -17,11 +17,6 @@
     <EmbeddedResource Include="Scripts\Script001.Tracker.Schema.sql" />
     <EmbeddedResource Include="Scripts\Script002.Tracker.Data.sql" />
     <EmbeddedResource Include="Scripts\Script003.Tracker.StoredProcedure.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
 
   <ItemGroup>
