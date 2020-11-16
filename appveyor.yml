@@ -32,7 +32,7 @@ test_script:
   - dotnet test FluentCommand.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
 
 after_test:
-  - csmacnz.coveralls --useRelativePaths --multiple --input "opencover=test\FluentCommand.Tests\coverage.netcoreapp2.1.opencover.xml;opencover=test\FluentCommand.Batch.Tests\coverage.netcoreapp2.1.opencover.xml;opencover=test\FluentCommand.SqlServer.Tests\coverage.netcoreapp2.1.opencover.xml"
+  - csmacnz.coveralls --useRelativePaths --multiple --input "opencover=test\FluentCommand.Tests\coverage.opencover.xml;opencover=test\FluentCommand.Batch.Tests\coverage.opencover.xml;opencover=test\FluentCommand.SqlServer.Tests\coverage.opencover.xml"
 
 artifacts:
 - path: artifacts\*.*nupkg
