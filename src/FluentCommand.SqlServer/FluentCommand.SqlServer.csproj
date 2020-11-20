@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MicroSoft.Data.SqlClient" Version="2.0.1" />
+    <PackageReference Include="MicroSoft.Data.SqlClient" Version="2.1.0" />
   </ItemGroup>
 
 </Project>
