@@ -9,6 +9,7 @@ using Xunit.Abstractions;
 
 namespace FluentCommand.SQLite.Tests
 {
+    [Collection("SQLite")]
     public class DataCommandSqlAsyncTests : DatabaseTestBase
     {
         public DataCommandSqlAsyncTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
