@@ -15,7 +15,7 @@ namespace FluentCommand.SQLite.Tests
         {
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQuerySingleEntityAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -51,7 +51,7 @@ namespace FluentCommand.SQLite.Tests
             user.EmailAddress.Should().Be(email);
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -68,7 +68,7 @@ namespace FluentCommand.SQLite.Tests
             user.EmailAddress.Should().Be(email);
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryCacheAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -95,7 +95,7 @@ namespace FluentCommand.SQLite.Tests
 
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQuerySingleEntityDynamicAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -112,7 +112,7 @@ namespace FluentCommand.SQLite.Tests
             Assert.Equal(user.EmailAddress, email);
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQueryEntityAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -148,7 +148,7 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQueryEntityDynamicAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -165,7 +165,7 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQueryEntityDynamicCacheAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -197,7 +197,7 @@ namespace FluentCommand.SQLite.Tests
             cachedList.Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQueryEntityFactoryAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -214,7 +214,7 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQueryTableAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -230,7 +230,7 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeNull();
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQueryValueAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -246,7 +246,7 @@ namespace FluentCommand.SQLite.Tests
             count.Should().BeGreaterThan(0);
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlReaderAsync()
         {
             var session = GetConfiguration().CreateSession();
@@ -272,7 +272,7 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public async System.Threading.Tasks.Task SqlQueryMultipleAsync()
         {
 

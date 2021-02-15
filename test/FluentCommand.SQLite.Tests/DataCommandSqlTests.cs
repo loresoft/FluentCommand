@@ -16,7 +16,7 @@ namespace FluentCommand.SQLite.Tests
         {
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public void SqlQuerySingleEntity()
         {
             var session = GetConfiguration().CreateSession();
@@ -52,7 +52,7 @@ namespace FluentCommand.SQLite.Tests
             user.EmailAddress.Should().Be(email);
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public void SqlQuerySingleEntityFactory()
         {
             var session = GetConfiguration().CreateSession();
@@ -69,7 +69,7 @@ namespace FluentCommand.SQLite.Tests
             user.EmailAddress.Should().Be(email);
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public void SqlQuerySingleEntityFactoryCache()
         {
             var session = GetConfiguration().CreateSession();
@@ -96,7 +96,7 @@ namespace FluentCommand.SQLite.Tests
 
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public void SqlQuerySingleEntityDynamic()
         {
             var session = GetConfiguration().CreateSession();
@@ -113,7 +113,7 @@ namespace FluentCommand.SQLite.Tests
             Assert.Equal(user.EmailAddress, email);
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public void SqlQueryEntity()
         {
             var session = GetConfiguration().CreateSession();
@@ -149,7 +149,7 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public void SqlQueryEntityDynamic()
         {
             var session = GetConfiguration().CreateSession();
@@ -165,8 +165,8 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeNull();
             users.Should().NotBeEmpty();
         }
-        
-        [Fact]
+
+        [Fact(Skip = "Local Only")]
         public void SqlQueryEntityDynamicCache()
         {
             var session = GetConfiguration().CreateSession();
@@ -195,8 +195,8 @@ namespace FluentCommand.SQLite.Tests
             cachedUsers.Should().NotBeNull();
             cachedUsers.Should().NotBeEmpty();
         }
-        
-        [Fact]
+
+        [Fact(Skip = "Local Only")]
         public void SqlQueryEntityFactory()
         {
             var session = GetConfiguration().CreateSession();
@@ -212,8 +212,8 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeNull();
             users.Should().NotBeEmpty();
         }
-        
-        [Fact]
+
+        [Fact(Skip = "Local Only")]
         public void SqlQueryTable()
         {
             var session = GetConfiguration().CreateSession();
@@ -229,7 +229,7 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeNull();
         }
 
-        [Fact]
+        [Fact(Skip = "Local Only")]
         public void SqlQueryValue()
         {
             var session = GetConfiguration().CreateSession();
@@ -244,8 +244,8 @@ namespace FluentCommand.SQLite.Tests
 
             count.Should().BeGreaterThan(0);
         }
-        
-        [Fact]
+
+        [Fact(Skip = "Local Only")]
         public void SqlReader()
         {
             var session = GetConfiguration().CreateSession();
@@ -270,8 +270,8 @@ namespace FluentCommand.SQLite.Tests
             users.Should().NotBeNull();
             users.Should().NotBeEmpty();
         }
-        
-        [Fact]
+
+        [Fact(Skip = "Local Only")]
         public void SqlQueryMultiple()
         {
 

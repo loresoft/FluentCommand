@@ -23,10 +23,10 @@ namespace FluentCommand.SQLite.Tests
 
         protected IDataConfiguration GetConfiguration()
         {
-            var dataConfiguration  = new DataConfiguration(
-                SQLiteFactory.Instance, 
-                Fixture.ConnectionString, 
-                DataCache.Default, 
+            var dataConfiguration = new DataConfiguration(
+                SQLiteFactory.Instance,
+                Fixture.ConnectionString,
+                DataCache.Default,
                 Output.WriteLine);
 
             return dataConfiguration;
