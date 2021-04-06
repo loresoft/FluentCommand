@@ -51,6 +51,9 @@ namespace FluentCommand.Import
             var dataTable = CreateTable(context);
             await PopulateTable(context, dataTable);
 
+            if (dataTable.Rows.Count == 0)
+                return new ImportResult { Processed = 0, Errors = context.Errors };
+
             var mergeDefinition = CreateMergeDefinition(context);
 
             var result = await _dataSession
