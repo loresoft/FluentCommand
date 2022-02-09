@@ -22,7 +22,7 @@
     </PackageReference>
     <PackageReference Include="dbup-postgresql" Version="4.5.0" />
     <PackageReference Include="Npgsql" Version="6.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
