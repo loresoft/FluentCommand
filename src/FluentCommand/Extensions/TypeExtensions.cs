@@ -1,55 +1,54 @@
-﻿using System;
+using System;
 
-namespace FluentCommand.Extensions
+namespace FluentCommand.Extensions;
+
+/// <summary>
+/// <see cref="T:Type"/> extension methods.
+/// </summary>
+public static class TypeExtensions
 {
     /// <summary>
-    /// <see cref="T:Type"/> extension methods.
+    /// Gets the underlying type dealing with <see cref="T:Nullable`1"/>.
     /// </summary>
-    public static class TypeExtensions
+    /// <param name="type">The type.</param>
+    /// <returns>Returns a type dealing with <see cref="T:Nullable`1"/>.</returns>
+    public static Type GetUnderlyingType(this Type type)
     {
-        /// <summary>
-        /// Gets the underlying type dealing with <see cref="T:Nullable`1"/>.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>Returns a type dealing with <see cref="T:Nullable`1"/>.</returns>
-        public static Type GetUnderlyingType(this Type type)
-        {
-            if (type == null)
-                throw new ArgumentNullException("type");
+        if (type == null)
+            throw new ArgumentNullException("type");
 
-            Type t = type;
-            bool isNullable = t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(Nullable<>));
-            if (isNullable)
-                return Nullable.GetUnderlyingType(t);
+        Type t = type;
+        bool isNullable = t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(Nullable<>));
+        if (isNullable)
+            return Nullable.GetUnderlyingType(t);
 
-            return t;
-        }
+        return t;
+    }
 
-        /// <summary>
-        /// Determines whether the specified <paramref name="type"/> can be null.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <paramref name="type"/> can be null; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsNullable(this Type type)
-        {
-            if (!type.IsValueType)
-                return true;
+    /// <summary>
+    /// Determines whether the specified <paramref name="type"/> can be null.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <paramref name="type"/> can be null; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool IsNullable(this Type type)
+    {
+        if (!type.IsValueType)
+            return true;
 
-            return type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Nullable<>));
-        }
+        return type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Nullable<>));
+    }
 
-        /// <summary>
-        /// Gets the default value the specified <paramref name="type"/>.
-        /// </summary>
-        /// <param name="type">The type to get a default value for.</param>
-        /// <returns>A default value the specified <paramref name="type"/>.</returns>
-        public static object Default(this Type type)
-        {
-            return type.IsValueType
-              ? Activator.CreateInstance(type)
-              : null;
-        }
+    /// <summary>
+    /// Gets the default value the specified <paramref name="type"/>.
+    /// </summary>
+    /// <param name="type">The type to get a default value for.</param>
+    /// <returns>A default value the specified <paramref name="type"/>.</returns>
+    public static object Default(this Type type)
+    {
+        return type.IsValueType
+          ? Activator.CreateInstance(type)
+          : null;
     }
 }

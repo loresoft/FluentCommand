@@ -1,39 +1,39 @@
-﻿using System;
+using System;
+
 using Npgsql;
+
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FluentCommand.PostgreSQL.Tests
+namespace FluentCommand.PostgreSQL.Tests;
+
+[Collection(DatabaseCollection.CollectionName)]
+public abstract class DatabaseTestBase : IDisposable
 {
-    [Collection(DatabaseCollection.CollectionName)]
-    public abstract class DatabaseTestBase : IDisposable
+    protected DatabaseTestBase(ITestOutputHelper output, DatabaseFixture databaseFixture)
     {
-        protected DatabaseTestBase(ITestOutputHelper output, DatabaseFixture databaseFixture)
-        {
-            Output = output;
-            Fixture = databaseFixture;
-        }
+        Output = output;
+        Fixture = databaseFixture;
+    }
 
 
-        public ITestOutputHelper Output { get; }
+    public ITestOutputHelper Output { get; }
 
-        public DatabaseFixture Fixture { get; }
+    public DatabaseFixture Fixture { get; }
 
 
-        protected IDataConfiguration GetConfiguration()
-        {
-            var dataConfiguration  = new DataConfiguration(
-                NpgsqlFactory.Instance, 
-                Fixture.ConnectionString,
-                DataCache.Default, 
-                Output.WriteLine);
+    protected IDataConfiguration GetConfiguration()
+    {
+        var dataConfiguration = new DataConfiguration(
+            NpgsqlFactory.Instance,
+            Fixture.ConnectionString,
+            logger: Output.WriteLine);
 
-            return dataConfiguration;
-        }
+        return dataConfiguration;
+    }
 
-        public void Dispose()
-        {
-            Fixture?.Report(Output);
-        }
+    public void Dispose()
+    {
+        Fixture?.Report(Output);
     }
 }

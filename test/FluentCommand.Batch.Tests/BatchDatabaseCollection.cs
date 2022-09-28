@@ -1,12 +1,13 @@
-﻿using System;
+using System;
+
 using FluentCommand.SqlServer.Tests;
+
 using Xunit;
 
-namespace FluentCommand.Batch.Tests
+namespace FluentCommand.Batch.Tests;
+
+[CollectionDefinition(BatchDatabaseCollection.CollectionName)]
+public class BatchDatabaseCollection : ICollectionFixture<DatabaseFixture>
 {
-    [CollectionDefinition(BatchDatabaseCollection.CollectionName)]
-    public class BatchDatabaseCollection : ICollectionFixture<DatabaseFixture>
-    {
-        public const string CollectionName = "BatchDatabaseCollection";
-    }
+    public const string CollectionName = "BatchDatabaseCollection";
 }

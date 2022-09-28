@@ -1,11 +1,11 @@
-﻿using System;
+using System;
+
 using Xunit;
 
-namespace FluentCommand.PostgreSQL.Tests
+namespace FluentCommand.PostgreSQL.Tests;
+
+[CollectionDefinition(DatabaseCollection.CollectionName)]
+public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
 {
-    [CollectionDefinition(DatabaseCollection.CollectionName)]
-    public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
-    {
-        public const string CollectionName = "DatabaseCollection";
-    }
+    public const string CollectionName = "DatabaseCollection";
 }

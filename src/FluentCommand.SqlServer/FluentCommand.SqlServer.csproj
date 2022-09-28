@@ -2,7 +2,7 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <RootNamespace>FluentCommand</RootNamespace>
   </PropertyGroup>
 
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MicroSoft.Data.SqlClient" Version="4.1.0" />
+    <PackageReference Include="MicroSoft.Data.SqlClient" Version="5.0.0" />
   </ItemGroup>
 
 </Project>
