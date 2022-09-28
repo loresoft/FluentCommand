@@ -1,0 +1,4 @@
+﻿SELECT [Id], [Name], [Description]
+FROM [Status]
+WHERE ([IsActive] = @p0000 AND (([Name] LIKE '%' + @p0001 + '%' OR [Description] LIKE '%' + @p0002 + '%')))
+ORDER BY [DisplayOrder] DESC, [Name] ASC;
