@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
+using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
 
@@ -13,7 +14,7 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
-    public InsertEntityBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters)
+    public InsertEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
     }
@@ -37,7 +38,11 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
             if (columnSet.Count > 0 && !columnSet.Contains(property.Name))
                 continue;
 
-            Value(property.Column, property.GetValue(entity));
+            if (property.IsNotMapped || property.IsDatabaseGenerated)
+                continue;
+
+            // include the type to prevent issues with null
+            Value(property.Column, property.GetValue(entity), property.MemberType);
         }
 
         return this;
@@ -49,10 +54,11 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
         return Output(propertyAccessor.Column, prefix, alias);
     }
 
+
     public override QueryStatement BuildStatement()
     {
         // add table and schema from attribute if not set
-        if (IntoClause.Count == 0)
+        if (TableClause.IsNullOrWhiteSpace())
             Into(_typeAccessor.TableName, _typeAccessor.TableSchema);
 
         return base.BuildStatement();

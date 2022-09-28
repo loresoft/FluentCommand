@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace FluentCommand;
 
 public class QueryStatement
 {
-    public QueryStatement(string statement, IReadOnlyDictionary<string, object> parameters)
+    public QueryStatement(string statement, IReadOnlyCollection<QueryParameter> parameters)
     {
         Statement = statement;
         Parameters = parameters;
@@ -12,5 +12,5 @@ public class QueryStatement
 
     public string Statement { get; }
 
-    public IReadOnlyDictionary<string, object> Parameters { get; }
+    public IReadOnlyCollection<QueryParameter> Parameters { get; }
 }

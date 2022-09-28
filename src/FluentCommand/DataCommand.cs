@@ -648,12 +648,7 @@ public class DataCommand : DisposableBase, IDataCommand
         if (cache == null)
             return null;
 
-        object cacheValue = cache.Get(key);
-
-        if (cacheValue != null)
-            _dataSession.WriteLog("Cache Hit: " + key);
-
-        return cacheValue;
+        return cache.Get(key);
     }
 
     private void SetCache(string key, object value)
@@ -668,8 +663,6 @@ public class DataCommand : DisposableBase, IDataCommand
         if (cache == null)
             return;
 
-        _dataSession.WriteLog("Cache Set: " + key);
-
         if (_absoluteExpiration.HasValue)
             cache.Set(key, value, _absoluteExpiration.Value);
         else
@@ -679,51 +672,6 @@ public class DataCommand : DisposableBase, IDataCommand
 
     private void LogCommand(TimeSpan duration, Exception exception = null)
     {
-        LogCommand(_dataSession.WriteLog, Command, duration, exception);
-    }
-
-    private static void LogCommand(Action<string> writer, IDbCommand command, TimeSpan duration, Exception exception = null)
-    {
-        if (writer == null)
-            return;
-
-        var elapsed = duration.TotalMilliseconds;
-        var commandType = command.CommandType;
-        var commandTimeout = command.CommandTimeout;
-        var resultText = exception == null ? "Executed" : "Error Executing";
-
-        var buffer = StringBuilderCache.Acquire();
-        buffer
-            .AppendLine($"{resultText} DbCommand ({elapsed}ms) [CommandType='{commandType}', CommandTimeout='{commandTimeout}']")
-            .AppendLine(command.CommandText);
-
-        const string parameterFormat = "-- {0}: {1} {2} (Size = {3}; Precision = {4}; Scale = {5}) [{6}]";
-        foreach (IDataParameter parameter in command.Parameters)
-        {
-            int precision = 0;
-            int scale = 0;
-            int size = 0;
-
-            if (parameter is IDbDataParameter dataParameter)
-            {
-                precision = dataParameter.Precision;
-                scale = dataParameter.Scale;
-                size = dataParameter.Size;
-            }
-
-            buffer.AppendFormat(parameterFormat,
-                parameter.ParameterName,
-                parameter.Direction,
-                parameter.DbType,
-                size,
-                precision,
-                scale,
-                parameter.Value);
-
-            buffer.AppendLine();
-        }
-
-        var output = StringBuilderCache.ToString(buffer);
-        writer(output);
+        _dataSession.QueryLogger?.LogCommand(Command, duration, exception);
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Data.Common;
 
 using FluentCommand.Query.Generators;
@@ -27,12 +26,12 @@ public interface IDataConfiguration
     string ConnectionString { get; }
 
     /// <summary>
-    /// Gets the current logger delegate.
+    /// Gets the data command query logger.
     /// </summary>
     /// <value>
-    /// The current logger delegate.
+    /// The data command query logger.
     /// </value>
-    Action<string> Logger { get; }
+    IDataQueryLogger QueryLogger { get; }
 
     /// <summary>
     /// Gets the data cache manager.

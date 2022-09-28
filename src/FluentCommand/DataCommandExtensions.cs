@@ -74,6 +74,28 @@ public static class DataCommandExtensions
     }
 
     /// <summary>
+    /// Adds a new parameter with the specified <paramref name="name" />, <paramref name="value" /> and <paramref name="type"/>.
+    /// </summary>
+    /// <param name="dataCommand">The <see cref="IDataCommand" /> for this extension method.</param>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="value">The value to be added.</param>
+    /// <param name="type">The type of the parameter.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the data command.
+    /// </returns>
+    public static IDataCommand Parameter(this IDataCommand dataCommand, string name, object value, Type type)
+    {
+        var parameter = dataCommand.Command.CreateParameter();
+        parameter.ParameterName = name;
+        parameter.Value = value ?? DBNull.Value;
+        parameter.DbType = type.GetUnderlyingType().ToDbType();
+        parameter.Direction = ParameterDirection.Input;
+
+        return dataCommand.Parameter(parameter);
+    }
+
+
+    /// <summary>
     /// Adds a new parameter with the <see cref="IDataParameter" /> fluent object.
     /// </summary>
     /// <typeparam name="TParameter"></typeparam>

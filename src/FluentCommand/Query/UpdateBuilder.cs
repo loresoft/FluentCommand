@@ -7,7 +7,7 @@ namespace FluentCommand;
 
 public class UpdateBuilder : UpdateBuilder<UpdateBuilder>
 {
-    public UpdateBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public UpdateBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
@@ -16,7 +16,7 @@ public class UpdateBuilder : UpdateBuilder<UpdateBuilder>
 public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     where TBuilder : UpdateBuilder<TBuilder>
 {
-    protected UpdateBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    protected UpdateBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
@@ -39,7 +39,12 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-    public TBuilder Value(string columnName, object parameterValue)
+    public TBuilder Value<TValue>(string columnName, TValue parameterValue)
+    {
+        return Value(columnName, parameterValue, typeof(TValue));
+    }
+
+    public TBuilder Value(string columnName, object parameterValue, Type parameterType)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
@@ -48,14 +53,12 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         var updateClause = QueryGenerator.UpdateClause(columnName, paramterName);
 
         UpdateClause.Add(updateClause);
-
-        // null as DBNull for ado
-        Parameters[paramterName] = parameterValue ?? DBNull.Value;
+        Parameters.Add(new QueryParameter(paramterName, parameterValue, parameterType));
 
         return (TBuilder)this;
     }
 
-    public TBuilder ValueIf(string columnName, object parameterValue, Func<string, object, bool> condition)
+    public TBuilder ValueIf<TValue>(string columnName, TValue parameterValue, Func<string, TValue, bool> condition)
     {
         if (condition != null && !condition(columnName, parameterValue))
             return (TBuilder)this;

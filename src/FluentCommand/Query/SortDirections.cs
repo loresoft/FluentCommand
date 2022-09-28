@@ -1,4 +1,4 @@
-﻿namespace FluentCommand;
+namespace FluentCommand;
 
 public enum SortDirections
 {

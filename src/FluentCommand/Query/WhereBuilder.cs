@@ -9,7 +9,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     where TBuilder : WhereBuilder<TBuilder>
 
 {
-    protected WhereBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    protected WhereBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters)
     {
         LogicalOperator = logicalOperator;
@@ -19,23 +19,23 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
 
     public LogicalOperators LogicalOperator { get; }
 
-    public TBuilder Where(
+    public TBuilder Where<TValue>(
         string columnName,
-        object parameterValue,
+        TValue parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         var paramterName = NextParameter();
         var whereClause = QueryGenerator.WhereClause(columnName, paramterName, filterOperator);
 
         WhereClause.Add(whereClause);
-        Parameters[paramterName] = parameterValue ?? DBNull.Value;
+        Parameters.Add(new QueryParameter(paramterName, parameterValue, typeof(TValue)));
 
         return (TBuilder)this;
     }
 
     public TBuilder Where(
         string whereClause,
-        IDictionary<string, object> parametes = null)
+        IList<QueryParameter> parametes = null)
     {
         if (string.IsNullOrWhiteSpace(whereClause))
             throw new ArgumentException($"'{nameof(whereClause)}' cannot be null or empty.", nameof(whereClause));
@@ -43,8 +43,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         WhereClause.Add(whereClause);
 
         if (parametes != null)
-            foreach (var parameter in parametes)
-                Parameters[parameter.Key] = parameter.Value;
+            Parameters.AddRange(parametes);
 
         return (TBuilder)this;
     }

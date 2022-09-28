@@ -23,12 +23,11 @@ public abstract class DatabaseTestBase : IDisposable
 
     protected IDataConfiguration GetConfiguration()
     {
-        var dataConfiguration = new DataConfiguration(
+        var dataLogger = new DataQueryLogger(Output.WriteLine);
+        return new DataConfiguration(
             SQLiteFactory.Instance,
             Fixture.ConnectionString,
-            logger: Output.WriteLine);
-
-        return dataConfiguration;
+            queryLogger: dataLogger);
     }
 
     public void Dispose()

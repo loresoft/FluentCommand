@@ -14,7 +14,7 @@ public static class QueryBuilderExtensions
         var dataCommand = dataSession.Sql(statement?.Statement ?? string.Empty);
 
         foreach (var parameter in statement?.Parameters)
-            dataCommand.Parameter(parameter.Key, parameter.Value);
+            dataCommand.Parameter(parameter.Name, parameter.Value, parameter.Type);
 
         return dataCommand;
     }

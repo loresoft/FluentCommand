@@ -13,6 +13,7 @@ public class SqlServerGenerator : IQueryGenerator
         IReadOnlyCollection<string> fromClause,
         IReadOnlyCollection<string> whereClause,
         IReadOnlyCollection<string> orderByClause,
+        IReadOnlyCollection<string> groupByClause,
         IReadOnlyCollection<string> limitClause,
         IReadOnlyCollection<string> commentExpression)
     {
@@ -50,6 +51,13 @@ public class SqlServerGenerator : IQueryGenerator
                 .AppendJoin(" AND ", whereClause)
                 .Append(")");
         }
+        if (groupByClause?.Count > 0)
+        {
+            selectBuilder
+                .AppendLine()
+                .Append("GROUP BY ")
+                .AppendJoin(", ", groupByClause);
+        }
 
         if (orderByClause?.Count > 0)
         {
@@ -72,14 +80,14 @@ public class SqlServerGenerator : IQueryGenerator
     }
 
     public virtual string BuildInsert(
-        IReadOnlyCollection<string> intoClause,
+        string tableClause,
         IReadOnlyCollection<string> columnExpression,
         IReadOnlyCollection<string> outputClause,
         IReadOnlyCollection<string> valueExpression,
         IReadOnlyCollection<string> commentExpression)
     {
-        if (intoClause == null || intoClause.Count == 0)
-            throw new ArgumentException("No table specified to insert into", nameof(intoClause));
+        if (tableClause.IsNullOrEmpty())
+            throw new ArgumentException("No table specified to insert into", nameof(tableClause));
 
         if (valueExpression == null || valueExpression.Count == 0)
             throw new ArgumentException("No values specified for insert", nameof(valueExpression));
@@ -95,7 +103,7 @@ public class SqlServerGenerator : IQueryGenerator
 
         insertBuilder
             .Append("INSERT INTO ")
-            .AppendJoin(", ", intoClause);
+            .Append(tableClause);
 
         if (columnExpression?.Count > 0)
         {
@@ -238,6 +246,7 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(deleteBuilder);
     }
 
+
     public virtual string CommentClause(string comment)
     {
         return $"/* {comment} */";
@@ -260,6 +269,19 @@ public class SqlServerGenerator : IQueryGenerator
         return clause;
     }
 
+    public virtual string AggregateClause(AggregateFunctions aggregate, string columnName, string prefix = null, string alias = null)
+    {
+        var selectClause = SelectClause(columnName, prefix, alias);
+        return aggregate switch
+        {
+            AggregateFunctions.Average => $"AVG({selectClause})",
+            AggregateFunctions.Count => $"COUNT({selectClause})",
+            AggregateFunctions.Max => $"MAX({selectClause})",
+            AggregateFunctions.Min => $"MIN({selectClause})",
+            AggregateFunctions.Sum => $"SUM({selectClause})",
+        };
+    }
+
     public virtual string FromClause(string tableName, string tableSchema = null, string alias = null)
     {
         if (string.IsNullOrWhiteSpace(tableName))
@@ -277,16 +299,21 @@ public class SqlServerGenerator : IQueryGenerator
         return fromClause;
     }
 
-    public virtual string OrderClause(string columnName, SortDirections sortDirection = SortDirections.Ascending)
+    public virtual string OrderClause(string columnName, string prefix = null, SortDirections sortDirection = SortDirections.Ascending)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
 
-        var quotedName = QuoteIdentifier(columnName);
+        var quotedName = SelectClause(columnName, prefix);
 
         return sortDirection == SortDirections.Ascending
             ? $"{quotedName} ASC"
             : $"{quotedName} DESC";
+    }
+
+    public virtual string GroupClause(string columnName, string prefix = null)
+    {
+        return SelectClause(columnName, prefix);
     }
 
     public virtual string WhereClause(string columnName, string parameterName, FilterOperators filterOperator = FilterOperators.Equal)
@@ -358,6 +385,9 @@ public class SqlServerGenerator : IQueryGenerator
         if (name.IsNullOrWhiteSpace())
             return string.Empty;
 
+        if (name == "*")
+            return name;
+
         if (name.StartsWith("[") && name.EndsWith("]"))
             return name;
 
@@ -371,5 +401,4 @@ public class SqlServerGenerator : IQueryGenerator
 
         return name;
     }
-
 }

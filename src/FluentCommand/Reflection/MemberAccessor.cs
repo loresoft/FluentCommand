@@ -14,6 +14,8 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
 {
     private readonly Lazy<ColumnAttribute> _columnAttribute;
     private readonly Lazy<KeyAttribute> _keyAttribute;
+    private readonly Lazy<NotMappedAttribute> _notMappedAttribute;
+    private readonly Lazy<DatabaseGeneratedAttribute> _databaseGeneratedAttribute;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MemberAccessor"/> class.
@@ -24,6 +26,8 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
 
         _columnAttribute = new Lazy<ColumnAttribute>(() => MemberInfo.GetCustomAttribute<ColumnAttribute>());
         _keyAttribute = new Lazy<KeyAttribute>(() => MemberInfo.GetCustomAttribute<KeyAttribute>());
+        _notMappedAttribute = new Lazy<NotMappedAttribute>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>());
+        _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>());
     }
 
 
@@ -72,6 +76,23 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     ///   <c>true</c> if this instance is key; otherwise, <c>false</c>.
     /// </value>
     public bool IsKey => _keyAttribute.Value != null;
+
+    /// <summary>
+    /// Gets a value indicating that this property is the unique identify for the entity
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this instance is key; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsNotMapped => _notMappedAttribute.Value != null;
+
+    /// <summary>
+    /// Gets a value indicating that this property is database generated
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this property is database generated; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsDatabaseGenerated => _databaseGeneratedAttribute.Value != null
+        && _databaseGeneratedAttribute.Value.DatabaseGeneratedOption != DatabaseGeneratedOption.None;
 
 
     /// <summary>

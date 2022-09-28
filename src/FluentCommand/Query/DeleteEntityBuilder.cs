@@ -13,7 +13,7 @@ public class DeleteEntityBuilder<TEntity> : DeleteBuilder<DeleteEntityBuilder<TE
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
-    public DeleteEntityBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public DeleteEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }

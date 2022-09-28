@@ -13,7 +13,6 @@ namespace FluentCommand;
 /// </summary>
 public class DataSession : DisposableBase, IDataSession
 {
-    private readonly Action<string> _logger;
     private readonly bool _disposeConnection;
 
     private bool _openedConnection;
@@ -42,6 +41,14 @@ public class DataSession : DisposableBase, IDataSession
     /// </value>
     public IQueryGenerator QueryGenerator { get; }
 
+    /// <summary>
+    /// Gets the data command query logger.
+    /// </summary>
+    /// <value>
+    /// The data command query logger.
+    /// </value>
+    public IDataQueryLogger QueryLogger { get; }
+
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataSession" /> class.
@@ -55,7 +62,7 @@ public class DataSession : DisposableBase, IDataSession
     /// <exception cref="System.ArgumentException">Invalid connection string - connection</exception>
     /// <exception cref="ArgumentNullException"><paramref name="connection" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="connection" /> instance.</exception>
-    public DataSession(DbConnection connection, bool disposeConnection = true, IDataCache cache = null, IQueryGenerator queryGenerator = null, Action<string> logger = null)
+    public DataSession(DbConnection connection, bool disposeConnection = true, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
     {
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
@@ -65,9 +72,9 @@ public class DataSession : DisposableBase, IDataSession
 
         Connection = connection;
         Cache = cache;
-        QueryGenerator = queryGenerator;
+        QueryGenerator = queryGenerator ?? new SqlServerGenerator();
+        QueryLogger = logger;
 
-        _logger = logger;
         _disposeConnection = disposeConnection;
     }
 
@@ -84,7 +91,7 @@ public class DataSession : DisposableBase, IDataSession
         Connection = dataConfiguration.CreateConnection();
         Cache = dataConfiguration.DataCache;
         QueryGenerator = dataConfiguration.QueryGenerator;
-        _logger = dataConfiguration.Logger;
+        QueryLogger = dataConfiguration.QueryLogger;
         _disposeConnection = true;
     }
 
@@ -198,17 +205,6 @@ public class DataSession : DisposableBase, IDataSession
         Connection.Close();
         _openedConnection = false;
     }
-
-
-    /// <summary>
-    /// Writes the log message.
-    /// </summary>
-    /// <param name="message">The message.</param>
-    public void WriteLog(string message)
-    {
-        _logger?.Invoke(message);
-    }
-
 
     /// <summary>
     /// Disposes the managed resources.

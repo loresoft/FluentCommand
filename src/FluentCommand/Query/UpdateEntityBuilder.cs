@@ -14,7 +14,7 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
-    public UpdateEntityBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public UpdateEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
@@ -38,7 +38,11 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
             if (columnSet.Count > 0 && !columnSet.Contains(property.Name))
                 continue;
 
-            Value(property.Column, property.GetValue(entity));
+            if (property.IsNotMapped || property.IsDatabaseGenerated)
+                continue;
+
+            // include the type to prevent issues with null
+            Value(property.Column, property.GetValue(entity), property.MemberType);
         }
 
         return this;

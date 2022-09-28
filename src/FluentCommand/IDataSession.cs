@@ -37,6 +37,14 @@ public interface IDataSession : IDisposable
     IQueryGenerator QueryGenerator { get; }
 
     /// <summary>
+    /// Gets the data command query logger.
+    /// </summary>
+    /// <value>
+    /// The data command query logger.
+    /// </value>
+    IDataQueryLogger QueryLogger { get; }
+
+    /// <summary>
     /// Starts a database transaction with the specified isolation level.
     /// </summary>
     /// <param name="isolationLevel">Specifies the isolation level for the transaction.</param>
@@ -76,11 +84,4 @@ public interface IDataSession : IDisposable
     /// Releases the connection.
     /// </summary>
     void ReleaseConnection();
-
-    /// <summary>
-    /// Writes the log <paramref name="message"/>.
-    /// </summary>
-    /// <param name="message">The message to write.</param>
-    void WriteLog(string message);
-
 }

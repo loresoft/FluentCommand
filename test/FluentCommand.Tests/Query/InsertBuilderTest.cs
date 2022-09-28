@@ -16,7 +16,7 @@ public class InsertBuilderTest
     public async System.Threading.Tasks.Task InsertEntityValueWithOutput()
     {
         var sqlProvider = new SqlServerGenerator();
-        var parameters = new Dictionary<string, object>();
+        var parameters = new List<QueryParameter>();
 
         var builder = new InsertEntityBuilder<Status>(sqlProvider, parameters)
             .Value(p => p.Name, "test")

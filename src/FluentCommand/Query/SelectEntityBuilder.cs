@@ -12,19 +12,42 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
-    public SelectEntityBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public SelectEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
 
     public SelectEntityBuilder<TEntity> Column<TValue>(
         Expression<Func<TEntity, TValue>> property,
+        string prefix = null,
         string alias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return Column(propertyAccessor.Column, alias);
+        return Column(propertyAccessor.Column, prefix, alias);
     }
+
+    public SelectEntityBuilder<TEntity> Count<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = null,
+        string alias = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return Count(propertyAccessor.Column, prefix, alias);
+    }
+
+    public SelectEntityBuilder<TEntity> Aggregate<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        AggregateFunctions function,
+        string prefix = null,
+        string alias = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return Aggregate(function, propertyAccessor.Column, prefix, alias);
+    }
+
 
     public SelectEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -48,13 +71,33 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
         return this;
     }
 
+
     public SelectEntityBuilder<TEntity> OrderBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
         SortDirections sortDirection = SortDirections.Ascending)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return OrderBy(propertyAccessor.Column, sortDirection);
+        return OrderBy(propertyAccessor.Column, sortDirection: sortDirection);
+    }
+
+    public SelectEntityBuilder<TEntity> OrderBy<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix,
+        SortDirections sortDirection = SortDirections.Ascending)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return OrderBy(propertyAccessor.Column, prefix, sortDirection);
+    }
+
+    public SelectEntityBuilder<TEntity> GroupBy<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return GroupBy(propertyAccessor.Column, prefix);
     }
 
     public override QueryStatement BuildStatement()

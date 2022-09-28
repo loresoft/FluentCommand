@@ -16,7 +16,7 @@ public class UpdateBuilderTest
     public async System.Threading.Tasks.Task UpdateEntityValueWithOutput()
     {
         var sqlProvider = new SqlServerGenerator();
-        var parameters = new Dictionary<string, object>();
+        var parameters = new List<QueryParameter>();
 
         var builder = new UpdateEntityBuilder<Status>(sqlProvider, parameters)
             .Value(p => p.Name, "test")

@@ -9,7 +9,7 @@ namespace FluentCommand;
 public abstract class StatementBuilder<TBuilder> : IStatementBuilder
     where TBuilder : StatementBuilder<TBuilder>
 {
-    protected StatementBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters)
+    protected StatementBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
     {
         QueryGenerator = queryGenerator ?? throw new System.ArgumentNullException(nameof(queryGenerator));
         Parameters = parameters ?? throw new System.ArgumentNullException(nameof(parameters));
@@ -18,11 +18,12 @@ public abstract class StatementBuilder<TBuilder> : IStatementBuilder
 
     protected IQueryGenerator QueryGenerator { get; }
 
-    public Dictionary<string, object> Parameters { get; }
+    public List<QueryParameter> Parameters { get; }
+
 
     public List<string> CommentExpressions { get; internal set; } = new();
 
-    public TBuilder Comment(
+    public TBuilder Tag(
         string comment = "Caller",
         [CallerMemberName] string memberName = "",
         [CallerFilePath] string sourceFilePath = "",

@@ -7,7 +7,7 @@ namespace FluentCommand;
 
 public class InsertBuilder : InsertBuilder<InsertBuilder>
 {
-    public InsertBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters)
+    public InsertBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     { }
 }
@@ -15,7 +15,7 @@ public class InsertBuilder : InsertBuilder<InsertBuilder>
 public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     where TBuilder : InsertBuilder<TBuilder>
 {
-    protected InsertBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters)
+    protected InsertBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
     }
@@ -26,23 +26,29 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
 
     public HashSet<string> ValueExpression { get; } = new();
 
-    public HashSet<string> IntoClause { get; } = new();
+    public string TableClause { get; private set; }
 
 
     public TBuilder Into(string tableName, string tableSchema = null)
     {
-        var fromClause = QueryGenerator.FromClause(tableName, tableSchema);
-
-        IntoClause.Add(fromClause);
+        TableClause = QueryGenerator.FromClause(tableName, tableSchema);
 
         return (TBuilder)this;
     }
 
 
-    public TBuilder Value(string columnName, object parameterValue)
+    public TBuilder Value<TValue>(string columnName, TValue parameterValue)
+    {
+        return Value(columnName, parameterValue, typeof(TValue));
+    }
+
+    public TBuilder Value(string columnName, object parameterValue, Type parameterType)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
+
+        if (parameterType is null)
+            throw new ArgumentNullException(nameof(parameterType));
 
         var paramterName = NextParameter();
 
@@ -51,13 +57,12 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         ColumnExpression.Add(columnExpression);
         ValueExpression.Add(paramterName);
 
-        // null as DBNull for ado
-        Parameters[paramterName] = parameterValue ?? DBNull.Value;
+        Parameters.Add(new QueryParameter(paramterName, parameterValue, parameterType));
 
         return (TBuilder)this;
     }
 
-    public TBuilder ValueIf(string columnName, object parameterValue, Func<string, object, bool> condition)
+    public TBuilder ValueIf<TValue>(string columnName, TValue parameterValue, Func<string, TValue, bool> condition)
     {
         if (condition != null && !condition(columnName, parameterValue))
             return (TBuilder)this;
@@ -98,7 +103,7 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     public override QueryStatement BuildStatement()
     {
         var statement = QueryGenerator.BuildInsert(
-            intoClause: IntoClause,
+            tableClause: TableClause,
             columnExpression: ColumnExpression,
             outputClause: OutputClause,
             valueExpression: ValueExpression,

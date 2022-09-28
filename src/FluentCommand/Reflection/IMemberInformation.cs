@@ -38,9 +38,25 @@ public interface IMemberInformation
     /// Gets a value indicating that this property is the unique identify for the entity
     /// </summary>
     /// <value>
-    ///   <c>true</c> if this instance is key; otherwise, <c>false</c>.
+    ///   <c>true</c> if this property is a primary key; otherwise, <c>false</c>.
     /// </value>
     bool IsKey { get; }
+
+    /// <summary>
+    /// Gets a value indicating that this property should be excluded from database mapping
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this property should be excluded from database mapping; otherwise, <c>false</c>.
+    /// </value>
+    bool IsNotMapped { get; }
+
+    /// <summary>
+    /// Gets a value indicating that this property is database generated
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this property is database generated; otherwise, <c>false</c>.
+    /// </value>
+    bool IsDatabaseGenerated { get; }
 
     /// <summary>
     /// Gets a value indicating whether this member has getter.

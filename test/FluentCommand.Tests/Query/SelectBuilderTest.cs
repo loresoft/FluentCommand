@@ -16,7 +16,7 @@ public class SelectBuilderTest
     public async System.Threading.Tasks.Task SelectEntityNestedWhereBuilder()
     {
         var sqlProvider = new SqlServerGenerator();
-        var parameters = new Dictionary<string, object>();
+        var parameters = new List<QueryParameter>();
 
         var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters, LogicalOperators.And)
             .Column("Id")
@@ -44,10 +44,10 @@ public class SelectBuilderTest
     public async System.Threading.Tasks.Task SelectEntityWhereTagBuilder()
     {
         var sqlProvider = new SqlServerGenerator();
-        var parameters = new Dictionary<string, object>();
+        var parameters = new List<QueryParameter>();
 
         var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters, LogicalOperators.And)
-            .Comment("Select Entity Where Tag Builder Query")
+            .Tag("Select Entity Where Tag Builder Query")
             .Column("Id")
             .Column(p => p.Name)
             .Column("Description")
@@ -67,10 +67,10 @@ public class SelectBuilderTest
     public async System.Threading.Tasks.Task SelectEntityWhereLimitBuilder()
     {
         var sqlProvider = new SqlServerGenerator();
-        var parameters = new Dictionary<string, object>();
+        var parameters = new List<QueryParameter>();
 
         var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters, LogicalOperators.And)
-            .Comment()
+            .Tag()
             .Column("Id")
             .Column(p => p.Name)
             .Column("Description")

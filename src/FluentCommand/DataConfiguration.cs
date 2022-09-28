@@ -18,12 +18,17 @@ public class DataConfiguration : IDataConfiguration
     /// <param name="connectionString">The database connection string.</param>
     /// <param name="cache">The data cache manager.</param>
     /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="logger">The logger.</param>
-    public DataConfiguration(DbProviderFactory providerFactory, string connectionString, IDataCache cache = null, IQueryGenerator queryGenerator = null, Action<string> logger = null)
+    /// <param name="queryLogger">The query command logger.</param>
+    public DataConfiguration(
+        DbProviderFactory providerFactory,
+        string connectionString,
+        IDataCache cache = null,
+        IQueryGenerator queryGenerator = null,
+        IDataQueryLogger queryLogger = null)
     {
         ProviderFactory = providerFactory;
         ConnectionString = connectionString;
-        Logger = logger;
+        QueryLogger = queryLogger;
         DataCache = cache;
         QueryGenerator = queryGenerator;
     }
@@ -45,12 +50,12 @@ public class DataConfiguration : IDataConfiguration
     public virtual string ConnectionString { get; }
 
     /// <summary>
-    /// Gets the current logger delegate.
+    /// Gets the data command query logger.
     /// </summary>
     /// <value>
-    /// The current logger delegate.
+    /// The data command query logger.
     /// </value>
-    public virtual Action<string> Logger { get; }
+    public IDataQueryLogger QueryLogger { get; }
 
     /// <summary>
     /// Gets the data cache manager.
@@ -77,8 +82,7 @@ public class DataConfiguration : IDataConfiguration
     public virtual IDataSession CreateSession()
     {
         var connection = CreateConnection();
-        var dataSession = new DataSession(connection, true, DataCache, QueryGenerator, Logger);
-        return dataSession;
+        return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger);
     }
 
     /// <summary>

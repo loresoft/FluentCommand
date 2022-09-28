@@ -7,7 +7,7 @@ namespace FluentCommand;
 
 public class DeleteBuilder : DeleteBuilder<DeleteBuilder>
 {
-    public DeleteBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public DeleteBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
@@ -16,7 +16,7 @@ public class DeleteBuilder : DeleteBuilder<DeleteBuilder>
 public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     where TBuilder : DeleteBuilder<TBuilder>
 {
-    protected DeleteBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    protected DeleteBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }

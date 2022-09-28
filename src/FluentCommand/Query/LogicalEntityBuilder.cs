@@ -12,7 +12,7 @@ public class LogicalEntityBuilder<TEntity> : LogicalBuilder<LogicalEntityBuilder
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
-    public LogicalEntityBuilder(IQueryGenerator queryGenerator, Dictionary<string, object> parameters, List<string> comments, LogicalOperators logicalOperator = LogicalOperators.And)
+    public LogicalEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, List<string> comments, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, comments, logicalOperator)
     {
     }

@@ -17,7 +17,7 @@ public class DeleteBuilderTest
     public async System.Threading.Tasks.Task DeleteEntityWithOutput()
     {
         var sqlProvider = new SqlServerGenerator();
-        var parameters = new Dictionary<string, object>();
+        var parameters = new List<QueryParameter>();
 
         var builder = new DeleteEntityBuilder<Status>(sqlProvider, parameters)
             .Output(p => p.Id)
@@ -34,10 +34,10 @@ public class DeleteBuilderTest
     public async System.Threading.Tasks.Task DeleteEntityWithComment()
     {
         var sqlProvider = new SqlServerGenerator();
-        var parameters = new Dictionary<string, object>();
+        var parameters = new List<QueryParameter>();
 
         var builder = new DeleteEntityBuilder<Status>(sqlProvider, parameters)
-            .Comment()
+            .Tag()
             .Output(p => p.Id)
             .Where(p => p.Id, 1);
 
