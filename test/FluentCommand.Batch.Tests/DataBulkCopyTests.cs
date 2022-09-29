@@ -1,13 +1,9 @@
-using System;
-using System.Linq;
-
 using DataGenerator;
 
 using FluentAssertions;
 
 using FluentCommand.Bulk;
 using FluentCommand.Entities;
-using FluentCommand.Extensions;
 using FluentCommand.SqlServer.Tests;
 
 using Xunit;
@@ -22,7 +18,7 @@ public class DataBulkCopyTests : DatabaseTestBase
     {
     }
 
-    [Fact]
+    //[Fact]
     public void WriteServerAutoMap()
     {
         var generator = Generator.Create(c => c
@@ -50,7 +46,7 @@ public class DataBulkCopyTests : DatabaseTestBase
     }
 
 
-    [Fact]
+    //[Fact]
     public void WriteServerManualMap()
     {
         var generator = Generator.Create(c => c
@@ -84,7 +80,7 @@ public class DataBulkCopyTests : DatabaseTestBase
     }
 
 
-    [Fact]
+    //[Fact]
     public void WriteServerStrongMap()
     {
         var generator = Generator.Create(c => c

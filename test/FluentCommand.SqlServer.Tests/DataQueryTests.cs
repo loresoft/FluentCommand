@@ -85,7 +85,6 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Select<Status>()
                 .Aggregate(p => p.DisplayOrder, AggregateFunctions.Sum)
-                .GroupBy(p => p.Name)
             )
             .QueryValueAsync<int>();
 
@@ -146,4 +145,71 @@ public class DataQueryTests : DatabaseTestBase
 
         userId.Should().Be(id);
     }
+
+
+    [Fact]
+    public async System.Threading.Tasks.Task SqlInsertUpdateDeleteEntityQuery()
+    {
+        var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
+
+        var id = Guid.NewGuid();
+        var user = new User
+        {
+            Id = id,
+            EmailAddress = $"{id}@email.com",
+            DisplayName = "Last, First",
+            FirstName = "First",
+            LastName = "Last",
+            Created = DateTimeOffset.Now,
+            Updated = DateTimeOffset.Now
+        };
+
+        var userId = await session
+            .Sql(builder => builder
+                .Insert<User>()
+                .Values(user)
+                .Output(p => p.Id)
+                .Tag()
+            )
+            .QueryValueAsync<Guid>();
+
+        userId.Should().Be(id);
+
+        var selected = await session
+            .Sql(builder => builder
+                .Select<User>()
+                .Where(p => p.Id, id)
+                .Tag()
+            )
+            .QuerySingleAsync<User>();
+
+        selected.Should().NotBeNull();
+        selected.Id.Should().Be(id);
+
+        var updateId = await session
+            .Sql(builder => builder
+                .Update<User>()
+                .Value(p => p.DisplayName, "Updated")
+                .Output(p => p.Id)
+                .Where(p => p.Id, id)
+                .Tag()
+            )
+            .QueryValueAsync<Guid>();
+
+        updateId.Should().Be(id);
+
+        var deleteId = await session
+            .Sql(builder => builder
+                .Delete<User>()
+                .Output(p => p.Id)
+                .Where(p => p.Id, id)
+                .Tag()
+            )
+            .QueryValueAsync<Guid>();
+
+        deleteId.Should().Be(id);
+
+    }
+
 }
