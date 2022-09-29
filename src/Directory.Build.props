@@ -8,6 +8,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>orm;sql;micro-orm;database</PackageTags>
+    <PackageOutputPath>$(SolutionDir)artifacts</PackageOutputPath>
     <PackageProjectUrl>https://github.com/loresoft/FluentCommand</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>logo.png</PackageIcon>
