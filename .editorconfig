@@ -11,11 +11,15 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 # XML Configuration Files
-[*.{xml,config,props,targets,nuspec,resx,ruleset,vsixmanifest,vsct,refactorlog,csproj}]
+[*.{xml,config,props,targets,nuspec,resx,ruleset,vsixmanifest,vsct,refactorlog}]
 indent_size = 2
 
 # JSON Files
 [*.{json,json5,webmanifest}]
+indent_size = 2
+
+# Project Files
+[*.{csproj,sqlproj}]
 indent_size = 2
 
 # YAML Files

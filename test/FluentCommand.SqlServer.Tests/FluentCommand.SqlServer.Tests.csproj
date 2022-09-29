@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FluentCommand.EntityFactory\FluentCommand.EntityFactory.csproj" />
+    <ProjectReference Include="..\..\src\FluentCommand.Dapper\FluentCommand.Dapper.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand.Json\FluentCommand.Json.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand.SqlServer\FluentCommand.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand\FluentCommand.csproj" />
