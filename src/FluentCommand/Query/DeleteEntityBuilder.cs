@@ -13,12 +13,18 @@ public class DeleteEntityBuilder<TEntity> : DeleteBuilder<DeleteEntityBuilder<TE
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
-    public DeleteEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public DeleteEntityBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
 
-    public DeleteEntityBuilder<TEntity> Output<TValue>(Expression<Func<TEntity, TValue>> property, string prefix = "DELETED", string alias = null)
+    public DeleteEntityBuilder<TEntity> Output<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = "DELETED",
+        string alias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
         return Output(propertyAccessor.Column, prefix, alias);

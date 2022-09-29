@@ -272,6 +272,7 @@ public class SqlServerGenerator : IQueryGenerator
     public virtual string AggregateClause(AggregateFunctions aggregate, string columnName, string prefix = null, string alias = null)
     {
         var selectClause = SelectClause(columnName, prefix, alias);
+
         return aggregate switch
         {
             AggregateFunctions.Average => $"AVG({selectClause})",
@@ -279,6 +280,7 @@ public class SqlServerGenerator : IQueryGenerator
             AggregateFunctions.Max => $"MAX({selectClause})",
             AggregateFunctions.Min => $"MIN({selectClause})",
             AggregateFunctions.Sum => $"SUM({selectClause})",
+            _ => throw new NotImplementedException(),
         };
     }
 

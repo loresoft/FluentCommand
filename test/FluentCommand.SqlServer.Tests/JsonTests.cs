@@ -52,23 +52,11 @@ public class JsonTests : DatabaseTestBase
         var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
-        string sql = "select TOP 1000 * from [User]";
-
         var json = await session
             .Sql(builder => builder
                 .Select<Status>()
-                .Column("Id")
-                .Column(p => p.Name)
-                .Column("Description")
-                .Where(p => p.IsActive, true)
-                .Where(b => b
-                    .Or(o => o
-                        .Where("Name", "Test", FilterOperators.Contains)
-                        .Where(p => p.Description, "Test", FilterOperators.Contains)
-                    )
-                )
-                .OrderBy(p => p.DisplayOrder, SortDirections.Descending)
-                .OrderBy("Name")
+                .OrderBy(p => p.DisplayOrder)
+                .Limit(0, 1000)
             )
             .QueryJsonAsync();
 

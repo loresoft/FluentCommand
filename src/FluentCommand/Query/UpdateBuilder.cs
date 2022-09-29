@@ -7,7 +7,10 @@ namespace FluentCommand;
 
 public class UpdateBuilder : UpdateBuilder<UpdateBuilder>
 {
-    public UpdateBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public UpdateBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
@@ -16,22 +19,27 @@ public class UpdateBuilder : UpdateBuilder<UpdateBuilder>
 public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     where TBuilder : UpdateBuilder<TBuilder>
 {
-    protected UpdateBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    protected UpdateBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
 
 
-    public HashSet<string> UpdateClause { get; } = new();
+    protected HashSet<string> UpdateClause { get; } = new();
 
-    public HashSet<string> OutputClause { get; } = new();
+    protected HashSet<string> OutputClause { get; } = new();
 
-    public HashSet<string> FromClause { get; } = new();
+    protected HashSet<string> FromClause { get; } = new();
 
-    public string TableClause { get; private set; }
+    protected string TableClause { get; private set; }
 
 
-    public TBuilder Table(string tableName, string tableSchema = null)
+    public TBuilder Table(
+        string tableName,
+        string tableSchema = null)
     {
         TableClause = QueryGenerator.FromClause(tableName, tableSchema);
 
@@ -39,12 +47,17 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-    public TBuilder Value<TValue>(string columnName, TValue parameterValue)
+    public TBuilder Value<TValue>(
+        string columnName,
+        TValue parameterValue)
     {
         return Value(columnName, parameterValue, typeof(TValue));
     }
 
-    public TBuilder Value(string columnName, object parameterValue, Type parameterType)
+    public TBuilder Value(
+        string columnName,
+        object parameterValue,
+        Type parameterType)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
@@ -58,7 +71,10 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder ValueIf<TValue>(string columnName, TValue parameterValue, Func<string, TValue, bool> condition)
+    public TBuilder ValueIf<TValue>(
+        string columnName,
+        TValue parameterValue,
+        Func<string, TValue, bool> condition)
     {
         if (condition != null && !condition(columnName, parameterValue))
             return (TBuilder)this;
@@ -67,7 +83,9 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-    public TBuilder Output(IEnumerable<string> columnNames, string prefix = "INSERTED")
+    public TBuilder Output(
+        IEnumerable<string> columnNames,
+        string prefix = "INSERTED")
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -78,7 +96,10 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder Output(string columnName, string prefix = "INSERTED", string alias = null)
+    public TBuilder Output(
+        string columnName,
+        string prefix = "INSERTED",
+        string alias = null)
     {
         var outputClause = QueryGenerator.SelectClause(columnName, prefix, alias);
 
@@ -87,7 +108,10 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder OutputIf(string columnName, string alias = null, Func<string, bool> condition = null)
+    public TBuilder OutputIf(
+        string columnName,
+        string alias = null,
+        Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
@@ -96,8 +120,10 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-
-    public TBuilder From(string tableName, string tableSchema = null, string alias = null)
+    public TBuilder From(
+        string tableName,
+        string tableSchema = null,
+        string alias = null)
     {
         var fromClause = QueryGenerator.FromClause(tableName, tableSchema, alias);
 

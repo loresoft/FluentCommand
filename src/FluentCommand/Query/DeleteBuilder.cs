@@ -7,7 +7,10 @@ namespace FluentCommand;
 
 public class DeleteBuilder : DeleteBuilder<DeleteBuilder>
 {
-    public DeleteBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public DeleteBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
@@ -16,17 +19,20 @@ public class DeleteBuilder : DeleteBuilder<DeleteBuilder>
 public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     where TBuilder : DeleteBuilder<TBuilder>
 {
-    protected DeleteBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    protected DeleteBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
 
 
-    public HashSet<string> OutputClause { get; } = new();
+    protected HashSet<string> OutputClause { get; } = new();
 
-    public HashSet<string> FromClause { get; } = new();
+    protected HashSet<string> FromClause { get; } = new();
 
-    public string TableClause { get; private set; }
+    protected string TableClause { get; private set; }
 
 
     public TBuilder Table(string tableName, string tableSchema = null)
@@ -37,7 +43,9 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-    public TBuilder Output(IEnumerable<string> columnNames, string prefix = "INSERTED")
+    public TBuilder Output(
+        IEnumerable<string> columnNames,
+        string prefix = "INSERTED")
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -48,7 +56,10 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder Output(string columnName, string prefix = "INSERTED", string alias = null)
+    public TBuilder Output(
+        string columnName,
+        string prefix = "INSERTED",
+        string alias = null)
     {
         var outputClause = QueryGenerator.SelectClause(columnName, prefix, alias);
 
@@ -57,7 +68,10 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder OutputIf(string columnName, string alias = null, Func<string, bool> condition = null)
+    public TBuilder OutputIf(
+        string columnName,
+        string alias = null,
+        Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
@@ -66,7 +80,10 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-    public TBuilder From(string tableName, string tableSchema = null, string alias = null)
+    public TBuilder From(
+        string tableName,
+        string tableSchema = null,
+        string alias = null)
     {
         var fromClause = QueryGenerator.FromClause(tableName, tableSchema, alias);
 

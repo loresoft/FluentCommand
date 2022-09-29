@@ -78,7 +78,7 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return OrderBy(propertyAccessor.Column, sortDirection: sortDirection);
+        return OrderBy(propertyAccessor.Column, null, sortDirection);
     }
 
     public SelectEntityBuilder<TEntity> OrderBy<TValue>(

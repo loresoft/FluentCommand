@@ -14,18 +14,25 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
-    public UpdateEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
+    public UpdateEntityBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
 
-    public UpdateEntityBuilder<TEntity> Value<TValue>(Expression<Func<TEntity, TValue>> property, TValue parameterValue)
+    public UpdateEntityBuilder<TEntity> Value<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        TValue parameterValue)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
         return Value(propertyAccessor.Column, parameterValue);
     }
 
-    public UpdateEntityBuilder<TEntity> Values(TEntity entity, IEnumerable<string> columnNames = null)
+    public UpdateEntityBuilder<TEntity> Values(
+        TEntity entity,
+        IEnumerable<string> columnNames = null)
     {
         if (entity is null)
             throw new ArgumentNullException(nameof(entity));
@@ -48,7 +55,10 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
         return this;
     }
 
-    public UpdateEntityBuilder<TEntity> Output<TValue>(Expression<Func<TEntity, TValue>> property, string prefix = "INSERTED", string alias = null)
+    public UpdateEntityBuilder<TEntity> Output<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = "INSERTED",
+        string alias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
         return Output(propertyAccessor.Column, prefix, alias);

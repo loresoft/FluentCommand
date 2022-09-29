@@ -27,15 +27,15 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     {
     }
 
-    public HashSet<string> SelectClause { get; } = new();
+    protected HashSet<string> SelectClause { get; } = new();
 
-    public HashSet<string> FromClause { get; } = new();
+    protected HashSet<string> FromClause { get; } = new();
 
-    public HashSet<string> OrderByClause { get; } = new();
+    protected HashSet<string> OrderByClause { get; } = new();
 
-    public HashSet<string> GroupByClause { get; } = new();
+    protected HashSet<string> GroupByClause { get; } = new();
 
-    public HashSet<string> LimitClause { get; } = new();
+    protected HashSet<string> LimitClause { get; } = new();
 
 
     public TBuilder Column(
@@ -117,7 +117,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         string columnName,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        return OrderBy(columnName, sortDirection: sortDirection);
+        return OrderBy(columnName, null, sortDirection);
     }
 
     public TBuilder OrderBy(

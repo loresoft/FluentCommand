@@ -7,7 +7,9 @@ namespace FluentCommand;
 
 public class InsertBuilder : InsertBuilder<InsertBuilder>
 {
-    public InsertBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
+    public InsertBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     { }
 }
@@ -15,34 +17,42 @@ public class InsertBuilder : InsertBuilder<InsertBuilder>
 public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     where TBuilder : InsertBuilder<TBuilder>
 {
-    protected InsertBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
+    protected InsertBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
     }
 
-    public HashSet<string> ColumnExpression { get; } = new();
+    protected HashSet<string> ColumnExpression { get; } = new();
 
-    public HashSet<string> OutputClause { get; } = new();
+    protected HashSet<string> OutputClause { get; } = new();
 
-    public HashSet<string> ValueExpression { get; } = new();
+    protected HashSet<string> ValueExpression { get; } = new();
 
-    public string TableClause { get; private set; }
+    protected string TableClause { get; private set; }
 
 
-    public TBuilder Into(string tableName, string tableSchema = null)
+    public TBuilder Into(
+        string tableName,
+        string tableSchema = null)
     {
         TableClause = QueryGenerator.FromClause(tableName, tableSchema);
 
         return (TBuilder)this;
     }
 
-
-    public TBuilder Value<TValue>(string columnName, TValue parameterValue)
+    public TBuilder Value<TValue>(
+        string columnName,
+        TValue parameterValue)
     {
         return Value(columnName, parameterValue, typeof(TValue));
     }
 
-    public TBuilder Value(string columnName, object parameterValue, Type parameterType)
+    public TBuilder Value(
+        string columnName,
+        object parameterValue,
+        Type parameterType)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
@@ -62,7 +72,10 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder ValueIf<TValue>(string columnName, TValue parameterValue, Func<string, TValue, bool> condition)
+    public TBuilder ValueIf<TValue>(
+        string columnName,
+        TValue parameterValue,
+        Func<string, TValue, bool> condition)
     {
         if (condition != null && !condition(columnName, parameterValue))
             return (TBuilder)this;
@@ -71,7 +84,9 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
 
-    public TBuilder Output(IEnumerable<string> columnNames, string prefix = "INSERTED")
+    public TBuilder Output(
+        IEnumerable<string> columnNames,
+        string prefix = "INSERTED")
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -82,7 +97,10 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder Output(string columnName, string prefix = "INSERTED", string alias = null)
+    public TBuilder Output(
+        string columnName,
+        string prefix = "INSERTED",
+        string alias = null)
     {
         var outputClause = QueryGenerator.SelectClause(columnName, prefix, alias);
 
@@ -91,7 +109,10 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder OutputIf(string columnName, string alias = null, Func<string, bool> condition = null)
+    public TBuilder OutputIf(
+        string columnName,
+        string alias = null,
+        Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;

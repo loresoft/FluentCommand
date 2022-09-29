@@ -79,8 +79,6 @@ public class DataQueryTests : DatabaseTestBase
         var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-
         var count = await session
             .Sql(builder => builder
                 .Select<Status>()

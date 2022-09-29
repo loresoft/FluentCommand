@@ -15,7 +15,7 @@ public class QueryBuilder : IStatementBuilder
         QueryGenerator = queryGenerator;
     }
 
-    public IQueryGenerator QueryGenerator { get; }
+    protected IQueryGenerator QueryGenerator { get; }
 
 
     public SelectEntityBuilder<TEntity> Select<TEntity>()

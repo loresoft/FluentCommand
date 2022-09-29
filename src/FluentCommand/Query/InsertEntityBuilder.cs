@@ -14,18 +14,24 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
-    public InsertEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
+    public InsertEntityBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
     }
 
-    public InsertEntityBuilder<TEntity> Value<TValue>(Expression<Func<TEntity, TValue>> property, TValue parameterValue)
+    public InsertEntityBuilder<TEntity> Value<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        TValue parameterValue)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
         return Value(propertyAccessor.Column, parameterValue);
     }
 
-    public InsertEntityBuilder<TEntity> Values(TEntity entity, IEnumerable<string> columnNames = null)
+    public InsertEntityBuilder<TEntity> Values(
+        TEntity entity,
+        IEnumerable<string> columnNames = null)
     {
         if (entity is null)
             throw new ArgumentNullException(nameof(entity));
@@ -48,7 +54,10 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
         return this;
     }
 
-    public InsertEntityBuilder<TEntity> Output<TValue>(Expression<Func<TEntity, TValue>> property, string prefix = "INSERTED", string alias = null)
+    public InsertEntityBuilder<TEntity> Output<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = "INSERTED",
+        string alias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
         return Output(propertyAccessor.Column, prefix, alias);

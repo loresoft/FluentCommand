@@ -18,10 +18,9 @@ public abstract class StatementBuilder<TBuilder> : IStatementBuilder
 
     protected IQueryGenerator QueryGenerator { get; }
 
-    public List<QueryParameter> Parameters { get; }
+    protected List<QueryParameter> Parameters { get; }
 
-
-    public List<string> CommentExpressions { get; internal set; } = new();
+    protected List<string> CommentExpressions { get; set; } = new();
 
     public TBuilder Tag(
         string comment = "Caller",

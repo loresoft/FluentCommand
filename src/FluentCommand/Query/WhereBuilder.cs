@@ -15,9 +15,9 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         LogicalOperator = logicalOperator;
     }
 
-    public HashSet<string> WhereClause { get; internal set; } = new();
+    protected HashSet<string> WhereClause { get; } = new();
 
-    public LogicalOperators LogicalOperator { get; }
+    protected LogicalOperators LogicalOperator { get; }
 
     public TBuilder Where<TValue>(
         string columnName,

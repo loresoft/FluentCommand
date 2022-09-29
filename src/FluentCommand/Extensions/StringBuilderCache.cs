@@ -21,7 +21,7 @@ public static class StringBuilderCache
     {
         if (capacity <= MaxBuilderSize)
         {
-            StringBuilder? sb = t_cachedInstance;
+            StringBuilder sb = t_cachedInstance;
             if (sb != null)
             {
                 // Avoid stringbuilder block fragmentation by getting a new StringBuilder

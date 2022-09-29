@@ -7,7 +7,11 @@ namespace FluentCommand;
 
 public class LogicalBuilder : LogicalBuilder<LogicalBuilder>
 {
-    public LogicalBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, List<string> comments, LogicalOperators logicalOperator = LogicalOperators.And)
+    public LogicalBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        List<string> comments,
+        LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, comments, logicalOperator)
     {
     }
@@ -16,7 +20,11 @@ public class LogicalBuilder : LogicalBuilder<LogicalBuilder>
 public abstract class LogicalBuilder<TBuilder> : WhereBuilder<TBuilder>
     where TBuilder : LogicalBuilder<TBuilder>
 {
-    protected LogicalBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, List<string> comments, LogicalOperators logicalOperator = LogicalOperators.And)
+    protected LogicalBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        List<string> comments,
+        LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
         CommentExpressions = comments;
