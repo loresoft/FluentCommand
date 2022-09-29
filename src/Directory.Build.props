@@ -29,6 +29,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>9.0.0.0</Version>
+    <PackageVersion>9.0.0.0</PackageVersion>
+    <AssemblyVersion>9.0.0.0</AssemblyVersion>
+    <FileVersion>9.0.0.0</FileVersion>
+    <InformationalVersion>9.0.0.0</InformationalVersion>
+  </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
