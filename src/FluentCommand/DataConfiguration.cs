@@ -1,4 +1,3 @@
-using System;
 using System.Data.Common;
 
 using FluentCommand.Query.Generators;
@@ -30,7 +29,7 @@ public class DataConfiguration : IDataConfiguration
         ConnectionString = connectionString;
         QueryLogger = queryLogger;
         DataCache = cache;
-        QueryGenerator = queryGenerator;
+        QueryGenerator = queryGenerator ?? new SqlServerGenerator();
     }
 
     /// <summary>
