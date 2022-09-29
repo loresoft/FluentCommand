@@ -1,4 +1,3 @@
-
 namespace FluentCommand;
 
 /// <summary>
@@ -54,7 +53,7 @@ public static class DataCommandExtensions
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     public static TEntity QuerySingle<TEntity>(this IDataQuery dataQuery)
-        where TEntity : class, new()
+        where TEntity : class
     {
         return dataQuery.QuerySingle(ReaderFactory.EntityFactory<TEntity>);
     }
@@ -83,7 +82,7 @@ public static class DataCommandExtensions
     /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
     public static Task<IEnumerable<TEntity>> QueryAsync<TEntity>(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
-        where TEntity : class, new()
+        where TEntity : class
     {
         return dataQuery.QueryAsync(ReaderFactory.EntityFactory<TEntity>, cancellationToken);
     }
@@ -112,7 +111,7 @@ public static class DataCommandExtensions
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     public static Task<TEntity> QuerySingleAsync<TEntity>(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
-        where TEntity : class, new()
+        where TEntity : class
     {
         return dataQuery.QuerySingleAsync(ReaderFactory.EntityFactory<TEntity>, cancellationToken);
     }

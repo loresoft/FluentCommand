@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FluentCommand;
 
@@ -10,6 +6,10 @@ namespace FluentCommand;
 /// An <see langword="interface"/> defining a data query operations asynchronously.
 /// </summary>
 public interface IDataQueryAsync
+#if !NETSTANDARD2_0
+    : IAsyncDisposable
+#endif
+
 {
     /// <summary>
     /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects asynchronously.

@@ -8,6 +8,8 @@ namespace FluentCommand;
 /// <summary>
 /// A fluent class for a data session.
 /// </summary>
+/// <seealso cref="FluentCommand.DisposableBase" />
+/// <seealso cref="FluentCommand.IDataSession" />
 public class DataSession : DisposableBase, IDataSession
 {
     private readonly bool _disposeConnection;
@@ -100,13 +102,45 @@ public class DataSession : DisposableBase, IDataSession
     /// <returns>
     /// A <see cref="DbTransaction" /> representing the new transaction.
     /// </returns>
-    public DbTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel = System.Data.IsolationLevel.Unspecified)
+    public DbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
     {
         EnsureConnection();
         Transaction = Connection.BeginTransaction(isolationLevel);
 
         return Transaction;
     }
+
+#if !NETSTANDARD2_0
+    /// <summary>
+    /// Starts a database transaction with the specified isolation level.
+    /// </summary>
+    /// <param name="isolationLevel">Specifies the isolation level for the transaction.</param>
+    /// <param name="cancellationToken">The cancellation instruction.</param>
+    /// <returns>
+    /// A <see cref="DbTransaction" /> representing the new transaction.
+    /// </returns>
+    public async Task<DbTransaction> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified, CancellationToken cancellationToken = default)
+    {
+        await EnsureConnectionAsync();
+        Transaction = await Connection.BeginTransactionAsync(isolationLevel, cancellationToken);
+
+        return Transaction;
+    }
+#endif
+
+    /// <summary>
+    /// Uses the specified transaction for this session.
+    /// </summary>
+    /// <param name="transaction">The transaction to use for session.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the session.
+    /// </returns>
+    public IDataSession UseTransaction(DbTransaction transaction)
+    {
+        Transaction = transaction;
+        return this;
+    }
+
 
     /// <summary>
     /// Starts a data command with the specified SQL.
@@ -202,6 +236,44 @@ public class DataSession : DisposableBase, IDataSession
         Connection.Close();
         _openedConnection = false;
     }
+
+#if !NETSTANDARD2_0
+    /// <summary>
+    /// Releases the connection.
+    /// </summary>
+    public async Task ReleaseConnectionAsync()
+    {
+        AssertDisposed();
+
+        if (!_openedConnection)
+            return;
+
+        if (_connectionRequestCount > 0)
+            _connectionRequestCount--;
+
+        if (_connectionRequestCount != 0)
+            return;
+
+        // When no operation is using the connection and the context had opened the connection
+        // the connection can be closed
+        await Connection.CloseAsync();
+        _openedConnection = false;
+    }
+
+    /// <summary>
+    /// Disposes the managed resources.
+    /// </summary>
+    protected override async ValueTask DisposeResourcesAsync()
+    {
+        // Release managed resources here.
+        if (Connection != null)
+        {
+            // Dispose the connection created
+            if (_disposeConnection)
+                await Connection.DisposeAsync();
+        }
+    }
+#endif
 
     /// <summary>
     /// Disposes the managed resources.

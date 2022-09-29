@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 using FluentCommand.Extensions;
 
@@ -38,6 +34,21 @@ public class DataCommand : DisposableBase, IDataCommand
     /// Gets the underlying <see cref="DbCommand"/> for this <see cref="DataCommand"/>.
     /// </summary>
     public DbCommand Command { get; }
+
+
+    /// <summary>
+    /// Uses the specified transaction for this command.
+    /// </summary>
+    /// <param name="transaction">The transaction to use for command.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the session.
+    /// </returns>
+    public IDataCommand UseTransaction(DbTransaction transaction)
+    {
+        Command.Transaction = transaction;
+        return this;
+    }
+
 
     /// <summary>
     /// Set the data command with the specified SQL statement.
@@ -487,6 +498,16 @@ public class DataCommand : DisposableBase, IDataCommand
         Command?.Dispose();
     }
 
+#if !NETSTANDARD2_0
+    /// <summary>
+    /// Disposes the managed resources.
+    /// </summary>
+    protected override async ValueTask DisposeResourcesAsync()
+    {
+        if (Command != null)
+            await Command.DisposeAsync();
+    }
+#endif
 
     internal void TriggerCallbacks()
     {

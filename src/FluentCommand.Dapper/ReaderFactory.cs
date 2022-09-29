@@ -18,7 +18,7 @@ public static class ReaderFactory
     /// <param name="reader">The open <see cref="IDataReader" /> to get the object from.</param>
     /// <returns>A TEntity object having property names set that match the field names in the <see cref="IDataReader" />.</returns>
     public static TEntity EntityFactory<TEntity>(IDataReader reader)
-        where TEntity : class, new()
+        where TEntity : class
     {
         // parser is cached in dapper, ok to repeated calls
         var parser = reader.GetRowParser<TEntity>();

@@ -1,12 +1,13 @@
-using System;
-using System.Threading;
-
 namespace FluentCommand;
 
 /// <summary>
 /// A base class that implements <see cref="IDisposable"/>
 /// </summary>
-public abstract class DisposableBase : IDisposable
+public abstract class DisposableBase
+    : IDisposable
+#if !NETSTANDARD2_0
+    , IAsyncDisposable
+#endif
 {
     private int _disposeState;
 
@@ -63,6 +64,32 @@ public abstract class DisposableBase : IDisposable
     /// </summary>
     protected virtual void DisposeUnmanagedResources()
     { }
+
+#if !NETSTANDARD2_0
+    /// <summary>
+    /// Disposes the asynchronous.
+    /// </summary>
+    /// <returns></returns>
+    public async ValueTask DisposeAsync()
+    {
+        // set state to disposing
+        if (Interlocked.CompareExchange(ref _disposeState, 1, 0) != 0)
+            return;
+
+        await DisposeResourcesAsync();
+
+        // set state to disposed
+        Interlocked.Exchange(ref _disposeState, 2);
+    }
+
+    /// <summary>
+    /// Disposes the managed resources.
+    /// </summary>
+    protected virtual ValueTask DisposeResourcesAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
+#endif
 
     /// <summary>
     /// Releases unmanaged resources and performs other cleanup operations before the

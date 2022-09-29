@@ -1,8 +1,5 @@
-using System;
 using System.Data;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 
 using FluentCommand.Query.Generators;
 
@@ -11,7 +8,11 @@ namespace FluentCommand;
 /// <summary>
 /// An <see langword="interface"/> for data sessions.
 /// </summary>
-public interface IDataSession : IDisposable
+public interface IDataSession
+    : IDisposable
+#if !NETSTANDARD2_0
+    , IAsyncDisposable
+#endif
 {
     /// <summary>
     /// Gets the underlying <see cref="DbConnection"/> for the session.
@@ -51,6 +52,28 @@ public interface IDataSession : IDisposable
     /// <returns>A <see cref="DbTransaction"/> representing the new transaction.</returns>
     DbTransaction BeginTransaction(IsolationLevel isolationLevel);
 
+#if !NETSTANDARD2_0
+    /// <summary>
+    /// Starts a database transaction with the specified isolation level.
+    /// </summary>
+    /// <param name="isolationLevel">Specifies the isolation level for the transaction.</param>
+    /// <param name="cancellationToken">The cancellation instruction.</param>
+    /// <returns>
+    /// A <see cref="DbTransaction" /> representing the new transaction.
+    /// </returns>
+    Task<DbTransaction> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified, CancellationToken cancellationToken = default);
+#endif
+
+    /// <summary>
+    /// Uses the specified transaction for this session.
+    /// </summary>
+    /// <param name="transaction">The transaction to use for the session.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to a data session.
+    /// </returns>
+    IDataSession UseTransaction(DbTransaction transaction);
+
+
     /// <summary>
     /// Starts a data command with the specified SQL.
     /// </summary>
@@ -84,4 +107,11 @@ public interface IDataSession : IDisposable
     /// Releases the connection.
     /// </summary>
     void ReleaseConnection();
+
+#if !NETSTANDARD2_0
+    /// <summary>
+    /// Releases the connection.
+    /// </summary>
+    Task ReleaseConnectionAsync();
+#endif
 }

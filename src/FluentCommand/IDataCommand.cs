@@ -1,8 +1,5 @@
-using System;
 using System.Data;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FluentCommand;
 
@@ -15,6 +12,16 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     /// Gets the underlying <see cref="DbCommand"/> for this <see cref="DataCommand"/>.
     /// </summary>
     DbCommand Command { get; }
+
+    /// <summary>
+    /// Uses the specified transaction for this command.
+    /// </summary>
+    /// <param name="transaction">The transaction to use for command.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to a data command.
+    /// </returns>
+    IDataCommand UseTransaction(DbTransaction transaction);
+
 
     /// <summary>
     /// Set the data command with the specified SQL.
