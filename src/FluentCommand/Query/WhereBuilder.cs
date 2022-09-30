@@ -44,7 +44,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
 
     public TBuilder Where(
         string whereClause,
-        IReadOnlyCollection<QueryParameter> parametes = null)
+        IEnumerable<QueryParameter> parametes = null)
     {
         if (string.IsNullOrWhiteSpace(whereClause))
             throw new ArgumentException($"'{nameof(whereClause)}' cannot be null or empty.", nameof(whereClause));
@@ -59,8 +59,8 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
 
     public TBuilder WhereIf(
         string whereClause,
-        IReadOnlyCollection<QueryParameter> parametes = null,
-        Func<string, IReadOnlyCollection<QueryParameter>, bool> condition = null)
+        IEnumerable<QueryParameter> parametes = null,
+        Func<string, IEnumerable<QueryParameter>, bool> condition = null)
     {
         if (condition != null && !condition(whereClause, parametes))
             return (TBuilder)this;
