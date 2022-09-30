@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand;
@@ -111,12 +108,13 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder OutputIf(
         string columnName,
         string alias = null,
+        string prefix = "INSERTED",
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return Output(columnName, alias);
+        return Output(columnName, prefix, alias);
     }
 
 

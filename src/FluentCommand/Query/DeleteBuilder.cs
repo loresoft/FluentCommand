@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand;
@@ -45,7 +42,7 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Output(
         IEnumerable<string> columnNames,
-        string prefix = "INSERTED")
+        string prefix = "DELETED")
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -58,7 +55,7 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Output(
         string columnName,
-        string prefix = "INSERTED",
+        string prefix = "DELETED",
         string alias = null)
     {
         var outputClause = QueryGenerator.SelectClause(columnName, prefix, alias);
@@ -70,13 +67,14 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder OutputIf(
         string columnName,
+        string prefix = "DELETED",
         string alias = null,
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return Output(columnName, alias);
+        return Output(columnName, prefix, alias);
     }
 
 

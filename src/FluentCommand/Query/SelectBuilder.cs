@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand;
@@ -48,6 +45,18 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         SelectClause.Add(selectClause);
 
         return (TBuilder)this;
+    }
+
+    public TBuilder ColumnIf(
+        string columnName,
+        string prefix = null,
+        string alias = null,
+        Func<string, bool> condition = null)
+    {
+        if (condition != null && !condition(columnName))
+            return (TBuilder)this;
+
+        return Column(columnName, prefix, alias);
     }
 
     public TBuilder Columns(IEnumerable<string> columnNames)

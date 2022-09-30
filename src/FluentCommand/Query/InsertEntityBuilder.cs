@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 using FluentCommand.Extensions;
@@ -27,6 +24,15 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
         return Value(propertyAccessor.Column, parameterValue);
+    }
+
+    public InsertEntityBuilder<TEntity> ValueIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        TValue parameterValue,
+        Func<string, TValue, bool> condition)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+        return ValueIf(propertyAccessor.Column, parameterValue, condition);
     }
 
     public InsertEntityBuilder<TEntity> Values(
@@ -63,6 +69,15 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
         return Output(propertyAccessor.Column, prefix, alias);
     }
 
+    public InsertEntityBuilder<TEntity> OutputIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = "INSERTED",
+        string alias = null,
+        Func<string, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+        return OutputIf(propertyAccessor.Column, prefix, alias, condition);
+    }
 
     public override QueryStatement BuildStatement()
     {

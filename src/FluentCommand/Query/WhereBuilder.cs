@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand;
@@ -31,6 +28,18 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         Parameters.Add(new QueryParameter(paramterName, parameterValue, typeof(TValue)));
 
         return (TBuilder)this;
+    }
+
+    public TBuilder WhereIf<TValue>(
+        string columnName,
+        TValue parameterValue,
+        FilterOperators filterOperator = FilterOperators.Equal,
+        Func<string, TValue, bool> condition = null)
+    {
+        if (condition != null && !condition(columnName, parameterValue))
+            return (TBuilder)this;
+
+        return Where(columnName, parameterValue, filterOperator);
     }
 
     public TBuilder Where(

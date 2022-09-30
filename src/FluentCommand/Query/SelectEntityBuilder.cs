@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 using FluentCommand.Query.Generators;
@@ -25,6 +23,17 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
         return Column(propertyAccessor.Column, prefix, alias);
+    }
+
+    public SelectEntityBuilder<TEntity> ColumnIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = null,
+        string alias = null,
+        Func<string, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return ColumnIf(propertyAccessor.Column, prefix, alias, condition);
     }
 
     public SelectEntityBuilder<TEntity> Count<TValue>(
@@ -57,6 +66,17 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
         return Where(propertyAccessor.Column, parameterValue, filterOperator);
+    }
+
+    public SelectEntityBuilder<TEntity> WhereIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        TValue parameterValue,
+        FilterOperators filterOperator = FilterOperators.Equal,
+        Func<string, TValue, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return WhereIf(propertyAccessor.Column, parameterValue, filterOperator, condition);
     }
 
     public SelectEntityBuilder<TEntity> Where(Action<LogicalEntityBuilder<TEntity>> builder)

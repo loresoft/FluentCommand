@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 using FluentCommand.Extensions;
@@ -30,6 +28,16 @@ public class DeleteEntityBuilder<TEntity> : DeleteBuilder<DeleteEntityBuilder<TE
         return Output(propertyAccessor.Column, prefix, alias);
     }
 
+    public DeleteEntityBuilder<TEntity> OutputIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = "DELETED",
+        string alias = null,
+        Func<string, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+        return OutputIf(propertyAccessor.Column, prefix, alias, condition);
+    }
+
     public DeleteEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -38,6 +46,17 @@ public class DeleteEntityBuilder<TEntity> : DeleteBuilder<DeleteEntityBuilder<TE
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
         return Where(propertyAccessor.Column, parameterValue, filterOperator);
+    }
+
+    public DeleteEntityBuilder<TEntity> WhereIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        TValue parameterValue,
+        FilterOperators filterOperator = FilterOperators.Equal,
+        Func<string, TValue, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return WhereIf(propertyAccessor.Column, parameterValue, filterOperator, condition);
     }
 
     public DeleteEntityBuilder<TEntity> Where(Action<LogicalEntityBuilder<TEntity>> builder)
