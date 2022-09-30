@@ -141,6 +141,18 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
+    public TBuilder OrderByIf(
+        string columnName,
+        string prefix = null,
+        SortDirections sortDirection = SortDirections.Ascending,
+        Func<string, bool> condition = null)
+    {
+        if (condition != null && !condition(columnName))
+            return (TBuilder)this;
+
+        return OrderBy(columnName, prefix, sortDirection);
+    }
+
     public TBuilder OrderBy(IEnumerable<string> sortExpressions)
     {
         if (sortExpressions is null)
@@ -165,9 +177,27 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-    public TBuilder Limit(int offset = 0, int size = 20)
+    public TBuilder Limit(int offset = 0, int size = 0)
     {
+        // no paging
+        if (size == 0)
+            return (TBuilder)this;
+
         var limitClause = QueryGenerator.LimitClause(offset: offset, size: size);
+        LimitClause.Add(limitClause);
+
+        return (TBuilder)this;
+    }
+
+    public TBuilder Page(int page = 0, int pageSize = 0)
+    {
+        // no paging
+        if (pageSize <= 0 || page <= 0)
+            return (TBuilder)this;
+
+        int offset = Math.Max(pageSize * (page - 1), 0);
+        var limitClause = QueryGenerator.LimitClause(offset: offset, size: pageSize);
+
         LimitClause.Add(limitClause);
 
         return (TBuilder)this;

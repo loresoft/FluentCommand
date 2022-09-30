@@ -111,6 +111,17 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
         return OrderBy(propertyAccessor.Column, prefix, sortDirection);
     }
 
+    public SelectEntityBuilder<TEntity> OrderByIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        string prefix = null,
+        SortDirections sortDirection = SortDirections.Ascending,
+        Func<string, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return OrderByIf(propertyAccessor.Column, prefix, sortDirection, condition);
+    }
+
     public SelectEntityBuilder<TEntity> GroupBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
         string prefix = null)
