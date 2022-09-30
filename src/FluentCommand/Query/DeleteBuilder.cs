@@ -32,9 +32,12 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     protected string TableClause { get; private set; }
 
 
-    public TBuilder Table(string tableName, string tableSchema = null)
+    public TBuilder Table(
+        string tableName,
+        string tableSchema = null,
+        string tableAlias = null)
     {
-        TableClause = QueryGenerator.FromClause(tableName, tableSchema);
+        TableClause = QueryGenerator.FromClause(tableName, tableSchema, tableAlias);
 
         return (TBuilder)this;
     }
@@ -42,23 +45,23 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Output(
         IEnumerable<string> columnNames,
-        string prefix = "DELETED")
+        string columnPrefix = "DELETED")
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
 
         foreach (var column in columnNames)
-            Output(column, prefix);
+            Output(column, columnPrefix);
 
         return (TBuilder)this;
     }
 
     public TBuilder Output(
         string columnName,
-        string prefix = "DELETED",
-        string alias = null)
+        string columnPrefix = "DELETED",
+        string columnAlias = null)
     {
-        var outputClause = QueryGenerator.SelectClause(columnName, prefix, alias);
+        var outputClause = QueryGenerator.SelectClause(columnName, columnPrefix, columnAlias);
 
         OutputClause.Add(outputClause);
 
@@ -67,23 +70,23 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder OutputIf(
         string columnName,
-        string prefix = "DELETED",
-        string alias = null,
+        string columnPrefix = "DELETED",
+        string columnAlias = null,
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return Output(columnName, prefix, alias);
+        return Output(columnName, columnPrefix, columnAlias);
     }
 
 
     public TBuilder From(
         string tableName,
         string tableSchema = null,
-        string alias = null)
+        string tableAlias = null)
     {
-        var fromClause = QueryGenerator.FromClause(tableName, tableSchema, alias);
+        var fromClause = QueryGenerator.FromClause(tableName, tableSchema, tableAlias);
 
         FromClause.Add(fromClause);
 

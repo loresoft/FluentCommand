@@ -64,21 +64,21 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
 
     public UpdateEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string prefix = "INSERTED",
-        string alias = null)
+        string columnPrefix = "INSERTED",
+        string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return Output(propertyAccessor.Column, prefix, alias);
+        return Output(propertyAccessor.Column, columnPrefix, columnAlias);
     }
 
     public UpdateEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string prefix = "INSERTED",
-        string alias = null,
+        string columnPrefix = "INSERTED",
+        string columnAlias = null,
         Func<string, bool> condition = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return OutputIf(propertyAccessor.Column, prefix, alias, condition);
+        return OutputIf(propertyAccessor.Column, columnPrefix, columnAlias, condition);
     }
 
 

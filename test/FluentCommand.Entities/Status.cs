@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
@@ -17,5 +17,6 @@ public class Status
     public string UpdatedBy { get; set; }
     public byte[] RowVersion { get; set; }
 
+    [NotMapped]
     public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

@@ -42,7 +42,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         return Where(columnName, parameterValue, filterOperator);
     }
 
-    public TBuilder Where(
+    public TBuilder WhereRaw(
         string whereClause,
         IEnumerable<QueryParameter> parametes = null)
     {
@@ -57,7 +57,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    public TBuilder WhereIf(
+    public TBuilder WhereRawIf(
         string whereClause,
         IEnumerable<QueryParameter> parametes = null,
         Func<string, IEnumerable<QueryParameter>, bool> condition = null)
@@ -65,6 +65,6 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         if (condition != null && !condition(whereClause, parametes))
             return (TBuilder)this;
 
-        return Where(whereClause, parametes);
+        return WhereRaw(whereClause, parametes);
     }
 }

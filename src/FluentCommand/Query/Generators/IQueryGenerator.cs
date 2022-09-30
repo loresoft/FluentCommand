@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace FluentCommand.Query.Generators;
 public interface IQueryGenerator
 {
@@ -39,13 +37,13 @@ public interface IQueryGenerator
     string AggregateClause(
         AggregateFunctions aggregate,
         string columnName,
-        string prefix = null,
-        string alias = null);
+        string columnPrefix = null,
+        string columnAlias = null);
 
     string FromClause(
         string tableName,
         string tableSchema = null,
-        string alias = null);
+        string tableAlias = null);
 
     string LimitClause(int offset, int size);
 
@@ -55,13 +53,13 @@ public interface IQueryGenerator
 
     string OrderClause(
         string columnName,
-        string prefix = null,
+        string columnPrefix = null,
         SortDirections sortDirection = SortDirections.Ascending);
 
     string SelectClause(
         string columnName,
-        string prefix = null,
-        string alias = null);
+        string columnPrefix = null,
+        string columnAlias = null);
 
     string UpdateClause(
         string columnName,
@@ -72,5 +70,5 @@ public interface IQueryGenerator
         string parameterName,
         FilterOperators filterOperator = FilterOperators.Equal);
 
-    string GroupClause(string columnName, string prefix = null);
+    string GroupClause(string columnName, string columnPrefix = null);
 }

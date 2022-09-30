@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using FluentAssertions;
 
@@ -87,6 +89,37 @@ public class DataQueryTests : DatabaseTestBase
             .QueryValueAsync<int>();
 
         count.Should().BeGreaterThan(1);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task SqlQueryInEntityAsync()
+    {
+        var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
+
+        var parameterName = "@ids";
+        var separatorParameter = "@separator";
+        var columnName = "Id";
+
+        var clause = $"EXISTS (SELECT value FROM STRING_SPLIT({parameterName}, {separatorParameter}) AS ssid WHERE ssid.value = {columnName})";
+
+        var values = new[] { 1, 2, 3 }.ToDelimitedString();
+        var parameters = new List<QueryParameter> {
+            new QueryParameter(parameterName, values, typeof(string)),
+            new QueryParameter(separatorParameter, ",", typeof(string)),
+        };
+
+        var results = await session
+            .Sql(builder => builder
+                .Select<Status>()
+                .WhereRaw(clause, parameters)
+            )
+            .QueryAsync<Status>();
+
+        results.Should().NotBeNull();
+
+        var list = results.ToList();
+        list.Count.Should().Be(3);
     }
 
 

@@ -37,10 +37,10 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Column(
         string columnName,
-        string prefix = null,
-        string alias = null)
+        string columnPrefix = null,
+        string columnAlias = null)
     {
-        var selectClause = QueryGenerator.SelectClause(columnName, prefix, alias);
+        var selectClause = QueryGenerator.SelectClause(columnName, columnPrefix, columnAlias);
 
         SelectClause.Add(selectClause);
 
@@ -49,14 +49,14 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder ColumnIf(
         string columnName,
-        string prefix = null,
-        string alias = null,
+        string columnPrefix = null,
+        string columnAlias = null,
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return Column(columnName, prefix, alias);
+        return Column(columnName, columnPrefix, columnAlias);
     }
 
     public TBuilder Columns(IEnumerable<string> columnNames)
@@ -73,10 +73,10 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Count(
         string columnName = "*",
-        string prefix = null,
-        string alias = null)
+        string columnPrefix = null,
+        string columnAlias = null)
     {
-        var selectClause = QueryGenerator.AggregateClause(AggregateFunctions.Count, columnName, prefix, alias);
+        var selectClause = QueryGenerator.AggregateClause(AggregateFunctions.Count, columnName, columnPrefix, columnAlias);
 
         SelectClause.Add(selectClause);
 
@@ -86,10 +86,10 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder Aggregate(
         AggregateFunctions function,
         string columnName,
-        string prefix = null,
-        string alias = null)
+        string columnPrefix = null,
+        string columnAlias = null)
     {
-        var selectClause = QueryGenerator.AggregateClause(function, columnName, prefix, alias);
+        var selectClause = QueryGenerator.AggregateClause(function, columnName, columnPrefix, columnAlias);
 
         SelectClause.Add(selectClause);
 
@@ -100,9 +100,9 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder From(
         string tableName,
         string tableSchema = null,
-        string alias = null)
+        string tableAlias = null)
     {
-        var fromClause = QueryGenerator.FromClause(tableName, tableSchema, alias);
+        var fromClause = QueryGenerator.FromClause(tableName, tableSchema, tableAlias);
 
         FromClause.Add(fromClause);
 
@@ -131,10 +131,10 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder OrderBy(
         string columnName,
-        string prefix,
+        string columnPrefix,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        var orderClause = QueryGenerator.OrderClause(columnName, prefix, sortDirection);
+        var orderClause = QueryGenerator.OrderClause(columnName, columnPrefix, sortDirection);
 
         OrderByClause.Add(orderClause);
 
@@ -143,14 +143,14 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder OrderByIf(
         string columnName,
-        string prefix = null,
+        string columnPrefix = null,
         SortDirections sortDirection = SortDirections.Ascending,
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return OrderBy(columnName, prefix, sortDirection);
+        return OrderBy(columnName, columnPrefix, sortDirection);
     }
 
     public TBuilder OrderBy(IEnumerable<string> sortExpressions)
@@ -167,9 +167,9 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder GroupBy(
         string columnName,
-        string prefix = null)
+        string columnPrefix = null)
     {
-        var orderClause = QueryGenerator.GroupClause(columnName, prefix);
+        var orderClause = QueryGenerator.GroupClause(columnName, columnPrefix);
 
         GroupByClause.Add(orderClause);
 

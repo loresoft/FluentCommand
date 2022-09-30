@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using FluentCommand.Extensions;
 
 namespace FluentCommand.Query.Generators;
@@ -252,26 +249,26 @@ public class SqlServerGenerator : IQueryGenerator
         return $"/* {comment} */";
     }
 
-    public virtual string SelectClause(string columnName, string prefix = null, string alias = null)
+    public virtual string SelectClause(string columnName, string columnPrefix = null, string columnAlias = null)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
 
         var quotedName = QuoteIdentifier(columnName);
 
-        var clause = prefix.HasValue()
-            ? $"{QuoteIdentifier(prefix)}.{quotedName}"
+        var clause = columnPrefix.HasValue()
+            ? $"{QuoteIdentifier(columnPrefix)}.{quotedName}"
             : quotedName;
 
-        if (alias.HasValue())
-            clause += $" AS {QuoteIdentifier(alias)}";
+        if (columnAlias.HasValue())
+            clause += $" AS {QuoteIdentifier(columnAlias)}";
 
         return clause;
     }
 
-    public virtual string AggregateClause(AggregateFunctions aggregate, string columnName, string prefix = null, string alias = null)
+    public virtual string AggregateClause(AggregateFunctions aggregate, string columnName, string columnPrefix = null, string columnAlias = null)
     {
-        var selectClause = SelectClause(columnName, prefix, alias);
+        var selectClause = SelectClause(columnName, columnPrefix, columnAlias);
 
         return aggregate switch
         {
@@ -284,7 +281,7 @@ public class SqlServerGenerator : IQueryGenerator
         };
     }
 
-    public virtual string FromClause(string tableName, string tableSchema = null, string alias = null)
+    public virtual string FromClause(string tableName, string tableSchema = null, string tableAlias = null)
     {
         if (string.IsNullOrWhiteSpace(tableName))
             throw new ArgumentException($"'{nameof(tableName)}' cannot be null or empty.", nameof(tableName));
@@ -295,27 +292,27 @@ public class SqlServerGenerator : IQueryGenerator
             ? $"{QuoteIdentifier(tableSchema)}.{quotedName}"
             : quotedName;
 
-        if (alias.HasValue())
-            fromClause += $" AS {QuoteIdentifier(alias)}";
+        if (tableAlias.HasValue())
+            fromClause += $" AS {QuoteIdentifier(tableAlias)}";
 
         return fromClause;
     }
 
-    public virtual string OrderClause(string columnName, string prefix = null, SortDirections sortDirection = SortDirections.Ascending)
+    public virtual string OrderClause(string columnName, string columnPrefix = null, SortDirections sortDirection = SortDirections.Ascending)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
 
-        var quotedName = SelectClause(columnName, prefix);
+        var quotedName = SelectClause(columnName, columnPrefix);
 
         return sortDirection == SortDirections.Ascending
             ? $"{quotedName} ASC"
             : $"{quotedName} DESC";
     }
 
-    public virtual string GroupClause(string columnName, string prefix = null)
+    public virtual string GroupClause(string columnName, string columnPrefix = null)
     {
-        return SelectClause(columnName, prefix);
+        return SelectClause(columnName, columnPrefix);
     }
 
     public virtual string WhereClause(string columnName, string parameterName, FilterOperators filterOperator = FilterOperators.Equal)
@@ -342,7 +339,6 @@ public class SqlServerGenerator : IQueryGenerator
             FilterOperators.GreaterThanOrEqual => $"{quotedName} >= {parameterName}",
             FilterOperators.IsNull => $"{quotedName} IS NULL",
             FilterOperators.IsNotNull => $"{quotedName} IS NOT NULL",
-            FilterOperators.In => $"{quotedName} IN {parameterName}",
             _ => $"{quotedName} = {parameterName}",
         };
     }
