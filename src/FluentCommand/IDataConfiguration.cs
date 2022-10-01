@@ -52,16 +52,18 @@ public interface IDataConfiguration
     /// <summary>
     /// Creates a new data session from this database configuration
     /// </summary>
+    /// <param name="connectionString">The connection string to use for the session.  If <paramref name="connectionString"/> is <c>null</c>, <see cref="ConnectionString"/> will be used.</param>
     /// <returns>
     /// A new <see cref="IDataSession" /> instance.
     /// </returns>
-    IDataSession CreateSession();
+    IDataSession CreateSession(string connectionString = null);
 
     /// <summary>
     /// Creates a new <see cref="DbConnection" /> instance from this database configuration.
     /// </summary>
     /// <returns>
+    /// <param name="connectionString">The connection string to use for the session.  If <paramref name="connectionString"/> is <c>null</c>, <see cref="ConnectionString"/> will be used.</param>
     /// A new <see cref="DbConnection" /> instance.
     /// </returns>
-    DbConnection CreateConnection();
+    DbConnection CreateConnection(string connectionString = null);
 }

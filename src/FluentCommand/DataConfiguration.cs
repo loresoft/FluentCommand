@@ -18,6 +18,7 @@ public class DataConfiguration : IDataConfiguration
     /// <param name="cache">The data cache manager.</param>
     /// <param name="queryGenerator">The query generator.</param>
     /// <param name="queryLogger">The query command logger.</param>
+    /// <exception cref="ArgumentNullException">The <paramref name="providerFactory"/> is null</exception>
     public DataConfiguration(
         DbProviderFactory providerFactory,
         string connectionString,
@@ -25,7 +26,7 @@ public class DataConfiguration : IDataConfiguration
         IQueryGenerator queryGenerator = null,
         IDataQueryLogger queryLogger = null)
     {
-        ProviderFactory = providerFactory;
+        ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
         ConnectionString = connectionString;
         QueryLogger = queryLogger;
         DataCache = cache;
@@ -75,36 +76,36 @@ public class DataConfiguration : IDataConfiguration
     /// <summary>
     /// Creates a new data session from this database configuration
     /// </summary>
+    /// <param name="connectionString">The connection string to use for the session.  If <paramref name="connectionString" /> is <c>null</c>, <see cref="ConnectionString" /> will be used.</param>
     /// <returns>
     /// A new <see cref="IDataSession" /> instance.
     /// </returns>
-    public virtual IDataSession CreateSession()
+    public virtual IDataSession CreateSession(string connectionString = null)
     {
-        var connection = CreateConnection();
+        var connection = CreateConnection(connectionString);
         return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger);
     }
 
     /// <summary>
     /// Creates a new <see cref="DbConnection" /> instance from this database configuration.
     /// </summary>
+    /// <param name="connectionString"></param>
     /// <returns>
     /// A new <see cref="DbConnection" /> instance.
     /// </returns>
-    /// <exception cref="InvalidOperationException">
-    /// Database provider factory failed to create a connection object.
-    /// or
-    /// The connection string is invalid
-    /// </exception>
-    public virtual DbConnection CreateConnection()
+    /// <exception cref="InvalidOperationException">Database provider factory failed to create a connection object.</exception>
+    /// <exception cref="ArgumentException">The connection string is invalid</exception>
+    public virtual DbConnection CreateConnection(string connectionString = null)
     {
         var connection = ProviderFactory.CreateConnection();
         if (connection == null)
             throw new InvalidOperationException("Database provider factory failed to create a connection object.");
 
-        if (string.IsNullOrEmpty(ConnectionString))
-            throw new InvalidOperationException("The connection string is invalid");
+        connectionString ??= ConnectionString;
+        if (string.IsNullOrEmpty(connectionString))
+            throw new ArgumentException("The connection string is invalid");
 
-        connection.ConnectionString = ConnectionString;
+        connection.ConnectionString = connectionString;
         return connection;
     }
 }
