@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
 
 namespace FluentCommand;
@@ -37,6 +35,10 @@ public static class DataMapping
             {typeof(ushort), DbType.UInt16},
             {typeof(uint), DbType.UInt32},
             {typeof(ulong), DbType.UInt64},
+            #if !NETSTANDARD2_0
+            {typeof(DateOnly), DbType.Date},
+            {typeof(TimeOnly), DbType.Time},
+            #endif
         };
 
         _dbTypeToType = new Dictionary<DbType, Type>

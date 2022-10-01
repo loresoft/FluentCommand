@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -18,7 +15,6 @@ public class TypeAccessor
     private readonly ConcurrentDictionary<int, IMethodAccessor> _methodCache = new();
     private readonly ConcurrentDictionary<int, IEnumerable<IMemberAccessor>> _propertyCache = new();
 
-    private readonly Lazy<IEnumerable<IMemberAccessor>> _keyCache;
     private readonly Lazy<Func<object>> _constructor;
     private readonly Lazy<TableAttribute> _tableAttribute;
 
@@ -33,7 +29,6 @@ public class TypeAccessor
 
         Type = type;
         _constructor = new Lazy<Func<object>>(() => ExpressionFactory.CreateConstructor(Type));
-        _keyCache = new Lazy<IEnumerable<IMemberAccessor>>(() => GetProperties().Where(p => p.IsKey));
         _tableAttribute = new Lazy<TableAttribute>(() => type.GetCustomAttribute<TableAttribute>());
     }
 
@@ -497,19 +492,6 @@ public class TypeAccessor
     }
     #endregion
 
-    #region Keys
-    /// <summary>
-    /// Gets the primary key property member accessors for the Type
-    /// </summary>
-    /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <see cref="IMemberAccessor"/> instances for the Type.
-    /// </returns>
-    public IEnumerable<IMemberAccessor> GetKeys()
-    {
-        return _keyCache.Value;
-    }
-
-    #endregion
 
     /// <summary>
     /// Gets the <see cref="TypeAccessor"/> for the specified Type.

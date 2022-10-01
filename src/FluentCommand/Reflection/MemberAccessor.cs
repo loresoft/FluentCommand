@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
@@ -16,6 +15,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     private readonly Lazy<KeyAttribute> _keyAttribute;
     private readonly Lazy<NotMappedAttribute> _notMappedAttribute;
     private readonly Lazy<DatabaseGeneratedAttribute> _databaseGeneratedAttribute;
+    private readonly Lazy<ConcurrencyCheckAttribute> _concurrenctCheckAttribute;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MemberAccessor"/> class.
@@ -28,6 +28,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
         _keyAttribute = new Lazy<KeyAttribute>(() => MemberInfo.GetCustomAttribute<KeyAttribute>());
         _notMappedAttribute = new Lazy<NotMappedAttribute>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>());
         _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>());
+        _concurrenctCheckAttribute = new Lazy<ConcurrencyCheckAttribute>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>());
     }
 
 
@@ -81,9 +82,17 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// Gets a value indicating that this property is the unique identify for the entity
     /// </summary>
     /// <value>
-    ///   <c>true</c> if this instance is key; otherwise, <c>false</c>.
+    ///   <c>true</c> if this property is key; otherwise, <c>false</c>.
     /// </value>
     public bool IsNotMapped => _notMappedAttribute.Value != null;
+
+    /// <summary>
+    /// Gets a value indicating that this property participates in optimistic concurrency check
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this property participates in optimistic concurrency check; otherwise, <c>false</c>.
+    /// </value>
+    public bool IsConcurrenctCheck => _concurrenctCheckAttribute.Value != null;
 
     /// <summary>
     /// Gets a value indicating that this property is database generated

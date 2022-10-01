@@ -1,5 +1,3 @@
-﻿using System;
-
 namespace FluentCommand.Reflection;
 
 /// <summary>

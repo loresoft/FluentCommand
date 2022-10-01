@@ -1,4 +1,3 @@
-﻿using System;
 using System.Data;
 
 using FluentCommand.Extensions;
@@ -36,7 +35,7 @@ public class DataQueryLogger : IDataQueryLogger
 
         if (command is null)
             throw new ArgumentNullException(nameof(command));
-                
+
         var elapsed = duration.TotalMilliseconds;
         var commandType = command.CommandType;
         var commandTimeout = command.CommandTimeout;
