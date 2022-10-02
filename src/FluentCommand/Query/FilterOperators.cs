@@ -1,4 +1,4 @@
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public enum FilterOperators
 {

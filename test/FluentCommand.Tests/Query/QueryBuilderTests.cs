@@ -1,4 +1,5 @@
 ﻿using FluentCommand.Entities;
+using FluentCommand.Query;
 using FluentCommand.Query.Generators;
 
 using VerifyXunit;

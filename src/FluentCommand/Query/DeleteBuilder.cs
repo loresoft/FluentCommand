@@ -1,6 +1,6 @@
 using FluentCommand.Query.Generators;
 
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public class DeleteBuilder : DeleteBuilder<DeleteBuilder>
 {

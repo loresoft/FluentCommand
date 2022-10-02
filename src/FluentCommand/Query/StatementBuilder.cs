@@ -4,15 +4,15 @@ using System.Runtime.CompilerServices;
 
 using FluentCommand.Query.Generators;
 
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public abstract class StatementBuilder<TBuilder> : IStatementBuilder
     where TBuilder : StatementBuilder<TBuilder>
 {
     protected StatementBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
     {
-        QueryGenerator = queryGenerator ?? throw new System.ArgumentNullException(nameof(queryGenerator));
-        Parameters = parameters ?? throw new System.ArgumentNullException(nameof(parameters));
+        QueryGenerator = queryGenerator ?? throw new ArgumentNullException(nameof(queryGenerator));
+        Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
     }
 
 

@@ -1,6 +1,6 @@
 using FluentCommand.Query.Generators;
 
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public class SelectBuilder : SelectBuilder<SelectBuilder>
 {

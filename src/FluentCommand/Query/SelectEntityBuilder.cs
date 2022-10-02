@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
 
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TEntity>>
     where TEntity : class

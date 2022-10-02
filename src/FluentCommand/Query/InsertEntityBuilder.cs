@@ -4,7 +4,7 @@ using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
 
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TEntity>>
     where TEntity : class

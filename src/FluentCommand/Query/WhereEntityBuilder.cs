@@ -3,7 +3,7 @@
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
 
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public class WhereEntityBuilder<TEntity> : WhereBuilder<WhereEntityBuilder<TEntity>>
     where TEntity : class

@@ -1,8 +1,6 @@
-using System.Collections.Generic;
+namespace FluentCommand.Query;
 
-namespace FluentCommand;
-
-public class QueryStatement
+public class QueryStatement : IQueryStatement
 {
     public QueryStatement(string statement, IReadOnlyCollection<QueryParameter> parameters)
     {

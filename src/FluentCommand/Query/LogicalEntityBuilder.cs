@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
 
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public class LogicalEntityBuilder<TEntity> : LogicalBuilder<LogicalEntityBuilder<TEntity>>
     where TEntity : class

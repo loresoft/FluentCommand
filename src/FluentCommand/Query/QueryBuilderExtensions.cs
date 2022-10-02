@@ -1,6 +1,6 @@
 using System;
 
-namespace FluentCommand;
+namespace FluentCommand.Query;
 
 public static class QueryBuilderExtensions
 {

@@ -6,6 +6,7 @@ using FluentAssertions;
 
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
+using FluentCommand.Query;
 
 using Xunit;
 using Xunit.Abstractions;
