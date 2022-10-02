@@ -1,4 +1,4 @@
-﻿/* Select Entity Where Tag Builder Query; SelectEntityWhereTagBuilder() in SelectBuilderTest.cs:line 50 */
+﻿/* Select Entity Where Tag Builder Query; SelectEntityWhereTagBuilder() in SelectBuilderTest.cs:line 51 */
 SELECT [Id], [Name], [Description]
 FROM [Status]
 WHERE ([IsActive] = @p0000)
