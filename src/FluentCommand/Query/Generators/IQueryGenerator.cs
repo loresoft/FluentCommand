@@ -32,6 +32,8 @@ public interface IQueryGenerator
         IReadOnlyCollection<string> whereClause,
         IReadOnlyCollection<string> commentExpression);
 
+    string BuildWhere(IReadOnlyCollection<string> whereClause);
+
     string CommentClause(string comment);
 
     string AggregateClause(

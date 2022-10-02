@@ -58,6 +58,14 @@ public interface IMemberInformation
     bool IsDatabaseGenerated { get; }
 
     /// <summary>
+    /// Gets a value indicating that this property participates in optimistic concurrency check
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if this property participates in optimistic concurrency check; otherwise, <c>false</c>.
+    /// </value>
+    bool IsConcurrenctCheck { get; }
+
+    /// <summary>
     /// Gets a value indicating whether this member has getter.
     /// </summary>
     /// <value>

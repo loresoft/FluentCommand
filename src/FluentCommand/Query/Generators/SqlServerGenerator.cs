@@ -243,6 +243,20 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(deleteBuilder);
     }
 
+    public virtual string BuildWhere(IReadOnlyCollection<string> whereClause)
+    {
+        var whereBuilder = StringBuilderCache.Acquire();
+
+        if (whereClause?.Count > 0)
+        {
+            whereBuilder
+                .Append("(")
+                .AppendJoin(" AND ", whereClause)
+                .Append(")");
+        }
+
+        return StringBuilderCache.ToString(whereBuilder);
+    }
 
     public virtual string CommentClause(string comment)
     {

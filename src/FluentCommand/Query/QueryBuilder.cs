@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 using FluentCommand.Query;
 using FluentCommand.Query.Generators;
 

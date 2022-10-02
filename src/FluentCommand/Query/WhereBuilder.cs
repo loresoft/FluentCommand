@@ -2,6 +2,26 @@ using FluentCommand.Query.Generators;
 
 namespace FluentCommand;
 
+public class WhereBuilder : WhereBuilder<WhereBuilder>
+{
+    public WhereBuilder(
+        IQueryGenerator queryGenerator,
+        List<QueryParameter> parameters,
+        LogicalOperators logicalOperator = LogicalOperators.And)
+        : base(queryGenerator, parameters, logicalOperator)
+    {
+    }
+
+    public override QueryStatement BuildStatement()
+    {
+        var statement = QueryGenerator.BuildWhere(
+            whereClause: WhereClause
+        );
+
+        return new QueryStatement(statement, Parameters);
+    }
+}
+
 public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     where TBuilder : WhereBuilder<TBuilder>
 
