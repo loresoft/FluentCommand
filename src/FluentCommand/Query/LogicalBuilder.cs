@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
@@ -30,34 +27,39 @@ public abstract class LogicalBuilder<TBuilder> : WhereBuilder<TBuilder>
         CommentExpressions = comments;
     }
 
-    public TBuilder Or(Action<LogicalBuilder> builder)
+    public TBuilder WhereOr(Action<LogicalBuilder> builder)
     {
         var innerBuilder = new LogicalBuilder(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.Or);
 
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return (TBuilder)this;
     }
 
-    public TBuilder And(Action<LogicalBuilder> builder)
+    public TBuilder WhereAnd(Action<LogicalBuilder> builder)
     {
         var innerBuilder = new LogicalBuilder(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.And);
 
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return (TBuilder)this;
     }
 
+
     public override QueryStatement BuildStatement()
     {
         if (WhereClause.Count == 0)
-            return new QueryStatement(string.Empty, Parameters);
+            return null;
 
         var statement = QueryGenerator.LogicalClause(WhereClause, LogicalOperator);
 

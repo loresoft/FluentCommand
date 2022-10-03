@@ -22,8 +22,8 @@ public class QueryBuilderTests
             .Column(p => p.Name)
             .Column("Description")
             .Where(p => p.IsActive, true)
-            .Where(b => b
-                .Or(o => o
+            .WhereOr(b => b
+                .WhereOr(o => o
                     .Where("Name", "Test", FilterOperators.Contains)
                     .Where(p => p.Description, "Test", FilterOperators.Contains)
                 )

@@ -245,6 +245,9 @@ public class SqlServerGenerator : IQueryGenerator
 
     public virtual string BuildWhere(IReadOnlyCollection<string> whereClause)
     {
+        if (whereClause == null || whereClause.Count == 0)
+            return null;
+
         var whereBuilder = StringBuilderCache.Acquire();
 
         if (whereClause?.Count > 0)

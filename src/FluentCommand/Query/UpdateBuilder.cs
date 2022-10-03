@@ -138,7 +138,9 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return (TBuilder)this;
     }

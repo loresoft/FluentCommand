@@ -52,13 +52,11 @@ public class DataSession : DisposableBase, IDataSession
     /// <summary>
     /// Initializes a new instance of the <see cref="DataSession" /> class.
     /// </summary>
-    /// <param name="connection">The IDbConnection to use for the session.</param>
+    /// <param name="connection">The DbConnection to use for the session.</param>
     /// <param name="disposeConnection">if set to <c>true</c> dispose connection with this session.</param>
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
-    /// <exception cref="System.ArgumentNullException">connection</exception>
-    /// <exception cref="System.ArgumentException">Invalid connection string - connection</exception>
     /// <exception cref="ArgumentNullException"><paramref name="connection" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="connection" /> instance.</exception>
     public DataSession(DbConnection connection, bool disposeConnection = true, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
@@ -75,6 +73,25 @@ public class DataSession : DisposableBase, IDataSession
         QueryLogger = logger;
 
         _disposeConnection = disposeConnection;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataSession"/> class.
+    /// </summary>
+    /// <param name="transaction">The DbTransaction to use for the session.</param>
+    /// <param name="disposeConnection">if set to <c>true</c> dispose connection with this session.</param>
+    /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
+    /// <param name="queryGenerator">The query generator provider.</param>
+    /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="transaction" /> is null</exception>
+    /// <exception cref="ArgumentException">Invalid connection string on <paramref name="transaction" /> instance.</exception>
+    public DataSession(DbTransaction transaction, bool disposeConnection = false, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
+        : this(transaction?.Connection, disposeConnection, cache, queryGenerator, logger)
+    {
+        if (transaction == null)
+            throw new ArgumentNullException(nameof(transaction));
+
+        Transaction = transaction;
     }
 
     /// <summary>
@@ -127,20 +144,6 @@ public class DataSession : DisposableBase, IDataSession
         return Transaction;
     }
 #endif
-
-    /// <summary>
-    /// Uses the specified transaction for this session.
-    /// </summary>
-    /// <param name="transaction">The transaction to use for session.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to the session.
-    /// </returns>
-    public IDataSession UseTransaction(DbTransaction transaction)
-    {
-        Transaction = transaction;
-        return this;
-    }
-
 
     /// <summary>
     /// Starts a data command with the specified SQL.

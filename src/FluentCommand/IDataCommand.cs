@@ -13,15 +13,6 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     /// </summary>
     DbCommand Command { get; }
 
-    /// <summary>
-    /// Uses the specified transaction for this command.
-    /// </summary>
-    /// <param name="transaction">The transaction to use for command.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a data command.
-    /// </returns>
-    IDataCommand UseTransaction(DbTransaction transaction);
-
 
     /// <summary>
     /// Set the data command with the specified SQL.

@@ -298,7 +298,10 @@ public class TypeAccessor
         if (propertyExpression == null)
             throw new ArgumentNullException(nameof(propertyExpression));
 
-        return FindProperty(propertyExpression.Body as MemberExpression);
+        if (propertyExpression.Body is UnaryExpression unaryExpression)
+            return FindProperty(unaryExpression.Operand as MemberExpression);
+        else
+            return FindProperty(propertyExpression.Body as MemberExpression);
     }
 
     /// <summary>
@@ -322,7 +325,10 @@ public class TypeAccessor
         if (propertyExpression == null)
             throw new ArgumentNullException(nameof(propertyExpression));
 
-        return FindProperty(propertyExpression.Body as MemberExpression);
+        if (propertyExpression.Body is UnaryExpression unaryExpression)
+            return FindProperty(unaryExpression.Operand as MemberExpression);
+        else
+            return FindProperty(propertyExpression.Body as MemberExpression);
     }
 
     /// <summary>

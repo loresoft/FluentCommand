@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 using FluentCommand.Query.Generators;
@@ -31,26 +29,41 @@ public class LogicalEntityBuilder<TEntity> : LogicalBuilder<LogicalEntityBuilder
         return Where(propertyAccessor.Column, parameterValue, whereOperator);
     }
 
-    public LogicalEntityBuilder<TEntity> Or(Action<LogicalEntityBuilder<TEntity>> builder)
+    public LogicalEntityBuilder<TEntity> WhereIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        TValue parameterValue,
+        FilterOperators filterOperator = FilterOperators.Equal,
+        Func<string, TValue, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return WhereIf(propertyAccessor.Column, parameterValue, filterOperator, condition);
+    }
+
+    public LogicalEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.Or);
 
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return this;
     }
 
-    public LogicalEntityBuilder<TEntity> And(Action<LogicalEntityBuilder<TEntity>> builder)
+    public LogicalEntityBuilder<TEntity> WhereAnd(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.And);
 
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return this;
     }

@@ -110,7 +110,9 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return this;
     }

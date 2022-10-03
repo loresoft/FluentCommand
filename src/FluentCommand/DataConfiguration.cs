@@ -87,6 +87,26 @@ public class DataConfiguration : IDataConfiguration
     }
 
     /// <summary>
+    /// Creates a new data session from this database configuration
+    /// </summary>
+    /// <param name="transaction">The transaction to create the session with.</param>
+    /// <returns>
+    /// A new <see cref="IDataSession" /> instance.
+    /// </returns>
+    /// <exception cref="System.ArgumentNullException">transaction is null</exception>
+    /// <exception cref="System.ArgumentException">The specified transaction doesn't have a vaild connection </exception>
+    public IDataSession CreateSession(DbTransaction transaction)
+    {
+        if (transaction is null)
+            throw new ArgumentNullException(nameof(transaction));
+
+        if (transaction.Connection == null)
+            throw new ArgumentException("The specified transaction doesn't have a vaild connection", nameof(transaction));
+
+        return new DataSession(transaction, false, DataCache, QueryGenerator, QueryLogger);
+    }
+
+    /// <summary>
     /// Creates a new <see cref="DbConnection" /> instance from this database configuration.
     /// </summary>
     /// <param name="connectionString"></param>
@@ -108,4 +128,6 @@ public class DataConfiguration : IDataConfiguration
         connection.ConnectionString = connectionString;
         return connection;
     }
+
+
 }

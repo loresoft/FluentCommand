@@ -79,14 +79,16 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
         return WhereIf(propertyAccessor.Column, parameterValue, filterOperator, condition);
     }
 
-    public SelectEntityBuilder<TEntity> Where(Action<LogicalEntityBuilder<TEntity>> builder)
+    public SelectEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.Or);
 
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return this;
     }

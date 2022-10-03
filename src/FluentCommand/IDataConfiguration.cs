@@ -59,6 +59,15 @@ public interface IDataConfiguration
     IDataSession CreateSession(string connectionString = null);
 
     /// <summary>
+    /// Creates a new data session from this database configuration
+    /// </summary>
+    /// <param name="transaction">The transaction to create the session with.</param>
+    /// <returns>
+    /// A new <see cref="IDataSession" /> instance.
+    /// </returns>
+    IDataSession CreateSession(DbTransaction transaction);
+
+    /// <summary>
     /// Creates a new <see cref="DbConnection" /> instance from this database configuration.
     /// </summary>
     /// <returns>

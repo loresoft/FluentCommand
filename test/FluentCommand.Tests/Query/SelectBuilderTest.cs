@@ -24,10 +24,12 @@ public class SelectBuilderTest
             .Column(p => p.Name)
             .Column("Description")
             .Where(p => p.IsActive, true)
-            .Where(b => b
-                .Or(o => o
-                    .Where("Name", "Test", FilterOperators.Contains)
-                    .Where(p => p.Description, "Test", FilterOperators.Contains)
+            .WhereOr(b => b
+                .Where("Name", "Test", FilterOperators.Contains)
+                .Where(p => p.Description, "Test", FilterOperators.Contains)
+                .WhereAnd(o => o
+                    .Where(p => p.IsActive, false)
+                    .Where(p => p.DisplayOrder, 0, FilterOperators.GreaterThan)
                 )
             )
             .OrderBy(p => p.DisplayOrder, SortDirections.Descending)

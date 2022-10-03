@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
@@ -39,20 +39,39 @@ public class WhereEntityBuilder<TEntity> : WhereBuilder<WhereEntityBuilder<TEnti
         return WhereIf(propertyAccessor.Column, parameterValue, filterOperator, condition);
     }
 
-    public WhereEntityBuilder<TEntity> Where(Action<LogicalEntityBuilder<TEntity>> builder)
+    public WhereEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.Or);
 
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
+
+        return this;
+    }
+
+    public WhereEntityBuilder<TEntity> WhereAnd(Action<LogicalEntityBuilder<TEntity>> builder)
+    {
+        var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.And);
+
+        builder(innerBuilder);
+
+        var statement = innerBuilder.BuildStatement();
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return this;
     }
 
     public override QueryStatement BuildStatement()
     {
+        if (WhereClause == null || WhereClause.Count == 0)
+            return null;
+
         var statement = QueryGenerator.BuildWhere(
             whereClause: WhereClause
         );

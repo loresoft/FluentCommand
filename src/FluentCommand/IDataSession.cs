@@ -64,15 +64,6 @@ public interface IDataSession
     Task<DbTransaction> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified, CancellationToken cancellationToken = default);
 #endif
 
-    /// <summary>
-    /// Uses the specified transaction for this session.
-    /// </summary>
-    /// <param name="transaction">The transaction to use for the session.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a data session.
-    /// </returns>
-    IDataSession UseTransaction(DbTransaction transaction);
-
 
     /// <summary>
     /// Starts a data command with the specified SQL.

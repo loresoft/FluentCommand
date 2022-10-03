@@ -66,7 +66,9 @@ public class DeleteEntityBuilder<TEntity> : DeleteBuilder<DeleteEntityBuilder<TE
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        WhereClause.Add(statement.Statement);
+
+        if (statement != null)
+            WhereClause.Add(statement.Statement);
 
         return this;
     }

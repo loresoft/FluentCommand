@@ -37,20 +37,6 @@ public class DataCommand : DisposableBase, IDataCommand
 
 
     /// <summary>
-    /// Uses the specified transaction for this command.
-    /// </summary>
-    /// <param name="transaction">The transaction to use for command.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to the session.
-    /// </returns>
-    public IDataCommand UseTransaction(DbTransaction transaction)
-    {
-        Command.Transaction = transaction;
-        return this;
-    }
-
-
-    /// <summary>
     /// Set the data command with the specified SQL statement.
     /// </summary>
     /// <param name="sql">The SQL statement.</param>
