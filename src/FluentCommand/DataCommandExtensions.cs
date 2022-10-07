@@ -18,7 +18,9 @@ public static class DataCommandExtensions
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    public static IDataCommand CommandTimeout(this IDataCommand dataCommand, TimeSpan timeSpan)
+    public static IDataCommand CommandTimeout(
+        this IDataCommand dataCommand,
+        TimeSpan timeSpan)
     {
         var timeout = Convert.ToInt32(timeSpan.TotalSeconds);
         dataCommand.CommandTimeout(timeout);
@@ -34,7 +36,9 @@ public static class DataCommandExtensions
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    public static IDataCommand Parameter(this IDataCommand dataCommand, IEnumerable<DbParameter> parameters)
+    public static IDataCommand Parameter(
+        this IDataCommand dataCommand,
+        IEnumerable<DbParameter> parameters)
     {
         foreach (var parameter in parameters)
             dataCommand.Parameter(parameter);
@@ -52,7 +56,10 @@ public static class DataCommandExtensions
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    public static IDataCommand Parameter<TParameter>(this IDataCommand dataCommand, string name, TParameter value)
+    public static IDataCommand Parameter<TParameter>(
+        this IDataCommand dataCommand,
+        string name,
+        TParameter value)
     {
         // convert to object
         object innerValue = value;
@@ -79,7 +86,11 @@ public static class DataCommandExtensions
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    public static IDataCommand Parameter(this IDataCommand dataCommand, string name, object value, Type type)
+    public static IDataCommand Parameter(
+        this IDataCommand dataCommand,
+        string name,
+        object value,
+        Type type)
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
@@ -92,6 +103,54 @@ public static class DataCommandExtensions
 
 
     /// <summary>
+    /// Adds a new parameter with the specified <paramref name="name" /> and <paramref name="value" />.
+    /// </summary>
+    /// <typeparam name="TParameter">The type of the parameter value.</typeparam>
+    /// <param name="dataCommand">The <see cref="IDataCommand"/> for this extension method.</param>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="value">The value to be added.</param>
+    /// <param name="condition">Condition on if this parameter should be included</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the data command.
+    /// </returns>
+    public static IDataCommand ParameterIf<TParameter>(
+        this IDataCommand dataCommand,
+        string name,
+        TParameter value,
+        Func<string, TParameter, bool> condition = null)
+    {
+        if (condition != null && !condition(name, value))
+            return dataCommand;
+
+        return Parameter(dataCommand, name, value);
+    }
+
+    /// <summary>
+    /// Adds a new parameter with the specified <paramref name="name" />, <paramref name="value" /> and <paramref name="type"/>.
+    /// </summary>
+    /// <param name="dataCommand">The <see cref="IDataCommand" /> for this extension method.</param>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="value">The value to be added.</param>
+    /// <param name="type">The type of the parameter.</param>
+    /// <param name="condition">Condition on if this parameter should be included</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the data command.
+    /// </returns>
+    public static IDataCommand ParameterIf(
+        this IDataCommand dataCommand,
+        string name,
+        object value,
+        Type type,
+        Func<string, object, bool> condition = null)
+    {
+        if (condition != null && !condition(name, value))
+            return dataCommand;
+
+        return Parameter(dataCommand, name, value, type);
+    }
+
+
+    /// <summary>
     /// Adds a new parameter with the <see cref="IDataParameter" /> fluent object.
     /// </summary>
     /// <typeparam name="TParameter"></typeparam>
@@ -100,7 +159,9 @@ public static class DataCommandExtensions
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    public static IDataCommand Parameter<TParameter>(this IDataCommand dataCommand, Action<IDataParameter<TParameter>> configurator)
+    public static IDataCommand Parameter<TParameter>(
+        this IDataCommand dataCommand,
+        Action<IDataParameter<TParameter>> configurator)
     {
         var parameter = dataCommand.Command.CreateParameter();
 
@@ -121,7 +182,10 @@ public static class DataCommandExtensions
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    public static IDataCommand ParameterOut<TParameter>(this IDataCommand dataCommand, string name, Action<TParameter> callback)
+    public static IDataCommand ParameterOut<TParameter>(
+        this IDataCommand dataCommand,
+        string name,
+        Action<TParameter> callback)
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
@@ -147,7 +211,11 @@ public static class DataCommandExtensions
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    public static IDataCommand ParameterOut<TParameter>(this IDataCommand dataCommand, string name, TParameter value, Action<TParameter> callback)
+    public static IDataCommand ParameterOut<TParameter>(
+        this IDataCommand dataCommand,
+        string name,
+        TParameter value,
+        Action<TParameter> callback)
     {
         object innerValue = value;
 
@@ -173,7 +241,9 @@ public static class DataCommandExtensions
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    public static IDataCommand Return<TParameter>(this IDataCommand dataCommand, Action<TParameter> callback)
+    public static IDataCommand Return<TParameter>(
+        this IDataCommand dataCommand,
+        Action<TParameter> callback)
     {
         const string parameterName = "@ReturnValue";
 
@@ -211,7 +281,9 @@ public static class DataCommandExtensions
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public static Task<TValue> QueryValueAsync<TValue>(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default)
+    public static Task<TValue> QueryValueAsync<TValue>(
+        this IDataQueryAsync dataQuery,
+        CancellationToken cancellationToken = default)
     {
         return dataQuery.QueryValueAsync<TValue>(null, cancellationToken);
     }
