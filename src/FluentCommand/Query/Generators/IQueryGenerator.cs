@@ -39,7 +39,7 @@ public interface IQueryGenerator
     string AggregateClause(
         AggregateFunctions aggregate,
         string columnName,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null);
 
     string FromClause(
@@ -55,12 +55,12 @@ public interface IQueryGenerator
 
     string OrderClause(
         string columnName,
-        string columnPrefix = null,
+        string tableAlias = null,
         SortDirections sortDirection = SortDirections.Ascending);
 
     string SelectClause(
         string columnName,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null);
 
     string UpdateClause(
@@ -72,5 +72,5 @@ public interface IQueryGenerator
         string parameterName,
         FilterOperators filterOperator = FilterOperators.Equal);
 
-    string GroupClause(string columnName, string columnPrefix = null);
+    string GroupClause(string columnName, string tableAlias = null);
 }

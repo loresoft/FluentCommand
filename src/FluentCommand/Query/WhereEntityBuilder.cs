@@ -25,7 +25,7 @@ public class WhereEntityBuilder<TEntity> : WhereBuilder<WhereEntityBuilder<TEnti
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return Where(propertyAccessor.Column, parameterValue, filterOperator);
+        return Where(propertyAccessor?.Column, parameterValue, filterOperator);
     }
 
     public WhereEntityBuilder<TEntity> WhereIf<TValue>(
@@ -36,7 +36,7 @@ public class WhereEntityBuilder<TEntity> : WhereBuilder<WhereEntityBuilder<TEnti
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return WhereIf(propertyAccessor.Column, parameterValue, filterOperator, condition);
+        return WhereIf(propertyAccessor?.Column, parameterValue, filterOperator, condition);
     }
 
     public WhereEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)

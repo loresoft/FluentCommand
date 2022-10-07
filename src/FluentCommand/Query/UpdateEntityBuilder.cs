@@ -24,7 +24,7 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
         TValue parameterValue)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return Value(propertyAccessor.Column, parameterValue);
+        return Value(propertyAccessor?.Column, parameterValue);
     }
 
     public UpdateEntityBuilder<TEntity> ValueIf<TValue>(
@@ -33,7 +33,7 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
         Func<string, TValue, bool> condition)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return ValueIf(propertyAccessor.Column, parameterValue, condition);
+        return ValueIf(propertyAccessor?.Column, parameterValue, condition);
     }
 
     public UpdateEntityBuilder<TEntity> Values(
@@ -64,21 +64,21 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
 
     public UpdateEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = "INSERTED",
+        string tableAlias = "INSERTED",
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return Output(propertyAccessor.Column, columnPrefix, columnAlias);
+        return Output(propertyAccessor?.Column, tableAlias, columnAlias);
     }
 
     public UpdateEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = "INSERTED",
+        string tableAlias = "INSERTED",
         string columnAlias = null,
         Func<string, bool> condition = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return OutputIf(propertyAccessor.Column, columnPrefix, columnAlias, condition);
+        return OutputIf(propertyAccessor?.Column, tableAlias, columnAlias, condition);
     }
 
 
@@ -89,7 +89,7 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return Where(propertyAccessor.Column, parameterValue, filterOperator);
+        return Where(propertyAccessor?.Column, parameterValue, filterOperator);
     }
 
     public UpdateEntityBuilder<TEntity> WhereIf<TValue>(

@@ -17,44 +17,44 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
 
     public SelectEntityBuilder<TEntity> Column<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return Column(propertyAccessor.Column, columnPrefix, columnAlias);
+        return Column(propertyAccessor.Column, tableAlias, columnAlias);
     }
 
     public SelectEntityBuilder<TEntity> ColumnIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null,
         Func<string, bool> condition = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return ColumnIf(propertyAccessor.Column, columnPrefix, columnAlias, condition);
+        return ColumnIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
     }
 
     public SelectEntityBuilder<TEntity> Count<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return Count(propertyAccessor.Column, columnPrefix, columnAlias);
+        return Count(propertyAccessor.Column, tableAlias, columnAlias);
     }
 
     public SelectEntityBuilder<TEntity> Aggregate<TValue>(
         Expression<Func<TEntity, TValue>> property,
         AggregateFunctions function,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return Aggregate(function, propertyAccessor.Column, columnPrefix, columnAlias);
+        return Aggregate(function, propertyAccessor.Column, tableAlias, columnAlias);
     }
 
 
@@ -105,32 +105,32 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
 
     public SelectEntityBuilder<TEntity> OrderBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix,
+        string tableAlias,
         SortDirections sortDirection = SortDirections.Ascending)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return OrderBy(propertyAccessor.Column, columnPrefix, sortDirection);
+        return OrderBy(propertyAccessor.Column, tableAlias, sortDirection);
     }
 
     public SelectEntityBuilder<TEntity> OrderByIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = null,
+        string tableAlias = null,
         SortDirections sortDirection = SortDirections.Ascending,
         Func<string, bool> condition = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return OrderByIf(propertyAccessor.Column, columnPrefix, sortDirection, condition);
+        return OrderByIf(propertyAccessor.Column, tableAlias, sortDirection, condition);
     }
 
     public SelectEntityBuilder<TEntity> GroupBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = null)
+        string tableAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return GroupBy(propertyAccessor.Column, columnPrefix);
+        return GroupBy(propertyAccessor.Column, tableAlias);
     }
 
     public override QueryStatement BuildStatement()

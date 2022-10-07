@@ -62,21 +62,21 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
 
     public InsertEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = "INSERTED",
+        string tableAlias = "INSERTED",
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return Output(propertyAccessor.Column, columnPrefix, columnAlias);
+        return Output(propertyAccessor.Column, tableAlias, columnAlias);
     }
 
     public InsertEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = "INSERTED",
+        string tableAlias = "INSERTED",
         string columnAlias = null,
         Func<string, bool> condition = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return OutputIf(propertyAccessor.Column, columnPrefix, columnAlias, condition);
+        return OutputIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
     }
 
     public override QueryStatement BuildStatement()

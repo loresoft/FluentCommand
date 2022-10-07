@@ -266,15 +266,15 @@ public class SqlServerGenerator : IQueryGenerator
         return $"/* {comment} */";
     }
 
-    public virtual string SelectClause(string columnName, string columnPrefix = null, string columnAlias = null)
+    public virtual string SelectClause(string columnName, string tableAlias = null, string columnAlias = null)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
 
         var quotedName = QuoteIdentifier(columnName);
 
-        var clause = columnPrefix.HasValue()
-            ? $"{QuoteIdentifier(columnPrefix)}.{quotedName}"
+        var clause = tableAlias.HasValue()
+            ? $"{QuoteIdentifier(tableAlias)}.{quotedName}"
             : quotedName;
 
         if (columnAlias.HasValue())
@@ -283,9 +283,9 @@ public class SqlServerGenerator : IQueryGenerator
         return clause;
     }
 
-    public virtual string AggregateClause(AggregateFunctions aggregate, string columnName, string columnPrefix = null, string columnAlias = null)
+    public virtual string AggregateClause(AggregateFunctions aggregate, string columnName, string tableAlias = null, string columnAlias = null)
     {
-        var selectClause = SelectClause(columnName, columnPrefix, columnAlias);
+        var selectClause = SelectClause(columnName, tableAlias, columnAlias);
 
         return aggregate switch
         {
@@ -315,21 +315,21 @@ public class SqlServerGenerator : IQueryGenerator
         return fromClause;
     }
 
-    public virtual string OrderClause(string columnName, string columnPrefix = null, SortDirections sortDirection = SortDirections.Ascending)
+    public virtual string OrderClause(string columnName, string tableAlias = null, SortDirections sortDirection = SortDirections.Ascending)
     {
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
 
-        var quotedName = SelectClause(columnName, columnPrefix);
+        var quotedName = SelectClause(columnName, tableAlias);
 
         return sortDirection == SortDirections.Ascending
             ? $"{quotedName} ASC"
             : $"{quotedName} DESC";
     }
 
-    public virtual string GroupClause(string columnName, string columnPrefix = null)
+    public virtual string GroupClause(string columnName, string tableAlias = null)
     {
-        return SelectClause(columnName, columnPrefix);
+        return SelectClause(columnName, tableAlias);
     }
 
     public virtual string WhereClause(string columnName, string parameterName, FilterOperators filterOperator = FilterOperators.Equal)

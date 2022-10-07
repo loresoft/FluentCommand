@@ -83,23 +83,23 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Output(
         IEnumerable<string> columnNames,
-        string columnPrefix = "INSERTED")
+        string tableAlias = "INSERTED")
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
 
         foreach (var column in columnNames)
-            Output(column, columnPrefix);
+            Output(column, tableAlias);
 
         return (TBuilder)this;
     }
 
     public TBuilder Output(
         string columnName,
-        string columnPrefix = "INSERTED",
+        string tableAlias = "INSERTED",
         string columnAlias = null)
     {
-        var outputClause = QueryGenerator.SelectClause(columnName, columnPrefix, columnAlias);
+        var outputClause = QueryGenerator.SelectClause(columnName, tableAlias, columnAlias);
 
         OutputClause.Add(outputClause);
 
@@ -109,13 +109,13 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder OutputIf(
         string columnName,
         string columnAlias = null,
-        string columnPrefix = "INSERTED",
+        string tableAlias = "INSERTED",
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return Output(columnName, columnPrefix, columnAlias);
+        return Output(columnName, tableAlias, columnAlias);
     }
 
 

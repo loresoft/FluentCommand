@@ -45,23 +45,23 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Output(
         IEnumerable<string> columnNames,
-        string columnPrefix = "DELETED")
+        string tableAlias = "DELETED")
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
 
         foreach (var column in columnNames)
-            Output(column, columnPrefix);
+            Output(column, tableAlias);
 
         return (TBuilder)this;
     }
 
     public TBuilder Output(
         string columnName,
-        string columnPrefix = "DELETED",
+        string tableAlias = "DELETED",
         string columnAlias = null)
     {
-        var outputClause = QueryGenerator.SelectClause(columnName, columnPrefix, columnAlias);
+        var outputClause = QueryGenerator.SelectClause(columnName, tableAlias, columnAlias);
 
         OutputClause.Add(outputClause);
 
@@ -70,14 +70,14 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder OutputIf(
         string columnName,
-        string columnPrefix = "DELETED",
+        string tableAlias = "DELETED",
         string columnAlias = null,
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return Output(columnName, columnPrefix, columnAlias);
+        return Output(columnName, tableAlias, columnAlias);
     }
 
 

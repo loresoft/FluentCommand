@@ -21,21 +21,21 @@ public class DeleteEntityBuilder<TEntity> : DeleteBuilder<DeleteEntityBuilder<TE
 
     public DeleteEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = "DELETED",
+        string tableAlias = "DELETED",
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return Output(propertyAccessor.Column, columnPrefix, columnAlias);
+        return Output(propertyAccessor.Column, tableAlias, columnAlias);
     }
 
     public DeleteEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string columnPrefix = "DELETED",
+        string tableAlias = "DELETED",
         string columnAlias = null,
         Func<string, bool> condition = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
-        return OutputIf(propertyAccessor.Column, columnPrefix, columnAlias, condition);
+        return OutputIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
     }
 
     public DeleteEntityBuilder<TEntity> Where<TValue>(

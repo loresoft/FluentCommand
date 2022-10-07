@@ -28,6 +28,8 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     protected HashSet<string> FromClause { get; } = new();
 
+    protected HashSet<string> TemporalClause { get; } = new();
+
     protected HashSet<string> OrderByClause { get; } = new();
 
     protected HashSet<string> GroupByClause { get; } = new();
@@ -37,10 +39,10 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Column(
         string columnName,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null)
     {
-        var selectClause = QueryGenerator.SelectClause(columnName, columnPrefix, columnAlias);
+        var selectClause = QueryGenerator.SelectClause(columnName, tableAlias, columnAlias);
 
         SelectClause.Add(selectClause);
 
@@ -49,14 +51,14 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder ColumnIf(
         string columnName,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null,
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return Column(columnName, columnPrefix, columnAlias);
+        return Column(columnName, tableAlias, columnAlias);
     }
 
     public TBuilder Columns(IEnumerable<string> columnNames)
@@ -73,10 +75,10 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder Count(
         string columnName = "*",
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null)
     {
-        var selectClause = QueryGenerator.AggregateClause(AggregateFunctions.Count, columnName, columnPrefix, columnAlias);
+        var selectClause = QueryGenerator.AggregateClause(AggregateFunctions.Count, columnName, tableAlias, columnAlias);
 
         SelectClause.Add(selectClause);
 
@@ -86,10 +88,10 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder Aggregate(
         AggregateFunctions function,
         string columnName,
-        string columnPrefix = null,
+        string tableAlias = null,
         string columnAlias = null)
     {
-        var selectClause = QueryGenerator.AggregateClause(function, columnName, columnPrefix, columnAlias);
+        var selectClause = QueryGenerator.AggregateClause(function, columnName, tableAlias, columnAlias);
 
         SelectClause.Add(selectClause);
 
@@ -133,10 +135,10 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder OrderBy(
         string columnName,
-        string columnPrefix,
+        string tableAlias,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        var orderClause = QueryGenerator.OrderClause(columnName, columnPrefix, sortDirection);
+        var orderClause = QueryGenerator.OrderClause(columnName, tableAlias, sortDirection);
 
         OrderByClause.Add(orderClause);
 
@@ -145,14 +147,14 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder OrderByIf(
         string columnName,
-        string columnPrefix = null,
+        string tableAlias = null,
         SortDirections sortDirection = SortDirections.Ascending,
         Func<string, bool> condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
 
-        return OrderBy(columnName, columnPrefix, sortDirection);
+        return OrderBy(columnName, tableAlias, sortDirection);
     }
 
     public TBuilder OrderBy(IEnumerable<string> sortExpressions)
@@ -169,9 +171,9 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
     public TBuilder GroupBy(
         string columnName,
-        string columnPrefix = null)
+        string tableAlias = null)
     {
-        var orderClause = QueryGenerator.GroupClause(columnName, columnPrefix);
+        var orderClause = QueryGenerator.GroupClause(columnName, tableAlias);
 
         GroupByClause.Add(orderClause);
 
@@ -182,7 +184,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder Limit(int offset = 0, int size = 0)
     {
         // no paging
-        if (size == 0)
+        if (size <= 0)
             return (TBuilder)this;
 
         var limitClause = QueryGenerator.LimitClause(offset: offset, size: size);
