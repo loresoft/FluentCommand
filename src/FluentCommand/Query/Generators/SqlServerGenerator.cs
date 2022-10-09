@@ -261,6 +261,23 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(whereBuilder);
     }
 
+    public virtual string BuildOrder(IReadOnlyCollection<string> orderClause)
+    {
+        if (orderClause == null || orderClause.Count == 0)
+            return null;
+
+        var orderBuilder = StringBuilderCache.Acquire();
+
+        if (orderClause?.Count > 0)
+        {
+            orderBuilder
+                .AppendJoin(", ", orderClause);
+        }
+
+        return StringBuilderCache.ToString(orderBuilder);
+    }
+
+
     public virtual string CommentClause(string comment)
     {
         return $"/* {comment} */";
@@ -416,4 +433,5 @@ public class SqlServerGenerator : IQueryGenerator
 
         return name;
     }
+
 }

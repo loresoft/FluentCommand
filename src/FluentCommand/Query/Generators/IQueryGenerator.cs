@@ -34,6 +34,9 @@ public interface IQueryGenerator
 
     string BuildWhere(IReadOnlyCollection<string> whereClause);
 
+    string BuildOrder(IReadOnlyCollection<string> orderClause);
+
+
     string CommentClause(string comment);
 
     string AggregateClause(

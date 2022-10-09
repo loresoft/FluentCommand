@@ -1,3 +1,4 @@
+using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
@@ -157,7 +158,25 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         return OrderBy(columnName, tableAlias, sortDirection);
     }
 
-    public TBuilder OrderBy(IEnumerable<string> sortExpressions)
+    public TBuilder OrderByRaw(string sortExpression)
+    {
+        if (sortExpression.HasValue())
+            OrderByClause.Add(sortExpression);
+
+        return (TBuilder)this;
+    }
+
+    public TBuilder OrderByRawIf(
+        string sortExpression,
+        Func<string, bool> condition = null)
+    {
+        if (condition != null && !condition(sortExpression))
+            return (TBuilder)this;
+
+        return OrderByRaw(sortExpression);
+    }
+
+    public TBuilder OrderByRaw(IEnumerable<string> sortExpressions)
     {
         if (sortExpressions is null)
             throw new ArgumentNullException(nameof(sortExpressions));
