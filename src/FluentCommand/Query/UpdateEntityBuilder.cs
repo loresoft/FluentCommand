@@ -48,7 +48,7 @@ public class UpdateEntityBuilder<TEntity> : UpdateBuilder<UpdateEntityBuilder<TE
 
         foreach (var property in properties)
         {
-            if (columnSet.Count > 0 && !columnSet.Contains(property.Name))
+            if (columnSet.Count > 0 && !columnSet.Contains(property.Column))
                 continue;
 
             if (property.IsNotMapped || property.IsDatabaseGenerated)

@@ -47,7 +47,7 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
 
         foreach (var property in properties)
         {
-            if (columnSet.Count > 0 && !columnSet.Contains(property.Name))
+            if (columnSet.Count > 0 && !columnSet.Contains(property.Column))
                 continue;
 
             if (property.IsNotMapped || property.IsDatabaseGenerated)
