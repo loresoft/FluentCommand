@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using FluentCommand.Entities;
 using FluentCommand.Query;
@@ -88,5 +89,54 @@ public class SelectBuilderTest
         var sql = queryStatement.Statement;
 
         await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task SelectEntityAliasWhereTagBuilder()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<EntityAlias>(sqlProvider, parameters, LogicalOperators.And)
+            .Tag()
+            .Column(p => p.Id)
+            .Column(p => p.Name)
+            .Where(p => p.Id, 1)
+            .OrderBy(p => p.Name);
+
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task SelectColumnsAliasWhereTagBuilder()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<EntityAlias>(sqlProvider, parameters, LogicalOperators.And)
+            .Tag()
+            .Columns(new string[] { "EntityId", "Name" })
+            .Where(p => p.Id, 1)
+            .OrderBy(p => p.Name);
+
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
+
+    private class EntityAlias
+    {
+        [Column("EntityId")]
+        public int Id { get; set; }
+
+        public string Name { get; set; }
     }
 }

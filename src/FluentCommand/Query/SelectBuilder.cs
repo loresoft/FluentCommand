@@ -62,7 +62,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         return Column(columnName, tableAlias, columnAlias);
     }
 
-    public TBuilder Columns(IEnumerable<string> columnNames)
+    public virtual TBuilder Columns(IEnumerable<string> columnNames)
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -112,6 +112,13 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
+    public TBuilder FromRaw(string fromClause)
+    {
+        if (fromClause.HasValue())
+            FromClause.Add(fromClause);
+
+        return (TBuilder)this;
+    }
 
     public TBuilder Where(Action<LogicalBuilder> builder)
     {

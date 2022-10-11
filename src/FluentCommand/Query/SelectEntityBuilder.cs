@@ -22,7 +22,12 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return Column(propertyAccessor.Column, tableAlias, columnAlias);
+        // alais column as property name if don't match
+        if (propertyAccessor.Name == propertyAccessor.Column)
+            return Column(propertyAccessor.Column, tableAlias, columnAlias);
+        else
+            return Column(propertyAccessor.Column, tableAlias, columnAlias ?? propertyAccessor.Name);
+
     }
 
     public SelectEntityBuilder<TEntity> ColumnIf<TValue>(
@@ -33,7 +38,32 @@ public class SelectEntityBuilder<TEntity> : SelectBuilder<SelectEntityBuilder<TE
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        return ColumnIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
+        // alais column as property name if don't match
+        if (propertyAccessor.Name == propertyAccessor.Column)
+            return ColumnIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
+        else
+            return ColumnIf(propertyAccessor.Column, tableAlias, columnAlias ?? propertyAccessor.Name, condition);
+    }
+
+    public override SelectEntityBuilder<TEntity> Columns(IEnumerable<string> columnNames)
+    {
+        if (columnNames is null)
+            throw new ArgumentNullException(nameof(columnNames));
+
+        foreach (var column in columnNames)
+        {
+            var propertyAccessor = _typeAccessor.FindColumn(column);
+            if (propertyAccessor is null)
+                continue;
+
+            // alais column as property name if don't match
+            if (propertyAccessor.Name == propertyAccessor.Column)
+                Column(propertyAccessor.Column);
+            else
+                Column(propertyAccessor.Column, columnAlias: propertyAccessor.Name);
+        }
+
+        return this;
     }
 
     public SelectEntityBuilder<TEntity> Count<TValue>(

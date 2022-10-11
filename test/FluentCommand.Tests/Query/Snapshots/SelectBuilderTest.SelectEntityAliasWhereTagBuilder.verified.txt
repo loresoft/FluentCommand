@@ -1,0 +1,5 @@
+﻿/* Caller; SelectEntityAliasWhereTagBuilder() in SelectBuilderTest.cs:line 101 */
+SELECT [EntityId] AS [Id], [Name]
+FROM [EntityAlias]
+WHERE ([EntityId] = @p0000)
+ORDER BY [Name] ASC;
