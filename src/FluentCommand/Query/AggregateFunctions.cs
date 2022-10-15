@@ -1,4 +1,4 @@
-﻿namespace FluentCommand.Query;
+namespace FluentCommand.Query;
 
 public enum AggregateFunctions
 {

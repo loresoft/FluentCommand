@@ -48,7 +48,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     public TBuilder Where<TValue>(
         string columnName,
         TValue parameterValue,
-        string tableAlias = null,
+        string tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         var paramterName = NextParameter();
@@ -71,7 +71,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     public TBuilder WhereIf<TValue>(
         string columnName,
         TValue parameterValue,
-        string tableAlias = null,
+        string tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal,
         Func<string, TValue, bool> condition = null)
     {
