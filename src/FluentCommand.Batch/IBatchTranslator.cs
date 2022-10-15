@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace FluentCommand.Batch
-{
-    public interface IBatchTranslator
-    {
-        string[] Sources { get; }
+namespace FluentCommand.Batch;
 
-        object Translate(string source, object original);
-    }
+public interface IBatchTranslator
+{
+    string[] Sources { get; }
+
+    object Translate(string source, object original);
 }

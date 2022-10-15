@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Data;
 
-namespace FluentCommand.Batch
-{
-    public interface IBatchValidator
-    {
-        void Reset();
+namespace FluentCommand.Batch;
 
-        void ValidateRow(BatchJob batchJob, DataRow targetRow);
-    }
+public interface IBatchValidator
+{
+    void Reset();
+
+    void ValidateRow(BatchJob batchJob, DataRow targetRow);
 }

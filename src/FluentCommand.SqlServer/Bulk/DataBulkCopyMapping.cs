@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+
 using Microsoft.Data.SqlClient;
 
 namespace FluentCommand.Bulk;

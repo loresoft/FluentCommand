@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
+
 using FluentCommand.Reflection;
 
 namespace FluentCommand;

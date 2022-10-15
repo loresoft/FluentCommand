@@ -2,93 +2,93 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
+
 using FluentCommand.Extensions;
 
-namespace FluentCommand.Batch.Validation
+namespace FluentCommand.Batch.Validation;
+
+public class BatchValidator : IBatchValidator
 {
-    public class BatchValidator : IBatchValidator
+    private readonly HashSet<int> _duplicateHash;
+
+    public BatchValidator()
     {
-        private readonly HashSet<int> _duplicateHash;
-
-        public BatchValidator()
-        {
-            _duplicateHash = new HashSet<int>();
-        }
+        _duplicateHash = new HashSet<int>();
+    }
 
 
-        public virtual void Reset()
-        {
-            _duplicateHash.Clear();
-        }
+    public virtual void Reset()
+    {
+        _duplicateHash.Clear();
+    }
 
-        public virtual void ValidateRow(BatchJob batchJob, DataRow targetRow)
-        {
-            // check for DBNull or null
-            CheckForNull(batchJob, targetRow);
+    public virtual void ValidateRow(BatchJob batchJob, DataRow targetRow)
+    {
+        // check for DBNull or null
+        CheckForNull(batchJob, targetRow);
 
-            // look for duplicate key values
-            CheckForDuplicate(batchJob, targetRow);
-        }
-
-
-        protected IList<string> SelectFields(BatchJob batchJob, IEnumerable<string> fields)
-        {
-            var selectFields = batchJob
-                .Fields
-                .Where(b => b.Index.HasValue || b.Default.HasValue)
-                .Select(b => b.Name)
-                .Intersect(fields)
-                .ToList();
-
-            return selectFields;
-        }
+        // look for duplicate key values
+        CheckForDuplicate(batchJob, targetRow);
+    }
 
 
-        protected void CheckForNull(BatchJob batchJob, DataRow targetRow)
-        {
-            var requiredFields = batchJob
-                .Fields
-                .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.CanBeNull == false)
-                .Select(b => b.Name)
-                .ToList();
+    protected IList<string> SelectFields(BatchJob batchJob, IEnumerable<string> fields)
+    {
+        var selectFields = batchJob
+            .Fields
+            .Where(b => b.Index.HasValue || b.Default.HasValue)
+            .Select(b => b.Name)
+            .Intersect(fields)
+            .ToList();
 
-            // first null
-            var invalidField = requiredFields
-                .FirstOrDefault(targetRow.IsNull);
+        return selectFields;
+    }
 
-            if (!invalidField.HasValue())
-                return;
 
-            string message = "Field '{0}' can not be null. {1}"
-                .FormatWith(invalidField, targetRow.ItemArray.ToDelimitedString());
+    protected void CheckForNull(BatchJob batchJob, DataRow targetRow)
+    {
+        var requiredFields = batchJob
+            .Fields
+            .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.CanBeNull == false)
+            .Select(b => b.Name)
+            .ToList();
 
-            throw new ValidationException(message);
-        }
+        // first null
+        var invalidField = requiredFields
+            .FirstOrDefault(targetRow.IsNull);
 
-        protected void CheckForDuplicate(BatchJob batchJob, DataRow targetRow)
-        {
-            var keyFields = batchJob
-                .Fields
-                .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.IsKey)
-                .Select(b => b.Name)
-                .ToList();
+        if (!invalidField.HasValue())
+            return;
 
-            var keyValues = keyFields
-                .Select(k => targetRow[k])
-                .ToList();
+        string message = "Field '{0}' can not be null. {1}"
+            .FormatWith(invalidField, targetRow.ItemArray.ToDelimitedString());
 
-            // use a hash code of all the key values to check duplicate
-            var hashCode = keyValues
-                .Aggregate(HashCode.Seed, (hash, value) => hash.Combine(value));
+        throw new ValidationException(message);
+    }
 
-            bool added = _duplicateHash.Add(hashCode);
-            if (added)
-                return;
+    protected void CheckForDuplicate(BatchJob batchJob, DataRow targetRow)
+    {
+        var keyFields = batchJob
+            .Fields
+            .Where(b => (b.Index.HasValue || b.Default.HasValue) && b.IsKey)
+            .Select(b => b.Name)
+            .ToList();
 
-            string message = "Duplicate key found.  Field: {0}, Value: {1}"
-                .FormatWith(keyFields.ToDelimitedString(), keyValues.ToDelimitedString());
+        var keyValues = keyFields
+            .Select(k => targetRow[k])
+            .ToList();
 
-            throw new DuplicateException(message);
-        }
+        // use a hash code of all the key values to check duplicate
+        var hashCode = keyValues
+            .Aggregate(HashCode.Seed, (hash, value) => hash.Combine(value));
+
+        bool added = _duplicateHash.Add(hashCode);
+        if (added)
+            return;
+
+        string message = "Duplicate key found.  Field: {0}, Value: {1}"
+            .FormatWith(keyFields.ToDelimitedString(), keyValues.ToDelimitedString());
+
+        throw new DuplicateException(message);
     }
 }
