@@ -1,79 +1,40 @@
 namespace FluentCommand.Query.Generators;
+
 public interface IQueryGenerator
 {
-    string BuildDelete(
-        string tableClause,
-        IReadOnlyCollection<string> outputClause,
-        IReadOnlyCollection<string> fromClause,
-        IReadOnlyCollection<string> whereClause,
-        IReadOnlyCollection<string> commentExpression);
+    string BuildDelete(DeleteStatement deleteStatement);
 
-    string BuildInsert(
-        string tableClause,
-        IReadOnlyCollection<string> columnExpression,
-        IReadOnlyCollection<string> outputClause,
-        IReadOnlyCollection<string> valueExpression,
-        IReadOnlyCollection<string> commentExpression);
+    string BuildInsert(InsertStatement insertStatement);
 
-    string BuildSelect(
-        IReadOnlyCollection<string> selectClause,
-        IReadOnlyCollection<string> fromClause,
-        IReadOnlyCollection<string> whereClause,
-        IReadOnlyCollection<string> orderByClause,
-        IReadOnlyCollection<string> groupByClause,
-        IReadOnlyCollection<string> limitClause,
-        IReadOnlyCollection<string> commentExpression);
+    string BuildSelect(SelectStatement selectStatement);
 
-    string BuildUpdate(
-        string tableClause,
-        IReadOnlyCollection<string> updateClause,
-        IReadOnlyCollection<string> outputClause,
-        IReadOnlyCollection<string> fromClause,
-        IReadOnlyCollection<string> whereClause,
-        IReadOnlyCollection<string> commentExpression);
-
-    string BuildWhere(IReadOnlyCollection<string> whereClause);
-
-    string BuildOrder(IReadOnlyCollection<string> orderClause);
+    string BuildUpdate(UpdateStatement updateStatement);
 
 
-    string CommentClause(string comment);
+    string BuildWhere(IReadOnlyCollection<WhereExpression> whereExpressions);
 
-    string AggregateClause(
-        AggregateFunctions aggregate,
-        string columnName,
-        string tableAlias = null,
-        string columnAlias = null);
+    string BuildOrder(IReadOnlyCollection<SortExpression> sortExpressions);
 
-    string FromClause(
-        string tableName,
-        string tableSchema = null,
-        string tableAlias = null);
 
-    string LimitClause(int offset, int size);
+    string CommentExpression(string comment);
 
-    string LogicalClause(
-        IReadOnlyCollection<string> whereClause,
-        LogicalOperators logicalOperator);
+    string AggregateExpression(AggergateExpression aggergateExpression);
 
-    string OrderClause(
-        string columnName,
-        string tableAlias = null,
-        SortDirections sortDirection = SortDirections.Ascending);
+    string TableExpression(TableExpression tableExpression);
 
-    string SelectClause(
-        string columnName,
-        string tableAlias = null,
-        string columnAlias = null);
+    string LimitExpression(LimitExpression limitExpression);
 
-    string UpdateClause(
-        string columnName,
-        string paramterName);
+    string LogicalExpression(IReadOnlyCollection<WhereExpression> whereExpressions, LogicalOperators logicalOperator);
 
-    string WhereClause(
-        string columnName,
-        string parameterName,
-        FilterOperators filterOperator = FilterOperators.Equal);
+    string SortExpression(SortExpression sortExpression);
 
-    string GroupClause(string columnName, string tableAlias = null);
+    string ColumnExpression(ColumnExpression columnExpression);
+
+    string UpdateExpression(UpdateExpression updateExpression);
+
+    string WhereExpression(WhereExpression whereExpression);
+
+    string GroupExpression(GroupExpression groupExpression);
+
+    string JoinExpression(JoinExpression joinExpression);
 }

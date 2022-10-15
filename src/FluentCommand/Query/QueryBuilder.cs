@@ -1,3 +1,5 @@
+using System.Text;
+
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
@@ -5,35 +7,43 @@ namespace FluentCommand.Query;
 
 public class QueryBuilder : IStatementBuilder
 {
-    private IStatementBuilder _currentBuilder;
+    private readonly Queue<IStatementBuilder> _builderQueue = new();
 
-    public QueryBuilder(IQueryGenerator queryGenerator)
+    public QueryBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
     {
-        QueryGenerator = queryGenerator;
+        QueryGenerator = queryGenerator ?? throw new ArgumentNullException(nameof(queryGenerator));
+        Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
     }
 
     protected IQueryGenerator QueryGenerator { get; }
 
+    protected List<QueryParameter> Parameters { get; }
+
+
+    public StatementBuilder Statement()
+    {
+        var builder = new StatementBuilder(QueryGenerator, Parameters);
+
+        _builderQueue.Enqueue(builder);
+
+        return builder;
+    }
 
     public SelectEntityBuilder<TEntity> Select<TEntity>()
         where TEntity : class
     {
-        var parameters = new List<QueryParameter>();
-        var builder = new SelectEntityBuilder<TEntity>(QueryGenerator, parameters);
+        var builder = new SelectEntityBuilder<TEntity>(QueryGenerator, Parameters);
 
-        // track current
-        _currentBuilder = builder;
+        _builderQueue.Enqueue(builder);
 
         return builder;
     }
 
     public SelectBuilder Select()
     {
-        var parameters = new List<QueryParameter>();
-        var builder = new SelectBuilder(QueryGenerator, parameters);
+        var builder = new SelectBuilder(QueryGenerator, Parameters);
 
-        // track current
-        _currentBuilder = builder;
+        _builderQueue.Enqueue(builder);
 
         return builder;
 
@@ -42,22 +52,18 @@ public class QueryBuilder : IStatementBuilder
     public InsertEntityBuilder<TEntity> Insert<TEntity>()
         where TEntity : class
     {
-        var parameters = new List<QueryParameter>();
-        var builder = new InsertEntityBuilder<TEntity>(QueryGenerator, parameters);
+        var builder = new InsertEntityBuilder<TEntity>(QueryGenerator, Parameters);
 
-        // track current
-        _currentBuilder = builder;
+        _builderQueue.Enqueue(builder);
 
         return builder;
     }
 
     public InsertBuilder Insert()
     {
-        var parameters = new List<QueryParameter>();
-        var builder = new InsertBuilder(QueryGenerator, parameters);
+        var builder = new InsertBuilder(QueryGenerator, Parameters);
 
-        // track current
-        _currentBuilder = builder;
+        _builderQueue.Enqueue(builder);
 
         return builder;
 
@@ -66,11 +72,9 @@ public class QueryBuilder : IStatementBuilder
     public UpdateEntityBuilder<TEntity> Update<TEntity>()
         where TEntity : class
     {
-        var parameters = new List<QueryParameter>();
-        var builder = new UpdateEntityBuilder<TEntity>(QueryGenerator, parameters);
+        var builder = new UpdateEntityBuilder<TEntity>(QueryGenerator, Parameters);
 
-        // track current
-        _currentBuilder = builder;
+        _builderQueue.Enqueue(builder);
 
         return builder;
 
@@ -78,11 +82,9 @@ public class QueryBuilder : IStatementBuilder
 
     public UpdateBuilder Update()
     {
-        var parameters = new List<QueryParameter>();
-        var builder = new UpdateBuilder(QueryGenerator, parameters);
+        var builder = new UpdateBuilder(QueryGenerator, Parameters);
 
-        // track current
-        _currentBuilder = builder;
+        _builderQueue.Enqueue(builder);
 
         return builder;
     }
@@ -90,11 +92,9 @@ public class QueryBuilder : IStatementBuilder
     public DeleteEntityBuilder<TEntity> Delete<TEntity>()
         where TEntity : class
     {
-        var parameters = new List<QueryParameter>();
-        var builder = new DeleteEntityBuilder<TEntity>(QueryGenerator, parameters);
+        var builder = new DeleteEntityBuilder<TEntity>(QueryGenerator, Parameters);
 
-        // track current
-        _currentBuilder = builder;
+        _builderQueue.Enqueue(builder);
 
         return builder;
 
@@ -102,11 +102,9 @@ public class QueryBuilder : IStatementBuilder
 
     public DeleteBuilder Delete()
     {
-        var parameters = new List<QueryParameter>();
-        var builder = new DeleteBuilder(QueryGenerator, parameters);
+        var builder = new DeleteBuilder(QueryGenerator, Parameters);
 
-        // track current
-        _currentBuilder = builder;
+        _builderQueue.Enqueue(builder);
 
         return builder;
     }
@@ -114,6 +112,24 @@ public class QueryBuilder : IStatementBuilder
 
     public QueryStatement BuildStatement()
     {
-        return _currentBuilder?.BuildStatement();
+        // optimize for when only 1 builder
+        if (_builderQueue.Count == 1)
+        {
+            var builder = _builderQueue.Dequeue();
+            return builder.BuildStatement();
+        }
+
+        // merge all queued builders together
+        var query = new StringBuilder();
+
+        while (_builderQueue.Count > 0)
+        {
+            var builder = _builderQueue.Dequeue();
+            var statement = builder.BuildStatement();
+
+            query.AppendLine(statement.Statement);
+        }
+
+        return new QueryStatement(query.ToString(), Parameters);
     }
 }

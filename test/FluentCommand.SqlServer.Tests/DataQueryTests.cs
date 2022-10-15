@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 using FluentAssertions;
@@ -98,23 +97,30 @@ public class DataQueryTests : DatabaseTestBase
         var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
-        var parameterName = "@ids";
-        var separatorParameter = "@separator";
-        var columnName = "Id";
-
-        var clause = $"EXISTS (SELECT value FROM STRING_SPLIT({parameterName}, {separatorParameter}) AS ssid WHERE ssid.value = {columnName})";
-
         var values = new[] { 1, 2, 3 }.ToDelimitedString();
-        var parameters = new List<QueryParameter> {
-            new QueryParameter(parameterName, values, typeof(string)),
-            new QueryParameter(separatorParameter, ",", typeof(string)),
-        };
 
         var results = await session
-            .Sql(builder => builder
-                .Select<Status>()
-                .WhereRaw(clause, parameters)
-            )
+            .Sql(builder =>
+            {
+                builder
+                    .Statement()
+                    .Query("CREATE TABLE #identifiers (Id int);");
+
+                builder
+                    .Statement()
+                    .Query("INSERT INTO #identifiers (Id) SELECT CONVERT(int, value) FROM STRING_SPLIT(@Identifiers, @Seporator);")
+                    .Parameter("@Identifiers", values)
+                    .Parameter("@Seporator", ",");
+
+                builder
+                    .Select<Status>()
+                    .Tag()
+                    .From(tableAlias: "s")
+                    .Join(j => j
+                        .Left("Id", "s")
+                        .Right("Id", "#identifiers", null, "i")
+                    );
+            })
             .QueryAsync<Status>();
 
         results.Should().NotBeNull();

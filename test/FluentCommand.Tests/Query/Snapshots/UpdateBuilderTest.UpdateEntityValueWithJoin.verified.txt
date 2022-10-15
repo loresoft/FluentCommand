@@ -1,0 +1,6 @@
+﻿UPDATE [Task]
+SET [Description] = @p0000, [Updated] = @p0001
+OUTPUT [INSERTED].[Id]
+FROM [Task] AS [t]
+INNER JOIN [Priority] AS [p] ON [t].[PriorityId] = [p].[Id]
+WHERE ([p].[Id] >= @p0002);

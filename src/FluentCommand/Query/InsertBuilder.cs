@@ -21,13 +21,13 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     {
     }
 
-    protected HashSet<string> ColumnExpression { get; } = new();
+    protected HashSet<ColumnExpression> ColumnExpressions { get; } = new();
 
-    protected HashSet<string> OutputClause { get; } = new();
+    protected HashSet<ColumnExpression> OutputExpressions { get; } = new();
 
-    protected HashSet<string> ValueExpression { get; } = new();
+    protected HashSet<string> ValueExpressions { get; } = new();
 
-    protected string TableClause { get; private set; }
+    protected TableExpression TableExpression { get; private set; }
 
 
     public TBuilder Into(
@@ -35,7 +35,7 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         string tableSchema = null,
         string tableAlias = null)
     {
-        TableClause = QueryGenerator.FromClause(tableName, tableSchema, tableAlias);
+        TableExpression = new TableExpression(tableName, tableSchema, tableAlias);
 
         return (TBuilder)this;
     }
@@ -60,10 +60,10 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
 
         var paramterName = NextParameter();
 
-        var columnExpression = QueryGenerator.SelectClause(columnName);
+        var columnExpression = new ColumnExpression(columnName);
 
-        ColumnExpression.Add(columnExpression);
-        ValueExpression.Add(paramterName);
+        ColumnExpressions.Add(columnExpression);
+        ValueExpressions.Add(paramterName);
 
         Parameters.Add(new QueryParameter(paramterName, parameterValue, parameterType));
 
@@ -100,9 +100,9 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         string tableAlias = "INSERTED",
         string columnAlias = null)
     {
-        var outputClause = QueryGenerator.SelectClause(columnName, tableAlias, columnAlias);
+        var outputClause = new ColumnExpression(columnName, tableAlias, columnAlias);
 
-        OutputClause.Add(outputClause);
+        OutputExpressions.Add(outputClause);
 
         return (TBuilder)this;
     }
@@ -122,13 +122,14 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
 
     public override QueryStatement BuildStatement()
     {
-        var statement = QueryGenerator.BuildInsert(
-            tableClause: TableClause,
-            columnExpression: ColumnExpression,
-            outputClause: OutputClause,
-            valueExpression: ValueExpression,
-            commentExpression: CommentExpressions
-        );
+        var insertStatement = new InsertStatement(
+            TableExpression,
+            ColumnExpressions,
+            OutputExpressions,
+            ValueExpressions,
+            CommentExpressions);
+
+        var statement = QueryGenerator.BuildInsert(insertStatement);
 
         return new QueryStatement(statement, Parameters);
     }

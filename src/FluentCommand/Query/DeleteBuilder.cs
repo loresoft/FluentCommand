@@ -1,3 +1,4 @@
+using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
@@ -25,11 +26,13 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-    protected HashSet<string> OutputClause { get; } = new();
+    protected HashSet<ColumnExpression> OutputExpressions { get; } = new();
 
-    protected HashSet<string> FromClause { get; } = new();
+    protected HashSet<TableExpression> FromExpressions { get; } = new();
 
-    protected string TableClause { get; private set; }
+    protected HashSet<JoinExpression> JoinExpressions { get; } = new();
+
+    protected TableExpression TableExpression { get; private set; }
 
 
     public TBuilder Table(
@@ -37,7 +40,7 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
         string tableSchema = null,
         string tableAlias = null)
     {
-        TableClause = QueryGenerator.FromClause(tableName, tableSchema, tableAlias);
+        TableExpression = new TableExpression(tableName, tableSchema, tableAlias);
 
         return (TBuilder)this;
     }
@@ -61,9 +64,9 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
         string tableAlias = "DELETED",
         string columnAlias = null)
     {
-        var outputClause = QueryGenerator.SelectClause(columnName, tableAlias, columnAlias);
+        var outputClause = new ColumnExpression(columnName, tableAlias, columnAlias);
 
-        OutputClause.Add(outputClause);
+        OutputExpressions.Add(outputClause);
 
         return (TBuilder)this;
     }
@@ -81,43 +84,49 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
-    public TBuilder From(
+    public virtual TBuilder From(
         string tableName,
         string tableSchema = null,
         string tableAlias = null)
     {
-        var fromClause = QueryGenerator.FromClause(tableName, tableSchema, tableAlias);
+        var fromClause = new TableExpression(tableName, tableSchema, tableAlias);
 
-        FromClause.Add(fromClause);
+        FromExpressions.Add(fromClause);
 
         return (TBuilder)this;
     }
 
-
-    public TBuilder Where(Action<LogicalBuilder> builder)
+    public TBuilder FromRaw(string fromClause)
     {
-        var innerBuilder = new LogicalBuilder(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.And);
+        if (fromClause.HasValue())
+            FromExpressions.Add(new TableExpression(fromClause, IsRaw: true));
+
+        return (TBuilder)this;
+    }
+
+    public TBuilder Join(Action<JoinBuilder> builder)
+    {
+        var innerBuilder = new JoinBuilder(QueryGenerator, Parameters);
         builder(innerBuilder);
 
-        var statement = innerBuilder.BuildStatement();
-
-        if (statement != null)
-            WhereClause.Add(statement.Statement);
+        JoinExpressions.Add(innerBuilder.BuildExpression());
 
         return (TBuilder)this;
     }
+
 
     public override QueryStatement BuildStatement()
     {
-        var statement = QueryGenerator.BuildDelete(
-            tableClause: TableClause,
-            outputClause: OutputClause,
-            fromClause: FromClause,
-            whereClause: WhereClause,
-            commentExpression: CommentExpressions
-        );
+        var deleteStatement = new DeleteStatement(
+            TableExpression,
+            OutputExpressions,
+            FromExpressions,
+            JoinExpressions,
+            WhereExpressions,
+            CommentExpressions);
+
+        var statement = QueryGenerator.BuildDelete(deleteStatement);
 
         return new QueryStatement(statement, Parameters);
     }
-
 }

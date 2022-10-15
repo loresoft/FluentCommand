@@ -264,21 +264,10 @@ public class ListDataReader<T> : IDataReader where T : class
     }
 
 
-    private class ColumnMap
-    {
-        public ColumnMap(string propertyName, string columnName, Type type, int ordinal, Lazy<Func<object, object>> accessor)
-        {
-            PropertyName = propertyName;
-            ColumnName = columnName;
-            Type = type;
-            Ordinal = ordinal;
-            Accessor = accessor;
-        }
-
-        public string PropertyName { get; }
-        public string ColumnName { get; }
-        public Type Type { get; }
-        public int Ordinal { get; }
-        public Lazy<Func<object, object>> Accessor { get; }
-    }
+    private record struct ColumnMap(
+        string PropertyName,
+        string ColumnName,
+        Type Type,
+        int Ordinal,
+        Lazy<Func<object, object>> Accessor);
 }

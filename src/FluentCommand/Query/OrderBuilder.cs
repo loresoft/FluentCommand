@@ -9,15 +9,6 @@ public class OrderBuilder : OrderBuilder<OrderBuilder>
         : base(queryGenerator, parameters)
     {
     }
-
-    public override QueryStatement BuildStatement()
-    {
-        var statement = QueryGenerator.BuildOrder(
-            orderClause: OrderByClause
-        );
-
-        return new QueryStatement(statement, Parameters);
-    }
 }
 
 public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
@@ -28,7 +19,7 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     {
     }
 
-    protected HashSet<string> OrderByClause { get; } = new();
+    protected HashSet<SortExpression> SortExpressions { get; } = new();
 
 
     public TBuilder OrderBy(
@@ -43,9 +34,9 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
         string tableAlias,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        var orderClause = QueryGenerator.OrderClause(columnName, tableAlias, sortDirection);
+        var orderClause = new SortExpression(columnName, tableAlias, sortDirection);
 
-        OrderByClause.Add(orderClause);
+        SortExpressions.Add(orderClause);
 
         return (TBuilder)this;
     }
@@ -65,7 +56,7 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     public TBuilder OrderByRaw(string sortExpression)
     {
         if (sortExpression.HasValue())
-            OrderByClause.Add(sortExpression);
+            SortExpressions.Add(new SortExpression(sortExpression, IsRaw: true));
 
         return (TBuilder)this;
     }
@@ -84,8 +75,18 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
             throw new ArgumentNullException(nameof(sortExpressions));
 
         foreach (var sortExpression in sortExpressions)
-            OrderByClause.Add(sortExpression);
+            OrderByRaw(sortExpression);
 
         return (TBuilder)this;
+    }
+
+    public override QueryStatement BuildStatement()
+    {
+        if (SortExpressions == null || SortExpressions.Count == 0)
+            return null;
+
+        var statement = QueryGenerator.BuildOrder(SortExpressions);
+
+        return new QueryStatement(statement, Parameters);
     }
 }

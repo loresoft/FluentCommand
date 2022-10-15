@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 using FluentCommand.Extensions;
 
@@ -320,8 +317,8 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
     public void WriteToServer<TEntity>(IEnumerable<TEntity> data)
         where TEntity : class
     {
-        var dataTable = data.ToDataTable();
-        WriteToServer(dataTable);
+        using var dataReader = new ListDataReader<TEntity>(data);
+        WriteToServer(dataReader);
     }
 
     /// <summary>
@@ -336,11 +333,10 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         {
             _dataSession.EnsureConnection();
 
-            using (var bulkCopy = Create())
-            {
-                bulkCopy.WriteToServer(rows);
-                bulkCopy.Close();
-            }
+            using var bulkCopy = Create();
+
+            bulkCopy.WriteToServer(rows);
+            bulkCopy.Close();
         }
         finally
         {
@@ -376,11 +372,10 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
 
             _dataSession.EnsureConnection();
 
-            using (var bulkCopy = Create())
-            {
-                bulkCopy.WriteToServer(table, rowState);
-                bulkCopy.Close();
-            }
+            using var bulkCopy = Create();
+
+            bulkCopy.WriteToServer(table, rowState);
+            bulkCopy.Close();
         }
         finally
         {
@@ -401,11 +396,10 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         {
             _dataSession.EnsureConnection();
 
-            using (var bulkCopy = Create())
-            {
-                bulkCopy.WriteToServer(reader);
-                bulkCopy.Close();
-            }
+            using var bulkCopy = Create();
+
+            bulkCopy.WriteToServer(reader);
+            bulkCopy.Close();
         }
         finally
         {

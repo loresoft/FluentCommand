@@ -25,17 +25,17 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     {
     }
 
-    protected HashSet<string> SelectClause { get; } = new();
+    protected HashSet<ColumnExpression> SelectExpressions { get; } = new();
 
-    protected HashSet<string> FromClause { get; } = new();
+    protected HashSet<TableExpression> FromExpressions { get; } = new();
 
-    protected HashSet<string> TemporalClause { get; } = new();
+    protected HashSet<SortExpression> SortExpressions { get; } = new();
 
-    protected HashSet<string> OrderByClause { get; } = new();
+    protected HashSet<GroupExpression> GroupExpressions { get; } = new();
 
-    protected HashSet<string> GroupByClause { get; } = new();
+    protected HashSet<JoinExpression> JoinExpressions { get; } = new();
 
-    protected HashSet<string> LimitClause { get; } = new();
+    protected HashSet<LimitExpression> LimitExpressions { get; } = new();
 
 
     public TBuilder Column(
@@ -43,9 +43,9 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         string tableAlias = null,
         string columnAlias = null)
     {
-        var selectClause = QueryGenerator.SelectClause(columnName, tableAlias, columnAlias);
+        var selectClause = new ColumnExpression(columnName, tableAlias, columnAlias);
 
-        SelectClause.Add(selectClause);
+        SelectExpressions.Add(selectClause);
 
         return (TBuilder)this;
     }
@@ -62,13 +62,15 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         return Column(columnName, tableAlias, columnAlias);
     }
 
-    public virtual TBuilder Columns(IEnumerable<string> columnNames)
+    public virtual TBuilder Columns(
+        IEnumerable<string> columnNames,
+        string tableAlias = null)
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
 
         foreach (var column in columnNames)
-            Column(column);
+            Column(column, tableAlias);
 
         return (TBuilder)this;
     }
@@ -79,9 +81,9 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         string tableAlias = null,
         string columnAlias = null)
     {
-        var selectClause = QueryGenerator.AggregateClause(AggregateFunctions.Count, columnName, tableAlias, columnAlias);
+        var selectClause = new AggergateExpression(AggregateFunctions.Count, columnName, tableAlias, columnAlias);
 
-        SelectClause.Add(selectClause);
+        SelectExpressions.Add(selectClause);
 
         return (TBuilder)this;
     }
@@ -92,22 +94,22 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         string tableAlias = null,
         string columnAlias = null)
     {
-        var selectClause = QueryGenerator.AggregateClause(function, columnName, tableAlias, columnAlias);
+        var selectClause = new AggergateExpression(function, columnName, tableAlias, columnAlias);
 
-        SelectClause.Add(selectClause);
+        SelectExpressions.Add(selectClause);
 
         return (TBuilder)this;
     }
 
 
-    public TBuilder From(
+    public virtual TBuilder From(
         string tableName,
         string tableSchema = null,
         string tableAlias = null)
     {
-        var fromClause = QueryGenerator.FromClause(tableName, tableSchema, tableAlias);
+        var fromClause = new TableExpression(tableName, tableSchema, tableAlias);
 
-        FromClause.Add(fromClause);
+        FromExpressions.Add(fromClause);
 
         return (TBuilder)this;
     }
@@ -115,20 +117,18 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder FromRaw(string fromClause)
     {
         if (fromClause.HasValue())
-            FromClause.Add(fromClause);
+            FromExpressions.Add(new TableExpression(fromClause, IsRaw: true));
 
         return (TBuilder)this;
     }
 
-    public TBuilder Where(Action<LogicalBuilder> builder)
+
+    public TBuilder Join(Action<JoinBuilder> builder)
     {
-        var innerBuilder = new LogicalBuilder(QueryGenerator, Parameters, CommentExpressions, LogicalOperators.And);
+        var innerBuilder = new JoinBuilder(QueryGenerator, Parameters);
         builder(innerBuilder);
 
-        var statement = innerBuilder.BuildStatement();
-
-        if (statement != null)
-            WhereClause.Add(statement.Statement);
+        JoinExpressions.Add(innerBuilder.BuildExpression());
 
         return (TBuilder)this;
     }
@@ -146,16 +146,24 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         string tableAlias,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        var orderClause = QueryGenerator.OrderClause(columnName, tableAlias, sortDirection);
+        var orderClause = new SortExpression(columnName, tableAlias, sortDirection);
 
-        OrderByClause.Add(orderClause);
+        SortExpressions.Add(orderClause);
 
         return (TBuilder)this;
     }
 
     public TBuilder OrderByIf(
         string columnName,
-        string tableAlias = null,
+        SortDirections sortDirection = SortDirections.Ascending,
+        Func<string, bool> condition = null)
+    {
+        return OrderByIf(columnName, null, sortDirection, condition);
+    }
+
+    public TBuilder OrderByIf(
+        string columnName,
+        string tableAlias,
         SortDirections sortDirection = SortDirections.Ascending,
         Func<string, bool> condition = null)
     {
@@ -168,7 +176,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder OrderByRaw(string sortExpression)
     {
         if (sortExpression.HasValue())
-            OrderByClause.Add(sortExpression);
+            SortExpressions.Add(new SortExpression(sortExpression, IsRaw: true));
 
         return (TBuilder)this;
     }
@@ -189,7 +197,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
             throw new ArgumentNullException(nameof(sortExpressions));
 
         foreach (var sortExpression in sortExpressions)
-            OrderByClause.Add(sortExpression);
+            SortExpressions.Add(new SortExpression(sortExpression, IsRaw: true));
 
         return (TBuilder)this;
     }
@@ -199,9 +207,9 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         string columnName,
         string tableAlias = null)
     {
-        var orderClause = QueryGenerator.GroupClause(columnName, tableAlias);
+        var orderClause = new GroupExpression(columnName, tableAlias);
 
-        GroupByClause.Add(orderClause);
+        GroupExpressions.Add(orderClause);
 
         return (TBuilder)this;
     }
@@ -213,8 +221,8 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         if (size <= 0)
             return (TBuilder)this;
 
-        var limitClause = QueryGenerator.LimitClause(offset: offset, size: size);
-        LimitClause.Add(limitClause);
+        var limitClause = new LimitExpression(offset, size);
+        LimitExpressions.Add(limitClause);
 
         return (TBuilder)this;
     }
@@ -226,23 +234,26 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
             return (TBuilder)this;
 
         int offset = Math.Max(pageSize * (page - 1), 0);
-        var limitClause = QueryGenerator.LimitClause(offset: offset, size: pageSize);
+        var limitClause = new LimitExpression(offset, pageSize);
 
-        LimitClause.Add(limitClause);
+        LimitExpressions.Add(limitClause);
 
         return (TBuilder)this;
     }
 
     public override QueryStatement BuildStatement()
     {
-        var statement = QueryGenerator.BuildSelect(
-            selectClause: SelectClause,
-            fromClause: FromClause,
-            whereClause: WhereClause,
-            orderByClause: OrderByClause,
-            groupByClause: GroupByClause,
-            limitClause: LimitClause,
-            commentExpression: CommentExpressions);
+        var selectStatement = new SelectStatement(
+            SelectExpressions,
+            FromExpressions,
+            JoinExpressions,
+            WhereExpressions,
+            SortExpressions,
+            GroupExpressions,
+            LimitExpressions,
+            CommentExpressions);
+
+        var statement = QueryGenerator.BuildSelect(selectStatement);
 
         return new QueryStatement(statement, Parameters);
     }

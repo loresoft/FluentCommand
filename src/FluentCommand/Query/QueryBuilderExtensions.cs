@@ -1,12 +1,12 @@
-using System;
-
 namespace FluentCommand.Query;
 
 public static class QueryBuilderExtensions
 {
     public static IDataCommand Sql(this IDataSession dataSession, Action<QueryBuilder> builder)
     {
-        var queryBuilder = new QueryBuilder(dataSession.QueryGenerator);
+        var queryParameters = new List<QueryParameter>();
+        var queryBuilder = new QueryBuilder(dataSession.QueryGenerator, queryParameters);
+
         builder(queryBuilder);
 
         var statement = queryBuilder.BuildStatement();

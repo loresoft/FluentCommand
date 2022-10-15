@@ -1,0 +1,5 @@
+﻿/* Caller; SelectEntityTemporalBuilder() in SelectBuilderTest.cs:line 143 */
+SELECT [Id], [Name]
+FROM [Status] FOR SYSTEM_TIME AS OF @p0000
+WHERE ([Id] = @p0001)
+ORDER BY [Name] ASC;

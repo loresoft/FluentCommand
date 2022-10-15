@@ -1,4 +1,6 @@
-﻿using FluentCommand.Entities;
+using System.Collections.Generic;
+
+using FluentCommand.Entities;
 using FluentCommand.Query;
 using FluentCommand.Query.Generators;
 
@@ -15,7 +17,8 @@ public class QueryBuilderTests
     public async System.Threading.Tasks.Task QueryBuilderSelect()
     {
         var sqlProvider = new SqlServerGenerator();
-        var queryBuilder = new QueryBuilder(sqlProvider);
+        var queryParameters = new List<QueryParameter>();
+        var queryBuilder = new QueryBuilder(sqlProvider, queryParameters);
 
         queryBuilder.Select<Status>()
             .Column("Id")

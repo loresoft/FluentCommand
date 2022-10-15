@@ -1,6 +1,5 @@
 using System.Linq.Expressions;
 
-using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
 
@@ -82,7 +81,7 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     public override QueryStatement BuildStatement()
     {
         // add table and schema from attribute if not set
-        if (TableClause.IsNullOrWhiteSpace())
+        if (TableExpression == null)
             Into(_typeAccessor.TableName, _typeAccessor.TableSchema);
 
         return base.BuildStatement();

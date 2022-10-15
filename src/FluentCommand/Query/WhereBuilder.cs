@@ -1,3 +1,4 @@
+using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
@@ -15,7 +16,7 @@ public class WhereBuilder : WhereBuilder<WhereBuilder>
     public override QueryStatement BuildStatement()
     {
         var statement = QueryGenerator.BuildWhere(
-            whereClause: WhereClause
+            whereExpressions: WhereExpressions
         );
 
         return new QueryStatement(statement, Parameters);
@@ -32,19 +33,27 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         LogicalOperator = logicalOperator;
     }
 
-    protected HashSet<string> WhereClause { get; } = new();
+    protected HashSet<WhereExpression> WhereExpressions { get; } = new();
 
     protected LogicalOperators LogicalOperator { get; }
 
     public TBuilder Where<TValue>(
+       string columnName,
+       TValue parameterValue,
+       FilterOperators filterOperator = FilterOperators.Equal)
+    {
+        return Where(columnName, parameterValue, null, filterOperator);
+    }
+
+    public TBuilder Where<TValue>(
         string columnName,
         TValue parameterValue,
+        string tableAlias = null,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         var paramterName = NextParameter();
-        var whereClause = QueryGenerator.WhereClause(columnName, paramterName, filterOperator);
 
-        WhereClause.Add(whereClause);
+        WhereExpressions.Add(new WhereExpression(columnName, paramterName, tableAlias, filterOperator));
         Parameters.Add(new QueryParameter(paramterName, parameterValue, typeof(TValue)));
 
         return (TBuilder)this;
@@ -56,10 +65,20 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         FilterOperators filterOperator = FilterOperators.Equal,
         Func<string, TValue, bool> condition = null)
     {
+        return WhereIf(columnName, parameterValue, null, filterOperator, condition);
+    }
+
+    public TBuilder WhereIf<TValue>(
+        string columnName,
+        TValue parameterValue,
+        string tableAlias = null,
+        FilterOperators filterOperator = FilterOperators.Equal,
+        Func<string, TValue, bool> condition = null)
+    {
         if (condition != null && !condition(columnName, parameterValue))
             return (TBuilder)this;
 
-        return Where(columnName, parameterValue, filterOperator);
+        return Where(columnName, parameterValue, tableAlias, filterOperator);
     }
 
     public TBuilder WhereRaw(
@@ -69,7 +88,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         if (string.IsNullOrWhiteSpace(whereClause))
             throw new ArgumentException($"'{nameof(whereClause)}' cannot be null or empty.", nameof(whereClause));
 
-        WhereClause.Add(whereClause);
+        WhereExpressions.Add(new WhereExpression(whereClause, IsRaw: true));
 
         if (parametes != null)
             Parameters.AddRange(parametes);
@@ -86,5 +105,32 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
             return (TBuilder)this;
 
         return WhereRaw(whereClause, parametes);
+    }
+
+    public TBuilder WhereOr(Action<LogicalBuilder> builder)
+    {
+        var innerBuilder = new LogicalBuilder(QueryGenerator, Parameters, LogicalOperators.Or);
+        builder(innerBuilder);
+
+        var statement = innerBuilder.BuildStatement();
+
+        if (statement != null || statement.Statement.HasValue())
+            WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
+
+        return (TBuilder)this;
+    }
+
+    public TBuilder WhereAnd(Action<LogicalBuilder> builder)
+    {
+        var innerBuilder = new LogicalBuilder(QueryGenerator, Parameters, LogicalOperators.And);
+
+        builder(innerBuilder);
+
+        var statement = innerBuilder.BuildStatement();
+
+        if (statement != null || statement.Statement.HasValue())
+            WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
+
+        return (TBuilder)this;
     }
 }

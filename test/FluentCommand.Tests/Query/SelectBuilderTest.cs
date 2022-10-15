@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -124,6 +125,62 @@ public class SelectBuilderTest
             .Where(p => p.Id, 1)
             .OrderBy(p => p.Name);
 
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task SelectEntityTemporalBuilder()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters, LogicalOperators.And)
+            .Tag()
+            .Column(p => p.Id)
+            .Column(p => p.Name)
+            .Temporal(t => t.AsOf(DateTime.Now))
+            .Where(p => p.Id, 1)
+            .OrderBy(p => p.Name);
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task SelectEntityJoinBuilder()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<Task>(sqlProvider, parameters, LogicalOperators.And)
+            .Tag()
+            .Column(p => p.Id, "t")
+            .Column(p => p.Description, "t")
+            .Column(p => p.DueDate, "t")
+            .Column<User>(p => p.DisplayName, "u")
+            .Column<User>(p => p.EmailAddress, "u", "Email")
+            .Column<Status>(p => p.Name, "s", "Status")
+            .From(tableAlias: "t")
+            .Join<Status>(j => j
+                .Left(p => p.StatusId, "t")
+                .Right(p => p.Id, "s")
+            )
+            .Join<User>(j => j
+                .Left(p => p.AssignedId, "t")
+                .Right(p => p.Id, "u")
+                .Type(JoinTypes.Left)
+            )
+            .Where(p => p.PriorityId, 1, "t")
+            .Where<User, string>(p => p.EmailAddress, "@email.com", "u", FilterOperators.NotEqual)
+            .OrderBy(p => p.PriorityId, "t");
 
         var queryStatement = builder.BuildStatement();
 

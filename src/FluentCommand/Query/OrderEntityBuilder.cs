@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
@@ -43,17 +43,5 @@ public class OrderEntityBuilder<TEntity> : OrderBuilder<OrderEntityBuilder<TEnti
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
         return OrderByIf(propertyAccessor.Column, tableAlias, sortDirection, condition);
-    }
-
-    public override QueryStatement BuildStatement()
-    {
-        if (OrderByClause == null || OrderByClause.Count == 0)
-            return null;
-
-        var statement = QueryGenerator.BuildOrder(
-            orderClause: OrderByClause
-        );
-
-        return new QueryStatement(statement, Parameters);
     }
 }
