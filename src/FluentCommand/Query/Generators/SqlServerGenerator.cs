@@ -270,7 +270,7 @@ public class SqlServerGenerator : IQueryGenerator
         {
             whereBuilder
                 .Append("(")
-                .AppendJoin(" AND ", whereExpressions)
+                .AppendJoin(" AND ", whereExpressions.Select(w => WhereExpression(w)))
                 .Append(")");
         }
 
@@ -287,7 +287,7 @@ public class SqlServerGenerator : IQueryGenerator
         if (sortExpressions?.Count > 0)
         {
             orderBuilder
-                .AppendJoin(", ", sortExpressions);
+                .AppendJoin(", ", sortExpressions.Select(s => SortExpression(s)));
         }
 
         return StringBuilderCache.ToString(orderBuilder);
