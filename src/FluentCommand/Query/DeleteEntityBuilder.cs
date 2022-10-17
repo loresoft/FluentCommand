@@ -136,7 +136,7 @@ public class DeleteEntityBuilder<TEntity>
 
         var statement = innerBuilder.BuildStatement();
 
-        if (statement != null || statement.Statement.HasValue())
+        if (statement != null && statement.Statement.HasValue())
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return this;
@@ -150,7 +150,7 @@ public class DeleteEntityBuilder<TEntity>
 
         var statement = innerBuilder.BuildStatement();
 
-        if (statement != null || statement.Statement.HasValue())
+        if (statement != null && statement.Statement.HasValue())
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return this;

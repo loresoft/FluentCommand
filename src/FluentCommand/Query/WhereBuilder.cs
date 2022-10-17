@@ -114,7 +114,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
 
         var statement = innerBuilder.BuildStatement();
 
-        if (statement != null || statement.Statement.HasValue())
+        if (statement != null && statement.Statement.HasValue())
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return (TBuilder)this;
@@ -128,7 +128,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
 
         var statement = innerBuilder.BuildStatement();
 
-        if (statement != null || statement.Statement.HasValue())
+        if (statement != null && statement.Statement.HasValue())
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return (TBuilder)this;
