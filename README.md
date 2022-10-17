@@ -40,6 +40,7 @@ In your Package Manager settings add the following package source for developmen
 - Automatic creating of entity from DataReader via Dapper
 - Create Dynamic objects from DataReader via Dapper
 - Handles multiple result sets
+- Basic SQL query builder
 
 ### Configuration
 
