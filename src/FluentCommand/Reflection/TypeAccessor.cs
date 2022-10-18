@@ -29,7 +29,7 @@ public class TypeAccessor
 
         Type = type;
         _constructor = new Lazy<Func<object>>(() => ExpressionFactory.CreateConstructor(Type));
-        _tableAttribute = new Lazy<TableAttribute>(() => type.GetCustomAttribute<TableAttribute>());
+        _tableAttribute = new Lazy<TableAttribute>(() => type.GetCustomAttribute<TableAttribute>(true));
     }
 
     /// <summary>
@@ -405,11 +405,8 @@ public class TypeAccessor
         if (property == null)
             throw new ArgumentException("The member access expression does not access a property.", nameof(memberExpression));
 
-        var getMethod = property.GetGetMethod(true);
-        if (getMethod.IsStatic)
-            throw new ArgumentException("The referenced property is a static property.", nameof(memberExpression));
-
-        return CreateAccessor(property);
+        // find by name because we can't trust the PropertyInfo here as it could be from an interface or inherited class
+        return FindProperty(property.Name);
     }
 
     private static PropertyInfo FindProperty(Type type, string name, BindingFlags flags)

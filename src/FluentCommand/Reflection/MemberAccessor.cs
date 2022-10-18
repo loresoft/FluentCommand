@@ -24,11 +24,11 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     {
         MemberInfo = memberInfo ?? throw new ArgumentNullException(nameof(memberInfo));
 
-        _columnAttribute = new Lazy<ColumnAttribute>(() => MemberInfo.GetCustomAttribute<ColumnAttribute>());
-        _keyAttribute = new Lazy<KeyAttribute>(() => MemberInfo.GetCustomAttribute<KeyAttribute>());
-        _notMappedAttribute = new Lazy<NotMappedAttribute>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>());
-        _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>());
-        _concurrenctCheckAttribute = new Lazy<ConcurrencyCheckAttribute>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>());
+        _columnAttribute = new Lazy<ColumnAttribute>(() => MemberInfo.GetCustomAttribute<ColumnAttribute>(true));
+        _keyAttribute = new Lazy<KeyAttribute>(() => MemberInfo.GetCustomAttribute<KeyAttribute>(true));
+        _notMappedAttribute = new Lazy<NotMappedAttribute>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>(true));
+        _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>(true));
+        _concurrenctCheckAttribute = new Lazy<ConcurrencyCheckAttribute>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>(true));
     }
 
 
