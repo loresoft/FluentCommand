@@ -50,8 +50,6 @@ public class DataParameter<TValue> : IDataParameter<TValue>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
     public IDataParameter<TValue> Value(TValue value)
     {
-        object innerValue = value;
-
         // guess type only if not already set
         if (!_hasType)
         {
@@ -61,7 +59,7 @@ public class DataParameter<TValue> : IDataParameter<TValue>
             _parameter.DbType = valueType.GetUnderlyingType().ToDbType();
         }
 
-        _parameter.Value = innerValue ?? DBNull.Value;
+        _parameter.Value = _dataCommand.ConvertParameterValue(value);
 
         _hasValue = true;
 

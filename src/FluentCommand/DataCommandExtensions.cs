@@ -61,15 +61,12 @@ public static class DataCommandExtensions
         string name,
         TParameter value)
     {
-        // convert to object
-        object innerValue = value;
-
         // handle value type by using actual value
         var valueType = value != null ? value.GetType() : typeof(TParameter);
 
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
-        parameter.Value = innerValue ?? DBNull.Value;
+        parameter.Value = dataCommand.ConvertParameterValue(value);
         parameter.DbType = valueType.GetUnderlyingType().ToDbType();
         parameter.Direction = ParameterDirection.Input;
 
@@ -94,7 +91,7 @@ public static class DataCommandExtensions
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
-        parameter.Value = value ?? DBNull.Value;
+        parameter.Value = dataCommand.ConvertParameterValue(value);
         parameter.DbType = type.GetUnderlyingType().ToDbType();
         parameter.Direction = ParameterDirection.Input;
 
@@ -217,11 +214,9 @@ public static class DataCommandExtensions
         TParameter value,
         Action<TParameter> callback)
     {
-        object innerValue = value;
-
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
-        parameter.Value = innerValue ?? DBNull.Value;
+        parameter.Value = dataCommand.ConvertParameterValue(value);
         parameter.DbType = typeof(TParameter).GetUnderlyingType().ToDbType();
         parameter.Direction = ParameterDirection.InputOutput;
 

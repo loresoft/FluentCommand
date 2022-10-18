@@ -27,8 +27,7 @@ public class DataQueryLogger : IDataQueryLogger
     /// <param name="command">The command to log.</param>
     /// <param name="duration">The execution duration.</param>
     /// <param name="exception">The exception thrown when executing the command.</param>
-    /// <exception cref="System.NotImplementedException"></exception>
-    public void LogCommand(IDbCommand command, TimeSpan duration, Exception exception = null)
+    public virtual void LogCommand(IDbCommand command, TimeSpan duration, Exception exception = null)
     {
         if (_logger == null)
             return;
