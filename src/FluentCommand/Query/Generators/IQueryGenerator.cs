@@ -18,7 +18,7 @@ public interface IQueryGenerator
 
     string CommentExpression(string comment);
 
-    string AggregateExpression(AggergateExpression aggergateExpression);
+    string AggregateExpression(AggregateExpression aggregateExpression);
 
     string TableExpression(TableExpression tableExpression);
 

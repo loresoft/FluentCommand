@@ -32,7 +32,7 @@ public record GroupExpression(
     bool IsRaw = false)
     : ColumnExpression(ColumnName, TableAlias, null, IsRaw);
 
-public record AggergateExpression(
+public record AggregateExpression(
     AggregateFunctions Aggregate,
     string ColumnName,
     string TableAlias = null,

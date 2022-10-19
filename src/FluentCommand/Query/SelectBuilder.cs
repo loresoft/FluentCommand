@@ -81,7 +81,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         string tableAlias = null,
         string columnAlias = null)
     {
-        var selectClause = new AggergateExpression(AggregateFunctions.Count, columnName, tableAlias, columnAlias);
+        var selectClause = new AggregateExpression(AggregateFunctions.Count, columnName, tableAlias, columnAlias);
 
         SelectExpressions.Add(selectClause);
 
@@ -94,7 +94,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         string tableAlias = null,
         string columnAlias = null)
     {
-        var selectClause = new AggergateExpression(function, columnName, tableAlias, columnAlias);
+        var selectClause = new AggregateExpression(function, columnName, tableAlias, columnAlias);
 
         SelectExpressions.Add(selectClause);
 

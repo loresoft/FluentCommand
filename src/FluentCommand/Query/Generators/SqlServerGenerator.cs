@@ -23,14 +23,14 @@ public class SqlServerGenerator : IQueryGenerator
             .Append("SELECT ");
 
         if (selectStatement.SelectExpressions?.Count > 0)
-            selectBuilder.AppendJoin(", ", selectStatement.SelectExpressions.Select(s => SelectExpression(s)));
+            selectBuilder.AppendJoin(", ", selectStatement.SelectExpressions.Select(SelectExpression));
         else
             selectBuilder.Append("*");
 
         selectBuilder
             .AppendLine()
             .Append("FROM ")
-            .AppendJoin(", ", selectStatement.FromExpressions.Select(f => TableExpression(f)));
+            .AppendJoin(", ", selectStatement.FromExpressions.Select(TableExpression));
 
         if (selectStatement.JoinExpressions?.Count > 0)
         {
@@ -48,7 +48,7 @@ public class SqlServerGenerator : IQueryGenerator
                 .AppendLine()
                 .Append("WHERE ")
                 .Append("(")
-                .AppendJoin(" AND ", selectStatement.WhereExpressions.Select(w => WhereExpression(w)))
+                .AppendJoin(" AND ", selectStatement.WhereExpressions.Select(WhereExpression))
                 .Append(")");
         }
 
@@ -57,7 +57,7 @@ public class SqlServerGenerator : IQueryGenerator
             selectBuilder
                 .AppendLine()
                 .Append("GROUP BY ")
-                .AppendJoin(", ", selectStatement.GroupExpressions.Select(g => GroupExpression(g)));
+                .AppendJoin(", ", selectStatement.GroupExpressions.Select(GroupExpression));
         }
 
         if (selectStatement.SortExpressions?.Count > 0)
@@ -65,14 +65,14 @@ public class SqlServerGenerator : IQueryGenerator
             selectBuilder
                 .AppendLine()
                 .Append("ORDER BY ")
-                .AppendJoin(", ", selectStatement.SortExpressions.Select(s => SortExpression(s)));
+                .AppendJoin(", ", selectStatement.SortExpressions.Select(SortExpression));
         }
 
         if (selectStatement.LimitExpressions?.Count > 0)
         {
             selectBuilder
                 .AppendLine()
-                .AppendJoin(" ", selectStatement.LimitExpressions.Select(l => LimitExpression(l)));
+                .AppendJoin(" ", selectStatement.LimitExpressions.Select(LimitExpression));
         }
 
         selectBuilder.AppendLine(";");
@@ -109,7 +109,7 @@ public class SqlServerGenerator : IQueryGenerator
         {
             insertBuilder
                 .Append(" (")
-                .AppendJoin(", ", insertStatement.ColumnExpressions.Select(c => ColumnExpression(c)))
+                .AppendJoin(", ", insertStatement.ColumnExpressions.Select(ColumnExpression))
                 .Append(")");
         }
 
@@ -118,7 +118,7 @@ public class SqlServerGenerator : IQueryGenerator
             insertBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(", ", insertStatement.OutputExpressions.Select(o => ColumnExpression(o)));
+                .AppendJoin(", ", insertStatement.OutputExpressions.Select(ColumnExpression));
         }
 
         insertBuilder
@@ -155,14 +155,14 @@ public class SqlServerGenerator : IQueryGenerator
             .Append(table)
             .AppendLine()
             .Append("SET ")
-            .AppendJoin(", ", updateStatement.UpdateExpressions.Select(u => UpdateExpression(u)));
+            .AppendJoin(", ", updateStatement.UpdateExpressions.Select(UpdateExpression));
 
         if (updateStatement.OutputExpressions?.Count > 0)
         {
             updateBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(", ", updateStatement.OutputExpressions.Select(o => ColumnExpression(o)));
+                .AppendJoin(", ", updateStatement.OutputExpressions.Select(ColumnExpression));
         }
 
         if (updateStatement.FromExpressions?.Count > 0)
@@ -170,7 +170,7 @@ public class SqlServerGenerator : IQueryGenerator
             updateBuilder
                 .AppendLine()
                 .Append("FROM ")
-                .AppendJoin(", ", updateStatement.FromExpressions.Select(f => TableExpression(f)));
+                .AppendJoin(", ", updateStatement.FromExpressions.Select(TableExpression));
         }
 
         if (updateStatement.JoinExpressions?.Count > 0)
@@ -189,7 +189,7 @@ public class SqlServerGenerator : IQueryGenerator
                 .AppendLine()
                 .Append("WHERE ")
                 .Append("(")
-                .AppendJoin(" AND ", updateStatement.WhereExpressions.Select(w => WhereExpression(w)))
+                .AppendJoin(" AND ", updateStatement.WhereExpressions.Select(WhereExpression))
                 .Append(")");
         }
 
@@ -223,7 +223,7 @@ public class SqlServerGenerator : IQueryGenerator
             deleteBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(", ", deleteStatement.OutputExpressions.Select(o => ColumnExpression(o)));
+                .AppendJoin(", ", deleteStatement.OutputExpressions.Select(ColumnExpression));
         }
 
         if (deleteStatement.FromExpressions?.Count > 0)
@@ -231,7 +231,7 @@ public class SqlServerGenerator : IQueryGenerator
             deleteBuilder
                 .AppendLine()
                 .Append("FROM ")
-                .AppendJoin(", ", deleteStatement.FromExpressions.Select(f => TableExpression(f)));
+                .AppendJoin(", ", deleteStatement.FromExpressions.Select(TableExpression));
         }
 
         if (deleteStatement.JoinExpressions?.Count > 0)
@@ -250,7 +250,7 @@ public class SqlServerGenerator : IQueryGenerator
                 .AppendLine()
                 .Append("WHERE ")
                 .Append("(")
-                .AppendJoin(" AND ", deleteStatement.WhereExpressions.Select(w => WhereExpression(w)))
+                .AppendJoin(" AND ", deleteStatement.WhereExpressions.Select(WhereExpression))
                 .Append(")");
         }
 
@@ -270,7 +270,7 @@ public class SqlServerGenerator : IQueryGenerator
         {
             whereBuilder
                 .Append("(")
-                .AppendJoin(" AND ", whereExpressions.Select(w => WhereExpression(w)))
+                .AppendJoin(" AND ", whereExpressions.Select(WhereExpression))
                 .Append(")");
         }
 
@@ -287,7 +287,7 @@ public class SqlServerGenerator : IQueryGenerator
         if (sortExpressions?.Count > 0)
         {
             orderBuilder
-                .AppendJoin(", ", sortExpressions.Select(s => SortExpression(s)));
+                .AppendJoin(", ", sortExpressions.Select(SortExpression));
         }
 
         return StringBuilderCache.ToString(orderBuilder);
@@ -301,8 +301,8 @@ public class SqlServerGenerator : IQueryGenerator
 
     public virtual string SelectExpression(ColumnExpression columnExpression)
     {
-        if (columnExpression is AggergateExpression aggergateExpression)
-            return AggregateExpression(aggergateExpression);
+        if (columnExpression is AggregateExpression aggregateExpression)
+            return AggregateExpression(aggregateExpression);
 
         return ColumnExpression(columnExpression);
     }
@@ -330,17 +330,17 @@ public class SqlServerGenerator : IQueryGenerator
         return clause;
     }
 
-    public virtual string AggregateExpression(AggergateExpression aggergateExpression)
+    public virtual string AggregateExpression(AggregateExpression aggregateExpression)
     {
-        if (aggergateExpression is null)
-            throw new ArgumentNullException(nameof(aggergateExpression));
+        if (aggregateExpression is null)
+            throw new ArgumentNullException(nameof(aggregateExpression));
 
-        if (aggergateExpression.IsRaw)
-            return aggergateExpression.ColumnName;
+        if (aggregateExpression.IsRaw)
+            return aggregateExpression.ColumnName;
 
-        var selectClause = ColumnExpression(aggergateExpression);
+        var selectClause = ColumnExpression(aggregateExpression);
 
-        return aggergateExpression.Aggregate switch
+        return aggregateExpression.Aggregate switch
         {
             AggregateFunctions.Average => $"AVG({selectClause})",
             AggregateFunctions.Count => $"COUNT({selectClause})",
@@ -419,8 +419,8 @@ public class SqlServerGenerator : IQueryGenerator
 
         return whereExpression.FilterOperator switch
         {
-            FilterOperators.StartsWith => $"{columnName} LIKE '%' + {whereExpression.ParameterName}",
-            FilterOperators.EndsWith => $"{columnName} LIKE {whereExpression.ParameterName} + '%'",
+            FilterOperators.StartsWith => $"{columnName} LIKE {whereExpression.ParameterName} + '%'",
+            FilterOperators.EndsWith => $"{columnName} LIKE '%' + {whereExpression.ParameterName}",
             FilterOperators.Contains => $"{columnName} LIKE '%' + {whereExpression.ParameterName} + '%'",
             FilterOperators.Equal => $"{columnName} = {whereExpression.ParameterName}",
             FilterOperators.NotEqual => $"{columnName} != {whereExpression.ParameterName}",
@@ -440,11 +440,11 @@ public class SqlServerGenerator : IQueryGenerator
             return string.Empty;
 
         var stringBuilder = StringBuilderCache.Acquire();
-        var oparator = logicalOperator == LogicalOperators.And ? " AND " : " OR ";
+        var logical = logicalOperator == LogicalOperators.And ? " AND " : " OR ";
 
         stringBuilder
             .Append("(")
-            .AppendJoin(oparator, whereExpressions.Select(w => WhereExpression(w)))
+            .AppendJoin(logical, whereExpressions.Select(WhereExpression))
             .Append(")");
 
         return StringBuilderCache.ToString(stringBuilder);
