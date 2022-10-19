@@ -86,6 +86,25 @@ public class SelectEntityBuilder<TEntity>
         return this;
     }
 
+    public SelectEntityBuilder<TEntity> Columns(
+        string tableAlias = null)
+    {
+        var properties = _typeAccessor.GetProperties();
+
+        foreach (var property in properties)
+        {
+            if (property.IsNotMapped)
+                continue;
+
+            // alias column as property name if don't match
+            if (property.Name == property.Column)
+                Column(property.Column, tableAlias);
+            else
+                Column(property.Column, tableAlias, property.Name);
+        }
+
+        return this;
+    }
 
     public SelectEntityBuilder<TEntity> Count<TValue>(
         Expression<Func<TEntity, TValue>> property,
