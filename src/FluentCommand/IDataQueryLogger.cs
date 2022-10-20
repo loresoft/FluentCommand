@@ -13,6 +13,7 @@ public interface IDataQueryLogger
     /// <param name="command">The command to log.</param>
     /// <param name="duration">The execution duration.</param>
     /// <param name="exception">The exception thrown when executing the command.</param>
+    /// <param name="state">The state used to control logging.</param>
     /// <exception cref="System.NotImplementedException"></exception>
-    void LogCommand(IDbCommand command, TimeSpan duration, Exception exception = null);
+    void LogCommand(IDbCommand command, TimeSpan duration, Exception exception = null, object state = null);
 }

@@ -96,6 +96,17 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     /// </remarks>
     IDataCommand ExpireCache<TEntity>();
 
+    /// <summary>
+    /// Use to pass a state to the <see cref="IDataQueryLogger"/>.
+    /// </summary>
+    /// <param name="state">The state to pass to the logger.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the data command.
+    /// </returns>
+    /// <remarks>
+    /// Use the state to help control what is logged.
+    /// </remarks>
+    IDataCommand LogState(object state);
 
     /// <summary>
     /// Executes the command against the connection and sends the resulting <see cref="IDataQuery"/> for reading multiple results sets.

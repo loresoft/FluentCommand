@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 
+using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
@@ -61,6 +62,18 @@ public abstract class StatementBuilder<TBuilder> : IStatementBuilder, IQueryBuil
 
         var commentMember = $"{comment}; {memberName}() in {fileName}:line {sourceLineNumber}";
         var commentExpression = QueryGenerator.CommentExpression(commentMember);
+
+        CommentExpressions.Add(commentExpression);
+
+        return (TBuilder)this;
+    }
+
+    public TBuilder Comment(string comment)
+    {
+        if (comment.IsNullOrWhiteSpace())
+            return (TBuilder)this;
+
+        var commentExpression = QueryGenerator.CommentExpression(comment);
 
         CommentExpressions.Add(commentExpression);
 

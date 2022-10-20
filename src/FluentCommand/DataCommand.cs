@@ -16,6 +16,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
     private TimeSpan? _slidingExpiration;
     private DateTimeOffset? _absoluteExpiration;
+    private object _logState;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataCommand" /> class.
@@ -177,6 +178,21 @@ public class DataCommand : DisposableBase, IDataCommand
         return this;
     }
 
+    /// <summary>
+    /// Use to pass a state to the <see cref="IDataQueryLogger" />.
+    /// </summary>
+    /// <param name="state">The state to pass to the logger.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the data command.
+    /// </returns>
+    /// <remarks>
+    /// Use the state to help control what is logged.
+    /// </remarks>
+    public IDataCommand LogState(object state)
+    {
+        _logState = state;
+        return this;
+    }
 
     /// <summary>
     /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects.
