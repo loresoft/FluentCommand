@@ -721,6 +721,6 @@ public class DataCommand : DisposableBase, IDataCommand
 
     private void LogCommand(TimeSpan duration, Exception exception = null)
     {
-        _dataSession.QueryLogger?.LogCommand(Command, duration, exception);
+        _dataSession.QueryLogger?.LogCommand(Command, duration, exception, _logState);
     }
 }
