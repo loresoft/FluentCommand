@@ -79,11 +79,7 @@ public static class DataMapping
     /// <returns>A <see cref="DbType"/> for the system <see cref="Type"/>.</returns>
     public static DbType ToDbType(this Type type)
     {
-        DbType dbType;
-        if (_typeToDbType.TryGetValue(type, out dbType))
-            return dbType;
-
-        return DbType.Object;
+        return _typeToDbType.TryGetValue(type, out var dbType) ? dbType : DbType.Object;
     }
 
     /// <summary>
@@ -93,10 +89,6 @@ public static class DataMapping
     /// <returns>A system <see cref="Type"/> for the <see cref="DbType"/>.</returns>
     public static Type ToType(this DbType dbType)
     {
-        Type type;
-        if (_dbTypeToType.TryGetValue(dbType, out type))
-            return type;
-
-        return typeof(object);
+        return _dbTypeToType.TryGetValue(dbType, out var type) ? type : typeof(object);
     }
 }

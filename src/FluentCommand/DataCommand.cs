@@ -108,12 +108,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </returns>
     public IDataCommand RegisterCallback<TParameter>(DbParameter parameter, Action<TParameter> callback)
     {
-        var dataCallback = new DataCallback
-        {
-            Callback = callback,
-            Type = typeof(TParameter),
-            Parameter = parameter
-        };
+        var dataCallback = new DataCallback(typeof(TParameter), parameter, callback);
         _callbacks.Enqueue(dataCallback);
 
         return this;
@@ -211,7 +206,7 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             var results = new List<TEntity>();
 
-            using var reader = Command.ExecuteReader();
+            using var reader = Command.ExecuteReader(CommandBehavior.SingleResult);
             while (reader.Read())
             {
                 var entity = factory(reader);
@@ -241,7 +236,7 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             var results = new List<TEntity>();
 
-            using var reader = await Command.ExecuteReaderAsync(token);
+            using var reader = await Command.ExecuteReaderAsync(CommandBehavior.SingleResult, token);
             while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
                 var entity = factory(reader);
@@ -270,7 +265,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         return QueryFactory(() =>
         {
-            using var reader = Command.ExecuteReader();
+            using var reader = Command.ExecuteReader(CommandBehavior.SingleResult & CommandBehavior.SingleRow);
             var result = reader.Read()
                 ? factory(reader)
                 : default;
@@ -296,7 +291,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         return await QueryFactoryAsync(async (token) =>
         {
-            using var reader = await Command.ExecuteReaderAsync(token).ConfigureAwait(false);
+            using var reader = await Command.ExecuteReaderAsync(CommandBehavior.SingleResult & CommandBehavior.SingleRow, token).ConfigureAwait(false);
             var result = await reader.ReadAsync(token).ConfigureAwait(false)
                ? factory(reader)
                : default;
@@ -338,7 +333,7 @@ public class DataCommand : DisposableBase, IDataCommand
     {
         return await QueryFactoryAsync(async (token) =>
         {
-            var result = await Command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+            var result = await Command.ExecuteScalarAsync(token).ConfigureAwait(false);
             var value = result.ConvertValue(convert);
 
             return value;
@@ -378,7 +373,7 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             var dataTable = new DataTable();
 
-            using var reader = await Command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            using var reader = await Command.ExecuteReaderAsync(token).ConfigureAwait(false);
             dataTable.Load(reader);
 
             return dataTable;
@@ -419,7 +414,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         await QueryFactoryAsync(async (token) =>
         {
-            using var reader = await Command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            using var reader = await Command.ExecuteReaderAsync(token).ConfigureAwait(false);
             var query = new QueryMultipleResult(reader);
             queryAction(query);
 
@@ -453,7 +448,7 @@ public class DataCommand : DisposableBase, IDataCommand
     {
         return await QueryFactoryAsync(async (token) =>
         {
-            int result = await Command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+            int result = await Command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
 
             return result;
         }, false, cancellationToken).ConfigureAwait(false);
@@ -484,7 +479,7 @@ public class DataCommand : DisposableBase, IDataCommand
     {
         await QueryFactoryAsync(async (token) =>
         {
-            using var reader = await Command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            using var reader = await Command.ExecuteReaderAsync(token).ConfigureAwait(false);
             readAction(reader);
 
             return true;
@@ -652,34 +647,27 @@ public class DataCommand : DisposableBase, IDataCommand
         if (_slidingExpiration == null && _absoluteExpiration == null)
             return null;
 
-        int hashCode;
-        string connectionString = Command.Connection.ConnectionString;
-        string commandText = Command.CommandText;
+
+        var connectionString = Command.Connection.ConnectionString;
+        var commandText = Command.CommandText;
         var commandType = Command.CommandType;
         var type = typeof(T);
 
-        unchecked
+        var hashCode = HashCode.Seed
+            .Combine(connectionString)
+            .Combine(commandType)
+            .Combine(commandText)
+            .Combine(type);
+
+        foreach (IDbDataParameter parameter in Command.Parameters)
         {
-            hashCode = 17; // seed with prime
-            hashCode = hashCode * 23 + (connectionString?.GetHashCode() ?? 0);
-            hashCode = hashCode * 23 + commandType.GetHashCode();
-            hashCode = hashCode * 23 + (commandText?.GetHashCode() ?? 0);
-            hashCode = hashCode * 23 + type.GetHashCode();
+            if (parameter.Direction is ParameterDirection.InputOutput or ParameterDirection.Output or ParameterDirection.ReturnValue)
+                throw new InvalidOperationException("A command with Output or Return parameters can not be cached.");
 
-            foreach (IDbDataParameter parameter in Command.Parameters)
-            {
-                if (parameter.Direction == ParameterDirection.InputOutput
-                    || parameter.Direction == ParameterDirection.Output
-                    || parameter.Direction == ParameterDirection.ReturnValue)
-                    throw new InvalidOperationException("A command with Output or Return parameters can not be cached.");
-
-                string name = parameter.ParameterName;
-                object value = parameter.Value;
-
-                hashCode = hashCode * 23 + (name?.GetHashCode() ?? 0);
-                hashCode = hashCode * 23 + (value?.GetHashCode() ?? 0);
-                hashCode = hashCode * 23 + parameter.DbType.GetHashCode();
-            }
+            hashCode = hashCode
+                .Combine(parameter.ParameterName)
+                .Combine(parameter.Value)
+                .Combine(parameter.DbType);
         }
 
         return $"global:data:{hashCode}";
@@ -714,7 +702,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         if (_absoluteExpiration.HasValue)
             cache.Set(key, value, _absoluteExpiration.Value);
-        else
+        else if (_slidingExpiration.HasValue)
             cache.Set(key, value, _slidingExpiration.Value);
     }
 

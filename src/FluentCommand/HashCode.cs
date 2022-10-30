@@ -12,7 +12,7 @@ public readonly struct HashCode
     /// <summary>
     /// The prime multiplier used to combine hash codes.
     /// </summary>
-    public const int Multiplier = 486187739;
+    public const int Multiplier = 31;
 
     private readonly int _hashCode;
 
@@ -31,20 +31,22 @@ public readonly struct HashCode
     /// <value>
     /// The hash code seed value.
     /// </value>
-    public static HashCode Seed => new HashCode(17);
+    public static HashCode Seed => new(17);
 
     /// <summary>
     /// Combines this hash code with the hash code of specified <paramref name="value" />.
     /// </summary>
-    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="value">The value to combine hash codes with.</param>
     /// <returns>A new hash code combined with this and the values hash codes.</returns>
-    public HashCode Combine<T>(T value)
+    public HashCode Combine<TValue>(TValue value)
     {
-        var h = Equals(value, default(T)) ? 0 : value.GetHashCode();
+        var hashCode = value is null ? 0 : EqualityComparer<TValue>.Default.GetHashCode(value);
         unchecked
-        { h += _hashCode * Multiplier; }
-        return new HashCode(h);
+        {
+            hashCode = _hashCode * Multiplier + hashCode;
+        }
+        return new HashCode(hashCode);
     }
 
     /// <summary>
@@ -68,5 +70,16 @@ public readonly struct HashCode
     public static implicit operator int(HashCode hashCode)
     {
         return hashCode._hashCode;
+    }
+
+    /// <summary>
+    /// Converts to string.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String" /> that represents this instance.
+    /// </returns>
+    public override string ToString()
+    {
+        return _hashCode.ToString();
     }
 }

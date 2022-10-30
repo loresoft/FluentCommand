@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 
 namespace FluentCommand.Extensions;
@@ -20,8 +19,7 @@ public static class ConvertExtensions
         if (value == null)
             return false;
 
-        bool result;
-        if (bool.TryParse(value, out result))
+        if (bool.TryParse(value, out var result))
             return result;
 
         string v = value.Trim();
@@ -50,8 +48,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        byte result;
-        byte.TryParse(value, out result);
+        byte.TryParse(value, out var result);
 
         return result;
     }
@@ -69,8 +66,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        byte result;
-        byte.TryParse(value, NumberStyles.Integer, provider, out result);
+        byte.TryParse(value, NumberStyles.Integer, provider, out var result);
 
         return result;
     }
@@ -87,8 +83,7 @@ public static class ConvertExtensions
         if (value == null)
             return new DateTime(0L);
 
-        DateTime result;
-        if (DateTime.TryParse(value, out result))
+        if (DateTime.TryParse(value, out var result))
             return result;
 
         if (DateTime.TryParseExact(value, "M/d/yyyy hh:mm:ss tt", CultureInfo.CurrentCulture, DateTimeStyles.None, out result))
@@ -113,8 +108,7 @@ public static class ConvertExtensions
         if (value == null)
             return new DateTime(0L);
 
-        DateTime result;
-        if (DateTime.TryParse(value, out result))
+        if (DateTime.TryParse(value, out var result))
             return result;
 
         if (DateTime.TryParseExact(value, "M/d/yyyy hh:mm:ss tt", provider, DateTimeStyles.None, out result))
@@ -173,8 +167,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0.0;
 
-        double result;
-        double.TryParse(value, out result);
+        double.TryParse(value, out var result);
 
         return result;
     }
@@ -192,8 +185,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0.0;
 
-        double result;
-        double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, provider, out result);
+        double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, provider, out var result);
 
         return result;
     }
@@ -210,8 +202,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        short result;
-        short.TryParse(value, out result);
+        short.TryParse(value, out var result);
 
         return result;
     }
@@ -229,8 +220,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        short result;
-        short.TryParse(value, NumberStyles.Integer, provider, out result);
+        short.TryParse(value, NumberStyles.Integer, provider, out var result);
 
         return result;
     }
@@ -247,8 +237,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        int result;
-        int.TryParse(value, out result);
+        int.TryParse(value, out var result);
 
         return result;
     }
@@ -266,8 +255,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        int result;
-        int.TryParse(value, NumberStyles.Integer, provider, out result);
+        int.TryParse(value, NumberStyles.Integer, provider, out var result);
 
         return result;
     }
@@ -284,8 +272,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0L;
 
-        long result;
-        long.TryParse(value, out result);
+        long.TryParse(value, out var result);
 
         return result;
     }
@@ -303,8 +290,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0L;
 
-        long result;
-        long.TryParse(value, NumberStyles.Integer, provider, out result);
+        long.TryParse(value, NumberStyles.Integer, provider, out var result);
 
         return result;
     }
@@ -321,8 +307,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0f;
 
-        float result;
-        float.TryParse(value, out result);
+        float.TryParse(value, out var result);
 
         return result;
     }
@@ -340,8 +325,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0F;
 
-        float result;
-        float.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, provider, out result);
+        float.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, provider, out var result);
 
         return result;
     }
@@ -358,8 +342,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        ushort result;
-        ushort.TryParse(value, out result);
+        ushort.TryParse(value, out var result);
 
         return result;
     }
@@ -377,8 +360,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        ushort result;
-        ushort.TryParse(value, NumberStyles.Integer, provider, out result);
+        ushort.TryParse(value, NumberStyles.Integer, provider, out var result);
 
         return result;
     }
@@ -395,8 +377,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        uint result;
-        uint.TryParse(value, out result);
+        uint.TryParse(value, out var result);
 
         return result;
     }
@@ -414,8 +395,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0;
 
-        uint result;
-        uint.TryParse(value, NumberStyles.Integer, provider, out result);
+        uint.TryParse(value, NumberStyles.Integer, provider, out var result);
 
         return result;
     }
@@ -432,8 +412,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0L;
 
-        ulong result;
-        ulong.TryParse(value, out result);
+        ulong.TryParse(value, out var result);
 
         return result;
     }
@@ -451,8 +430,7 @@ public static class ConvertExtensions
         if (value == null)
             return 0L;
 
-        ulong result;
-        ulong.TryParse(value, NumberStyles.Integer, provider, out result);
+        ulong.TryParse(value, NumberStyles.Integer, provider, out var result);
 
         return result;
     }
@@ -469,8 +447,7 @@ public static class ConvertExtensions
         if (value == null)
             return TimeSpan.Zero;
 
-        TimeSpan result;
-        TimeSpan.TryParse(value, out result);
+        TimeSpan.TryParse(value, out var result);
 
         return result;
     }
@@ -487,8 +464,7 @@ public static class ConvertExtensions
         if (value == null)
             return Guid.Empty;
 
-        Guid result;
-        Guid.TryParse(value, out result);
+        Guid.TryParse(value, out var result);
 
         return result;
     }
@@ -499,7 +475,7 @@ public static class ConvertExtensions
     /// <param name="input">The input to convert.</param>
     /// <param name="type">The type to convert to.</param>
     /// <param name="value">The converted value.</param>
-    /// <returns><c>true</c> if the vaule was converted; otherwise <c>false</c>.</returns>
+    /// <returns><c>true</c> if the value was converted; otherwise <c>false</c>.</returns>
     public static bool TryConvert(this string input, Type type, out object value)
     {
         // first try string
@@ -509,12 +485,12 @@ public static class ConvertExtensions
             return true;
         }
 
-        // check nullable
         if ((input == null || input.IsNullOrEmpty()) && type.IsNullable())
         {
             value = null;
             return true;
         }
+
 
         input = input?.Trim();
 
@@ -606,19 +582,15 @@ public static class ConvertExtensions
     /// <returns>The converted value.</returns>
     public static TValue ConvertValue<TValue>(this object result, Func<object, TValue> convert = null)
     {
-        TValue value;
+        if (result is null || result == DBNull.Value)
+            return default;
 
-        if (result == null || result == DBNull.Value)
-            value = default;
-        else if (result is TValue)
-            value = (TValue)result;
-        else if (convert != null)
-            value = convert(result);
-        else
-            value = (TValue)Convert.ChangeType(result, typeof(TValue));
+        if (result is TValue valueType)
+            return valueType;
 
-        return value;
+        if (convert != null)
+            return convert(result);
+
+        return (TValue)Convert.ChangeType(result, typeof(TValue));
     }
-
-
 }
