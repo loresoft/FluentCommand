@@ -1,5 +1,6 @@
 using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
+using FluentCommand.Reflection;
 
 namespace FluentCommand.Query;
 
@@ -113,6 +114,19 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
 
         return (TBuilder)this;
     }
+
+    public TBuilder From<TEntity>(
+        string tableAlias = null)
+    {
+        var typeAccessor = TypeAccessor.GetAccessor<TEntity>();
+
+        var fromClause = new TableExpression(typeAccessor.TableName, typeAccessor.TableSchema, tableAlias);
+
+        FromExpressions.Add(fromClause);
+
+        return (TBuilder)this;
+    }
+
 
     public TBuilder FromRaw(string fromClause)
     {

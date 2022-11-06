@@ -51,10 +51,10 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         string tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
-        var paramterName = NextParameter();
+        var parameterName = NextParameter();
 
-        WhereExpressions.Add(new WhereExpression(columnName, paramterName, tableAlias, filterOperator));
-        Parameters.Add(new QueryParameter(paramterName, parameterValue, typeof(TValue)));
+        WhereExpressions.Add(new WhereExpression(columnName, parameterName, tableAlias, filterOperator));
+        Parameters.Add(new QueryParameter(parameterName, parameterValue, typeof(TValue)));
 
         return (TBuilder)this;
     }
@@ -83,28 +83,28 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
 
     public TBuilder WhereRaw(
         string whereClause,
-        IEnumerable<QueryParameter> parametes = null)
+        IEnumerable<QueryParameter> parameters = null)
     {
         if (string.IsNullOrWhiteSpace(whereClause))
             throw new ArgumentException($"'{nameof(whereClause)}' cannot be null or empty.", nameof(whereClause));
 
         WhereExpressions.Add(new WhereExpression(whereClause, IsRaw: true));
 
-        if (parametes != null)
-            Parameters.AddRange(parametes);
+        if (parameters != null)
+            Parameters.AddRange(parameters);
 
         return (TBuilder)this;
     }
 
     public TBuilder WhereRawIf(
         string whereClause,
-        IEnumerable<QueryParameter> parametes = null,
+        IEnumerable<QueryParameter> parameters = null,
         Func<string, IEnumerable<QueryParameter>, bool> condition = null)
     {
-        if (condition != null && !condition(whereClause, parametes))
+        if (condition != null && !condition(whereClause, parameters))
             return (TBuilder)this;
 
-        return WhereRaw(whereClause, parametes);
+        return WhereRaw(whereClause, parameters);
     }
 
     public TBuilder WhereOr(Action<LogicalBuilder> builder)

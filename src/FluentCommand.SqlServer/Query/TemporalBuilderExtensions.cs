@@ -1,5 +1,3 @@
-﻿using FluentCommand.Reflection;
-
 namespace FluentCommand.Query;
 
 public static class TemporalBuilderExtensions
@@ -35,10 +33,8 @@ public static class TemporalBuilderExtensions
 
         var innerBuilder = new TemporalBuilder(queryBuilder.QueryGenerator, queryBuilder.Parameters);
 
-        var typeAccessor = TypeAccessor.GetAccessor<TEntity>();
-
         // preset table and schema
-        innerBuilder.From(typeAccessor.TableName, typeAccessor.TableSchema);
+        innerBuilder.From<TEntity>();
 
         builder(innerBuilder);
 

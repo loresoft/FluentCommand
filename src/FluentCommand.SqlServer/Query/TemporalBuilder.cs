@@ -1,5 +1,6 @@
 using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
+using FluentCommand.Reflection;
 
 namespace FluentCommand.Query;
 
@@ -19,6 +20,16 @@ public class TemporalBuilder : StatementBuilder<TemporalBuilder>
         string tableAlias = null)
     {
         _from = new TableExpression(tableName, tableSchema, tableAlias);
+
+        return this;
+    }
+
+    public TemporalBuilder From<TEntity>(
+        string tableAlias = null)
+    {
+        var typeAccessor = TypeAccessor.GetAccessor<TEntity>();
+
+        _from = new TableExpression(typeAccessor.TableName, typeAccessor.TableSchema, tableAlias);
 
         return this;
     }
@@ -58,8 +69,6 @@ public class TemporalBuilder : StatementBuilder<TemporalBuilder>
 
     public TemporalBuilder ContainedIn(DateTime utcStart, DateTime utcEnd)
     {
-        //FOR SYSTEM_TIME CONTAINED IN (<start_date_time>, <end_date_time>)
-
         var nameStart = NextParameter();
         var paramStart = new QueryParameter(nameStart, utcStart, typeof(DateTime));
 
@@ -70,7 +79,6 @@ public class TemporalBuilder : StatementBuilder<TemporalBuilder>
 
         Parameters.Add(paramStart);
         Parameters.Add(paramEnd);
-
 
         return this;
     }
@@ -94,9 +102,15 @@ public class TemporalBuilder : StatementBuilder<TemporalBuilder>
 
     public override QueryStatement BuildStatement()
     {
-        var fromTable = QueryGenerator.TableExpression(_from);
+        if (_temporal.IsNullOrWhiteSpace())
+            return new QueryStatement(QueryGenerator.TableExpression(_from), Parameters);
 
-        var statement = _temporal.HasValue() ? $"{fromTable} {_temporal}" : fromTable;
+        var table = QueryGenerator.TableExpression(new TableExpression(_from.TableName, _from.TableSchema));
+
+        var statement = $"{table} {_temporal}";
+
+        if (_from.TableAlias.HasValue())
+            statement += $" AS [{_from.TableAlias}]";
 
         return new QueryStatement(statement, Parameters);
     }
