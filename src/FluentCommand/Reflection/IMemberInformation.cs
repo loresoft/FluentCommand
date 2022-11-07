@@ -63,7 +63,7 @@ public interface IMemberInformation
     /// <value>
     ///   <c>true</c> if this property participates in optimistic concurrency check; otherwise, <c>false</c>.
     /// </value>
-    bool IsConcurrenctCheck { get; }
+    bool IsConcurrencyCheck { get; }
 
     /// <summary>
     /// Gets a value indicating whether this member has getter.

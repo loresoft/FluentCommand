@@ -15,7 +15,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     private readonly Lazy<KeyAttribute> _keyAttribute;
     private readonly Lazy<NotMappedAttribute> _notMappedAttribute;
     private readonly Lazy<DatabaseGeneratedAttribute> _databaseGeneratedAttribute;
-    private readonly Lazy<ConcurrencyCheckAttribute> _concurrenctCheckAttribute;
+    private readonly Lazy<ConcurrencyCheckAttribute> _concurrencyCheckAttribute;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MemberAccessor"/> class.
@@ -28,7 +28,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
         _keyAttribute = new Lazy<KeyAttribute>(() => MemberInfo.GetCustomAttribute<KeyAttribute>(true));
         _notMappedAttribute = new Lazy<NotMappedAttribute>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>(true));
         _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>(true));
-        _concurrenctCheckAttribute = new Lazy<ConcurrencyCheckAttribute>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>(true));
+        _concurrencyCheckAttribute = new Lazy<ConcurrencyCheckAttribute>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>(true));
     }
 
 
@@ -92,7 +92,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// <value>
     ///   <c>true</c> if this property participates in optimistic concurrency check; otherwise, <c>false</c>.
     /// </value>
-    public bool IsConcurrenctCheck => _concurrenctCheckAttribute.Value != null;
+    public bool IsConcurrencyCheck => _concurrencyCheckAttribute.Value != null;
 
     /// <summary>
     /// Gets a value indicating that this property is database generated
