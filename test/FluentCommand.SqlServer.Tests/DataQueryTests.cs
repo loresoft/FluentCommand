@@ -97,6 +97,28 @@ public class DataQueryTests : DatabaseTestBase
         var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
+        var values = new[] { 1, 2, 3 };
+
+        var results = await session
+            .Sql(builder => builder
+                .Select<Status>()
+                .WhereIn(p => p.Id, values)
+                .Tag()
+            )
+            .QueryAsync<Status>();
+
+        results.Should().NotBeNull();
+
+        var list = results.ToList();
+        list.Count.Should().Be(3);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task SqlQueryInComplexEntityAsync()
+    {
+        var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
+
         var values = new[] { 1, 2, 3 }.ToDelimitedString();
 
         var results = await session
@@ -108,9 +130,9 @@ public class DataQueryTests : DatabaseTestBase
 
                 builder
                     .Statement()
-                    .Query("INSERT INTO #identifiers (Id) SELECT CONVERT(int, value) FROM STRING_SPLIT(@Identifiers, @Seporator);")
+                    .Query("INSERT INTO #identifiers (Id) SELECT CONVERT(int, value) FROM STRING_SPLIT(@Identifiers, @Separator);")
                     .Parameter("@Identifiers", values)
-                    .Parameter("@Seporator", ",");
+                    .Parameter("@Separator", ",");
 
                 builder
                     .Select<Status>()
