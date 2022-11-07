@@ -430,6 +430,7 @@ public class SqlServerGenerator : IQueryGenerator
             FilterOperators.GreaterThanOrEqual => $"{columnName} >= {whereExpression.ParameterName}",
             FilterOperators.IsNull => $"{columnName} IS NULL",
             FilterOperators.IsNotNull => $"{columnName} IS NOT NULL",
+            FilterOperators.In => $"{columnName} IN ({whereExpression.ParameterName})",
             _ => $"{columnName} = {whereExpression.ParameterName}",
         };
     }

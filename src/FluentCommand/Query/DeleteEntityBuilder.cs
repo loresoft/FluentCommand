@@ -127,6 +127,36 @@ public class DeleteEntityBuilder<TEntity>
         return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
 
+    public DeleteEntityBuilder<TEntity> WhereIn<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        IEnumerable<TValue> parameterValues,
+        string tableAlias)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
+    }
+
+    public DeleteEntityBuilder<TEntity> WhereInIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        IEnumerable<TValue> parameterValues,
+        Func<string, IEnumerable<TValue>, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
+    }
+
+    public DeleteEntityBuilder<TEntity> WhereInIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        IEnumerable<TValue> parameterValues,
+        string tableAlias,
+        Func<string, IEnumerable<TValue>, bool> condition = null)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+
+        return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
+    }
 
     public DeleteEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)
     {

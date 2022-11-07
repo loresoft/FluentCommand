@@ -59,6 +59,49 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         return (TBuilder)this;
     }
 
+
+    public TBuilder WhereIn<TValue>(
+        string columnName,
+        IEnumerable<TValue> parameterValues,
+        string tableAlias = null)
+    {
+        var parameters = parameterValues
+            .Select((value, index) => new QueryParameter($"@in{index:D4}", value, typeof(TValue)))
+            .ToList();
+
+        var parameterNames = parameters
+            .Select(p => p.Name)
+            .ToDelimitedString();
+
+        WhereExpressions.Add(new WhereExpression(columnName, parameterNames, tableAlias, FilterOperators.In));
+        Parameters.AddRange(parameters);
+
+        return (TBuilder)this;
+    }
+
+    public TBuilder WhereInIf<TValue>(
+        string columnName,
+        IEnumerable<TValue> parameterValues,
+        Func<string, IEnumerable<TValue>, bool> condition = null)
+    {
+        if (condition != null && !condition(columnName, parameterValues))
+            return (TBuilder)this;
+
+        return WhereIn(columnName, parameterValues);
+    }
+
+    public TBuilder WhereInIf<TValue>(
+        string columnName,
+        IEnumerable<TValue> parameterValues,
+        string tableAlias,
+        Func<string, IEnumerable<TValue>, bool> condition = null)
+    {
+        if (condition != null && !condition(columnName, parameterValues))
+            return (TBuilder)this;
+
+        return WhereIn(columnName, parameterValues, tableAlias);
+    }
+
     public TBuilder WhereIf<TValue>(
         string columnName,
         TValue parameterValue,

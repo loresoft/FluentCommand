@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace FluentCommand.Query;
 
-public interface IWhereEntityBuilder<TEntity, TBuilder>
+public interface IWhereEntityBuilder<TEntity, out TBuilder>
     where TEntity : class
 {
     TBuilder Where<TValue>(
@@ -16,6 +16,21 @@ public interface IWhereEntityBuilder<TEntity, TBuilder>
         string tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal);
 
+    TBuilder WhereIn<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        IEnumerable<TValue> parameterValues,
+        string tableAlias);
+
+    TBuilder WhereInIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        IEnumerable<TValue> parameterValues,
+        Func<string, IEnumerable<TValue>, bool> condition = null);
+
+    TBuilder WhereInIf<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        IEnumerable<TValue> parameterValues,
+        string tableAlias,
+        Func<string, IEnumerable<TValue>, bool> condition = null);
 
     TBuilder WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,

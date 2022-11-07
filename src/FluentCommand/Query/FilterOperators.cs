@@ -12,5 +12,6 @@ public enum FilterOperators
     GreaterThan,
     GreaterThanOrEqual,
     IsNull,
-    IsNotNull
+    IsNotNull,
+    In
 }

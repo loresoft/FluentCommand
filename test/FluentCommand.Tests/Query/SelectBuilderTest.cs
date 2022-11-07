@@ -155,6 +155,46 @@ public class SelectBuilderTest
     }
 
     [Fact]
+    public async System.Threading.Tasks.Task SelectEntityWhereIn()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters, LogicalOperators.And)
+            .Tag()
+            .Column(p => p.Id)
+            .Column(p => p.Name)
+            .WhereIn(p => p.Id, new[] { 1, 2 })
+            .OrderBy(p => p.Name);
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task SelectEntityWhereInIf()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters, LogicalOperators.And)
+            .Tag()
+            .Column(p => p.Id)
+            .Column(p => p.Name)
+            .WhereInIf(p => p.Id, new[] { 1, 2 }, (c, v) => true)
+            .OrderBy(p => p.Name);
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task SelectEntityJoinBuilder()
     {
         var sqlProvider = new SqlServerGenerator();
