@@ -173,7 +173,26 @@ public class SelectBuilderTest
 
         await Verifier.Verify(sql).UseDirectory("Snapshots");
     }
+    [Fact]
+    public async System.Threading.Tasks.Task SelectEntityWhereInDouble()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
 
+        var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters, LogicalOperators.And)
+            .Tag()
+            .Column(p => p.Id)
+            .Column(p => p.Name)
+            .WhereIn(p => p.Id, new[] { 1, 2 })
+            .WhereIn(p => p.Name, new[] { "jim", "bob" })
+            .OrderBy(p => p.Name);
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
     [Fact]
     public async System.Threading.Tasks.Task SelectEntityWhereInIf()
     {

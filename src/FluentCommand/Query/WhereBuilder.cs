@@ -65,16 +65,19 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         IEnumerable<TValue> parameterValues,
         string tableAlias = null)
     {
-        var parameters = parameterValues
-            .Select((value, index) => new QueryParameter($"@in{index:D4}", value, typeof(TValue)))
-            .ToList();
+        var parameterNames = new List<string>();
+        foreach (var parameterValue in parameterValues)
+        {
+            var parameterName = NextParameter();
+            var parameter = new QueryParameter(parameterName, parameterValue, typeof(TValue));
 
-        var parameterNames = parameters
-            .Select(p => p.Name)
-            .ToDelimitedString();
+            Parameters.Add(parameter);
+            parameterNames.Add(parameterName);
+        }
 
-        WhereExpressions.Add(new WhereExpression(columnName, parameterNames, tableAlias, FilterOperators.In));
-        Parameters.AddRange(parameters);
+        var whereParameter = parameterNames.ToDelimitedString();
+
+        WhereExpressions.Add(new WhereExpression(columnName, whereParameter, tableAlias, FilterOperators.In));
 
         return (TBuilder)this;
     }
