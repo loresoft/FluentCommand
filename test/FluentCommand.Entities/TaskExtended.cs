@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
+[GenerateDataReader]
 public class TaskExtended
 {
     public Guid TaskId { get; set; }
@@ -14,7 +15,11 @@ public class TaskExtended
     public string CreatedBy { get; set; }
     public DateTimeOffset Updated { get; set; }
     public string UpdatedBy { get; set; }
-    public byte[] RowVersion { get; set; }
 
+    [ConcurrencyCheck]
+    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    public ConcurrencyToken RowVersion { get; set; }
+
+    [NotMapped]
     public virtual Task Task { get; set; }
 }

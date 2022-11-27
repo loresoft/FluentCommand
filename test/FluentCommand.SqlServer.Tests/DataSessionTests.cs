@@ -1,9 +1,8 @@
-using System;
-using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
 
 using FluentAssertions;
+
+using Microsoft.Data.SqlClient;
 
 using Xunit;
 using Xunit.Abstractions;

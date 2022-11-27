@@ -1,9 +1,7 @@
-using System;
 using System.Data;
-using System.IO;
+using System.Data.Common;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace FluentCommand;
 
@@ -16,8 +14,10 @@ public static class DataCommandExtensions
     /// Executes the query and returns a JSON string from data set returned by the query.
     /// </summary>
     /// <param name="dataCommand">The data command.</param>
-    /// <param name="options">The <see cref="JsonWriterOptions"/> options.</param>
-    /// <returns>A JSON string representing the <see cref="IDataReader"/> result of the command.</returns>
+    /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
+    /// <returns>
+    /// A JSON string representing the <see cref="IDataReader" /> result of the command.
+    /// </returns>
     public static string QueryJson(this IDataCommand dataCommand, JsonWriterOptions options = default)
     {
         using var stream = new MemoryStream();
@@ -25,23 +25,7 @@ public static class DataCommandExtensions
 
         writer.WriteStartArray();
 
-        dataCommand.Read(reader =>
-        {
-            while (reader.Read())
-            {
-                writer.WriteStartObject();
-
-                for (int index = 0; index < reader.FieldCount; index++)
-                {
-                    var name = reader.GetName(index);
-                    writer.WritePropertyName(name);
-
-                    WriteValue(reader, writer, index);
-                }
-
-                writer.WriteEndObject();
-            }
-        });
+        dataCommand.Read(reader => WriteData(reader, writer), CommandBehavior.SequentialAccess);
 
         writer.WriteEndArray();
 
@@ -54,38 +38,63 @@ public static class DataCommandExtensions
     /// Executes the query and returns a JSON string from data set returned by the query asynchronously.
     /// </summary>
     /// <param name="dataCommand">The data command.</param>
-    /// <param name="options">The <see cref="JsonWriterOptions"/> options.</param>
-    /// <returns>A JSON string representing the <see cref="IDataReader"/> result of the command.</returns>
-    public static async Task<string> QueryJsonAsync(this IDataCommand dataCommand, JsonWriterOptions options = default)
+    /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    /// A JSON string representing the <see cref="IDataReader" /> result of the command.
+    /// </returns>
+    public static async Task<string> QueryJsonAsync(this IDataCommand dataCommand, JsonWriterOptions options = default, CancellationToken cancellationToken = default)
     {
         using var stream = new MemoryStream();
         await using var writer = new Utf8JsonWriter(stream, options);
 
         writer.WriteStartArray();
 
-        await dataCommand.ReadAsync(reader =>
+        await dataCommand.ReadAsync(async (reader, token) =>
         {
-            while (reader.Read())
-            {
-                writer.WriteStartObject();
+            if (reader is DbDataReader dataReader)
+                await WriteDataAsync(dataReader, writer, token);
+            else
+                WriteData(reader, writer);
 
-                for (int index = 0; index < reader.FieldCount; index++)
-                {
-                    var name = reader.GetName(index);
-                    writer.WritePropertyName(name);
-
-                    WriteValue(reader, writer, index);
-                }
-
-                writer.WriteEndObject();
-            }
-        });
+        }, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult, cancellationToken);
 
         writer.WriteEndArray();
 
-        await writer.FlushAsync();
+        await writer.FlushAsync(cancellationToken);
 
         return Encoding.UTF8.GetString(stream.ToArray());
+    }
+
+    private static void WriteData(IDataReader reader, Utf8JsonWriter writer)
+    {
+        while (reader.Read())
+        {
+            WriteObject(reader, writer);
+        }
+    }
+
+    private static async Task WriteDataAsync(DbDataReader reader, Utf8JsonWriter writer, CancellationToken cancellationToken = default)
+    {
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            WriteObject(reader, writer);
+        }
+    }
+
+    private static void WriteObject(IDataReader reader, Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+
+        for (int index = 0; index < reader.FieldCount; index++)
+        {
+            var name = reader.GetName(index);
+            writer.WritePropertyName(name);
+
+            WriteValue(reader, writer, index);
+        }
+
+        writer.WriteEndObject();
     }
 
     private static void WriteValue(IDataReader reader, Utf8JsonWriter writer, int index)

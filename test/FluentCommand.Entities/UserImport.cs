@@ -1,7 +1,6 @@
-﻿using System;
-
 namespace FluentCommand.Entities;
 
+[GenerateDataReader]
 public class UserImport
 {
     public string EmailAddress { get; set; }

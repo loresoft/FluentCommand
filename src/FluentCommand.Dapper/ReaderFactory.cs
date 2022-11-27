@@ -16,7 +16,7 @@ public static class ReaderFactory
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="reader">The open <see cref="IDataReader" /> to get the object from.</param>
-    /// <returns>A TEntity object having property names set that match the field names in the <see cref="IDataReader" />.</returns>
+    /// <returns>A TEntity object having property names set that match the field names in the <paramref name="reader"/> <see cref="IDataReader" />.</returns>
     public static TEntity EntityFactory<TEntity>(IDataReader reader)
         where TEntity : class
     {

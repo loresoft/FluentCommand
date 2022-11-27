@@ -137,18 +137,6 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     Task<int> ExecuteAsync(CancellationToken cancellationToken = default);
 
 
-    /// <summary>
-    /// Executes the command against the connection and sends the resulting <see cref="IDataReader"/> to the readAction delegate.
-    /// </summary>
-    /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader"/>.</param>
-    void Read(Action<IDataReader> readAction);
-
-    /// <summary>
-    /// Executes the command against the connection and sends the resulting <see cref="IDataReader" /> to the readAction delegate.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
-    Task ReadAsync(Action<IDataReader> readAction, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Converts the specified <paramref name="value"/> before assigning to <seealso cref="DbParameter.Value"/>

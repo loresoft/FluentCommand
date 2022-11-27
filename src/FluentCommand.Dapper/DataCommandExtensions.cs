@@ -1,3 +1,10 @@
+using System.Data;
+using System.Data.Common;
+
+using Dapper;
+
+using static Dapper.SqlMapper;
+
 namespace FluentCommand;
 
 /// <summary>
@@ -5,17 +12,6 @@ namespace FluentCommand;
 /// </summary>
 public static class DataCommandExtensions
 {
-    /// <summary>
-    /// Executes the command against the connection and converts the results to dynamic objects.
-    /// </summary>
-    /// <param name="dataQuery">The <see cref="IDataQuery"/> for this extension method.</param>
-    /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of dynamic objects.
-    /// </returns>
-    public static IEnumerable<dynamic> Query(this IDataQuery dataQuery)
-    {
-        return dataQuery.Query(ReaderFactory.DynamicFactory);
-    }
 
     /// <summary>
     /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects.
@@ -28,20 +24,20 @@ public static class DataCommandExtensions
     public static IEnumerable<TEntity> Query<TEntity>(this IDataQuery dataQuery)
         where TEntity : class, new()
     {
-        return dataQuery.Query(ReaderFactory.EntityFactory<TEntity>);
-    }
+        var results = new List<TEntity>();
 
+        dataQuery.Read(reader =>
+        {
+            var parser = reader.GetRowParser<TEntity>();
 
-    /// <summary>
-    /// Executes the query and returns the first row in the result as a dynamic object.
-    /// </summary>
-    /// <param name="dataQuery">The <see cref="IDataQuery"/> for this extension method.</param>
-    /// <returns>
-    /// A instance of a dynamic object if row exists; otherwise null.
-    /// </returns>
-    public static dynamic QuerySingle(this IDataQuery dataQuery)
-    {
-        return dataQuery.QuerySingle(ReaderFactory.DynamicFactory);
+            while (reader.Read())
+            {
+                var entity = parser(reader);
+                results.Add(entity);
+            }
+        }, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
+
+        return results;
     }
 
     /// <summary>
@@ -55,22 +51,19 @@ public static class DataCommandExtensions
     public static TEntity QuerySingle<TEntity>(this IDataQuery dataQuery)
         where TEntity : class
     {
-        return dataQuery.QuerySingle(ReaderFactory.EntityFactory<TEntity>);
+        TEntity result = default;
+
+        dataQuery.Read(reader =>
+        {
+            var parser = reader.GetRowParser<TEntity>();
+            if (reader.Read())
+                result = parser(reader);
+
+        }, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult | CommandBehavior.SingleRow);
+
+        return result;
     }
 
-
-    /// <summary>
-    /// Executes the command against the connection and converts the results to dynamic objects asynchronously.
-    /// </summary>
-    /// <param name="dataQuery">The <see cref="IDataQueryAsync"/> for this extension method.</param>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of dynamic objects.
-    /// </returns>
-    public static Task<IEnumerable<dynamic>> QueryAsync(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
-    {
-        return dataQuery.QueryAsync(ReaderFactory.DynamicFactory, cancellationToken);
-    }
 
     /// <summary>
     /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects asynchronously.
@@ -81,24 +74,34 @@ public static class DataCommandExtensions
     /// <returns>
     /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
-    public static Task<IEnumerable<TEntity>> QueryAsync<TEntity>(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
+    public static async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
         where TEntity : class
     {
-        return dataQuery.QueryAsync(ReaderFactory.EntityFactory<TEntity>, cancellationToken);
-    }
+        var results = new List<TEntity>();
 
+        await dataQuery.ReadAsync(async (reader, token) =>
+        {
+            var parser = reader.GetRowParser<TEntity>();
 
-    /// <summary>
-    /// Executes the query and returns the first row in the result as a dynamic object asynchronously.
-    /// </summary>
-    /// <param name="dataQuery">The <see cref="IDataQueryAsync"/> for this extension method.</param>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <returns>
-    /// A instance of a dynamic object if row exists; otherwise null.
-    /// </returns>
-    public static Task<dynamic> QuerySingleAsync(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
-    {
-        return dataQuery.QuerySingleAsync(ReaderFactory.DynamicFactory, cancellationToken);
+            if (reader is DbDataReader dataReader)
+            {
+                while (await dataReader.ReadAsync(token))
+                {
+                    var entity = parser(reader);
+                    results.Add(entity);
+                }
+            }
+            else
+            {
+                while (reader.Read())
+                {
+                    var entity = parser(reader);
+                    results.Add(entity);
+                }
+            }
+        }, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult, cancellationToken);
+
+        return results;
     }
 
     /// <summary>
@@ -110,9 +113,29 @@ public static class DataCommandExtensions
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
-    public static Task<TEntity> QuerySingleAsync<TEntity>(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
+    public static async Task<TEntity> QuerySingleAsync<TEntity>(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default(CancellationToken))
         where TEntity : class
     {
-        return dataQuery.QuerySingleAsync(ReaderFactory.EntityFactory<TEntity>, cancellationToken);
+        TEntity result = default;
+
+        await dataQuery.ReadAsync(async (reader, token) =>
+        {
+            var parser = reader.GetRowParser<TEntity>();
+
+            if (reader is DbDataReader dataReader)
+            {
+                if (await dataReader.ReadAsync(token))
+                    result = parser(reader);
+            }
+            else
+            {
+                if (reader.Read())
+                    result = parser(reader);
+            }
+
+
+        }, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult | CommandBehavior.SingleRow, cancellationToken);
+
+        return result;
     }
 }

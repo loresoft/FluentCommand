@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 
 using FluentCommand.Extensions;
+using FluentCommand.Internal;
 
 namespace FluentCommand.Merge;
 

@@ -1,9 +1,8 @@
-using System;
 using System.Text;
 
-namespace FluentCommand.Extensions;
+namespace FluentCommand.Internal;
 
-/// <summary>Provide a cached reusable instance of stringbuilder per thread.</summary>
+/// <summary>Provide a cached reusable instance of StringBuilder per thread.</summary>
 public static class StringBuilderCache
 {
     // The value 360 was chosen in discussion with performance experts as a compromise between using
@@ -19,32 +18,30 @@ public static class StringBuilderCache
     /// <remarks>If a StringBuilder of an appropriate size is cached, it will be returned and the cache emptied.</remarks>
     public static StringBuilder Acquire(int capacity = DefaultCapacity)
     {
-        if (capacity <= MaxBuilderSize)
-        {
-            StringBuilder sb = t_cachedInstance;
-            if (sb != null)
-            {
-                // Avoid stringbuilder block fragmentation by getting a new StringBuilder
-                // when the requested size is larger than the current capacity
-                if (capacity <= sb.Capacity)
-                {
-                    t_cachedInstance = null;
-                    sb.Clear();
-                    return sb;
-                }
-            }
-        }
+        if (capacity > MaxBuilderSize)
+            return new StringBuilder(capacity);
 
-        return new StringBuilder(capacity);
+        var sb = t_cachedInstance;
+        if (sb == null)
+            return new StringBuilder(capacity);
+
+        // Avoid StringBuilder block fragmentation by getting a new StringBuilder
+        // when the requested size is larger than the current capacity
+        if (capacity > sb.Capacity)
+            return new StringBuilder(capacity);
+
+        t_cachedInstance = null;
+        sb.Clear();
+
+        return sb;
+
     }
 
     /// <summary>Place the specified builder in the cache if it is not too big.</summary>
     public static void Release(StringBuilder sb)
     {
         if (sb.Capacity <= MaxBuilderSize)
-        {
             t_cachedInstance = sb;
-        }
     }
 
     /// <summary>Release StringBuilder to the cache, and return the resulting string.</summary>

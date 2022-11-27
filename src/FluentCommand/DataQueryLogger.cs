@@ -1,6 +1,6 @@
 using System.Data;
 
-using FluentCommand.Extensions;
+using FluentCommand.Internal;
 
 namespace FluentCommand;
 

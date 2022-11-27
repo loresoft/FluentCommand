@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+using FluentCommand.Internal;
+
 namespace FluentCommand.Extensions;
 
 /// <summary>

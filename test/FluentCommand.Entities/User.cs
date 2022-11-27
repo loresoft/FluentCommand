@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
+[GenerateDataReader]
 public class User
 {
     public Guid Id { get; set; }
@@ -25,8 +27,9 @@ public class User
     public DateTimeOffset Updated { get; set; }
     public string UpdatedBy { get; set; }
 
+    [ConcurrencyCheck]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public byte[] RowVersion { get; set; }
+    public ConcurrencyToken RowVersion { get; set; }
 
 
     [NotMapped]

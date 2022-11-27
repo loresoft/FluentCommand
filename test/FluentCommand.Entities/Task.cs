@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
+[GenerateDataReader]
 public class Task
 {
     public Guid Id { get; set; }
@@ -19,12 +21,21 @@ public class Task
     public string CreatedBy { get; set; }
     public DateTimeOffset Updated { get; set; }
     public string UpdatedBy { get; set; }
-    public byte[] RowVersion { get; set; }
 
+    [ConcurrencyCheck]
+    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    public ConcurrencyToken RowVersion { get; set; }
+
+    [NotMapped]
     public virtual ICollection<Audit> Audits { get; set; } = new List<Audit>();
+    [NotMapped]
     public virtual Priority Priority { get; set; }
+    [NotMapped]
     public virtual Status Status { get; set; }
+    [NotMapped]
     public virtual User AssignedUser { get; set; }
+    [NotMapped]
     public virtual User CreatedUser { get; set; }
+    [NotMapped]
     public virtual TaskExtended TaskExtended { get; set; }
 }

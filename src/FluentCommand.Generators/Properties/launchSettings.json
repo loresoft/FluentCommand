@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FluentCommand.Entities": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\test\\FluentCommand.Entities\\FluentCommand.Entities.csproj"
+    }
+  }
+}

@@ -32,11 +32,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>9.0.0.0</Version>
-    <PackageVersion>9.0.0.0</PackageVersion>
-    <AssemblyVersion>9.0.0.0</AssemblyVersion>
-    <FileVersion>9.0.0.0</FileVersion>
-    <InformationalVersion>9.0.0.0</InformationalVersion>
+    <Version>10.0.0</Version>
+    <PackageVersion>10.0.0</PackageVersion>
+    <AssemblyVersion>10.0.0.0</AssemblyVersion>
+    <FileVersion>10.0.0.0</FileVersion>
+    <InformationalVersion>10.0.0</InformationalVersion>
   </PropertyGroup>
   
   <ItemGroup>

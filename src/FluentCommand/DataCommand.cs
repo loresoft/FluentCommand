@@ -265,7 +265,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         return QueryFactory(() =>
         {
-            using var reader = Command.ExecuteReader(CommandBehavior.SingleResult & CommandBehavior.SingleRow);
+            using var reader = Command.ExecuteReader(CommandBehavior.SingleResult | CommandBehavior.SingleRow);
             var result = reader.Read()
                 ? factory(reader)
                 : default;
@@ -291,7 +291,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         return await QueryFactoryAsync(async (token) =>
         {
-            using var reader = await Command.ExecuteReaderAsync(CommandBehavior.SingleResult & CommandBehavior.SingleRow, token).ConfigureAwait(false);
+            using var reader = await Command.ExecuteReaderAsync(CommandBehavior.SingleResult | CommandBehavior.SingleRow, token).ConfigureAwait(false);
             var result = await reader.ReadAsync(token).ConfigureAwait(false)
                ? factory(reader)
                : default;
@@ -459,11 +459,12 @@ public class DataCommand : DisposableBase, IDataCommand
     /// Executes the command against the connection and sends the resulting <see cref="IDataReader" /> to the readAction delegate.
     /// </summary>
     /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
-    public void Read(Action<IDataReader> readAction)
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
+    public void Read(Action<IDataReader> readAction, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         QueryFactory(() =>
         {
-            using var reader = Command.ExecuteReader();
+            using var reader = Command.ExecuteReader(commandBehavior);
             readAction(reader);
 
             return true;
@@ -473,18 +474,20 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <summary>
     /// Executes the command against the connection and sends the resulting <see cref="IDataReader" /> to the readAction delegate.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
-    public async Task ReadAsync(Action<IDataReader> readAction, CancellationToken cancellationToken = default)
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
+    /// <param name="cancellationToken">The cancellation instruction.</param>
+    public async Task ReadAsync(Func<IDataReader, CancellationToken, Task> readAction, CommandBehavior commandBehavior = CommandBehavior.Default, CancellationToken cancellationToken = default)
     {
         await QueryFactoryAsync(async (token) =>
         {
-            using var reader = await Command.ExecuteReaderAsync(token).ConfigureAwait(false);
-            readAction(reader);
+            using var reader = await Command.ExecuteReaderAsync(commandBehavior, token).ConfigureAwait(false);
+            await readAction(reader, cancellationToken);
 
             return true;
         }, false, cancellationToken).ConfigureAwait(false);
     }
+
 
     /// <summary>
     /// Converts the specified <paramref name="value" /> before assigning to <seealso cref="DbParameter.Value" />
@@ -505,6 +508,7 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             DateOnly dateOnly => dateOnly.ToDateTime(new TimeOnly(0, 0)),
             TimeOnly timeOnly => timeOnly.ToString(),
+            ConcurrencyToken concurrencyToken => concurrencyToken.Value,
             _ => value
         };
 #else
@@ -648,7 +652,7 @@ public class DataCommand : DisposableBase, IDataCommand
             return null;
 
 
-        var connectionString = Command.Connection.ConnectionString;
+        var connectionString = Command.Connection?.ConnectionString;
         var commandText = Command.CommandText;
         var commandType = Command.CommandType;
         var type = typeof(T);

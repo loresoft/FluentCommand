@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
+[GenerateDataReader]
 public class Audit
 {
     public int Id { get; set; }
@@ -16,8 +17,13 @@ public class Audit
     public string CreatedBy { get; set; }
     public DateTimeOffset Updated { get; set; }
     public string UpdatedBy { get; set; }
-    public byte[] RowVersion { get; set; }
 
+    [ConcurrencyCheck]
+    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    public ConcurrencyToken RowVersion { get; set; }
+
+    [NotMapped]
     public virtual Task Task { get; set; }
+    [NotMapped]
     public virtual User User { get; set; }
 }

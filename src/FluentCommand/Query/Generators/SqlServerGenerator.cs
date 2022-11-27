@@ -1,4 +1,5 @@
 using FluentCommand.Extensions;
+using FluentCommand.Internal;
 
 namespace FluentCommand.Query.Generators;
 

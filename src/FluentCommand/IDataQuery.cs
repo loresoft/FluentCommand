@@ -42,4 +42,11 @@ public interface IDataQuery : IDisposable
     /// </summary>
     /// <returns>A <see cref="DataTable"/> of the results.</returns>
     DataTable QueryTable();
+
+    /// <summary>
+    /// Executes the command against the connection and sends the resulting <see cref="IDataReader" /> to the readAction delegate.
+    /// </summary>
+    /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
+    void Read(Action<IDataReader> readAction, CommandBehavior commandBehavior = CommandBehavior.Default);
 }

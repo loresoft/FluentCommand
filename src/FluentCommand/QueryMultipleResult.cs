@@ -169,6 +169,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
         return dataTable;
     }
 
+
     /// <summary>
     /// Executes the command against the connection and converts the results to a <see cref="DataTable" /> asynchronously.
     /// </summary>
@@ -184,6 +185,34 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
         dataTable.Load(_reader);
 
         return dataTable;
+    }
+
+    /// <summary>
+    /// Executes the command against the connection and sends the resulting <see cref="IDataReader" /> to the readAction delegate.
+    /// </summary>
+    /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
+    /// <exception cref="System.NotImplementedException"></exception>
+    public void Read(Action<IDataReader> readAction, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        NextResult();
+
+        readAction(_reader);
+    }
+
+    /// <summary>
+    /// Executes the command against the connection and sends the resulting <see cref="IDataReader" /> to the readAction delegate.
+    /// </summary>
+    /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
+    /// <param name="cancellationToken">The cancellation instruction.</param>
+    /// <returns></returns>
+    /// <exception cref="System.NotImplementedException"></exception>
+    public async Task ReadAsync(Func<IDataReader, CancellationToken, Task> readAction, CommandBehavior commandBehavior = CommandBehavior.Default, CancellationToken cancellationToken = default)
+    {
+        await NextResultAsync(cancellationToken);
+
+        await readAction(_reader, cancellationToken);
     }
 
 

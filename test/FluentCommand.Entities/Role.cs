@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
+[GenerateDataReader]
 public class Role
 {
     public Guid Id { get; set; }
@@ -13,7 +15,11 @@ public class Role
     public string CreatedBy { get; set; }
     public DateTimeOffset Updated { get; set; }
     public string UpdatedBy { get; set; }
-    public byte[] RowVersion { get; set; }
 
+    [ConcurrencyCheck]
+    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    public ConcurrencyToken RowVersion { get; set; }
+
+    [NotMapped]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

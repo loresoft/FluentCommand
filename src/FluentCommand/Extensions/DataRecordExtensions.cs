@@ -1,5 +1,5 @@
-using System;
 using System.Data;
+using System.Data.Common;
 
 namespace FluentCommand.Extensions;
 
@@ -29,7 +29,6 @@ public static class DataRecordExtensions
         int ordinal = dataRecord.GetOrdinal(name);
         return !dataRecord.IsDBNull(ordinal) ? null : dataRecord.GetBoolean(ordinal);
     }
-
 
     /// <summary>Gets the 8-bit unsigned integer value of the specified column.</summary>
     /// <param name="dataRecord">The data record.</param>
@@ -62,25 +61,34 @@ public static class DataRecordExtensions
     {
         int ordinal = dataRecord.GetOrdinal(name);
         if (dataRecord.IsDBNull(ordinal))
-            return new byte[0];
+            return Array.Empty<byte>();
 
+        return GetBytes(dataRecord, ordinal);
+    }
+
+    /// <summary>Gets a stream of bytes from the  specified column.</summary>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="index">The zero-based column ordinal.</param>
+    /// <returns>A stream of bytes of the specified column.</returns>
+    public static byte[] GetBytes(this IDataRecord dataRecord, int index)
+    {
         //get the length of data
-        long size = dataRecord.GetBytes(ordinal, 0, null, 0, 0);
+        long size = dataRecord.GetBytes(index, 0, null, 0, 0);
         byte[] buffer = new byte[size];
 
-        int bufferSize = 1024;
+        int bufferSize = size <= 1024 ? (int)size : 1024;
         long bytesRead = 0;
         int offset = 0;
 
         while (bytesRead < size)
         {
-            bytesRead += dataRecord.GetBytes(ordinal, offset, buffer, offset, bufferSize);
+            bytesRead += dataRecord.GetBytes(index, offset, buffer, offset, bufferSize);
             offset += bufferSize;
         }
 
         return buffer;
-    }
 
+    }
 
     /// <summary>
     /// Reads a stream of bytes from the specified column offset into the buffer as an array, starting at the given buffer offset.
@@ -193,14 +201,7 @@ public static class DataRecordExtensions
         if (dataRecord.IsDBNull(ordinal))
             return DateTimeOffset.MinValue;
 
-        var value = dataRecord.GetValue(ordinal);
-        if (value is DateTimeOffset offset)
-            return offset;
-
-        var date = dataRecord.GetDateTime(ordinal);
-        date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
-
-        return new DateTimeOffset(date, TimeSpan.Zero);
+        return GetDateTimeOffset(dataRecord, ordinal);
     }
 
     /// <summary>Gets the date and time data value of the specified field.</summary>
@@ -214,11 +215,23 @@ public static class DataRecordExtensions
         if (dataRecord.IsDBNull(ordinal))
             return null;
 
-        var value = dataRecord.GetValue(ordinal);
+        return GetDateTimeOffset(dataRecord, ordinal);
+    }
+
+    /// <summary>Gets the date and time data value of the specified field.</summary>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="index">The zero-based column ordinal.</param>
+    /// <returns>The date and time data value of the specified field.</returns>
+    public static DateTimeOffset GetDateTimeOffset(this IDataRecord dataRecord, int index)
+    {
+        if (dataRecord is DbDataReader dataReader)
+            return dataReader.GetFieldValue<DateTimeOffset>(index);
+
+        var value = dataRecord.GetValue(index);
         if (value is DateTimeOffset offset)
             return offset;
 
-        var date = dataRecord.GetDateTime(ordinal);
+        var date = dataRecord.GetDateTime(index);
         date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
 
         return new DateTimeOffset(date, TimeSpan.Zero);
@@ -423,6 +436,23 @@ public static class DataRecordExtensions
     {
         int ordinal = dataRecord.GetOrdinal(name);
         return dataRecord.IsDBNull(ordinal) ? null : dataRecord.GetValue(ordinal);
+    }
+
+    /// <summary>
+    /// Gets the value of the specified field.
+    /// </summary>
+    /// <typeparam name="T">The record value type</typeparam>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="index">The zero-based column ordinal.</param>
+    /// <returns>
+    /// The <typeparamref name="T"/> which will contain the field value upon return.
+    /// </returns>
+    public static T GetValue<T>(this IDataRecord dataRecord, int index)
+    {
+        if (dataRecord is DbDataReader dataReader)
+            return dataReader.GetFieldValue<T>(index);
+
+        return (T)dataRecord.GetValue(index);
     }
 
     /// <summary>Determines whether the specified field is set to <see langword="null"/>.</summary>
