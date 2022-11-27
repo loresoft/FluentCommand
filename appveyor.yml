@@ -26,7 +26,8 @@ install:
   - dotnet tool install --global coveralls.net
 
 build_script:
-  - dotnet pack FluentCommand.sln --configuration Release --include-symbols --include-source
+  - dotnet build FluentCommand.sln --configuration Release 
+  - dotnet pack FluentCommand.sln --no-build --no-restore --configuration Release --include-symbols --include-source
 
 test_script:
   - dotnet test FluentCommand.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
