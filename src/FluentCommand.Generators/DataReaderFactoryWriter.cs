@@ -5,7 +5,7 @@ namespace FluentCommand.Generators;
 
 public static class DataReaderFactoryWriter
 {
-    public static string Generate(EntityClass entityClass)
+    public static string Generate(EntityClass entityClass, bool skipVersion = false)
     {
         var codeBuilder = new IndentedStringBuilder();
         codeBuilder
@@ -31,7 +31,7 @@ public static class DataReaderFactoryWriter
             .Append("[global::System.CodeDom.Compiler.GeneratedCode(\"")
             .Append(ThisAssembly.Project.AssemblyName)
             .Append("\", \"")
-            .Append(ThisAssembly.Info.Version)
+            .Append(skipVersion ? "1.0.0.0" : ThisAssembly.Info.Version)
             .AppendLine("\")]");
 
         codeBuilder
@@ -64,7 +64,7 @@ public static class DataReaderFactoryWriter
 
     private static void WriteQuerySingleEntityTask(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
-        // public static Task<Entity> QuerySingleEntityAsync(this IDataCommand dataCommand) => QuerySingleAsync(dataCommand, EntityFactory);
+        // public static Task<Entity> QuerySingleEntityAsync(this IDataQueryAsync dataQuery) => QuerySingleAsync(dataQuery, EntityFactory);
         codeBuilder
             .AppendLine("/// <summary>")
             .Append("/// Executes the query and returns the first row in the result as a <see cref=\"T:")
@@ -73,7 +73,7 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityName)
             .AppendLine("\"/> object.")
             .AppendLine("/// </summary>")
-            .AppendLine("/// <param name=\"dataCommand\">The <see cref=\"T:FluentCommand.IDataCommand\"/> for this extension method.</param>")
+            .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQueryAsync\"/> for this extension method.</param>")
             .AppendLine("/// <returns>")
             .Append("/// A instance of <see cref=\"")
             .Append(entity.EntityNamespace)
@@ -87,9 +87,9 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityName)
             .Append("> QuerySingle")
             .Append(entity.EntityName)
-            .AppendLine("Async(this global::FluentCommand.IDataCommand dataCommand)")
+            .AppendLine("Async(this global::FluentCommand.IDataQueryAsync dataQuery)")
             .IncrementIndent()
-            .Append("=> global::FluentCommand.Internal.DataSequentialReader.QuerySingleAsync(dataCommand, ")
+            .Append("=> global::FluentCommand.Internal.DataSequentialReader.QuerySingleAsync(dataQuery, ")
             .Append(entity.EntityName)
             .AppendLine("Factory);")
             .DecrementIndent()
@@ -98,7 +98,7 @@ public static class DataReaderFactoryWriter
 
     private static void WriteQueryEntityTask(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
-        // public static Task<IEnumerable<Entity>> QueryEntityAsync(this IDataCommand dataCommand) => QueryAsync(dataCommand, EntityFactory);
+        // public static Task<IEnumerable<Entity>> QueryEntityAsync(this IDataQueryAsync dataQuery) => QueryAsync(dataQuery, EntityFactory);
         codeBuilder
             .AppendLine("/// <summary>")
             .Append("/// Executes the command against the connection and converts the results to <see cref=\"T:")
@@ -107,7 +107,7 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityName)
             .AppendLine("\"/> objects.")
             .AppendLine("/// </summary>")
-            .AppendLine("/// <param name=\"dataCommand\">The <see cref=\"T:FluentCommand.IDataCommand\"/> for this extension method.</param>")
+            .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQueryAsync\"/> for this extension method.</param>")
             .AppendLine("/// <returns>")
             .Append("/// An <see cref=\"T:System.Collections.Generic.IEnumerable`1\" /> of <see cref=\"T:")
             .Append(entity.EntityNamespace)
@@ -121,9 +121,9 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityName)
             .Append(">> Query")
             .Append(entity.EntityName)
-            .AppendLine("Async(this global::FluentCommand.IDataCommand dataCommand)")
+            .AppendLine("Async(this global::FluentCommand.IDataQueryAsync dataQuery)")
             .IncrementIndent()
-            .Append("=> global::FluentCommand.Internal.DataSequentialReader.QueryAsync(dataCommand, ")
+            .Append("=> global::FluentCommand.Internal.DataSequentialReader.QueryAsync(dataQuery, ")
             .Append(entity.EntityName)
             .AppendLine("Factory);")
             .DecrementIndent()
@@ -133,7 +133,7 @@ public static class DataReaderFactoryWriter
 
     private static void WriteQuerySingleEntity(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
-        // public static Entity QuerySingleEntity(this IDataCommand dataCommand) => QuerySingle(dataCommand, EntityFactory);
+        // public static Entity QuerySingleEntity(this IDataQuery dataQuery) => QuerySingle(dataQuery, EntityFactory);
         codeBuilder
             .AppendLine("/// <summary>")
             .Append("/// Executes the query and returns the first row in the result as a <see cref=\"T:")
@@ -142,7 +142,7 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityName)
             .AppendLine("\"/> object.")
             .AppendLine("/// </summary>")
-            .AppendLine("/// <param name=\"dataCommand\">The <see cref=\"T:FluentCommand.IDataCommand\"/> for this extension method.</param>")
+            .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQuery\"/> for this extension method.</param>")
             .AppendLine("/// <returns>")
             .Append("/// A instance of <see cref=\"")
             .Append(entity.EntityNamespace)
@@ -156,9 +156,9 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityName)
             .Append(" QuerySingle")
             .Append(entity.EntityName)
-            .AppendLine("(this global::FluentCommand.IDataCommand dataCommand)")
+            .AppendLine("(this global::FluentCommand.IDataQuery dataQuery)")
             .IncrementIndent()
-            .Append("=> global::FluentCommand.Internal.DataSequentialReader.QuerySingle(dataCommand, ")
+            .Append("=> global::FluentCommand.Internal.DataSequentialReader.QuerySingle(dataQuery, ")
             .Append(entity.EntityName)
             .AppendLine("Factory);")
             .DecrementIndent()
@@ -167,7 +167,7 @@ public static class DataReaderFactoryWriter
 
     private static void WriteQueryEntity(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
-        // public static IEnumerable<Entity> QueryEntity(this IDataCommand dataCommand) => Query(dataCommand, EntityFactory);
+        // public static IEnumerable<Entity> QueryEntity(this IDataQuery dataQuery) => Query(dataQuery, EntityFactory);
         codeBuilder
             .AppendLine("/// <summary>")
             .Append("/// Executes the command against the connection and converts the results to <see cref=\"T:")
@@ -176,7 +176,7 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityName)
             .AppendLine("\"/> objects.")
             .AppendLine("/// </summary>")
-            .AppendLine("/// <param name=\"dataCommand\">The <see cref=\"T:FluentCommand.IDataCommand\"/> for this extension method.</param>")
+            .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQuery\"/> for this extension method.</param>")
             .AppendLine("/// <returns>")
             .Append("/// An <see cref=\"T:System.Collections.Generic.IEnumerable`1\" /> of <see cref=\"T:")
             .Append(entity.EntityNamespace)
@@ -190,9 +190,9 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityName)
             .Append("> Query")
             .Append(entity.EntityName)
-            .AppendLine("(this global::FluentCommand.IDataCommand dataCommand)")
+            .AppendLine("(this global::FluentCommand.IDataQuery dataQuery)")
             .IncrementIndent()
-            .Append("=> global::FluentCommand.Internal.DataSequentialReader.Query(dataCommand, ")
+            .Append("=> global::FluentCommand.Internal.DataSequentialReader.Query(dataQuery, ")
             .Append(entity.EntityName)
             .AppendLine("Factory);")
             .DecrementIndent()

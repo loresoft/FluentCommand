@@ -1,5 +1,6 @@
 using System;
-using System.Data.SQLite;
+
+using Microsoft.Data.Sqlite;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -25,7 +26,7 @@ public abstract class DatabaseTestBase : IDisposable
     {
         var dataLogger = new DataQueryLogger(Output.WriteLine);
         return new DataConfiguration(
-            SQLiteFactory.Instance,
+            SqliteFactory.Instance,
             Fixture.ConnectionString,
             queryLogger: dataLogger);
     }

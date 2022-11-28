@@ -1,4 +1,4 @@
-﻿-- Tables
+-- Tables
 CREATE TABLE IF NOT EXISTS "Audit" (
     "Id" integer NOT NULL PRIMARY KEY AUTOINCREMENT NOT NULL,
     "Date" datetime NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS "Priority" (
 );
 
 CREATE TABLE IF NOT EXISTS "Role" (
-    "Id" uniqueidentifier NOT NULL,
+    "Id" guid NOT NULL,
     "Name" nvarchar(256) NOT NULL,
     "Description" text NULL,
     "Created" datetimeoffset NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS "Status" (
 );
 
 CREATE TABLE IF NOT EXISTS "Task" (
-    "Id" uniqueidentifier NOT NULL,
+    "Id" guid NOT NULL,
     "StatusId" int NOT NULL,
     "PriorityId" int NULL,
     "Title" nvarchar(255) NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS "Task" (
     "StartDate" datetimeoffset NULL,
     "DueDate" datetimeoffset NULL,
     "CompleteDate" datetimeoffset NULL,
-    "AssignedId" uniqueidentifier NULL,
+    "AssignedId" guid NULL,
     "Created" datetimeoffset NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "CreatedBy" nvarchar(100) NULL,
     "Updated" datetimeoffset NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS "Task" (
 );
 
 CREATE TABLE IF NOT EXISTS "TaskExtended" (
-    "TaskId" uniqueidentifier NOT NULL,
+    "TaskId" guid NOT NULL,
     "UserAgent" text NULL,
     "Browser" nvarchar(256) NULL,
     "OperatingSystem" nvarchar(256) NULL,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS "TaskExtended" (
 );
 
 CREATE TABLE IF NOT EXISTS "User" (
-    "Id" uniqueidentifier NOT NULL,
+    "Id" guid NOT NULL,
     "EmailAddress" nvarchar(256) NOT NULL,
     "IsEmailAddressConfirmed" bit NOT NULL DEFAULT (0),
     "DisplayName" nvarchar(256) NOT NULL,
@@ -110,9 +110,9 @@ CREATE TABLE IF NOT EXISTS "User" (
 );
 
 CREATE TABLE IF NOT EXISTS "UserLogin" (
-    "Id" uniqueidentifier NOT NULL,
+    "Id" guid NOT NULL,
     "EmailAddress" nvarchar(256) NOT NULL,
-    "UserId" uniqueidentifier NULL,
+    "UserId" guid NULL,
     "UserAgent" text NULL,
     "Browser" nvarchar(256) NULL,
     "OperatingSystem" nvarchar(256) NULL,
@@ -132,8 +132,8 @@ CREATE TABLE IF NOT EXISTS "UserLogin" (
 );
 
 CREATE TABLE IF NOT EXISTS "UserRole" (
-    "UserId" uniqueidentifier NOT NULL,
-    "RoleId" uniqueidentifier NOT NULL,
+    "UserId" guid NOT NULL,
+    "RoleId" guid NOT NULL,
     CONSTRAINT "PK_UserRole" PRIMARY KEY ("UserId", "RoleId"),
     CONSTRAINT "FK_UserRole_Role_RoleId" FOREIGN KEY ("RoleId") REFERENCES "Role" ("Id"),
     CONSTRAINT "FK_UserRole_User_UserId" FOREIGN KEY ("UserId") REFERENCES "User" ("Id")

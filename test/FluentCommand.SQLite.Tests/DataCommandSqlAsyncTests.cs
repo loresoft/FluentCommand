@@ -18,7 +18,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     {
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -54,7 +54,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         user.EmailAddress.Should().Be(email);
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -65,13 +65,13 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleAsync<User>();
+            .QuerySingleUserAsync();
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryCacheAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -83,7 +83,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         var user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleAsync<User>();
+            .QuerySingleUserAsync();
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -91,14 +91,14 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         var cachedUser = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleAsync<User>();
+            .QuerySingleUserAsync();
 
         cachedUser.Should().NotBeNull();
         cachedUser.EmailAddress.Should().Be(email);
 
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityDynamicAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -115,7 +115,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         Assert.Equal(user.EmailAddress, email);
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -151,7 +151,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         users.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityDynamicAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -168,7 +168,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         users.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityDynamicCacheAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -200,7 +200,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         cachedList.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityFactoryAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -211,13 +211,13 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryAsync<User>();
+            .QueryUserAsync();
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQueryTableAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -233,7 +233,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         users.Should().NotBeNull();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQueryValueAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -249,7 +249,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         count.Should().BeGreaterThan(0);
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlReaderAsync()
     {
         var session = GetConfiguration().CreateSession();
@@ -277,7 +277,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         users.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public async System.Threading.Tasks.Task SqlQueryMultipleAsync()
     {
 
@@ -297,9 +297,9 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 .Parameter("@EmailAddress", email)
                 .QueryMultipleAsync(async q =>
                 {
-                    user = await q.QuerySingleAsync<User>();
-                    roles = (await q.QueryAsync<Role>()).ToList();
-                    priorities = (await q.QueryAsync<Priority>()).ToList();
+                    user = await q.QuerySingleUserAsync();
+                    roles = (await q.QueryRoleAsync()).ToList();
+                    priorities = (await q.QueryPriorityAsync()).ToList();
                 });
         }
 

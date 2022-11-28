@@ -1,11 +1,12 @@
 using System;
-using System.Data.SQLite;
 using System.IO;
 using System.Reflection;
 using System.Text;
 
 using DbUp;
 using DbUp.Engine.Output;
+
+using Microsoft.Data.Sqlite;
 
 using Xunit.Abstractions;
 
@@ -51,9 +52,8 @@ public class DatabaseFixture : IUpgradeLog, IDisposable
     private void ResolveConnectionString()
     {
         //"Data Source=Tracker.db;Version=3;";
-        var builder = new SQLiteConnectionStringBuilder();
+        var builder = new SqliteConnectionStringBuilder();
         builder.DataSource = $"Tracker-{Guid.NewGuid():N}.db";
-        builder.Version = 3;
 
         _logger.WriteLine($"ConnectionString: '{builder}'");
 

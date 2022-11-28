@@ -18,7 +18,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     {
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQuerySingleEntity()
     {
         var session = GetConfiguration().CreateSession();
@@ -54,7 +54,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         user.EmailAddress.Should().Be(email);
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQuerySingleEntityFactory()
     {
         var session = GetConfiguration().CreateSession();
@@ -65,13 +65,13 @@ public class DataCommandSqlTests : DatabaseTestBase
 
         var user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingle<User>();
+            .QuerySingleUser();
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQuerySingleEntityFactoryCache()
     {
         var session = GetConfiguration().CreateSession();
@@ -83,7 +83,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         var user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingle<User>();
+            .QuerySingleUser();
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -91,14 +91,14 @@ public class DataCommandSqlTests : DatabaseTestBase
         var cachedUser = session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingle<User>();
+            .QuerySingleUser();
 
         cachedUser.Should().NotBeNull();
         cachedUser.EmailAddress.Should().Be(email);
 
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQuerySingleEntityDynamic()
     {
         var session = GetConfiguration().CreateSession();
@@ -115,7 +115,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         Assert.Equal(user.EmailAddress, email);
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQueryEntity()
     {
         var session = GetConfiguration().CreateSession();
@@ -151,7 +151,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         users.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQueryEntityDynamic()
     {
         var session = GetConfiguration().CreateSession();
@@ -168,7 +168,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         users.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQueryEntityDynamicCache()
     {
         var session = GetConfiguration().CreateSession();
@@ -198,7 +198,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         cachedUsers.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQueryEntityFactory()
     {
         var session = GetConfiguration().CreateSession();
@@ -209,13 +209,13 @@ public class DataCommandSqlTests : DatabaseTestBase
 
         var users = session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .Query<User>();
+            .QueryUser();
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQueryTable()
     {
         var session = GetConfiguration().CreateSession();
@@ -231,7 +231,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         users.Should().NotBeNull();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQueryValue()
     {
         var session = GetConfiguration().CreateSession();
@@ -247,7 +247,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         count.Should().BeGreaterThan(0);
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlReader()
     {
         var session = GetConfiguration().CreateSession();
@@ -273,7 +273,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         users.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Local Only")]
+    [Fact]
     public void SqlQueryMultiple()
     {
 
@@ -293,9 +293,9 @@ public class DataCommandSqlTests : DatabaseTestBase
                 .Parameter("@EmailAddress", email)
                 .QueryMultiple(q =>
                 {
-                    user = q.QuerySingle<User>();
-                    roles = q.Query<Role>().ToList();
-                    priorities = q.Query<Priority>().ToList();
+                    user = q.QuerySingleUser();
+                    roles = q.QueryRole().ToList();
+                    priorities = q.QueryPriority().ToList();
                 });
         }
 

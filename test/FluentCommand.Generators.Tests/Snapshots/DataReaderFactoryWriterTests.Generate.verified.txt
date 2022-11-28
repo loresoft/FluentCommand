@@ -9,7 +9,7 @@ namespace FluentCommand.Entities
     /// <summary>
     /// Extension methods for FluentCommand
     /// </summary>
-    [global::System.CodeDom.Compiler.GeneratedCode("FluentCommand.Generators", "10.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCode("FluentCommand.Generators", "1.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.Diagnostics.DebuggerStepThroughAttribute]
     public static partial class StatusDataReaderFactoryExtensions
@@ -17,42 +17,42 @@ namespace FluentCommand.Entities
         /// <summary>
         /// Executes the command against the connection and converts the results to <see cref="T:FluentCommand.Entities.Status"/> objects.
         /// </summary>
-        /// <param name="dataCommand">The <see cref="T:FluentCommand.IDataCommand"/> for this extension method.</param>
+        /// <param name="dataQuery">The <see cref="T:FluentCommand.IDataQuery"/> for this extension method.</param>
         /// <returns>
         /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <see cref="T:FluentCommand.Entities.Status"/> objects.
         /// </returns>
-        public static global::System.Collections.Generic.IEnumerable<FluentCommand.Entities.Status> QueryStatus(this global::FluentCommand.IDataCommand dataCommand)
-            => global::FluentCommand.Internal.DataSequentialReader.Query(dataCommand, StatusFactory);
+        public static global::System.Collections.Generic.IEnumerable<FluentCommand.Entities.Status> QueryStatus(this global::FluentCommand.IDataQuery dataQuery)
+            => global::FluentCommand.Internal.DataSequentialReader.Query(dataQuery, StatusFactory);
 
         /// <summary>
         /// Executes the query and returns the first row in the result as a <see cref="T:FluentCommand.Entities.Status"/> object.
         /// </summary>
-        /// <param name="dataCommand">The <see cref="T:FluentCommand.IDataCommand"/> for this extension method.</param>
+        /// <param name="dataQuery">The <see cref="T:FluentCommand.IDataQuery"/> for this extension method.</param>
         /// <returns>
         /// A instance of <see cref="FluentCommand.Entities.Status"/>  if row exists; otherwise null.
         /// </returns>
-        public static FluentCommand.Entities.Status QuerySingleStatus(this global::FluentCommand.IDataCommand dataCommand)
-            => global::FluentCommand.Internal.DataSequentialReader.QuerySingle(dataCommand, StatusFactory);
+        public static FluentCommand.Entities.Status QuerySingleStatus(this global::FluentCommand.IDataQuery dataQuery)
+            => global::FluentCommand.Internal.DataSequentialReader.QuerySingle(dataQuery, StatusFactory);
 
         /// <summary>
         /// Executes the command against the connection and converts the results to <see cref="T:FluentCommand.Entities.Status"/> objects.
         /// </summary>
-        /// <param name="dataCommand">The <see cref="T:FluentCommand.IDataCommand"/> for this extension method.</param>
+        /// <param name="dataQuery">The <see cref="T:FluentCommand.IDataQueryAsync"/> for this extension method.</param>
         /// <returns>
         /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <see cref="T:FluentCommand.Entities.Status"/> objects.
         /// </returns>
-        public static global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<FluentCommand.Entities.Status>> QueryStatusAsync(this global::FluentCommand.IDataCommand dataCommand)
-            => global::FluentCommand.Internal.DataSequentialReader.QueryAsync(dataCommand, StatusFactory);
+        public static global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<FluentCommand.Entities.Status>> QueryStatusAsync(this global::FluentCommand.IDataQueryAsync dataQuery)
+            => global::FluentCommand.Internal.DataSequentialReader.QueryAsync(dataQuery, StatusFactory);
 
         /// <summary>
         /// Executes the query and returns the first row in the result as a <see cref="T:FluentCommand.Entities.Status"/> object.
         /// </summary>
-        /// <param name="dataCommand">The <see cref="T:FluentCommand.IDataCommand"/> for this extension method.</param>
+        /// <param name="dataQuery">The <see cref="T:FluentCommand.IDataQueryAsync"/> for this extension method.</param>
         /// <returns>
         /// A instance of <see cref="FluentCommand.Entities.Status"/>  if row exists; otherwise null.
         /// </returns>
-        public static global::System.Threading.Tasks.Task<FluentCommand.Entities.Status> QuerySingleStatusAsync(this global::FluentCommand.IDataCommand dataCommand)
-            => global::FluentCommand.Internal.DataSequentialReader.QuerySingleAsync(dataCommand, StatusFactory);
+        public static global::System.Threading.Tasks.Task<FluentCommand.Entities.Status> QuerySingleStatusAsync(this global::FluentCommand.IDataQueryAsync dataQuery)
+            => global::FluentCommand.Internal.DataSequentialReader.QuerySingleAsync(dataQuery, StatusFactory);
 
         /// <summary>
         /// A factory for creating <see cref="T:FluentCommand.Entities.Status"/> objects from the current row in the specified <paramref name="dataRecord"/>.
