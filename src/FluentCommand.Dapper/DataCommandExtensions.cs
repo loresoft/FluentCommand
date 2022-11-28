@@ -3,8 +3,6 @@ using System.Data.Common;
 
 using Dapper;
 
-using static Dapper.SqlMapper;
-
 namespace FluentCommand;
 
 /// <summary>
@@ -12,6 +10,14 @@ namespace FluentCommand;
 /// </summary>
 public static class DataCommandExtensions
 {
+    /// <summary>
+    /// Initializes the <see cref="DataCommandExtensions"/> class.
+    /// </summary>
+    static DataCommandExtensions()
+    {
+        SqlMapper.AddTypeHandler(new ConcurrencyTokenTypeHandler());
+    }
+
 
     /// <summary>
     /// Executes the command against the connection and converts the results to <typeparamref name="TEntity" /> objects.
