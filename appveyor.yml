@@ -26,14 +26,14 @@ install:
   - dotnet tool install --global coveralls.net
 
 build_script:
-  - dotnet build FluentCommand.sln --configuration Release 
+  - dotnet build FluentCommand.sln --configuration Release
   - dotnet pack FluentCommand.sln --no-build --no-restore --configuration Release --include-symbols --include-source
 
 test_script:
-  - dotnet test FluentCommand.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[xunit*]*"
+  - dotnet test FluentCommand.sln --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
 after_test:
-  - csmacnz.coveralls --useRelativePaths --multiple --input "opencover=test\FluentCommand.Tests\coverage.opencover.xml;opencover=test\FluentCommand.Batch.Tests\coverage.opencover.xml;opencover=test\FluentCommand.SqlServer.Tests\coverage.opencover.xml"
+  - ps: .\coveralls.ps1
 
 artifacts:
 - path: artifacts\*.*nupkg
