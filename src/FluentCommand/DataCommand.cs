@@ -504,18 +504,16 @@ public class DataCommand : DisposableBase, IDataCommand
         if (value is null)
             return DBNull.Value;
 
-#if !NETSTANDARD2_0
-        // once ADO supports DateOnly & TimeOnly, this can be removed
         return value switch
         {
+#if !NETSTANDARD2_0
+            // once ADO supports DateOnly & TimeOnly, this can be removed
             DateOnly dateOnly => dateOnly.ToDateTime(new TimeOnly(0, 0)),
             TimeOnly timeOnly => timeOnly.ToString(),
+#endif
             ConcurrencyToken concurrencyToken => concurrencyToken.Value,
             _ => value
         };
-#else
-        return value;
-#endif
     }
 
 
