@@ -4,6 +4,8 @@ using System.Diagnostics;
 
 using FluentCommand.Extensions;
 
+using HashCode = FluentCommand.Internal.HashCode;
+
 namespace FluentCommand;
 
 /// <summary>

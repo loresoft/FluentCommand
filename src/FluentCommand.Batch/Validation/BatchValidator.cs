@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Linq;
 
 using FluentCommand.Extensions;
+
+using HashCode = FluentCommand.Internal.HashCode;
 
 namespace FluentCommand.Batch.Validation;
 
