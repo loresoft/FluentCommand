@@ -1,6 +1,3 @@
-
-using System.Collections.Immutable;
-
 namespace FluentCommand.Generators;
 
 public static class DataReaderFactoryWriter
@@ -287,6 +284,51 @@ public static class DataReaderFactoryWriter
             .AppendLine("}") // for
             .AppendLine();
 
+        if (entity.InitializationMode == InitializationMode.Constructor)
+            WriteReturnConstructor(codeBuilder, entity);
+        else
+            WriteReturnObjectInitializer(codeBuilder, entity);
+
+        codeBuilder
+            .DecrementIndent()
+            .AppendLine("}") // method
+            .AppendLine();
+    }
+
+    private static void WriteReturnConstructor(IndentedStringBuilder codeBuilder, EntityClass entity)
+    {
+        codeBuilder
+            .Append("return new ")
+            .Append(entity.EntityNamespace)
+            .Append(".")
+            .Append(entity.EntityName)
+            .AppendLine("(")
+            .IncrementIndent();
+
+        var index = 0;
+        var count = entity.Properties.Length;
+
+        foreach (var entityProperty in entity.Properties)
+        {
+            var fieldName = CamelCase(entityProperty.PropertyName);
+            codeBuilder
+                .Append(entityProperty.ParameterName)
+                .Append(": ")
+                .Append(fieldName);
+
+            if (++index == count)
+                codeBuilder.AppendLine();
+            else
+                codeBuilder.AppendLine(",");
+        }
+
+        codeBuilder
+            .DecrementIndent()
+            .AppendLine(");"); // new
+    }
+
+    private static void WriteReturnObjectInitializer(IndentedStringBuilder codeBuilder, EntityClass entity)
+    {
         codeBuilder
             .Append("return new ")
             .Append(entity.EntityNamespace)
@@ -295,24 +337,26 @@ public static class DataReaderFactoryWriter
             .AppendLine("{")
             .IncrementIndent();
 
+        var index = 0;
+        var count = entity.Properties.Length;
+
         foreach (var entityProperty in entity.Properties)
         {
             var fieldName = CamelCase(entityProperty.PropertyName);
             codeBuilder
                 .Append(entityProperty.PropertyName)
                 .Append(" = ")
-                .Append(fieldName)
-                .AppendLine(",");
+                .Append(fieldName);
+
+            if (++index == count)
+                codeBuilder.AppendLine();
+            else
+                codeBuilder.AppendLine(",");
         }
 
         codeBuilder
             .DecrementIndent()
             .AppendLine("};"); // new
-
-        codeBuilder
-            .DecrementIndent()
-            .AppendLine("}") // method
-            .AppendLine();
     }
 
     private static string GetAliasMap(string type)
@@ -406,20 +450,3 @@ public static class DataReaderFactoryWriter
     }
 }
 
-public record EntityClass(
-    InitializationMode InitializationMode,
-    string EntityNamespace,
-    string EntityName,
-    ImmutableArray<EntityProperty> Properties
-);
-
-public record EntityProperty(
-    string PropertyName,
-    string PropertyType
-);
-
-public enum InitializationMode
-{
-    ObjectInitializer,
-    Constructor
-}

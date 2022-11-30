@@ -15,9 +15,27 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             fullyQualifiedMetadataName: "FluentCommand.GenerateDataReaderAttribute",
             predicate: SyntacticPredicate,
             transform: SemanticTransform
-        );
+        )
+        .Where(static context => context is not null);
 
-        context.RegisterSourceOutput(provider, Execute);
+        // Emit the diagnostic, if needed
+        var diagnostics = provider
+            .Select(static (item, _) => item.Diagnostics)
+            .Where(static item => !item.IsDefaultOrEmpty);
+
+        context.RegisterSourceOutput(diagnostics, ReportDiagnostic);
+
+        var entityClasses = provider
+            .Select(static (item, _) => item.EntityClass)
+            .Where(static item => item is not null);
+
+        context.RegisterSourceOutput(entityClasses, Execute);
+    }
+
+    private static void ReportDiagnostic(SourceProductionContext context, ImmutableArray<Diagnostic> diagnostics)
+    {
+        foreach (var diagnostic in diagnostics)
+            context.ReportDiagnostic(diagnostic);
     }
 
     private static void Execute(SourceProductionContext context, EntityClass entityClass)
@@ -37,23 +55,81 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             || syntaxNode is RecordDeclarationSyntax { AttributeLists.Count: > 0 } recordDeclaration && !recordDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword);
     }
 
-    private static EntityClass SemanticTransform(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
+    private static EntityContext SemanticTransform(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
     {
         if (context.TargetSymbol is not INamedTypeSymbol targetSymbol)
             return null;
 
+
         var classNamespace = targetSymbol.ContainingNamespace.ToDisplayString();
         var className = targetSymbol.Name;
 
-        var properties = targetSymbol
+        var mode = targetSymbol.Constructors.Any(c => c.Parameters.Length == 0)
+            ? InitializationMode.ObjectInitializer
+            : InitializationMode.Constructor;
+
+        var propertySymbols = targetSymbol
             .GetMembers()
             .Where(m => m.Kind == SymbolKind.Property)
             .OfType<IPropertySymbol>()
             .Where(IsIncluded)
-            .Select(p => new EntityProperty(p.Name, p.Type.ToDisplayString()))
-            .ToImmutableArray();
+            .ToList();
 
-        return new EntityClass(InitializationMode.ObjectInitializer, classNamespace, className, properties);
+        if (mode == InitializationMode.ObjectInitializer)
+        {
+            var propertyArray = propertySymbols
+                .Select(p => new EntityProperty(p.Name, p.Type.ToDisplayString()))
+                .ToImmutableArray();
+
+            return new EntityContext(new EntityClass(mode, classNamespace, className, propertyArray), ImmutableArray<Diagnostic>.Empty);
+        }
+
+        // constructor initialization
+        var diagnostics = new List<Diagnostic>();
+
+        // constructor with same number of parameters as properties
+        var constructor = targetSymbol.Constructors.FirstOrDefault(c => c.Parameters.Length == propertySymbols.Count);
+        if (constructor == null)
+        {
+            var constructorDiagnostic = Diagnostic.Create(
+                DiagnosticDescriptors.InvalidConstructor,
+                context.TargetNode.GetLocation(),
+                propertySymbols.Count,
+                className
+            );
+
+            diagnostics.Add(constructorDiagnostic);
+
+            return new EntityContext(null, diagnostics.ToImmutableArray());
+        }
+
+        var properties = new List<EntityProperty>();
+        foreach (var propertySymbol in propertySymbols)
+        {
+            // find matching constructor name 
+            var parameter = constructor
+                .Parameters
+                .FirstOrDefault(p => string.Equals(p.Name, propertySymbol.Name, StringComparison.InvariantCultureIgnoreCase));
+
+            if (parameter == null)
+            {
+                var constructorDiagnostic = Diagnostic.Create(
+                    DiagnosticDescriptors.InvalidConstructorParameter,
+                    context.TargetNode.GetLocation(),
+                    propertySymbol.Name,
+                    className
+                );
+
+                diagnostics.Add(constructorDiagnostic);
+
+                continue;
+            }
+
+            var property = new EntityProperty(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), parameter.Name);
+            properties.Add(property);
+        }
+
+        return new EntityContext(new EntityClass(mode, classNamespace, className, properties.ToImmutableArray()), diagnostics.ToImmutableArray());
     }
 
     public static bool IsIncluded(IPropertySymbol propertySymbol)
@@ -62,6 +138,6 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         if (attributes.Any(a => a.AttributeClass?.ToDisplayString() == "System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute"))
             return false;
 
-        return !propertySymbol.IsIndexer && !propertySymbol.IsAbstract;
+        return !propertySymbol.IsIndexer && !propertySymbol.IsAbstract && propertySymbol.DeclaredAccessibility == Accessibility.Public;
     }
 }
