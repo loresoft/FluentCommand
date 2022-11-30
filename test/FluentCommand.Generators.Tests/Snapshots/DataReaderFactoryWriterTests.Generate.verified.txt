@@ -101,7 +101,7 @@ namespace FluentCommand.Entities
                 Name = name,
                 IsActive = isActive,
                 Updated = updated,
-                RowVersion = rowVersion,
+                RowVersion = rowVersion
             };
         }
 
