@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 
 using FluentCommand.Extensions;
 
@@ -122,7 +119,7 @@ public class DataMergeDefinition
         var entityType = typeof(TEntity);
         var properties = TypeDescriptor.GetProperties(entityType);
 
-        
+
         var tableAttribute = Attribute.GetCustomAttribute(entityType, typeof(TableAttribute)) as TableAttribute;
         if (tableAttribute != null)
         {

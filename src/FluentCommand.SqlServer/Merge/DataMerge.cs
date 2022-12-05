@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using FluentCommand.Extensions;
 
@@ -555,7 +550,7 @@ public class DataMerge : DisposableBase, IDataMerge
         }
         finally
         {
-            _dataSession.ReleaseConnection();
+            await _dataSession.ReleaseConnectionAsync();
         }
     }
 

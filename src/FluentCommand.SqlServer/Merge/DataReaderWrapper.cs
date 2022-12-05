@@ -1,4 +1,3 @@
-using System;
 using System.Data;
 
 namespace FluentCommand.Merge;
@@ -238,20 +237,20 @@ public class DataReaderWrapper : IDataReader
     public int FieldCount => _dataReader.FieldCount;
 
     /// <summary>
-    /// Gets the <see cref="System.Object"/> with the specified i.
+    /// Gets the <see cref="object"/> with the specified i.
     /// </summary>
     /// <value>
-    /// The <see cref="System.Object"/>.
+    /// The <see cref="object"/>.
     /// </value>
     /// <param name="i">The i.</param>
     /// <returns></returns>
     object IDataRecord.this[int i] => _dataReader[i];
 
     /// <summary>
-    /// Gets the <see cref="System.Object"/> with the specified name.
+    /// Gets the <see cref="object"/> with the specified name.
     /// </summary>
     /// <value>
-    /// The <see cref="System.Object"/>.
+    /// The <see cref="object"/>.
     /// </value>
     /// <param name="name">The name.</param>
     /// <returns></returns>

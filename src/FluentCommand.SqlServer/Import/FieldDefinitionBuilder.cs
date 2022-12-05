@@ -1,6 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-
 namespace FluentCommand.Import;
 
 /// <summary>
@@ -217,7 +214,7 @@ public class FieldDefinitionBuilder
     /// <returns>
     /// Fluent builder for <see cref="FieldDefinition" />
     /// </returns>
-    public FieldDefinitionBuilder Translator<T>() 
+    public FieldDefinitionBuilder Translator<T>()
         where T : IFieldTranslator
     {
         _fieldDefinition.Translator = typeof(T);

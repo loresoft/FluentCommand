@@ -8,7 +8,6 @@ using DataGenerator.Sources;
 using FluentAssertions;
 
 using FluentCommand.Entities;
-using FluentCommand.Extensions;
 using FluentCommand.Merge;
 
 using Xunit;

@@ -1,5 +1,3 @@
-﻿using System;
-
 namespace FluentCommand.Import;
 
 /// <summary>
@@ -23,10 +21,7 @@ public class ImportFieldMapping
     /// <exception cref="ArgumentNullException">definition is null</exception>
     public ImportFieldMapping(FieldDefinition fieldDefinition, FieldMap fieldMap)
     {
-        if (fieldDefinition == null)
-            throw new ArgumentNullException(nameof(fieldDefinition));
-
-        Definition = fieldDefinition;
+        Definition = fieldDefinition ?? throw new ArgumentNullException(nameof(fieldDefinition));
         FieldMap = fieldMap;
     }
 

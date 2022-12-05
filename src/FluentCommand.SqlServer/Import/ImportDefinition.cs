@@ -1,6 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-
 namespace FluentCommand.Import;
 
 /// <summary>
@@ -25,7 +22,7 @@ public class ImportDefinition
     /// The name of the import.
     /// </value>
     public string Name { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the target table to merge the uploaded data into.
     /// </summary>

@@ -1,6 +1,3 @@
-﻿using System;
-using System.Linq;
-
 namespace FluentCommand.Import;
 
 /// <summary>
@@ -17,10 +14,7 @@ public class ImportDefinitionBuilder
     /// <exception cref="ArgumentNullException">importDefinition</exception>
     public ImportDefinitionBuilder(ImportDefinition importDefinition)
     {
-        if (importDefinition == null)
-            throw new ArgumentNullException(nameof(importDefinition));
-
-        _importDefinition = importDefinition;
+        _importDefinition = importDefinition ?? throw new ArgumentNullException(nameof(importDefinition));
     }
 
 

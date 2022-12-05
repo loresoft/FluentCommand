@@ -1,5 +1,3 @@
-﻿using System;
-
 namespace FluentCommand.Merge;
 
 /// <summary>
@@ -14,7 +12,7 @@ public class DataMergeOutputColumn
     /// The name of the column.
     /// </value>
     public string Name { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the current value of the column.
     /// </summary>
@@ -22,7 +20,7 @@ public class DataMergeOutputColumn
     /// The current value of the column.
     /// </value>
     public object Current { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the original value of the column.
     /// </summary>

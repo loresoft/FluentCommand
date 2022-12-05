@@ -1,4 +1,4 @@
-﻿namespace FluentCommand.Merge;
+namespace FluentCommand.Merge;
 
 /// <summary>
 /// How the data should be merged into the table

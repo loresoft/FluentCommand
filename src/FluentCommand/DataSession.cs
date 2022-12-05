@@ -88,10 +88,7 @@ public class DataSession : DisposableBase, IDataSession
     public DataSession(DbTransaction transaction, bool disposeConnection = false, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
         : this(transaction?.Connection, disposeConnection, cache, queryGenerator, logger)
     {
-        if (transaction == null)
-            throw new ArgumentNullException(nameof(transaction));
-
-        Transaction = transaction;
+        Transaction = transaction ?? throw new ArgumentNullException(nameof(transaction));
     }
 
     /// <summary>
@@ -138,7 +135,7 @@ public class DataSession : DisposableBase, IDataSession
     /// </returns>
     public async Task<DbTransaction> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified, CancellationToken cancellationToken = default)
     {
-        await EnsureConnectionAsync();
+        await EnsureConnectionAsync(cancellationToken);
         Transaction = await Connection.BeginTransactionAsync(isolationLevel, cancellationToken);
 
         return Transaction;
@@ -190,7 +187,7 @@ public class DataSession : DisposableBase, IDataSession
             _connectionRequestCount++;
 
         // Check the connection was opened correctly
-        if (Connection.State == ConnectionState.Closed || Connection.State == ConnectionState.Broken)
+        if (Connection.State is ConnectionState.Closed or ConnectionState.Broken)
             throw new InvalidOperationException($"Execution of the command requires an open and available connection. The connection's current state is {Connection.State}.");
     }
 
@@ -214,7 +211,7 @@ public class DataSession : DisposableBase, IDataSession
             _connectionRequestCount++;
 
         // Check the connection was opened correctly
-        if (Connection.State == ConnectionState.Closed || Connection.State == ConnectionState.Broken)
+        if (Connection.State is ConnectionState.Closed or ConnectionState.Broken)
             throw new InvalidOperationException($"Execution of the command requires an open and available connection. The connection's current state is {Connection.State}.");
     }
 
@@ -268,13 +265,12 @@ public class DataSession : DisposableBase, IDataSession
     /// </summary>
     protected override async ValueTask DisposeResourcesAsync()
     {
-        // Release managed resources here.
-        if (Connection != null)
-        {
-            // Dispose the connection created
-            if (_disposeConnection)
-                await Connection.DisposeAsync();
-        }
+        if (Connection == null)
+            return;
+
+        // Dispose the connection created
+        if (_disposeConnection)
+            await Connection.DisposeAsync();
     }
 #endif
 
@@ -283,12 +279,11 @@ public class DataSession : DisposableBase, IDataSession
     /// </summary>
     protected override void DisposeManagedResources()
     {
-        // Release managed resources here.
-        if (Connection != null)
-        {
-            // Dispose the connection created
-            if (_disposeConnection)
-                Connection.Dispose();
-        }
+        if (Connection == null)
+            return;
+
+        // Dispose the connection created
+        if (_disposeConnection)
+            Connection.Dispose();
     }
 }

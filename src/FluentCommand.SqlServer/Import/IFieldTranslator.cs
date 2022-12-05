@@ -1,5 +1,3 @@
-﻿using System.Threading.Tasks;
-
 namespace FluentCommand.Import;
 
 /// <summary>

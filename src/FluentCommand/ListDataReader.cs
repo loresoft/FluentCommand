@@ -1,9 +1,7 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Linq.Expressions;
-using System.Reflection;
 
 using FluentCommand.Extensions;
+using FluentCommand.Reflection;
 
 namespace FluentCommand;
 
@@ -13,15 +11,15 @@ namespace FluentCommand;
 /// <typeparam name="T">The type of items being read</typeparam>
 public class ListDataReader<T> : IDataReader where T : class
 {
-    private static readonly IReadOnlyList<ColumnMap> _columns;
+    // ReSharper disable once StaticMemberInGenericType
+    private static readonly TypeAccessor _typeAccessor;
 
     private readonly IEnumerator<T> _iterator;
-    private readonly HashSet<string> _ignoreNames;
-    private readonly List<ColumnMap> _activeColumns;
+    private readonly List<IMemberAccessor> _activeColumns;
 
     static ListDataReader()
     {
-        _columns = CreateColumnMaps();
+        _typeAccessor = TypeAccessor.GetAccessor<T>();
     }
 
     /// <summary>
@@ -35,8 +33,13 @@ public class ListDataReader<T> : IDataReader where T : class
             throw new ArgumentNullException(nameof(list));
 
         _iterator = list.GetEnumerator();
-        _ignoreNames = new HashSet<string>(ignoreNames ?? Enumerable.Empty<string>());
-        _activeColumns = _columns.Where(c => !_ignoreNames.Contains(c.PropertyName)).ToList();
+
+        var ignored = new HashSet<string>(ignoreNames ?? Enumerable.Empty<string>());
+
+        _activeColumns = _typeAccessor
+            .GetProperties()
+            .Where(c => !ignored.Contains(c.Name))
+            .ToList();
     }
 
     /// <inheritdoc/>
@@ -75,10 +78,10 @@ public class ListDataReader<T> : IDataReader where T : class
         for (int i = 0; i < _activeColumns.Count; i++)
         {
             rowData[0] = i;
-            rowData[1] = _activeColumns[i].ColumnName;
-            rowData[2] = _activeColumns[i].Type;
+            rowData[1] = _activeColumns[i].Column;
+            rowData[2] = _activeColumns[i].MemberType;
             rowData[3] = -1;
-            rowData[4] = _activeColumns[i].Type.IsNullable();
+            rowData[4] = _activeColumns[i].MemberType.IsNullable();
 
             table.Rows.Add(rowData);
         }
@@ -96,16 +99,16 @@ public class ListDataReader<T> : IDataReader where T : class
     public void Dispose() => Close();
 
     /// <inheritdoc/>
-    public string GetName(int i) => _activeColumns[i].ColumnName;
+    public string GetName(int i) => _activeColumns[i].Column;
 
     /// <inheritdoc/>
-    public string GetDataTypeName(int i) => _activeColumns[i].Type.Name;
+    public string GetDataTypeName(int i) => _activeColumns[i].MemberType.Name;
 
     /// <inheritdoc/>
-    public Type GetFieldType(int i) => _activeColumns[i].Type;
+    public Type GetFieldType(int i) => _activeColumns[i].MemberType;
 
     /// <inheritdoc/>
-    public object GetValue(int i) => _activeColumns[i].Accessor.Value.Invoke(_iterator.Current);
+    public object GetValue(int i) => _activeColumns[i].GetValue(_iterator.Current);
 
     /// <inheritdoc/>
     public int GetValues(object[] values)
@@ -119,7 +122,7 @@ public class ListDataReader<T> : IDataReader where T : class
     }
 
     /// <inheritdoc/>
-    public int GetOrdinal(string name) => _activeColumns.FindIndex(p => p.ColumnName == name);
+    public int GetOrdinal(string name) => _activeColumns.FindIndex(p => p.Column == name);
 
     /// <inheritdoc/>
     public bool GetBoolean(int i) => (bool)GetValue(i);
@@ -149,6 +152,9 @@ public class ListDataReader<T> : IDataReader where T : class
     /// <inheritdoc/>
     public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
     {
+        if (buffer == null)
+            throw new ArgumentNullException(nameof(buffer));
+
         string value = (string)GetValue(i);
 
         int available = value.Length - (int)fieldoffset;
@@ -203,71 +209,4 @@ public class ListDataReader<T> : IDataReader where T : class
 
     /// <inheritdoc/>
     public object this[string name] => GetValue(GetOrdinal(name));
-
-
-    private static IReadOnlyList<ColumnMap> CreateColumnMaps()
-    {
-        var columns = new List<ColumnMap>();
-        var entityType = typeof(T);
-
-        foreach (var property in entityType.GetProperties())
-        {
-            var propertyName = property.Name;
-            var columnName = property.Name;
-            var type = property.PropertyType.GetUnderlyingType();
-            var accessor = new Lazy<Func<object, object>>(() => CreatePropertyAccessor(property));
-
-            int order = columns.Count;
-
-            var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
-            if (columnAttribute != null)
-            {
-                if (columnAttribute.Name.HasValue())
-                    columnName = columnAttribute.Name;
-
-                if (columnAttribute.Order > 0)
-                    order = columnAttribute.Order;
-            }
-
-            var column = new ColumnMap(propertyName, columnName, type, order, accessor);
-            columns.Add(column);
-        }
-
-        return columns;
-    }
-
-    private static Func<object, object> CreatePropertyAccessor(PropertyInfo propertyInfo)
-    {
-        if (propertyInfo == null)
-            throw new ArgumentNullException(nameof(propertyInfo));
-
-        if (!propertyInfo.CanRead)
-            return null;
-
-        var instance = Expression.Parameter(typeof(object), "instance");
-        var declaringType = propertyInfo.DeclaringType;
-        var getMethod = propertyInfo.GetGetMethod(true);
-
-        UnaryExpression instanceCast;
-        if (getMethod.IsStatic)
-            instanceCast = null;
-        else if (declaringType.GetTypeInfo().IsValueType)
-            instanceCast = Expression.Convert(instance, declaringType);
-        else
-            instanceCast = Expression.TypeAs(instance, declaringType);
-
-        var call = Expression.Call(instanceCast, getMethod);
-        var valueCast = Expression.TypeAs(call, typeof(object));
-
-        var lambda = Expression.Lambda<Func<object, object>>(valueCast, instance);
-        return lambda.Compile();
-    }
-
-
-    private record struct ColumnMap(
-        string PropertyName,
-        string ColumnName,
-        Type Type,
-        int Ordinal,
-        Lazy<Func<object, object>> Accessor);
 }
