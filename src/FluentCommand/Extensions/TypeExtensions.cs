@@ -1,5 +1,3 @@
-using System;
-
 namespace FluentCommand.Extensions;
 
 /// <summary>
@@ -15,14 +13,10 @@ public static class TypeExtensions
     public static Type GetUnderlyingType(this Type type)
     {
         if (type == null)
-            throw new ArgumentNullException("type");
+            throw new ArgumentNullException(nameof(type));
 
-        Type t = type;
-        bool isNullable = t.IsGenericType && (t.GetGenericTypeDefinition() == typeof(Nullable<>));
-        if (isNullable)
-            return Nullable.GetUnderlyingType(t);
-
-        return t;
+        var isNullable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        return isNullable ? Nullable.GetUnderlyingType(type) : type;
     }
 
     /// <summary>
@@ -34,10 +28,13 @@ public static class TypeExtensions
     /// </returns>
     public static bool IsNullable(this Type type)
     {
+        if (type == null)
+            throw new ArgumentNullException(nameof(type));
+
         if (!type.IsValueType)
             return true;
 
-        return type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Nullable<>));
+        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
     }
 
     /// <summary>
@@ -47,6 +44,9 @@ public static class TypeExtensions
     /// <returns>A default value the specified <paramref name="type"/>.</returns>
     public static object Default(this Type type)
     {
+        if (type == null)
+            throw new ArgumentNullException(nameof(type));
+
         return type.IsValueType
           ? Activator.CreateInstance(type)
           : null;

@@ -79,7 +79,7 @@ public class ListDataReader<T> : IDataReader where T : class
         {
             rowData[0] = i;
             rowData[1] = _activeColumns[i].Column;
-            rowData[2] = _activeColumns[i].MemberType;
+            rowData[2] = _activeColumns[i].MemberType.GetUnderlyingType();
             rowData[3] = -1;
             rowData[4] = _activeColumns[i].MemberType.IsNullable();
 

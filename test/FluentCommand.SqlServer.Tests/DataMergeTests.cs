@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 using DataGenerator;
@@ -28,17 +27,14 @@ public class DataMergeTests : DatabaseTestBase
         var generator = UserImportGenerator();
         var users = generator.List<UserImport>(100);
 
-        int result;
-        using (var session = GetConfiguration().CreateSession())
-        {
-            result = session
-                .MergeData("dbo.User")
-                .Map<UserImport>(m => m
-                    .AutoMap()
-                    .Column(p => p.EmailAddress).Key()
-                )
-                .Execute(users);
-        }
+        using var session = GetConfiguration().CreateSession();
+        var result = session
+            .MergeData("dbo.User")
+            .Map<UserImport>(m => m
+                .AutoMap()
+                .Column(p => p.EmailAddress).Key()
+            )
+            .Execute(users);
 
         result.Should().Be(100);
     }
@@ -49,18 +45,15 @@ public class DataMergeTests : DatabaseTestBase
         var generator = UserImportGenerator();
         var users = generator.List<UserImport>(100);
 
-        List<DataMergeOutputRow> result;
-        using (var session = GetConfiguration().CreateSession())
-        {
-            result = session
-                .MergeData("dbo.User")
-                .Map<UserImport>(m => m
-                    .AutoMap()
-                    .Column(p => p.EmailAddress).Key()
-                )
-                .ExecuteOutput(users)
-                .ToList();
-        }
+        using var session = GetConfiguration().CreateSession();
+        var result = session
+            .MergeData("dbo.User")
+            .Map<UserImport>(m => m
+                .AutoMap()
+                .Column(p => p.EmailAddress).Key()
+            )
+            .ExecuteOutput(users)
+            .ToList();
 
         result.Should().NotBeNullOrEmpty();
     }
@@ -71,29 +64,26 @@ public class DataMergeTests : DatabaseTestBase
         var generator = UserImportGenerator();
         var users = generator.List<UserImport>(100);
 
-        int result;
-        using (var session = GetConfiguration().CreateSession())
-        {
-            result = session
-                .MergeData("dbo.User")
-                .Mode(DataMergeMode.BulkCopy)
-                .Map<UserImport>(m =>
-                {
-                    m.Column(p => p.EmailAddress)
-                        .NativeType("nvarchar(256)")
-                        .Key();
+        using var session = GetConfiguration().CreateSession();
+        var result = session
+            .MergeData("dbo.User")
+            .Mode(DataMergeMode.BulkCopy)
+            .Map<UserImport>(m =>
+            {
+                m.Column(p => p.EmailAddress)
+                    .NativeType("nvarchar(256)")
+                    .Key();
 
-                    m.Column(p => p.DisplayName)
-                        .NativeType("nvarchar(256)");
+                m.Column(p => p.DisplayName)
+                    .NativeType("nvarchar(256)");
 
-                    m.Column(p => p.FirstName)
-                        .NativeType("nvarchar(256)");
+                m.Column(p => p.FirstName)
+                    .NativeType("nvarchar(256)");
 
-                    m.Column(p => p.LastName)
-                        .NativeType("nvarchar(256)");
-                })
-                .Execute(users);
-        }
+                m.Column(p => p.LastName)
+                    .NativeType("nvarchar(256)");
+            })
+            .Execute(users);
 
         result.Should().Be(100);
     }
@@ -104,17 +94,14 @@ public class DataMergeTests : DatabaseTestBase
         var generator = UserImportGenerator();
         var users = generator.List<UserImport>(100);
 
-        int result;
-        using (var session = GetConfiguration().CreateSession())
-        {
-            result = await session
-                .MergeData("dbo.User")
-                .Map<UserImport>(m => m
-                    .AutoMap()
-                    .Column(p => p.EmailAddress).Key()
-                )
-                .ExecuteAsync(users);
-        }
+        await using var session = GetConfiguration().CreateSession();
+        var result = await session
+            .MergeData("dbo.User")
+            .Map<UserImport>(m => m
+                .AutoMap()
+                .Column(p => p.EmailAddress).Key()
+            )
+            .ExecuteAsync(users);
 
         result.Should().Be(100);
     }
@@ -125,19 +112,17 @@ public class DataMergeTests : DatabaseTestBase
         var generator = UserImportGenerator();
         var users = generator.List<UserImport>(100);
 
-        List<DataMergeOutputRow> result;
-        using (var session = GetConfiguration().CreateSession())
-        {
-            var changes = await session
-                .MergeData("dbo.User")
-                .Map<UserImport>(m => m
-                    .AutoMap()
-                    .Column(p => p.EmailAddress).Key()
-                )
-                .ExecuteOutputAsync(users);
+        await using var session = GetConfiguration().CreateSession();
 
-            result = changes.ToList();
-        }
+        var changes = await session
+            .MergeData("dbo.User")
+            .Map<UserImport>(m => m
+                .AutoMap()
+                .Column(p => p.EmailAddress).Key()
+            )
+            .ExecuteOutputAsync(users);
+
+        var result = changes.ToList();
 
         result.Should().NotBeNullOrEmpty();
     }
@@ -148,29 +133,47 @@ public class DataMergeTests : DatabaseTestBase
         var generator = UserImportGenerator();
         var users = generator.List<UserImport>(100);
 
-        int result;
-        using (var session = GetConfiguration().CreateSession())
-        {
-            result = await session
-                .MergeData("dbo.User")
-                .Mode(DataMergeMode.BulkCopy)
-                .Map<UserImport>(m =>
-                {
-                    m.Column(p => p.EmailAddress)
-                        .NativeType("nvarchar(256)")
-                        .Key();
+        await using var session = GetConfiguration().CreateSession();
+        var result = await session
+            .MergeData("dbo.User")
+            .Mode(DataMergeMode.BulkCopy)
+            .Map<UserImport>(m =>
+            {
+                m.Column(p => p.FirstName)
+                    .NativeType("nvarchar(256)");
 
-                    m.Column(p => p.DisplayName)
-                        .NativeType("nvarchar(256)");
+                m.Column(p => p.LastName)
+                    .NativeType("nvarchar(256)");
 
-                    m.Column(p => p.FirstName)
-                        .NativeType("nvarchar(256)");
+                m.Column(p => p.EmailAddress)
+                    .NativeType("nvarchar(256)")
+                    .Key();
 
-                    m.Column(p => p.LastName)
-                        .NativeType("nvarchar(256)");
-                })
-                .ExecuteAsync(users);
-        }
+                m.Column(p => p.DisplayName)
+                    .NativeType("nvarchar(256)");
+
+            })
+            .ExecuteAsync(users);
+
+        result.Should().Be(100);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task ExecuteAsyncBulkCopyAutoTest()
+    {
+        var generator = UserImportGenerator();
+        var users = generator.List<UserImport>(100);
+
+        await using var session = GetConfiguration().CreateSession();
+        var result = await session
+            .MergeData("dbo.User")
+            .Mode(DataMergeMode.BulkCopy)
+            .Map<UserImport>(m =>
+            {
+                m.AutoMap();
+                m.Column(p => p.EmailAddress).Key();
+            })
+            .ExecuteAsync(users);
 
         result.Should().Be(100);
     }
@@ -184,7 +187,7 @@ public class DataMergeTests : DatabaseTestBase
                 e.AutoMap();
 
                 e.Property(p => p.DisplayName).DataSource<NameSource>();
-                e.Property(p => p.EmailAddress).Value(u => $"MergeTest.{Guid.NewGuid()}@mailinator.com");
+                e.Property(p => p.EmailAddress).Value(u => $"test+{DateTime.Now.Ticks}@mailinator.com");
             })
         );
 

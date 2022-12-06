@@ -146,14 +146,21 @@ public class DataMerge : DisposableBase, IDataMerge
     /// <returns>The number of rows processed.</returns>
     public int Execute<TEntity>(IEnumerable<TEntity> data)
         where TEntity : class
-
     {
+        if (data == null)
+            throw new ArgumentNullException(nameof(data));
+
         var ignoreNames = _mergeDefinition.Columns
             .Where(c => c.IsIgnored)
             .Select(c => c.SourceColumn);
 
-        var dataTable = data.ToDataTable(ignoreNames);
-        return Execute(dataTable);
+        var rows = data.Count();
+        using var listDataReader = new ListDataReader<TEntity>(data, ignoreNames);
+
+        int result = 0;
+        Merge(listDataReader, rows, command => result = command.ExecuteNonQuery());
+
+        return result;
     }
 
     /// <summary>
@@ -175,11 +182,18 @@ public class DataMerge : DisposableBase, IDataMerge
     /// </exception>
     public int Execute(DataTable tableData)
     {
+        if (tableData == null)
+            throw new ArgumentNullException(nameof(tableData));
+
+        var rows = tableData.Rows.Count;
+        var reader = tableData.CreateDataReader();
+
         int result = 0;
-        Merge(tableData, command => result = command.ExecuteNonQuery());
+        Merge(reader, rows, command => result = command.ExecuteNonQuery());
 
         return result;
     }
+
 
     /// <summary>
     /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/> asynchronously.
@@ -195,8 +209,17 @@ public class DataMerge : DisposableBase, IDataMerge
             .Where(c => c.IsIgnored)
             .Select(c => c.SourceColumn);
 
-        var dataTable = data.ToDataTable(ignoreNames);
-        var result = await ExecuteAsync(dataTable, cancellationToken);
+        var rows = data.Count();
+        using var listDataReader = new ListDataReader<TEntity>(data, ignoreNames);
+
+        int result = 0;
+        await MergeAsync(listDataReader, rows, cancellationToken, async (command, token) =>
+        {
+            result = await command
+                .ExecuteNonQueryAsync(token)
+                .ConfigureAwait(false);
+
+        }).ConfigureAwait(false);
 
         return result;
     }
@@ -221,8 +244,11 @@ public class DataMerge : DisposableBase, IDataMerge
     /// </exception>
     public async Task<int> ExecuteAsync(DataTable tableData, CancellationToken cancellationToken = default)
     {
+        var rows = tableData.Rows.Count;
+        var reader = tableData.CreateDataReader();
+
         int result = 0;
-        await MergeAsync(tableData, cancellationToken, async (command, token) =>
+        await MergeAsync(reader, rows, cancellationToken, async (command, token) =>
             {
                 result = await command
                     .ExecuteNonQueryAsync(token)
@@ -245,12 +271,30 @@ public class DataMerge : DisposableBase, IDataMerge
     public IEnumerable<DataMergeOutputRow> ExecuteOutput<TEntity>(IEnumerable<TEntity> data)
         where TEntity : class
     {
+        // update definition to include output
+        _mergeDefinition.IncludeOutput = true;
+
+        var results = Enumerable.Empty<DataMergeOutputRow>();
+
         var ignoreNames = _mergeDefinition.Columns
             .Where(c => c.IsIgnored)
             .Select(c => c.SourceColumn);
 
-        var dataTable = data.ToDataTable(ignoreNames);
-        return ExecuteOutput(dataTable);
+        var columns = _mergeDefinition.Columns
+            .Where(c => c.IsIgnored == false)
+            .ToList();
+
+        var rows = data.Count();
+        using var listDataReader = new ListDataReader<TEntity>(data, ignoreNames);
+
+        // run merge capturing output
+        Merge(listDataReader, rows, command =>
+        {
+            using var reader = command.ExecuteReader();
+            results = CaptureOutput(reader, columns);
+        });
+
+        return results;
     }
 
     /// <summary>
@@ -273,47 +317,24 @@ public class DataMerge : DisposableBase, IDataMerge
         // update definition to include output
         _mergeDefinition.IncludeOutput = true;
 
-        var results = new List<DataMergeOutputRow>();
+        var results = Enumerable.Empty<DataMergeOutputRow>();
         var columns = _mergeDefinition.Columns
             .Where(c => c.IsIgnored == false)
             .ToList();
 
+        var rows = table.Rows.Count;
+        var dataTableReader = table.CreateDataReader();
+
         // run merge capturing output
-        Merge(table, command =>
+        Merge(dataTableReader, rows, command =>
         {
-            using (IDataReader reader = command.ExecuteReader())
-            {
-                var originalReader = new DataReaderWrapper(reader, DataMergeGenerator.OriginalPrefix);
-                var currentReader = new DataReaderWrapper(reader, DataMergeGenerator.CurrentPrefix);
-
-                while (reader.Read())
-                {
-                    var output = new DataMergeOutputRow();
-
-                    string action = reader.GetString("Action");
-                    output.Action = action;
-
-                    // copy to dictionary
-                    foreach (var column in columns)
-                    {
-                        string name = column.SourceColumn;
-
-                        var outputColumn = new DataMergeOutputColumn();
-                        outputColumn.Name = name;
-                        outputColumn.Original = originalReader.GetValue(name);
-                        outputColumn.Current = currentReader.GetValue(name);
-                        outputColumn.Type = currentReader.GetFieldType(name);
-
-                        output.Columns.Add(outputColumn);
-                    }
-
-                    results.Add(output);
-                }
-            }
+            using var reader = command.ExecuteReader();
+            results = CaptureOutput(reader, columns);
         });
 
         return results;
     }
+
 
     /// <summary>
     /// Merges the specified <paramref name="data" /> into the <see cref="TargetTable" /> capturing the changes in the result asynchronously.
@@ -327,14 +348,28 @@ public class DataMerge : DisposableBase, IDataMerge
     public async Task<IEnumerable<DataMergeOutputRow>> ExecuteOutputAsync<TEntity>(IEnumerable<TEntity> data, CancellationToken cancellationToken = default)
         where TEntity : class
     {
+        // update definition to include output
+        _mergeDefinition.IncludeOutput = true;
+
+        var results = Enumerable.Empty<DataMergeOutputRow>();
+
         var ignoreNames = _mergeDefinition.Columns
             .Where(c => c.IsIgnored)
             .Select(c => c.SourceColumn);
 
-        var dataTable = data.ToDataTable(ignoreNames);
+        var columns = _mergeDefinition.Columns
+            .Where(c => c.IsIgnored == false)
+            .ToList();
 
-        var results = await ExecuteOutputAsync(dataTable, cancellationToken)
-            .ConfigureAwait(false);
+        var rows = data.Count();
+        using var listDataReader = new ListDataReader<TEntity>(data, ignoreNames);
+
+        // run merge capturing output
+        await MergeAsync(listDataReader, rows, cancellationToken, async (command, token) =>
+        {
+            using var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+            results = await CaptureOutputAsync(reader, columns, cancellationToken);
+        });
 
         return results;
     }
@@ -362,200 +397,24 @@ public class DataMerge : DisposableBase, IDataMerge
         // update definition to include output
         _mergeDefinition.IncludeOutput = true;
 
-        var results = new List<DataMergeOutputRow>();
+        var results = Enumerable.Empty<DataMergeOutputRow>();
         var columns = _mergeDefinition.Columns
             .Where(c => c.IsIgnored == false)
             .ToList();
 
+        var rows = table.Rows.Count;
+        var dataTableReader = table.CreateDataReader();
+
         // run merge capturing output
-        await MergeAsync(table, cancellationToken, async (command, token) =>
+        await MergeAsync(dataTableReader, rows, cancellationToken, async (command, token) =>
         {
-            using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false))
-            {
-                var originalReader = new DataReaderWrapper(reader, DataMergeGenerator.OriginalPrefix);
-                var currentReader = new DataReaderWrapper(reader, DataMergeGenerator.CurrentPrefix);
-
-                while (await reader.ReadAsync(token).ConfigureAwait(false))
-                {
-                    var output = new DataMergeOutputRow();
-
-                    string action = reader.GetString("Action");
-                    output.Action = action;
-
-                    // copy to dictionary
-                    foreach (var column in columns)
-                    {
-                        string name = column.SourceColumn;
-
-                        var outputColumn = new DataMergeOutputColumn();
-                        outputColumn.Name = name;
-                        outputColumn.Original = originalReader.GetValue(name);
-                        outputColumn.Current = currentReader.GetValue(name);
-                        outputColumn.Type = currentReader.GetFieldType(name);
-
-                        output.Columns.Add(outputColumn);
-                    }
-
-                    results.Add(output);
-                }
-            }
+            using var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+            results = await CaptureOutputAsync(reader, columns, cancellationToken);
         });
 
         return results;
     }
 
-
-    private void Merge(DataTable tableData, Action<DbCommand> executeFactory)
-    {
-        var isBulk = _mergeDefinition.Mode == DataMergeMode.BulkCopy
-                     || (_mergeDefinition.Mode == DataMergeMode.Auto && tableData.Rows.Count > 1000);
-
-        // Step 1, validate definition
-        if (!Validate(_mergeDefinition, isBulk))
-            return;
-
-        try
-        {
-            _dataSession.EnsureConnection();
-
-            var sqlConnection = _dataSession.Connection as SqlConnection;
-            if (sqlConnection == null)
-                throw new InvalidOperationException(
-                    "Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.");
-
-            var sqlTransaction = _dataSession.Transaction as SqlTransaction;
-            string mergeSql;
-
-            if (isBulk)
-            {
-                // Step 2, create temp table
-                string tableSql = DataMergeGenerator.BuildTable(_mergeDefinition);
-                using (var tableCommand = _dataSession.Connection.CreateCommand())
-                {
-                    tableCommand.CommandText = tableSql;
-                    tableCommand.CommandType = CommandType.Text;
-                    tableCommand.Transaction = sqlTransaction;
-
-                    tableCommand.ExecuteNonQuery();
-                }
-
-                // Step 3, bulk copy into temp table
-                using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
-                {
-                    bulkCopy.DestinationTableName = _mergeDefinition.TemporaryTable;
-                    bulkCopy.BatchSize = 1000;
-                    foreach (var mergeColumn in _mergeDefinition.Columns.Where(c => !c.IsIgnored && c.CanBulkCopy))
-                        bulkCopy.ColumnMappings.Add(mergeColumn.SourceColumn, mergeColumn.SourceColumn);
-
-                    bulkCopy.WriteToServer(tableData);
-                }
-
-                // Step 4, merge sql
-                mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition);
-            }
-            else
-            {
-                // build merge from data
-                mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition, tableData);
-            }
-
-            // run merge statement
-            using (var mergeCommand = _dataSession.Connection.CreateCommand())
-            {
-                mergeCommand.CommandText = mergeSql;
-                mergeCommand.CommandType = CommandType.Text;
-                mergeCommand.Transaction = sqlTransaction;
-
-                // run merge with factory
-                executeFactory(mergeCommand);
-            }
-        }
-        finally
-        {
-            _dataSession.ReleaseConnection();
-        }
-    }
-
-    private async Task MergeAsync(DataTable tableData, CancellationToken cancellationToken, Func<DbCommand, CancellationToken, Task> executeFactory)
-    {
-        var isBulk = _mergeDefinition.Mode == DataMergeMode.BulkCopy
-                     || (_mergeDefinition.Mode == DataMergeMode.Auto && tableData.Rows.Count > 1000);
-
-        // Step 1, validate definition
-        if (!Validate(_mergeDefinition, isBulk))
-            return;
-
-        try
-        {
-            await _dataSession
-                .EnsureConnectionAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            var sqlConnection = _dataSession.Connection as SqlConnection;
-            if (sqlConnection == null)
-                throw new InvalidOperationException(
-                    "Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.");
-
-            var sqlTransaction = _dataSession.Transaction as SqlTransaction;
-            string mergeSql;
-
-            if (isBulk)
-            {
-                // Step 2, create temp table
-                string tableSql = DataMergeGenerator.BuildTable(_mergeDefinition);
-                using (var tableCommand = _dataSession.Connection.CreateCommand())
-                {
-                    tableCommand.CommandText = tableSql;
-                    tableCommand.CommandType = CommandType.Text;
-                    tableCommand.Transaction = sqlTransaction;
-
-                    await tableCommand
-                        .ExecuteNonQueryAsync(cancellationToken)
-                        .ConfigureAwait(false);
-                }
-
-                // Step 3, bulk copy into temp table
-                using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
-                {
-                    bulkCopy.DestinationTableName = _mergeDefinition.TemporaryTable;
-                    bulkCopy.BatchSize = 1000;
-                    foreach (var mergeColumn in _mergeDefinition.Columns.Where(c => !c.IsIgnored && c.CanBulkCopy))
-                        bulkCopy.ColumnMappings.Add(mergeColumn.SourceColumn, mergeColumn.SourceColumn);
-
-                    await bulkCopy
-                        .WriteToServerAsync(tableData, cancellationToken)
-                        .ConfigureAwait(false);
-                }
-
-                // Step 4, merge sql
-                mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition);
-            }
-            else
-            {
-                // build merge from data
-                mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition, tableData);
-            }
-
-            // run merge statement
-            using var mergeCommand = _dataSession.Connection.CreateCommand();
-
-            mergeCommand.CommandText = mergeSql;
-            mergeCommand.CommandType = CommandType.Text;
-            mergeCommand.Transaction = sqlTransaction;
-
-            // run merge with factory
-            await executeFactory(mergeCommand, cancellationToken)
-                .ConfigureAwait(false);
-        }
-        finally
-        {
-#if NETSTANDARD2_0
-            _dataSession.ReleaseConnection();
-#else
-            await _dataSession.ReleaseConnectionAsync();
-#endif
-        }
-    }
 
     /// <summary>
     /// Validates the specified merge definition.
@@ -615,4 +474,225 @@ public class DataMerge : DisposableBase, IDataMerge
 
         return true;
     }
+
+
+    private void Merge(IDataReader reader, int rows, Action<DbCommand> executeFactory)
+    {
+        var isBulk = _mergeDefinition.Mode == DataMergeMode.BulkCopy
+                     || (_mergeDefinition.Mode == DataMergeMode.Auto && rows > 1000);
+
+        // Step 1, validate definition
+        if (!Validate(_mergeDefinition, isBulk))
+            return;
+
+        try
+        {
+            _dataSession.EnsureConnection();
+
+            var sqlConnection = _dataSession.Connection as SqlConnection;
+            if (sqlConnection == null)
+                throw new InvalidOperationException(
+                    "Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.");
+
+            var sqlTransaction = _dataSession.Transaction as SqlTransaction;
+            string mergeSql;
+
+            if (isBulk)
+            {
+                // Step 2, create temp table
+                string tableSql = DataMergeGenerator.BuildTable(_mergeDefinition);
+                using (var tableCommand = _dataSession.Connection.CreateCommand())
+                {
+                    tableCommand.CommandText = tableSql;
+                    tableCommand.CommandType = CommandType.Text;
+                    tableCommand.Transaction = sqlTransaction;
+
+                    tableCommand.ExecuteNonQuery();
+                }
+
+                // Step 3, bulk copy into temp table
+                using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                {
+                    bulkCopy.DestinationTableName = _mergeDefinition.TemporaryTable;
+                    bulkCopy.BatchSize = 1000;
+                    foreach (var mergeColumn in _mergeDefinition.Columns.Where(c => !c.IsIgnored && c.CanBulkCopy))
+                        bulkCopy.ColumnMappings.Add(mergeColumn.SourceColumn, mergeColumn.SourceColumn);
+
+                    bulkCopy.WriteToServer(reader);
+                }
+
+                // Step 4, merge sql
+                mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition);
+            }
+            else
+            {
+                // build merge from data
+                mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition, reader);
+            }
+
+            // run merge statement
+            using (var mergeCommand = _dataSession.Connection.CreateCommand())
+            {
+                mergeCommand.CommandText = mergeSql;
+                mergeCommand.CommandType = CommandType.Text;
+                mergeCommand.Transaction = sqlTransaction;
+
+                // run merge with factory
+                executeFactory(mergeCommand);
+            }
+        }
+        finally
+        {
+            _dataSession.ReleaseConnection();
+        }
+    }
+
+    private async Task MergeAsync(IDataReader reader, int rows, CancellationToken cancellationToken, Func<DbCommand, CancellationToken, Task> executeFactory)
+    {
+        var isBulk = _mergeDefinition.Mode == DataMergeMode.BulkCopy
+                     || (_mergeDefinition.Mode == DataMergeMode.Auto && rows > 1000);
+
+        // Step 1, validate definition
+        if (!Validate(_mergeDefinition, isBulk))
+            return;
+
+        try
+        {
+            await _dataSession
+                .EnsureConnectionAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            var sqlConnection = _dataSession.Connection as SqlConnection;
+            if (sqlConnection == null)
+                throw new InvalidOperationException(
+                    "Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.");
+
+            var sqlTransaction = _dataSession.Transaction as SqlTransaction;
+            string mergeSql;
+
+            if (isBulk)
+            {
+                // Step 2, create temp table
+                string tableSql = DataMergeGenerator.BuildTable(_mergeDefinition);
+                using (var tableCommand = _dataSession.Connection.CreateCommand())
+                {
+                    tableCommand.CommandText = tableSql;
+                    tableCommand.CommandType = CommandType.Text;
+                    tableCommand.Transaction = sqlTransaction;
+
+                    await tableCommand
+                        .ExecuteNonQueryAsync(cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                // Step 3, bulk copy into temp table
+                using (var bulkCopy = new SqlBulkCopy(sqlConnection, SqlBulkCopyOptions.Default, sqlTransaction))
+                {
+                    bulkCopy.DestinationTableName = _mergeDefinition.TemporaryTable;
+                    bulkCopy.BatchSize = 1000;
+                    foreach (var mergeColumn in _mergeDefinition.Columns.Where(c => !c.IsIgnored && c.CanBulkCopy))
+                        bulkCopy.ColumnMappings.Add(mergeColumn.SourceColumn, mergeColumn.SourceColumn);
+
+                    await bulkCopy
+                        .WriteToServerAsync(reader, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                // Step 4, merge sql
+                mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition);
+            }
+            else
+            {
+                // build merge from data
+                mergeSql = DataMergeGenerator.BuildMerge(_mergeDefinition, reader);
+            }
+
+            // run merge statement
+            using var mergeCommand = _dataSession.Connection.CreateCommand();
+
+            mergeCommand.CommandText = mergeSql;
+            mergeCommand.CommandType = CommandType.Text;
+            mergeCommand.Transaction = sqlTransaction;
+
+            // run merge with factory
+            await executeFactory(mergeCommand, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+#if NETSTANDARD2_0
+            _dataSession.ReleaseConnection();
+#else
+            await _dataSession.ReleaseConnectionAsync();
+#endif
+        }
+    }
+
+
+    private static IEnumerable<DataMergeOutputRow> CaptureOutput(IDataReader reader, List<DataMergeColumn> columns)
+    {
+        List<DataMergeOutputRow> results = new();
+
+        var originalReader = new DataReaderWrapper(reader, DataMergeGenerator.OriginalPrefix);
+        var currentReader = new DataReaderWrapper(reader, DataMergeGenerator.CurrentPrefix);
+
+        while (reader.Read())
+        {
+            var output = new DataMergeOutputRow();
+
+            var action = reader.GetString("Action");
+            output.Action = action;
+
+            foreach (var column in columns)
+            {
+                var name = column.SourceColumn;
+
+                var outputColumn = new DataMergeOutputColumn();
+                outputColumn.Name = name;
+                outputColumn.Original = originalReader.GetValue(name);
+                outputColumn.Current = currentReader.GetValue(name);
+                outputColumn.Type = currentReader.GetFieldType(name);
+
+                output.Columns.Add(outputColumn);
+            }
+
+            results.Add(output);
+        }
+
+        return results;
+    }
+
+    private static async Task<IEnumerable<DataMergeOutputRow>> CaptureOutputAsync(DbDataReader reader, List<DataMergeColumn> columns, CancellationToken cancellationToken)
+    {
+        List<DataMergeOutputRow> results = new();
+
+        var originalReader = new DataReaderWrapper(reader, DataMergeGenerator.OriginalPrefix);
+        var currentReader = new DataReaderWrapper(reader, DataMergeGenerator.CurrentPrefix);
+
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+            var output = new DataMergeOutputRow();
+
+            string action = reader.GetString("Action");
+            output.Action = action;
+
+            foreach (var column in columns)
+            {
+                string name = column.SourceColumn;
+
+                var outputColumn = new DataMergeOutputColumn();
+                outputColumn.Name = name;
+                outputColumn.Original = originalReader.GetValue(name);
+                outputColumn.Current = currentReader.GetValue(name);
+                outputColumn.Type = currentReader.GetFieldType(name);
+
+                output.Columns.Add(outputColumn);
+            }
+
+            results.Add(output);
+        }
+
+        return results;
+    }
+
 }

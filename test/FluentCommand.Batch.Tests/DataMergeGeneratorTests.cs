@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using FluentAssertions;
 
 using FluentCommand.Entities;
-using FluentCommand.Extensions;
 using FluentCommand.Merge;
 
 using Xunit;
@@ -127,7 +126,7 @@ public class DataMergeGeneratorTests
             }
         };
 
-        var dataTable = users.ToDataTable();
+        var dataTable = new ListDataReader<UserImport>(users);
 
         var sql = DataMergeGenerator.BuildMerge(definition, dataTable);
         sql.Should().NotBeNullOrEmpty();
@@ -178,7 +177,7 @@ public class DataMergeGeneratorTests
             }
         };
 
-        var dataTable = users.ToDataTable();
+        var dataTable = new ListDataReader<UserImport>(users);
 
         var sql = DataMergeGenerator.BuildMerge(definition, dataTable);
         sql.Should().NotBeNullOrEmpty();

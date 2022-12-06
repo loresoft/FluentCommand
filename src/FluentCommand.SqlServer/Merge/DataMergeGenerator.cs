@@ -99,9 +99,9 @@ public static class DataMergeGenerator
     /// Builds the SQL merge statement for the merge operation.
     /// </summary>
     /// <param name="mergeDefinition">The merge definition.</param>
-    /// <param name="table">The data table to generate merge statement with.</param>
+    /// <param name="reader">The data reader to generate merge statement with.</param>
     /// <returns>The merge sql statement</returns>
-    public static string BuildMerge(DataMergeDefinition mergeDefinition, DataTable table)
+    public static string BuildMerge(DataMergeDefinition mergeDefinition, IDataReader reader)
     {
         var mergeColumns = mergeDefinition.Columns
             .Where(c => !c.IsIgnored)
@@ -125,10 +125,10 @@ public static class DataMergeGenerator
             .Append(" AS t")
             .AppendLine();
 
-        if (table == null)
+        if (reader == null)
             AppendUsingSelect(mergeDefinition, mergeColumns, builder);
         else
-            AppendUsingData(mergeDefinition, mergeColumns, table, builder);
+            AppendUsingData(mergeDefinition, mergeColumns, reader, builder);
 
         AppendJoin(mergeColumns, builder);
 
@@ -160,7 +160,7 @@ public static class DataMergeGenerator
     }
 
 
-    private static void AppendUsingData(DataMergeDefinition mergeDefinition, List<DataMergeColumn> mergeColumns, DataTable table, StringBuilder builder)
+    private static void AppendUsingData(DataMergeDefinition mergeDefinition, List<DataMergeColumn> mergeColumns, IDataReader reader, StringBuilder builder)
     {
         builder
             .AppendLine("USING")
@@ -168,30 +168,35 @@ public static class DataMergeGenerator
             .Append(' ', TabSize)
             .AppendLine("VALUES");
 
+        var fields = new HashSet<string>();
+
         bool wroteRow = false;
-        foreach (DataRow row in table.Rows)
+        while (reader.Read())
         {
             bool wrote = false;
 
             builder
                 .AppendLineIf(", ", s => wroteRow)
                 .Append(' ', TabSize)
-                .Append("(");
+            .Append("(");
 
-            for (int i = 0; i < row.ItemArray.Length; i++)
+            for (int i = 0; i < reader.FieldCount; i++)
             {
-                var column = table.Columns[i];
+                var fieldName = reader.GetName(i);
 
-                var isFound = mergeColumns.Any(c => c.SourceColumn == column.ColumnName);
+                var isFound = mergeColumns.Any(c => c.SourceColumn == fieldName);
                 if (!isFound)
                     continue;
 
+                fields.Add(fieldName);
+
                 builder.AppendIf(", ", v => wrote);
 
-                object value = row[i];
-                string stringValue = GetValue(value);
+                var value = reader.GetValue(i);
+                var stringValue = GetValue(value);
+                var fieldType = reader.GetFieldType(i);
 
-                if ((value != null && value != DBNull.Value) && NeedQuote(row.Table.Columns[i].DataType))
+                if ((value != null && value != DBNull.Value) && NeedQuote(fieldType))
                     builder.AppendFormat("'{0}'", stringValue.Replace("'", "''"));
                 else
                     builder.Append(stringValue);
@@ -212,19 +217,12 @@ public static class DataMergeGenerator
             .Append(' ', TabSize);
 
         bool wroteColumn = false;
-
-        for (int i = 0; i < table.Columns.Count; i++)
+        foreach (var field in fields)
         {
-            var column = table.Columns[i];
-
-            var isFound = mergeColumns.Any(c => c.SourceColumn == column.ColumnName);
-            if (!isFound)
-                continue;
-
             if (wroteColumn)
                 builder.Append(", ");
 
-            builder.Append(QuoteIdentifier(column.ColumnName));
+            builder.Append(QuoteIdentifier(field));
             wroteColumn = true;
         }
 

@@ -1,4 +1,4 @@
-﻿-- Tables
+-- Tables
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Audit]') AND type in (N'U'))
 CREATE TABLE [dbo].[Audit] (
     [Id] int IDENTITY(1,1) NOT NULL,
@@ -151,6 +151,8 @@ CREATE TYPE [dbo].[UserImportType] AS TABLE
     [DisplayName] [nvarchar](256) NOT NULL,
     [FirstName] nvarchar(256) NULL,
     [LastName] nvarchar(256) NULL,
+    [LockoutEnd] datetimeoffset NULL,
+    [LastLogin] datetimeoffset NULL,
     PRIMARY KEY ([EmailAddress])
 );
 
