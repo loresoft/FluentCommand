@@ -537,20 +537,23 @@ public class DataMerge : DisposableBase, IDataMerge
             }
 
             // run merge statement
-            using (var mergeCommand = _dataSession.Connection.CreateCommand())
-            {
-                mergeCommand.CommandText = mergeSql;
-                mergeCommand.CommandType = CommandType.Text;
-                mergeCommand.Transaction = sqlTransaction;
+            using var mergeCommand = _dataSession.Connection.CreateCommand();
 
-                // run merge with factory
-                await executeFactory(mergeCommand, cancellationToken)
-                    .ConfigureAwait(false);
-            }
+            mergeCommand.CommandText = mergeSql;
+            mergeCommand.CommandType = CommandType.Text;
+            mergeCommand.Transaction = sqlTransaction;
+
+            // run merge with factory
+            await executeFactory(mergeCommand, cancellationToken)
+                .ConfigureAwait(false);
         }
         finally
         {
+#if NETSTANDARD2_0
+            _dataSession.ReleaseConnection();
+#else
             await _dataSession.ReleaseConnectionAsync();
+#endif
         }
     }
 
