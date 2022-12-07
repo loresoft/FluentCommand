@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.Common;
 
 using FluentCommand.Extensions;
+using FluentCommand.Handlers;
 
 namespace FluentCommand;
 
@@ -66,9 +67,19 @@ public static class DataCommandExtensions
 
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
-        parameter.Value = dataCommand.ConvertParameterValue(value);
-        parameter.DbType = valueType.GetUnderlyingType().ToDbType();
         parameter.Direction = ParameterDirection.Input;
+
+        var handler = DataTypeHandlers.GetTypeHandler<TParameter>(valueType);
+        if (handler != null)
+        {
+            handler.SetValue(parameter, value);
+        }
+        else
+        {
+            parameter.Value = value;
+            parameter.DbType = valueType.GetUnderlyingType().ToDbType();
+        }
+
 
         return dataCommand.Parameter(parameter);
     }
@@ -91,9 +102,10 @@ public static class DataCommandExtensions
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
+        parameter.Direction = ParameterDirection.Input;
+
         parameter.Value = dataCommand.ConvertParameterValue(value);
         parameter.DbType = type.GetUnderlyingType().ToDbType();
-        parameter.Direction = ParameterDirection.Input;
 
         return dataCommand.Parameter(parameter);
     }

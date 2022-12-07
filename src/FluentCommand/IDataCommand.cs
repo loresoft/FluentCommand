@@ -135,14 +135,4 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     /// The number of rows affected.
     /// </returns>
     Task<int> ExecuteAsync(CancellationToken cancellationToken = default);
-
-
-
-    /// <summary>
-    /// Converts the specified <paramref name="value"/> before assigning to <seealso cref="DbParameter.Value"/>
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="value">The value to convert.</param>
-    /// <returns>The converted value</returns>
-    object ConvertParameterValue<TValue>(TValue value);
 }
