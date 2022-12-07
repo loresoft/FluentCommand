@@ -1,6 +1,6 @@
 ﻿/* Caller; SelectEntityWhereLimitBuilder() in SelectBuilderTest.cs:line 78 */
 SELECT [Id], [Name], [Description]
-FROM [Status]
+FROM [dbo].[Status]
 WHERE ([IsActive] = @p0000)
 ORDER BY [DisplayOrder] DESC, [Name] ASC
 OFFSET 50 ROWS FETCH NEXT 25 ROWS ONLY;

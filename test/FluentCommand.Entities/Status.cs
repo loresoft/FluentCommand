@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FluentCommand.Entities;
 
 [GenerateDataReader]
+[Table("Status", Schema = "dbo")]
 public class Status
 {
     public int Id { get; set; }

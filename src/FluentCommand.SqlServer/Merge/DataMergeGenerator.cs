@@ -196,7 +196,8 @@ public static class DataMergeGenerator
                 var stringValue = GetValue(value);
                 var fieldType = reader.GetFieldType(i);
 
-                if ((value != null && value != DBNull.Value) && NeedQuote(fieldType))
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (value != null && value != DBNull.Value && NeedQuote(fieldType))
                     builder.AppendFormat("'{0}'", stringValue.Replace("'", "''"));
                 else
                     builder.Append(stringValue);
@@ -430,16 +431,24 @@ public static class DataMergeGenerator
 
     private static bool NeedQuote(Type type)
     {
-        if (type == typeof(string))
+        var underType = type.GetUnderlyingType();
+
+        if (underType == typeof(string))
             return true;
-        if (type == typeof(TimeSpan))
+        if (underType == typeof(TimeSpan))
             return true;
-        if (type == typeof(DateTime))
+        if (underType == typeof(DateTime))
             return true;
-        if (type == typeof(DateTimeOffset))
+        if (underType == typeof(DateTimeOffset))
             return true;
-        if (type == typeof(Guid))
+        if (underType == typeof(Guid))
             return true;
+#if !NETSTANDARD2_0
+        if (underType == typeof(DateOnly))
+            return true;
+        if (underType == typeof(TimeOnly))
+            return true;
+#endif
 
         return false;
     }
@@ -449,23 +458,24 @@ public static class DataMergeGenerator
         if (value == null || value == DBNull.Value)
             return "NULL";
 
-        Type type = value.GetType();
-        if (type == typeof(string))
-            return (string)value;
-        if (type == typeof(DateTime))
-            return ((DateTime)value).ToString("u");
-        if (type == typeof(DateTimeOffset))
-            return ((DateTimeOffset)value).ToString("u");
-        if (type == typeof(byte[]))
-            return ToHex((byte[])value);
-        if (type == typeof(bool))
-            return Convert.ToString(Convert.ToInt32((bool)value));
-
-        return Convert.ToString(value);
+        return value switch
+        {
+            string stringValue => stringValue,
+            DateTime dateTimeValue => dateTimeValue.ToString("u"),
+            DateTimeOffset dateTimeOffset => dateTimeOffset.ToString("u"),
+            byte[] byteArray => ToHex(byteArray),
+            bool boolValue => boolValue ? "1" : "0",
+#if !NETSTANDARD2_0
+            DateOnly dateValue => dateValue.ToString("u"),
+            TimeOnly timeValue => timeValue.ToString("u"),
+#endif
+            _ => Convert.ToString(value)
+        };
     }
 
     private static string ToHex(byte[] bytes)
     {
+#if NETSTANDARD2_0
         var s = StringBuilderCache.Acquire();
         s.Append("0x");
 
@@ -473,5 +483,8 @@ public static class DataMergeGenerator
             s.Append(b.ToString("x2").ToUpperInvariant());
 
         return StringBuilderCache.ToString(s);
+#else
+        return Convert.ToHexString(bytes);
+#endif
     }
 }

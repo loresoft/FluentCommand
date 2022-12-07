@@ -1,4 +1,4 @@
 ﻿SELECT [Id], [Name], [Description]
-FROM [Status]
+FROM [dbo].[Status]
 WHERE ([IsActive] = @p0000 AND ([Name] LIKE '%' + @p0001 + '%' OR [Description] LIKE '%' + @p0002 + '%' OR ([IsActive] = @p0003 AND [DisplayOrder] > @p0004)))
 ORDER BY [DisplayOrder] DESC, [Name] ASC;

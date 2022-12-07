@@ -1,5 +1,5 @@
 ﻿/* Caller; SelectEntityWhereIn() in SelectBuilderTest.cs:line 164 */
 SELECT [Id], [Name]
-FROM [Status]
+FROM [dbo].[Status]
 WHERE ([Id] IN (@p0000,@p0001))
 ORDER BY [Name] ASC;

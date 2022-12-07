@@ -144,6 +144,37 @@ CREATE TABLE [dbo].[UserRole] (
     CONSTRAINT [PK_UserRole] PRIMARY KEY ([UserId], [RoleId])
 );
 
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataType]') AND type in (N'U'))
+CREATE TABLE [dbo].[DataType] (
+    [Id] int NOT NULL,
+    [Name] nvarchar(100) NOT NULL,
+    [Boolean] bit NOT NULL,
+    [Short] smallint NOT NULL,
+    [Long] bigint NOT NULL,
+    [Float] real NOT NULL,
+    [Double] float NOT NULL,
+    [Decimal] decimal NOT NULL,
+    [DateTime] datetime NOT NULL,
+    [DateTimeOffset] datetimeoffset NOT NULL,
+    [Guid] uniqueidentifier NOT NULL,
+    [TimeSpan] time NOT NULL,
+    [DateOnly] date NOT NULL,
+    [TimeOnly] time NOT NULL,
+    [BooleanNull] bit NULL,
+    [ShortNull] smallint NULL,
+    [LongNull] bigint NULL,
+    [FloatNull] real NULL,
+    [DoubleNull] float NULL,
+    [DecimalNull] decimal NULL,
+    [DateTimeNull] datetime NULL,
+    [DateTimeOffsetNull] datetimeoffset NULL,
+    [GuidNull] uniqueidentifier NULL,
+    [TimeSpanNull] time NULL,
+    [DateOnlyNull] date NULL,
+    [TimeOnlyNull] time NULL,
+    CONSTRAINT [PK_DataType] PRIMARY KEY ([Id])
+);
+
 -- Types
 CREATE TYPE [dbo].[UserImportType] AS TABLE 
 (
@@ -155,6 +186,8 @@ CREATE TYPE [dbo].[UserImportType] AS TABLE
     [LastLogin] datetimeoffset NULL,
     PRIMARY KEY ([EmailAddress])
 );
+
+
 
 -- Foreign Keys
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Task_Priority_PriorityId]') AND parent_object_id = OBJECT_ID(N'[dbo].[Task]'))

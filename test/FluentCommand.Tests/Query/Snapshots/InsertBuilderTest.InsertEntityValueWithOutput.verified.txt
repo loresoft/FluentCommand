@@ -1,3 +1,3 @@
-﻿INSERT INTO [Status] ([Name], [Description], [DisplayOrder], [Created], [Updated])
+﻿INSERT INTO [dbo].[Status] ([Name], [Description], [DisplayOrder], [Created], [Updated])
 OUTPUT [INSERTED].[Id]
 VALUES (@p0000, @p0001, @p0002, @p0003, @p0004);

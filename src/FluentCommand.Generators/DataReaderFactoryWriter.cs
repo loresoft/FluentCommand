@@ -231,7 +231,7 @@ public static class DataReaderFactoryWriter
 
             codeBuilder
                 .Append(aliasType)
-                .Append(" ")
+                .Append(" v_")
                 .Append(fieldName)
                 .AppendLine(" = default;");
         }
@@ -269,6 +269,7 @@ public static class DataReaderFactoryWriter
 
             codeBuilder
                 .IncrementIndent()
+                .Append(" v_")
                 .Append(fieldName)
                 .Append(" = dataRecord.")
                 .Append(readerName)
@@ -314,6 +315,7 @@ public static class DataReaderFactoryWriter
             codeBuilder
                 .Append(entityProperty.ParameterName)
                 .Append(": ")
+                .Append(" v_")
                 .Append(fieldName);
 
             if (++index == count)
@@ -346,6 +348,7 @@ public static class DataReaderFactoryWriter
             codeBuilder
                 .Append(entityProperty.PropertyName)
                 .Append(" = ")
+                .Append(" v_")
                 .Append(fieldName);
 
             if (++index == count)

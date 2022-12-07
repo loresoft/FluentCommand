@@ -126,9 +126,83 @@ public class DataMergeGeneratorTests
             }
         };
 
-        var dataTable = new ListDataReader<UserImport>(users);
+        var listDataReader = new ListDataReader<UserImport>(users);
 
-        var sql = DataMergeGenerator.BuildMerge(definition, dataTable);
+        var sql = DataMergeGenerator.BuildMerge(definition, listDataReader);
+        sql.Should().NotBeNullOrEmpty();
+
+        Output.WriteLine("MergeStatement:");
+        Output.WriteLine(sql);
+    }
+    [Fact]
+    public void BuildMergeDataTypeTests()
+    {
+        var definition = new DataMergeDefinition();
+
+        DataMergeDefinition.AutoMap<DataType>(definition);
+        definition.Columns.Should().NotBeNullOrEmpty();
+
+        definition.TargetTable = "dbo.DataType";
+
+        var column = definition.Columns.Find(c => c.SourceColumn == "Id");
+        column.Should().NotBeNull();
+
+        column.IsKey = true;
+        column.CanUpdate = false;
+
+        var users = new List<DataType>
+        {
+            new DataType
+            {
+                Id = 1,
+                Name = "Test1",
+                Boolean = false,
+                Short = 2,
+                Long = 200,
+                Float = 200.20F,
+                Double = 300.35,
+                Decimal = 456.12M,
+                DateTime = DateTime.Now,
+                DateTimeOffset = DateTimeOffset.Now,
+                Guid = Guid.Empty,
+                TimeSpan = TimeSpan.FromHours(1),
+                DateOnly = new DateOnly(2022, 12, 1),
+                TimeOnly = new TimeOnly(1, 30, 0),
+                BooleanNull = false,
+                ShortNull = 2,
+                LongNull = 200,
+                FloatNull = 200.20F,
+                DoubleNull = 300.35,
+                DecimalNull = 456.12M,
+                DateTimeNull = DateTime.Now,
+                DateTimeOffsetNull = DateTimeOffset.Now,
+                GuidNull = Guid.Empty,
+                TimeSpanNull = TimeSpan.FromHours(1),
+                DateOnlyNull = new DateOnly(2022, 12, 1),
+                TimeOnlyNull = new TimeOnly(1, 30, 0),
+            },
+            new DataType
+            {
+                Id = 2,
+                Name = "Test2",
+                Boolean = true,
+                Short = 3,
+                Long = 400,
+                Float = 600.20F,
+                Double = 700.35,
+                Decimal = 856.12M,
+                DateTime = DateTime.Now,
+                DateTimeOffset = DateTimeOffset.Now,
+                Guid = Guid.Empty,
+                TimeSpan = TimeSpan.FromHours(2),
+                DateOnly = new DateOnly(2022, 12, 12),
+                TimeOnly = new TimeOnly(6, 30, 0),
+            }
+        };
+
+        var listDataReader = new ListDataReader<DataType>(users);
+
+        var sql = DataMergeGenerator.BuildMerge(definition, listDataReader);
         sql.Should().NotBeNullOrEmpty();
 
         Output.WriteLine("MergeStatement:");

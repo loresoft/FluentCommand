@@ -1,4 +1,4 @@
-﻿UPDATE [Status]
+﻿UPDATE [dbo].[Status]
 SET [Name] = @p0000, [Description] = @p0001, [DisplayOrder] = @p0002, [Created] = @p0003, [Updated] = @p0004
 OUTPUT [INSERTED].[Id]
 WHERE ([Id] = @p0005);

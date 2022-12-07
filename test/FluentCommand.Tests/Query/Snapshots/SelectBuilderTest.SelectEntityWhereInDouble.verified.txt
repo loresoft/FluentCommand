@@ -1,5 +1,5 @@
 ﻿/* Caller; SelectEntityWhereInDouble() in SelectBuilderTest.cs:line 183 */
 SELECT [Id], [Name]
-FROM [Status]
+FROM [dbo].[Status]
 WHERE ([Id] IN (@p0000,@p0001) AND [Name] IN (@p0002,@p0003))
 ORDER BY [Name] ASC;
