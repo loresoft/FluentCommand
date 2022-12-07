@@ -63,11 +63,11 @@ namespace FluentCommand.Entities
         /// </returns>
         public static FluentCommand.Entities.Status StatusFactory(this global::System.Data.IDataRecord dataRecord)
         {
-            int id = default;
-            string name = default;
-            bool isActive = default;
-            System.DateTimeOffset updated = default;
-            byte[] rowVersion = default;
+            int v_id = default;
+            string v_name = default;
+            bool v_isActive = default;
+            System.DateTimeOffset v_updated = default;
+            byte[] v_rowVersion = default;
 
             for (var __index = 0; __index < dataRecord.FieldCount; __index++)
             {
@@ -78,30 +78,30 @@ namespace FluentCommand.Entities
                 switch (__name)
                 {
                     case nameof(FluentCommand.Entities.Status.Id):
-                        id = dataRecord.GetInt32(__index);
+                         v_id = dataRecord.GetInt32(__index);
                         break;
                     case nameof(FluentCommand.Entities.Status.Name):
-                        name = dataRecord.GetString(__index);
+                         v_name = dataRecord.GetString(__index);
                         break;
                     case nameof(FluentCommand.Entities.Status.IsActive):
-                        isActive = dataRecord.GetBoolean(__index);
+                         v_isActive = dataRecord.GetBoolean(__index);
                         break;
                     case nameof(FluentCommand.Entities.Status.Updated):
-                        updated = dataRecord.GetDateTimeOffset(__index);
+                         v_updated = dataRecord.GetDateTimeOffset(__index);
                         break;
                     case nameof(FluentCommand.Entities.Status.RowVersion):
-                        rowVersion = dataRecord.GetBytes(__index);
+                         v_rowVersion = dataRecord.GetBytes(__index);
                         break;
                 }
             }
 
             return new FluentCommand.Entities.Status
             {
-                Id = id,
-                Name = name,
-                IsActive = isActive,
-                Updated = updated,
-                RowVersion = rowVersion
+                Id =  v_id,
+                Name =  v_name,
+                IsActive =  v_isActive,
+                Updated =  v_updated,
+                RowVersion =  v_rowVersion
             };
         }
 
