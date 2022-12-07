@@ -466,8 +466,8 @@ public static class DataMergeGenerator
             byte[] byteArray => ToHex(byteArray),
             bool boolValue => boolValue ? "1" : "0",
 #if !NETSTANDARD2_0
-            DateOnly dateValue => dateValue.ToString("u"),
-            TimeOnly timeValue => timeValue.ToString("u"),
+            DateOnly dateValue => dateValue.ToString("yyyy-MM-dd"),
+            TimeOnly timeValue => timeValue.ToString("hh:mm:ss.ffffff"),
 #endif
             _ => Convert.ToString(value)
         };
