@@ -492,32 +492,6 @@ public class DataCommand : DisposableBase, IDataCommand
 
 
     /// <summary>
-    /// Converts the specified <paramref name="value" /> before assigning to <seealso cref="DbParameter.Value" />
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="value">The value to convert.</param>
-    /// <returns>
-    /// The converted value
-    /// </returns>
-    public object ConvertParameterValue<TValue>(TValue value)
-    {
-        if (value is null)
-            return DBNull.Value;
-
-        return value switch
-        {
-#if !NETSTANDARD2_0
-            // once ADO supports DateOnly & TimeOnly, this can be removed
-            DateOnly dateOnly => dateOnly.ToDateTime(new TimeOnly(0, 0)),
-            TimeOnly timeOnly => timeOnly.ToString(),
-#endif
-            ConcurrencyToken concurrencyToken => concurrencyToken.Value,
-            _ => value
-        };
-    }
-
-
-    /// <summary>
     /// Disposes the managed resources.
     /// </summary>
     protected override void DisposeManagedResources()

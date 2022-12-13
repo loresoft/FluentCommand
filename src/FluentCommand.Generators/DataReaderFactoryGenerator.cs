@@ -78,7 +78,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         if (mode == InitializationMode.ObjectInitializer)
         {
             var propertyArray = propertySymbols
-                .Select(p => new EntityProperty(p.Name, p.Type.ToDisplayString()))
+                .Select(p => CreateProperty(p))
                 .ToImmutableArray();
 
             return new EntityContext(new EntityClass(mode, classNamespace, className, propertyArray), ImmutableArray<Diagnostic>.Empty);
@@ -125,18 +125,65 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
                 continue;
             }
 
-            var property = new EntityProperty(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), parameter.Name);
+            var property = CreateProperty(propertySymbol, parameter.Name);
             properties.Add(property);
         }
 
         return new EntityContext(new EntityClass(mode, classNamespace, className, properties.ToImmutableArray()), diagnostics.ToImmutableArray());
     }
 
-    public static bool IsIncluded(IPropertySymbol propertySymbol)
+    private static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string parameterName = null)
+    {
+        // look for custom field converter
+        var attributes = propertySymbol.GetAttributes();
+        if (attributes == null || attributes.Length == 0)
+            return new EntityProperty(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), parameterName);
+
+        var converter = attributes
+            .FirstOrDefault(a => a.AttributeClass is
+            {
+                Name: "DataFieldConverterAttribute",
+                ContainingNamespace.Name: "FluentCommand"
+            });
+
+        if (converter == null)
+            return new EntityProperty(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), parameterName);
+
+        var converterType = converter.ConstructorArguments.Single();
+        if (converterType.Value is INamedTypeSymbol converterSymbol)
+            return new EntityProperty(
+                propertySymbol.Name,
+                propertySymbol.Type.ToDisplayString(),
+                parameterName,
+                converterSymbol.ToDisplayString());
+
+        return new EntityProperty(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), parameterName);
+    }
+
+    private static bool IsIncluded(IPropertySymbol propertySymbol)
     {
         var attributes = propertySymbol.GetAttributes();
-        if (attributes.Any(a => a.AttributeClass?.ToDisplayString() == "System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute"))
+        if (attributes.Length > 0 && attributes.Any(
+                a => a.AttributeClass is
+                {
+                    Name: "NotMappedAttribute",
+                    ContainingNamespace:
+                    {
+                        Name: "Schema",
+                        ContainingNamespace:
+                        {
+                            Name: "DataAnnotations",
+                            ContainingNamespace:
+                            {
+                                Name: "ComponentModel",
+                                ContainingNamespace.Name: "System"
+                            }
+                        }
+                    }
+                }))
+        {
             return false;
+        }
 
         return !propertySymbol.IsIndexer && !propertySymbol.IsAbstract && propertySymbol.DeclaredAccessibility == Accessibility.Public;
     }

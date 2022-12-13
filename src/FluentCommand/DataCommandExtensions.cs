@@ -61,14 +61,15 @@ public static class DataCommandExtensions
         string name,
         TParameter value)
     {
-        // handle value type by using actual value
-        var valueType = value != null ? value.GetType() : typeof(TParameter);
 
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
-        parameter.Value = dataCommand.ConvertParameterValue(value);
-        parameter.DbType = valueType.GetUnderlyingType().ToDbType();
         parameter.Direction = ParameterDirection.Input;
+
+        // handle value type by using actual value
+        var valueType = value != null ? value.GetType() : typeof(TParameter);
+
+        DataParameterHandlers.SetValue(parameter, value, valueType);
 
         return dataCommand.Parameter(parameter);
     }
@@ -91,9 +92,9 @@ public static class DataCommandExtensions
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
-        parameter.Value = dataCommand.ConvertParameterValue(value);
-        parameter.DbType = type.GetUnderlyingType().ToDbType();
         parameter.Direction = ParameterDirection.Input;
+
+        DataParameterHandlers.SetValue(parameter, value, type);
 
         return dataCommand.Parameter(parameter);
     }
@@ -216,9 +217,12 @@ public static class DataCommandExtensions
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
-        parameter.Value = dataCommand.ConvertParameterValue(value);
-        parameter.DbType = typeof(TParameter).GetUnderlyingType().ToDbType();
         parameter.Direction = ParameterDirection.InputOutput;
+
+        // handle value type by using actual value
+        var valueType = value != null ? value.GetType() : typeof(TParameter);
+
+        DataParameterHandlers.SetValue(parameter, value, valueType);
 
         dataCommand.RegisterCallback(parameter, callback);
         dataCommand.Parameter(parameter);

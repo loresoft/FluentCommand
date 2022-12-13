@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using FluentCommand.Handlers;
+
 namespace FluentCommand.Entities;
 
 [GenerateDataReader]
@@ -24,6 +26,7 @@ public class Task
 
     [ConcurrencyCheck]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    [DataFieldConverter(typeof(ConcurrencyTokenHandler))]
     public ConcurrencyToken RowVersion { get; set; }
 
     [NotMapped]

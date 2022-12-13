@@ -4,7 +4,7 @@ namespace FluentCommand;
 /// Attribute to enable source generation of data reader factory
 /// </summary>
 /// <seealso cref="System.Attribute" />
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public class GenerateDataReaderAttribute : Attribute
 {
 
