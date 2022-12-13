@@ -63,6 +63,9 @@ namespace FluentCommand.Entities
         /// </returns>
         public static FluentCommand.Entities.Status StatusFactory(this global::System.Data.IDataRecord dataRecord)
         {
+            if (dataRecord == null)
+                throw new global::System.ArgumentNullException(nameof(dataRecord));
+
             int v_id = default;
             string v_name = default;
             bool v_isActive = default;
@@ -78,19 +81,19 @@ namespace FluentCommand.Entities
                 switch (__name)
                 {
                     case nameof(FluentCommand.Entities.Status.Id):
-                         v_id = dataRecord.GetInt32(__index);
+                        v_id = dataRecord.GetInt32(__index);
                         break;
                     case nameof(FluentCommand.Entities.Status.Name):
-                         v_name = dataRecord.GetString(__index);
+                        v_name = dataRecord.GetString(__index);
                         break;
                     case nameof(FluentCommand.Entities.Status.IsActive):
-                         v_isActive = dataRecord.GetBoolean(__index);
+                        v_isActive = dataRecord.GetBoolean(__index);
                         break;
                     case nameof(FluentCommand.Entities.Status.Updated):
-                         v_updated = dataRecord.GetDateTimeOffset(__index);
+                        v_updated = dataRecord.GetDateTimeOffset(__index);
                         break;
                     case nameof(FluentCommand.Entities.Status.RowVersion):
-                         v_rowVersion = dataRecord.GetBytes(__index);
+                        v_rowVersion = dataRecord.GetBytes(__index);
                         break;
                 }
             }
