@@ -37,7 +37,9 @@ internal class DataCallback
     /// </summary>
     public void Invoke()
     {
-        var value = Parameter.Value;
+        var handler = DataParameterHandlers.GetTypeHandler(Type);
+
+        var value = handler?.ReadValue(Parameter) ?? Parameter.Value;
         if (value == DBNull.Value)
             value = Type.Default();
 

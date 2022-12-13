@@ -2,6 +2,8 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using FluentCommand.Handlers;
+
 namespace FluentCommand.Entities;
 
 [GenerateDataReader]
@@ -43,5 +45,6 @@ public class StatusConstructor
 
     [ConcurrencyCheck]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    [DataFieldConverter(typeof(ConcurrencyTokenHandler))]
     public ConcurrencyToken RowVersion { get; }
 }

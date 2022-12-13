@@ -13,7 +13,10 @@ public static class QueryBuilderExtensions
 
         var dataCommand = dataSession.Sql(statement?.Statement ?? string.Empty);
 
-        foreach (var parameter in statement?.Parameters)
+        if (statement?.Parameters == null)
+            return dataCommand;
+
+        foreach (var parameter in statement.Parameters)
             dataCommand.Parameter(parameter.Name, parameter.Value, parameter.Type);
 
         return dataCommand;

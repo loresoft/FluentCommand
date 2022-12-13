@@ -8,7 +8,7 @@ namespace FluentCommand.Handlers;
 /// A data type handler for <see cref="ConcurrencyToken"/>
 /// </summary>
 /// <seealso cref="ConcurrencyToken" />
-public class ConcurrencyTokenHandler : IDataTypeHandler<ConcurrencyToken>
+public class ConcurrencyTokenHandler : IDataParameterHandler, IDataFieldConverter<ConcurrencyToken>
 {
     /// <inheritdoc />
     public Type ValueType { get; } = typeof(ConcurrencyToken);
@@ -22,11 +22,10 @@ public class ConcurrencyTokenHandler : IDataTypeHandler<ConcurrencyToken>
         var bytes = dataRecord.GetBytes(fieldIndex);
 
         return new ConcurrencyToken(bytes);
-        ;
     }
 
     /// <inheritdoc />
-    public ConcurrencyToken ReadValue(IDbDataParameter parameter)
+    public object ReadValue(IDbDataParameter parameter)
     {
         return parameter.Value switch
         {
@@ -37,9 +36,14 @@ public class ConcurrencyTokenHandler : IDataTypeHandler<ConcurrencyToken>
     }
 
     /// <inheritdoc />
-    public void SetValue(IDbDataParameter parameter, ConcurrencyToken value)
+    public void SetValue(IDbDataParameter parameter, object value)
     {
-        parameter.Value = value.Value;
         parameter.DbType = DbType.Binary;
+        parameter.Value = value switch
+        {
+            ConcurrencyToken concurrencyToken => concurrencyToken.Value,
+            null => DBNull.Value,
+            _ => value
+        };
     }
 }

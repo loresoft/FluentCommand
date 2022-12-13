@@ -1,8 +1,6 @@
 using System.Data;
 using System.Data.Common;
 
-using FluentCommand.Extensions;
-
 
 namespace FluentCommand;
 
@@ -50,16 +48,10 @@ public class DataParameter<TValue> : IDataParameter<TValue>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
     public IDataParameter<TValue> Value(TValue value)
     {
-        // guess type only if not already set
-        if (!_hasType)
-        {
-            // handle value type by using actual value
-            Type valueType = value != null ? value.GetType() : typeof(TValue);
+        // handle value type by using actual value
+        var valueType = value != null ? value.GetType() : typeof(TValue);
 
-            _parameter.DbType = valueType.GetUnderlyingType().ToDbType();
-        }
-
-        _parameter.Value = _dataCommand.ConvertParameterValue(value);
+        DataParameterHandlers.SetValue(_parameter, value, valueType);
 
         _hasValue = true;
 

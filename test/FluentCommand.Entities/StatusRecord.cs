@@ -1,5 +1,7 @@
 using System;
 
+using FluentCommand.Handlers;
+
 namespace FluentCommand.Entities;
 
 [GenerateDataReader]
@@ -13,5 +15,6 @@ public record StatusRecord(
     string CreatedBy,
     DateTimeOffset Updated,
     string UpdatedBy,
+    [DataFieldConverter(typeof(ConcurrencyTokenHandler))]
     ConcurrencyToken RowVersion
 );

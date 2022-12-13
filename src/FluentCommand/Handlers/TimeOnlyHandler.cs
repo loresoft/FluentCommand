@@ -1,13 +1,15 @@
 #if !NETSTANDARD2_0
 using System.Data;
 
+using FluentCommand;
+
 namespace FluentCommand.Handlers;
 
 /// <summary>
 /// A data type handler for <see cref="TimeOnly"/>
 /// </summary>
 /// <seealso cref="TimeOnly" />
-public class TimeOnlyHandler : IDataTypeHandler<TimeOnly>
+public class TimeOnlyHandler : IDataParameterHandler, IDataFieldConverter<TimeOnly>
 {
     /// <inheritdoc />
     public Type ValueType { get; } = typeof(TimeOnly);
@@ -27,7 +29,7 @@ public class TimeOnlyHandler : IDataTypeHandler<TimeOnly>
     }
 
     /// <inheritdoc />
-    public TimeOnly ReadValue(IDbDataParameter parameter)
+    public object ReadValue(IDbDataParameter parameter)
     {
         return parameter.Value switch
         {
@@ -39,10 +41,15 @@ public class TimeOnlyHandler : IDataTypeHandler<TimeOnly>
     }
 
     /// <inheritdoc />
-    public void SetValue(IDbDataParameter parameter, TimeOnly value)
+    public void SetValue(IDbDataParameter parameter, object value)
     {
         parameter.DbType = DbType.Time;
-        parameter.Value = value.ToTimeSpan();
+        parameter.Value = value switch
+        {
+            TimeOnly timeOnly => timeOnly.ToTimeSpan(),
+            null => DBNull.Value,
+            _ => value
+        };
     }
 }
 #endif

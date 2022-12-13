@@ -2,7 +2,6 @@ using System.Data;
 using System.Data.Common;
 
 using FluentCommand.Extensions;
-using FluentCommand.Handlers;
 
 namespace FluentCommand;
 
@@ -62,24 +61,15 @@ public static class DataCommandExtensions
         string name,
         TParameter value)
     {
-        // handle value type by using actual value
-        var valueType = value != null ? value.GetType() : typeof(TParameter);
 
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
         parameter.Direction = ParameterDirection.Input;
 
-        var handler = DataTypeHandlers.GetTypeHandler<TParameter>(valueType);
-        if (handler != null)
-        {
-            handler.SetValue(parameter, value);
-        }
-        else
-        {
-            parameter.Value = value;
-            parameter.DbType = valueType.GetUnderlyingType().ToDbType();
-        }
+        // handle value type by using actual value
+        var valueType = value != null ? value.GetType() : typeof(TParameter);
 
+        DataParameterHandlers.SetValue(parameter, value, valueType);
 
         return dataCommand.Parameter(parameter);
     }
@@ -104,8 +94,7 @@ public static class DataCommandExtensions
         parameter.ParameterName = name;
         parameter.Direction = ParameterDirection.Input;
 
-        parameter.Value = dataCommand.ConvertParameterValue(value);
-        parameter.DbType = type.GetUnderlyingType().ToDbType();
+        DataParameterHandlers.SetValue(parameter, value, type);
 
         return dataCommand.Parameter(parameter);
     }
@@ -228,9 +217,12 @@ public static class DataCommandExtensions
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
-        parameter.Value = dataCommand.ConvertParameterValue(value);
-        parameter.DbType = typeof(TParameter).GetUnderlyingType().ToDbType();
         parameter.Direction = ParameterDirection.InputOutput;
+
+        // handle value type by using actual value
+        var valueType = value != null ? value.GetType() : typeof(TParameter);
+
+        DataParameterHandlers.SetValue(parameter, value, valueType);
 
         dataCommand.RegisterCallback(parameter, callback);
         dataCommand.Parameter(parameter);

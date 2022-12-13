@@ -19,7 +19,8 @@ public record EntityClass(
 public record EntityProperty(
     string PropertyName,
     string PropertyType,
-    string ParameterName = null
+    string ParameterName = null,
+    string ConverterName = null
 );
 
 public enum InitializationMode
