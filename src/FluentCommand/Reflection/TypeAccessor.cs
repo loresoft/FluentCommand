@@ -259,20 +259,14 @@ public class TypeAccessor
     {
         var typeInfo = Type.GetTypeInfo();
 
-        // first try GetProperty
-        var property = typeInfo.GetProperty(name, flags);
-        if (property != null)
-            return CreateAccessor(property);
-
-        // if not found, search
         foreach (var p in typeInfo.GetProperties(flags))
         {
-            if (p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                return CreateAccessor(p);
-
             // try ColumnAttribute
             var columnAttribute = p.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
             if (columnAttribute != null && name.Equals(columnAttribute.Name, StringComparison.OrdinalIgnoreCase))
+                return CreateAccessor(p);
+
+            if (p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                 return CreateAccessor(p);
         }
 
