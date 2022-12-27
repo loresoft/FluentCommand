@@ -1,7 +1,13 @@
+using FluentCommand.Generators.Models;
+
 namespace FluentCommand.Generators;
 
 public static class DataReaderFactoryWriter
 {
+#if DEBUG
+    private static int _counter = 0;
+#endif
+
     public static string Generate(EntityClass entityClass, bool skipVersion = false)
     {
         if (entityClass == null)
@@ -15,6 +21,11 @@ public static class DataReaderFactoryWriter
             .AppendLine()
             .AppendLine("using global::FluentCommand.Extensions;")
             .AppendLine();
+
+#if DEBUG
+        // used to track re-writes for performance
+        codeBuilder.AppendLine($"// Counter: {Interlocked.Increment(ref _counter)}");
+#endif
 
         codeBuilder
             .Append("namespace ")
@@ -128,7 +139,6 @@ public static class DataReaderFactoryWriter
             .AppendLine("Factory);")
             .DecrementIndent()
             .AppendLine();
-
     }
 
     private static void WriteQuerySingleEntity(IndentedStringBuilder codeBuilder, EntityClass entity)
@@ -347,7 +357,7 @@ public static class DataReaderFactoryWriter
             .IncrementIndent();
 
         var index = 0;
-        var count = entity.Properties.Length;
+        var count = entity.Properties.Count;
 
         foreach (var entityProperty in entity.Properties)
         {
@@ -380,7 +390,7 @@ public static class DataReaderFactoryWriter
             .IncrementIndent();
 
         var index = 0;
-        var count = entity.Properties.Length;
+        var count = entity.Properties.Count;
 
         foreach (var entityProperty in entity.Properties)
         {
@@ -492,4 +502,3 @@ public static class DataReaderFactoryWriter
         }
     }
 }
-

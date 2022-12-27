@@ -1,5 +1,8 @@
 using System.Collections.Immutable;
 
+using FluentCommand.Generators.Internal;
+using FluentCommand.Generators.Models;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,10 +21,10 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         )
         .Where(static context => context is not null);
 
-        // Emit the diagnostic, if needed
+        // Emit the diagnostics, if needed
         var diagnostics = provider
             .Select(static (item, _) => item.Diagnostics)
-            .Where(static item => !item.IsDefaultOrEmpty);
+            .Where(static item => item.Count > 0);
 
         context.RegisterSourceOutput(diagnostics, ReportDiagnostic);
 
@@ -32,7 +35,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(entityClasses, Execute);
     }
 
-    private static void ReportDiagnostic(SourceProductionContext context, ImmutableArray<Diagnostic> diagnostics)
+    private static void ReportDiagnostic(SourceProductionContext context, EquatableArray<Diagnostic> diagnostics)
     {
         foreach (var diagnostic in diagnostics)
             context.ReportDiagnostic(diagnostic);
@@ -51,15 +54,20 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
 
     private static bool SyntacticPredicate(SyntaxNode syntaxNode, CancellationToken cancellationToken)
     {
-        return syntaxNode is ClassDeclarationSyntax { AttributeLists.Count: > 0 } classDeclaration && !classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
-            || syntaxNode is RecordDeclarationSyntax { AttributeLists.Count: > 0 } recordDeclaration && !recordDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword);
+        return syntaxNode is ClassDeclarationSyntax
+               { AttributeLists.Count: > 0 } classDeclaration
+               && !classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
+               && !classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
+            || syntaxNode is RecordDeclarationSyntax
+               { AttributeLists.Count: > 0 } recordDeclaration
+               && !recordDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
+               && !recordDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword);
     }
 
     private static EntityContext SemanticTransform(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
     {
         if (context.TargetSymbol is not INamedTypeSymbol targetSymbol)
             return null;
-
 
         var classNamespace = targetSymbol.ContainingNamespace.ToDisplayString();
         var className = targetSymbol.Name;
@@ -78,10 +86,10 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         if (mode == InitializationMode.ObjectInitializer)
         {
             var propertyArray = propertySymbols
-                .Select(p => CreateProperty(p))
-                .ToImmutableArray();
+                .Select(p => CreateProperty(p));
 
-            return new EntityContext(new EntityClass(mode, classNamespace, className, propertyArray), ImmutableArray<Diagnostic>.Empty);
+            var entity = new EntityClass(mode, classNamespace, className, propertyArray);
+            return new EntityContext(entity, Enumerable.Empty<Diagnostic>());
         }
 
         // constructor initialization
@@ -100,13 +108,13 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
 
             diagnostics.Add(constructorDiagnostic);
 
-            return new EntityContext(null, diagnostics.ToImmutableArray());
+            return new EntityContext(null, diagnostics);
         }
 
         var properties = new List<EntityProperty>();
         foreach (var propertySymbol in propertySymbols)
         {
-            // find matching constructor name 
+            // find matching constructor name
             var parameter = constructor
                 .Parameters
                 .FirstOrDefault(p => string.Equals(p.Name, propertySymbol.Name, StringComparison.InvariantCultureIgnoreCase));
@@ -129,7 +137,8 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             properties.Add(property);
         }
 
-        return new EntityContext(new EntityClass(mode, classNamespace, className, properties.ToImmutableArray()), diagnostics.ToImmutableArray());
+        var entityClass = new EntityClass(mode, classNamespace, className, properties);
+        return new EntityContext(entityClass, diagnostics);
     }
 
     private static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string parameterName = null)

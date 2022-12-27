@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 
+using FluentCommand.Generators.Models;
+
 namespace FluentCommand.Generators.Tests;
 
 [UsesVerify]

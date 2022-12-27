@@ -16,7 +16,6 @@ public class DataParameter<TValue> : IDataParameter<TValue>
     // flags to help parameter property defaults
     private bool _hasValue;
     private bool _hasDirection;
-    private bool _hasType;
     private bool _hasSize;
 
     /// <summary>
@@ -71,14 +70,13 @@ public class DataParameter<TValue> : IDataParameter<TValue>
     }
 
     /// <summary>
-    /// Sets the <see cref="DbType"/> of the parameter. 
+    /// Sets the <see cref="DbType"/> of the parameter.
     /// </summary>
     /// <param name="dbType">The <see cref="DbType"/> of the parameter.</param>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
     public IDataParameter<TValue> Type(DbType dbType)
     {
         _parameter.DbType = dbType;
-        _hasType = true;
         return this;
     }
 
