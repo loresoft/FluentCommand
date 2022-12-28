@@ -70,10 +70,16 @@ public class DataQueryLogger : IDataQueryLogger
         var buffer = StringBuilderCache.Acquire();
 
         buffer
-            .AppendLine($"{resultText} DbCommand ({elapsed}ms) [CommandType='{commandType}', CommandTimeout='{commandTimeout}']")
+            .Append(resultText)
+            .Append(" DbCommand (")
+            .Append(elapsed)
+            .Append("ms) [CommandType='")
+            .Append(commandType)
+            .Append("', CommandTimeout='")
+            .Append(commandTimeout)
+            .Append("']")
+            .AppendLine()
             .AppendLine(command.CommandText);
-
-        const string parameterFormat = "-- {0}: {1} {2} (Size = {3}; Precision = {4}; Scale = {5}) [{6}]";
 
         foreach (IDataParameter parameter in command.Parameters)
         {
@@ -88,16 +94,23 @@ public class DataQueryLogger : IDataQueryLogger
                 size = dataParameter.Size;
             }
 
-            buffer.AppendFormat(parameterFormat,
-                parameter.ParameterName,
-                parameter.Direction,
-                parameter.DbType,
-                size,
-                precision,
-                scale,
-                parameter.Value);
-
-            buffer.AppendLine();
+            buffer
+                .Append("-- ")
+                .Append(parameter.ParameterName)
+                .Append(": ")
+                .Append(parameter.Direction)
+                .Append(" ")
+                .Append(parameter.DbType)
+                .Append("(Size=")
+                .Append(size)
+                .Append("; Precision=")
+                .Append(precision)
+                .Append("; Scale=")
+                .Append(scale)
+                .Append(") [")
+                .Append(parameter.Value)
+                .Append("]")
+                .AppendLine();
         }
 
         var output = StringBuilderCache.ToString(buffer);
