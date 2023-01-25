@@ -104,7 +104,7 @@ public static class DataMergeGenerator
     public static string BuildMerge(DataMergeDefinition mergeDefinition, IDataReader reader)
     {
         var mergeColumns = mergeDefinition.Columns
-            .Where(c => !c.IsIgnored)
+            .Where(c => !c.IsIgnored && (c.IsKey || c.CanInsert || c.CanUpdate))
             .ToList();
 
         var builder = StringBuilderCache.Acquire();
