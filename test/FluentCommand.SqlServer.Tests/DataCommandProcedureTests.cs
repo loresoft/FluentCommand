@@ -28,23 +28,23 @@ public class DataCommandProcedureTests : DatabaseTestBase
 
         var email = "%@battlestar.com";
 
-        List<User> users;
-        using (var session = GetConfiguration().CreateSession())
-        {
-            session.Should().NotBeNull();
-            users = session.StoredProcedure("[dbo].[UserListByEmailAddress]")
-                .Parameter("@EmailAddress", email)
-                .Parameter("@Offset", 0)
-                .Parameter("@Size", 10)
-                .Parameter<long>(parameter => parameter
-                    .Name("@Total")
-                    .Type(DbType.Int64)
-                    .Output(v => total = v)
-                    .Direction(ParameterDirection.Output)
-                )
-                .Query<User>()
-                .ToList();
-        }
+        using var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
+
+        var users = session
+            .StoredProcedure("[dbo].[UserListByEmailAddress]")
+            .Parameter("@EmailAddress", email)
+            .Parameter("@Offset", 0)
+            .Parameter("@Size", 10)
+            .Parameter<long>(parameter => parameter
+                .Name("@Total")
+                .Type(DbType.Int64)
+                .Output(v => total = v)
+                .Direction(ParameterDirection.Output)
+            )
+            .Query<User>()
+            .ToList();
+
 
         users.Should().NotBeEmpty();
         total.Should().Be(6);
@@ -53,39 +53,36 @@ public class DataCommandProcedureTests : DatabaseTestBase
     [Fact]
     public void ProcedureExecuteUpsert()
     {
-
-        User user = null;
         int errorCode = -1;
 
         var userId = Guid.NewGuid();
         var username = "test." + DateTime.Now.Ticks;
         var email = username + "@email.com";
 
-        using (var session = GetConfiguration().CreateSession())
-        {
-            session.Should().NotBeNull();
+        using var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
 
-            user = session.StoredProcedure("[dbo].[UserUpsert]")
-                .Parameter("@Id", userId)
-                .Parameter("@EmailAddress", email)
-                .Parameter("@IsEmailAddressConfirmed", true)
-                .Parameter("@DisplayName", "Unit Test")
-                .Parameter("@PasswordHash", "T@est" + DateTime.Now.Ticks)
-                .Parameter<string>("@ResetHash", null)
-                .Parameter<string>("@InviteHash", null)
-                .Parameter("@AccessFailedCount", 0)
-                .Parameter("@LockoutEnabled", false)
-                .Parameter("@IsDeleted", false)
-                .Return<int>(p => errorCode = p)
-                .QuerySingle<User>();
-        }
+        var user = session
+            .StoredProcedure("[dbo].[UserUpsert]")
+            .Parameter("@Id", userId)
+            .Parameter("@EmailAddress", email)
+            .Parameter("@IsEmailAddressConfirmed", true)
+            .Parameter("@DisplayName", "Unit Test")
+            .Parameter("@PasswordHash", "T@est" + DateTime.Now.Ticks)
+            .Parameter<string>("@ResetHash", null)
+            .Parameter<string>("@InviteHash", null)
+            .Parameter("@AccessFailedCount", 0)
+            .Parameter("@LockoutEnabled", false)
+            .Parameter("@IsDeleted", false)
+            .Return<int>(p => errorCode = p)
+            .QuerySingle<User>();
 
         errorCode.Should().Be(0);
 
         user.Should().NotBeNull();
         user.Id.Should().Be(userId);
-        user.Created.Should().NotBe(default(DateTimeOffset));
-        user.Updated.Should().NotBe(default(DateTimeOffset));
+        user.Created.Should().NotBe(default);
+        user.Updated.Should().NotBe(default);
     }
 
     [Fact]
@@ -96,14 +93,14 @@ public class DataCommandProcedureTests : DatabaseTestBase
 
         var email = "william.adama@battlestar.com";
 
-        using (var session = GetConfiguration().CreateSession())
-        {
-            session.Should().NotBeNull();
-            result = session.StoredProcedure("[dbo].[UserCountByEmailAddress]")
-                .Parameter("@EmailAddress", email)
-                .Return<long>(p => total = p)
-                .Execute();
-        }
+        using var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
+
+        result = session
+            .StoredProcedure("[dbo].[UserCountByEmailAddress]")
+            .Parameter("@EmailAddress", email)
+            .Return<long>(p => total = p)
+            .Execute();
 
         result.Should().Be(-1);
         total.Should().Be(1);
@@ -112,10 +109,10 @@ public class DataCommandProcedureTests : DatabaseTestBase
     [Fact]
     public void ProcedureExecuteTransaction()
     {
-        var session = GetConfiguration().CreateSession();
+        using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
-        var transaction = session.BeginTransaction(IsolationLevel.Unspecified);
+        using var transaction = session.BeginTransaction(IsolationLevel.Unspecified);
         transaction.Should().NotBeNull();
 
         int errorCode = -1;
@@ -123,7 +120,6 @@ public class DataCommandProcedureTests : DatabaseTestBase
         var userId = Guid.NewGuid();
         var username = "test." + DateTime.Now.Ticks;
         var email = username + "@email.com";
-
 
         var user = session.StoredProcedure("[dbo].[UserUpsert]")
             .Parameter("@Id", userId)
@@ -164,14 +160,13 @@ public class DataCommandProcedureTests : DatabaseTestBase
         );
         var users = generator.List<UserImport>(100);
 
-        int result;
-        using (var session = GetConfiguration().CreateSession())
-        {
-            session.Should().NotBeNull();
-            result = session.StoredProcedure("[dbo].[ImportUsers]")
-                .SqlParameter("@userTable", users)
-                .Execute();
-        }
+        using var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
+
+        var result = session
+            .StoredProcedure("[dbo].[ImportUsers]")
+            .SqlParameter("@userTable", users)
+            .Execute();
 
         result.Should().Be(-1);
     }

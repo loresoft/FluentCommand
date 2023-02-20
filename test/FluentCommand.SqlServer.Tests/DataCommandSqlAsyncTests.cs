@@ -23,13 +23,14 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
         string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-        var user = await session.Sql(sql)
+        var user = await session
+            .Sql(sql)
             .Parameter("@EmailAddress", email)
             .QuerySingleAsync(r => new User
             {
@@ -59,13 +60,14 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
         string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-        var user = await session.Sql(sql)
+        var user = await session
+            .Sql(sql)
             .Parameter("@EmailAddress", email)
             .QuerySingleAsync<User>();
 
@@ -76,13 +78,14 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryCacheAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
         string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-        var user = await session.Sql(sql)
+        var user = await session
+            .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
             .QuerySingleAsync<User>();
@@ -90,7 +93,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
 
-        var cachedUser = await session.Sql(sql)
+        var cachedUser = await session
+            .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
             .QuerySingleAsync<User>();
@@ -103,7 +107,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityDynamicAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -120,7 +124,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -156,7 +160,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityErrorAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -164,7 +168,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         Func<System.Threading.Tasks.Task> action = async () =>
         {
-            var users = await session.Sql(sql)
+            var users = await session
+                .Sql(sql)
                 .Parameter("@EmailAddress", email)
                 .QueryAsync(r => new User
                 {
@@ -194,13 +199,14 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityDynamicAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
         string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
-        IEnumerable<dynamic> users = await session.Sql(sql)
+        IEnumerable<dynamic> users = await session
+            .Sql(sql)
             .Parameter("@EmailAddress", email)
             .QueryAsync<dynamic>();
 
@@ -211,7 +217,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityDynamicCacheAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -243,7 +249,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityFactoryAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -260,7 +266,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryTableAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -276,7 +282,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryValueAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -292,7 +298,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlReaderAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -329,18 +335,17 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         List<Role> roles = null;
         List<Priority> priorities = null;
 
-        using (var session = GetConfiguration().CreateSession())
-        {
-            session.Should().NotBeNull();
-            await session.Sql(sql)
-                .Parameter("@EmailAddress", email)
-                .QueryMultipleAsync(async q =>
-                {
-                    user = await q.QuerySingleAsync<User>();
-                    roles = (await q.QueryAsync<Role>()).ToList();
-                    priorities = (await q.QueryAsync<Priority>()).ToList();
-                });
-        }
+        await using var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
+
+        await session.Sql(sql)
+            .Parameter("@EmailAddress", email)
+            .QueryMultipleAsync(async q =>
+            {
+                user = await q.QuerySingleAsync<User>();
+                roles = (await q.QueryAsync<Role>()).ToList();
+                priorities = (await q.QueryAsync<Priority>()).ToList();
+            });
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().NotBeEmpty();

@@ -21,7 +21,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -59,7 +59,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryCountAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -78,7 +78,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySumAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         var count = await session
@@ -92,9 +92,25 @@ public class DataQueryTests : DatabaseTestBase
     }
 
     [Fact]
+    public async System.Threading.Tasks.Task SqlQueryValuesAsync()
+    {
+        await using var session = GetConfiguration().CreateSession();
+        session.Should().NotBeNull();
+
+        var ids = await session
+            .Sql(builder => builder
+                .Select<Status>()
+                .Column(p => p.Id)
+            )
+            .QueryValuesAsync<int>();
+
+        ids.Should().NotBeEmpty();
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task SqlQueryInEntityAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         var values = new[] { 1, 2, 3 };
@@ -116,7 +132,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryInComplexEntityAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         var values = new[] { 1, 2, 3 }.ToDelimitedString();
@@ -155,7 +171,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlInsertValueQuery()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         var id = Guid.NewGuid();
@@ -179,7 +195,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlInsertEntityQuery()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         var id = Guid.NewGuid();
@@ -210,7 +226,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlInsertUpdateDeleteEntityQuery()
     {
-        var session = GetConfiguration().CreateSession();
+        await using var session = GetConfiguration().CreateSession();
         session.Should().NotBeNull();
 
         var id = Guid.NewGuid();
