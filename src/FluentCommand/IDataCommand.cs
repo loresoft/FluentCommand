@@ -119,7 +119,7 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     /// </summary>
     /// <param name="queryAction">The query action delegate to pass the open <see cref="IDataQueryAsync" /> for reading multiple results.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
-    Task QueryMultipleAsync(Action<IDataQueryAsync> queryAction, CancellationToken cancellationToken = default);
+    Task QueryMultipleAsync(Func<IDataQueryAsync, Task> queryAction, CancellationToken cancellationToken = default);
 
 
     /// <summary>

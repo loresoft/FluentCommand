@@ -409,7 +409,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </summary>
     /// <param name="queryAction">The query action delegate to pass the open <see cref="IDataQueryAsync" /> for reading multiple results.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
-    public async Task QueryMultipleAsync(Action<IDataQueryAsync> queryAction, CancellationToken cancellationToken = default)
+    public async Task QueryMultipleAsync(Func<IDataQueryAsync, Task> queryAction, CancellationToken cancellationToken = default)
     {
         if (queryAction == null)
             throw new ArgumentNullException(nameof(queryAction));
@@ -418,7 +418,7 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             using var reader = await Command.ExecuteReaderAsync(token).ConfigureAwait(false);
             var query = new QueryMultipleResult(reader);
-            queryAction(query);
+            await queryAction(query).ConfigureAwait(false);
 
             return true;
         }, false, cancellationToken).ConfigureAwait(false);
