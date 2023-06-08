@@ -41,6 +41,7 @@ In your Package Manager settings add the following package source for developmen
 - Create Dynamic objects from DataReader via Dapper
 - Handles multiple result sets
 - Basic SQL query builder
+- Source Generate DataReader
 
 ### Configuration
 
@@ -233,6 +234,37 @@ var deleteId = await session
     )
     .QueryValueAsync<Guid>();
 ```
+
+### Source Generator
+
+The project supports generating a DbDataReader from a class via an attribute.  Add the `GenerateDataReaderAttribute` to a class to generate the needed extension methods.
+
+```c#
+[GenerateDataReader]
+[Table("Status", Schema = "dbo")]
+public class Status
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public int DisplayOrder { get; set; }
+    public bool IsActive { get; set; }
+    public DateTimeOffset Created { get; set; }
+    public string CreatedBy { get; set; }
+    public DateTimeOffset Updated { get; set; }
+    public string UpdatedBy { get; set; }
+
+    [ConcurrencyCheck]
+    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    [DataFieldConverter(typeof(ConcurrencyTokenHandler))]
+    public ConcurrencyToken RowVersion { get; set; }
+
+    [NotMapped]
+    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
+}
+```
+
+
 
 ## SQL Server Features
 
