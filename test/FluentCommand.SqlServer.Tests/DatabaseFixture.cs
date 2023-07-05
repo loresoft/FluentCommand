@@ -64,9 +64,7 @@ public class DatabaseFixture : IUpgradeLog, IDisposable
 
         var configuration = builder.Build();
 
-        var connectionString = configuration.GetConnectionString(ConnectionName);
-
-        ConnectionString = connectionString;
+        ConnectionString = configuration.GetConnectionString(ConnectionName);
     }
 
 

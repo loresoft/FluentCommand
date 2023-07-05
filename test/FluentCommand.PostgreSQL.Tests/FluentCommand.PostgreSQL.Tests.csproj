@@ -40,6 +40,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="appsettings.github.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="appsettings.appveyor.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

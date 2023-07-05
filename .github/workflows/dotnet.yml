@@ -1,6 +1,7 @@
 name: Build Project
 
 env:
+  ASPNETCORE_ENVIRONMENT: github
   BUILD_PATH: '${{github.workspace}}/artifacts'
   BUILD_VERSION: '10.1.${{github.run_number}}'
   BUILD_INFORMATION: '10.1.${{github.run_number}}+Branch.${{github.ref_name}}.Sha.${{github.sha}}'
@@ -8,19 +9,39 @@ env:
 on:
   push:
     branches:
-      - main
+      - master
       - develop
     tags:
       - 'v*'
   pull_request:
     branches:
-      - main
+      - master
       - develop
 
 jobs:
 
   build:
     runs-on: ubuntu-latest
+
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          MSSQL_SA_PASSWORD: '!p@ssword'
+          ACCEPT_EULA: 'Y'
+        ports:
+          - 1433:1433
+        volumes:
+          - mssql_data:/var/opt/mssql
+
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: '!p@ssword'
+        ports:
+          - 5432:5432
+        volumes:
+          - postgres_data:/var/lib/postgresql/data
 
     steps:
     - name: Checkout
@@ -39,14 +60,14 @@ jobs:
       run: dotnet restore
 
     - name: Build Solution
-      run: 'dotnet build --no-restore --configuration Release -p:Version="${{env.BUILD_VERSION}}" -p:InformationalVersion="${{env.BUILD_INFORMATION}}"'
+      run: dotnet build --no-restore --configuration Release -p:Version="${{env.BUILD_VERSION}}" -p:InformationalVersion="${{env.BUILD_INFORMATION}}"
     
     - name: Run Test
       run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
     - name: Create Packages
       if: success() && github.event_name != 'pull_request'
-      run: 'dotnet pack --configuration Release --include-symbols --include-source --no-build --no-restore --output "${{env.BUILD_PATH}}" -p:PackageVersion="${{env.BUILD_VERSION}}"'
+      run: dotnet pack --configuration Release --include-symbols --include-source --no-build --no-restore --output "${{env.BUILD_PATH}}" -p:PackageVersion="${{env.BUILD_VERSION}}"
 
     - name: Upload Packages
       if: success() && github.event_name != 'pull_request'
