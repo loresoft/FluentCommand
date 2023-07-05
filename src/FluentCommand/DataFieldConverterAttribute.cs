@@ -24,3 +24,19 @@ public class DataFieldConverterAttribute : Attribute
     /// </value>
     public Type ConverterType { get; }
 }
+
+#if NET7_0_OR_GREATER
+/// <summary>
+/// Attribute to enable source generation of data reader factory
+/// </summary>
+/// <typeparam name="TConverter">
+/// The type of the converter
+/// </typeparam>
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
+public class DataFieldConverterAttribute<TConverter> : DataFieldConverterAttribute
+{
+    public DataFieldConverterAttribute() : base(typeof(TConverter))
+    {
+    }
+}
+#endif

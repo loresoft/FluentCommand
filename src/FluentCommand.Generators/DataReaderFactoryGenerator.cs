@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Immutable;
+using System.Reflection;
 
 using FluentCommand.Generators.Internal;
 using FluentCommand.Generators.Models;
@@ -143,10 +145,13 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
 
     private static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string parameterName = null)
     {
+        var propertyType = propertySymbol.Type.ToDisplayString();
+        var propertyName = propertySymbol.Name;
+
         // look for custom field converter
         var attributes = propertySymbol.GetAttributes();
         if (attributes == null || attributes.Length == 0)
-            return new EntityProperty(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), parameterName);
+            return new EntityProperty(propertyName, propertyType, parameterName);
 
         var converter = attributes
             .FirstOrDefault(a => a.AttributeClass is
@@ -156,17 +161,39 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             });
 
         if (converter == null)
-            return new EntityProperty(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), parameterName);
+            return new EntityProperty(propertyName, propertyType, parameterName);
 
-        var converterType = converter.ConstructorArguments.Single();
+        // attribute contructor
+        var converterType = converter.ConstructorArguments.FirstOrDefault();
         if (converterType.Value is INamedTypeSymbol converterSymbol)
+        {
             return new EntityProperty(
-                propertySymbol.Name,
-                propertySymbol.Type.ToDisplayString(),
+                propertyName,
+                propertyType,
                 parameterName,
                 converterSymbol.ToDisplayString());
+        }
 
-        return new EntityProperty(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), parameterName);
+        // generic attribute
+        var attributeClass = converter.AttributeClass;
+        if (attributeClass is { IsGenericType: true }
+            && attributeClass.TypeArguments.Length == attributeClass.TypeParameters.Length
+            && attributeClass.TypeArguments.Length == 1)
+        {
+            var typeArgument = attributeClass.TypeArguments[0];
+            var converterString = typeArgument.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            return new EntityProperty(
+                propertyName,
+                propertyType,
+                parameterName,
+                converterString);
+        }
+
+        return new EntityProperty(
+            propertyName,
+            propertyType,
+            parameterName);
     }
 
     private static bool IsIncluded(IPropertySymbol propertySymbol)

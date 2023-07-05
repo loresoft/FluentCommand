@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MicroSoft.Data.SqlClient" Version="5.1.0" />
+    <PackageReference Include="MicroSoft.Data.SqlClient" Version="5.1.1" />
   </ItemGroup>
 
 </Project>
