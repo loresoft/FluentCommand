@@ -5,6 +5,7 @@ env:
   BUILD_PATH: '${{github.workspace}}/artifacts'
   BUILD_VERSION: '10.1.${{github.run_number}}'
   BUILD_INFORMATION: '10.1.${{github.run_number}}+Branch.${{github.ref_name}}.Sha.${{github.sha}}'
+  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
 on:
   push:
@@ -68,8 +69,8 @@ jobs:
     - name: Generate Coverage 
       uses: danielpalme/ReportGenerator-GitHub-Action@5.1.23
       with:
-        reports: '*/TestResults/*/coverage.info'
-        targetdir: artifacts
+        reports: '${{github.workspace}}/test/*/TestResults/*/coverage.info'
+        targetdir: ${{env.BUILD_PATH}}
         reporttypes: lcov
 
     - name: Report Coverage
