@@ -65,9 +65,19 @@ jobs:
     - name: Run Test
       run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
+    - name: Generate Coverage 
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.1.23
+      with:
+        reports: '*/TestResults/*/coverage.info'
+        targetdir: artifacts
+        reporttypes: lcov
+
     - name: Report Coverage
       if: success()
       uses: coverallsapp/github-action@v2
+      with:
+          file: artifacts/lcov.info
+          format: lcov
 
     - name: Create Packages
       if: success() && github.event_name != 'pull_request'
