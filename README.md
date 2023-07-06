@@ -2,7 +2,7 @@
 
 Fluent Wrapper for DbCommand.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/v9h2sdvcgmo4itj1?svg=true)](https://ci.appveyor.com/project/LoreSoft/fluentcommand)
+[![Build status](https://github.com/loresoft/FluentCommand/workflows/Build%20Project/badge.svg)](https://github.com/loresoft/FluentCommand/actions)
 
 [![Coverage Status](https://coveralls.io/repos/github/loresoft/FluentCommand/badge.svg?branch=master)](https://coveralls.io/github/loresoft/FluentCommand?branch=master)
 
@@ -11,6 +11,7 @@ Fluent Wrapper for DbCommand.
 | [FluentCommand](https://www.nuget.org/packages/FluentCommand/) |  [![FluentCommand](https://img.shields.io/nuget/v/FluentCommand.svg)](https://www.nuget.org/packages/FluentCommand/) |
 | [FluentCommand.Dapper](https://www.nuget.org/packages/FluentCommand.Dapper/) |  [![FluentCommand.Dapper](https://img.shields.io/nuget/v/FluentCommand.Dapper.svg)](https://www.nuget.org/packages/FluentCommand.Dapper/) |
 | [FluentCommand.SqlServer](https://www.nuget.org/packages/FluentCommand.SqlServer/) |  [![FluentCommand.SqlServer](https://img.shields.io/nuget/v/FluentCommand.SqlServer.svg)](https://www.nuget.org/packages/FluentCommand.SqlServer/) |
+| [FluentCommand.Json](https://www.nuget.org/packages/FluentCommand.Json/) |  [![FluentCommand.Json](https://img.shields.io/nuget/v/FluentCommand.Json.svg)](https://www.nuget.org/packages/FluentCommand.Json/) |
 
 ## Download
 
@@ -23,13 +24,6 @@ To install FluentCommand, run the following command in the Package Manager Conso
 More information about NuGet package avaliable at
 <https://nuget.org/packages/FluentCommand>
 
-## Development Builds
-
-
-Development builds are available on the myget.org feed.  A development build is promoted to the main NuGet feed when it's determined to be stable. 
-
-In your Package Manager settings add the following package source for development builds:
-<http://www.myget.org/F/loresoft/>
 
 ## Features
 

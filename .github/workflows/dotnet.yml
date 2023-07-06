@@ -65,6 +65,10 @@ jobs:
     - name: Run Test
       run: dotnet test --configuration Release --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
+    - name: Report Coverage
+      if: success()
+      uses: coverallsapp/github-action@v2
+
     - name: Create Packages
       if: success() && github.event_name != 'pull_request'
       run: dotnet pack --configuration Release --include-symbols --include-source --no-build --no-restore --output "${{env.BUILD_PATH}}" -p:PackageVersion="${{env.BUILD_VERSION}}"
