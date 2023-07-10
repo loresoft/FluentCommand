@@ -5,7 +5,6 @@
       <DataCollector friendlyName="XPlat code coverage">
         <Configuration>
           <Format>lcov</Format>
-		  <UseSourceLink>true</UseSourceLink>
           <SkipAutoProps>true</SkipAutoProps>
         </Configuration>
       </DataCollector>
