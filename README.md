@@ -2,7 +2,7 @@
 
 Fluent Wrapper for DbCommand.
 
-[![Build status](https://github.com/loresoft/FluentCommand/workflows/Build%20Project/badge.svg)](https://github.com/loresoft/FluentCommand/actions)
+[![Build status](https://github.com/loresoft/FluentCommand/workflows/Build/badge.svg)](https://github.com/loresoft/FluentCommand/actions)
 
 [![Coverage Status](https://coveralls.io/repos/github/loresoft/FluentCommand/badge.svg?branch=master)](https://coveralls.io/github/loresoft/FluentCommand?branch=master)
 

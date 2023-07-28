@@ -1,14 +1,12 @@
 <Project>
 
   <PropertyGroup Label="Package">
-    <Product>FluentCommand</Product>
     <Description>Fluent Wrapper for DbCommand</Description>
     <Copyright>Copyright © $([System.DateTime]::Now.ToString(yyyy)) LoreSoft</Copyright>
     <Authors>LoreSoft</Authors>
     <NeutralLanguage>en-US</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>orm;sql;micro-orm;database</PackageTags>
-    <PackageOutputPath>$(SolutionDir)artifacts</PackageOutputPath>
     <PackageProjectUrl>https://github.com/loresoft/FluentCommand</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>logo.png</PackageIcon>
@@ -30,9 +28,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+  </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
