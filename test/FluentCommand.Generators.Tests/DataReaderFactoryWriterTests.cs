@@ -24,7 +24,7 @@ public class DataReaderFactoryWriterTests
             }.ToImmutableArray()
         );
 
-        var source = DataReaderFactoryWriter.Generate(entityClass, true);
+        var source = DataReaderFactoryWriter.Generate(entityClass);
 
         await Verifier
             .Verify(source)

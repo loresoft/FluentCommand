@@ -8,7 +8,7 @@ public static class DataReaderFactoryWriter
     private static int _counter = 0;
 #endif
 
-    public static string Generate(EntityClass entityClass, bool skipVersion = false)
+    public static string Generate(EntityClass entityClass)
     {
         if (entityClass == null)
             throw new ArgumentNullException(nameof(entityClass));
@@ -38,12 +38,12 @@ public static class DataReaderFactoryWriter
             .AppendLine("/// Extension methods for FluentCommand")
             .AppendLine("/// </summary>");
 
-        //codeBuilder
-        //    .Append("[global::System.CodeDom.Compiler.GeneratedCode(\"")
-        //    .Append(ThisAssembly.Project.AssemblyName)
-        //    .Append("\", \"")
-        //    .Append(skipVersion ? "1.0.0.0" : ThisAssembly.Info.Version)
-        //    .AppendLine("\")]");
+        codeBuilder
+            .Append("[global::System.CodeDom.Compiler.GeneratedCode(\"")
+            .Append("FluentCommand.Generators")
+            .Append("\", \"")
+            .Append("1.0.0.0")
+            .AppendLine("\")]");
 
         codeBuilder
             .AppendLine("[global::System.Diagnostics.DebuggerNonUserCodeAttribute]")
