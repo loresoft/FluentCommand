@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using FluentAssertions;
 
 using FluentCommand.Import;
-
-using Moq;
 
 using Xunit;
 
@@ -17,7 +13,7 @@ namespace FluentCommand.SqlServer.Tests;
 public class ImportProcessorTests : ImportProcessor
 {
     public ImportProcessorTests()
-        : base(Mock.Of<IDataSession>(), Activator.CreateInstance)
+        : base(null, Activator.CreateInstance)
     {
     }
 
