@@ -304,7 +304,7 @@ public class DataCommandSqlTests : DatabaseTestBase
             {
                 while (reader.Read())
                 {
-                    var user = ReaderFactory.DynamicFactory(reader);
+                    var user = DataReaderExtensions.DynamicFactory(reader);
                     users.Add(user);
                 }
             });
