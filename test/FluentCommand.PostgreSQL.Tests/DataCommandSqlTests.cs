@@ -109,7 +109,7 @@ public class DataCommandSqlTests : DatabaseTestBase
 
         dynamic user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingle<dynamic>();
+            .QuerySingle();
 
         Assert.NotNull(user);
         Assert.Equal(user.EmailAddress, email);
@@ -162,7 +162,7 @@ public class DataCommandSqlTests : DatabaseTestBase
 
         IEnumerable<dynamic> users = session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .Query<dynamic>();
+            .Query();
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -181,7 +181,7 @@ public class DataCommandSqlTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .Query<dynamic>()
+            .Query()
             .ToList();
 
         users.Should().NotBeNull();
@@ -191,7 +191,7 @@ public class DataCommandSqlTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .Query<dynamic>()
+            .Query()
             .ToList();
 
         cachedUsers.Should().NotBeNull();

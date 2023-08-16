@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FluentCommand.Batch\FluentCommand.Batch.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand.SqlServer\FluentCommand.SqlServer.csproj" />
     <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.csproj" />
     <ProjectReference Include="..\FluentCommand.SqlServer.Tests\FluentCommand.SqlServer.Tests.csproj" />

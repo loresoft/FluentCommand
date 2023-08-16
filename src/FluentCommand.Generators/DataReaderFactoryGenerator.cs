@@ -17,7 +17,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
-            fullyQualifiedMetadataName: "FluentCommand.GenerateDataReaderAttribute",
+            fullyQualifiedMetadataName: "System.ComponentModel.DataAnnotations.Schema.TableAttribute",
             predicate: SyntacticPredicate,
             transform: SemanticTransform
         )
@@ -51,7 +51,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
 
         var source = DataReaderFactoryWriter.Generate(entityClass);
 
-        context.AddSource($"{qualifiedName}.DataReaderFactory.g.cs", source);
+        context.AddSource($"{qualifiedName}DataReaderExtensions.g.cs", source);
     }
 
     private static bool SyntacticPredicate(SyntaxNode syntaxNode, CancellationToken cancellationToken)

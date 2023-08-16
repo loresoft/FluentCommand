@@ -65,7 +65,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleUserAsync();
+            .QuerySingleAsync<User>();
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -83,7 +83,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         var user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleUserAsync();
+            .QuerySingleAsync<User>();
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -91,7 +91,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         var cachedUser = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleUserAsync();
+            .QuerySingleAsync<User>();
 
         cachedUser.Should().NotBeNull();
         cachedUser.EmailAddress.Should().Be(email);
@@ -109,7 +109,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         dynamic user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleAsync<dynamic>();
+            .QuerySingleAsync();
 
         Assert.NotNull(user);
         Assert.Equal(user.EmailAddress, email);
@@ -162,7 +162,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         IEnumerable<dynamic> users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryAsync<dynamic>();
+            .QueryAsync();
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -181,7 +181,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync<dynamic>();
+            .QueryAsync();
 
         var userList = users.ToList();
 
@@ -192,7 +192,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync<dynamic>();
+            .QueryAsync();
 
         var cachedList = cachedUsers.ToList();
 
@@ -211,7 +211,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryUserAsync();
+            .QueryAsync<User>();
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -297,9 +297,9 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 .Parameter("@EmailAddress", email)
                 .QueryMultipleAsync(async q =>
                 {
-                    user = await q.QuerySingleUserAsync();
-                    roles = (await q.QueryRoleAsync()).ToList();
-                    priorities = (await q.QueryPriorityAsync()).ToList();
+                    user = await q.QuerySingleAsync<User>();
+                    roles = (await q.QueryAsync<Role>()).ToList();
+                    priorities = (await q.QueryAsync<Priority>()).ToList();
                 });
         }
 

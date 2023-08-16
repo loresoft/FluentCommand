@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
 [Table("DataType", Schema = "dbo")]
 public class DataType
 {

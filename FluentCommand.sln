@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.SQLite.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.SqlServer.Tests", "test\FluentCommand.SqlServer.Tests\FluentCommand.SqlServer.Tests.csproj", "{5DE2495F-EC9E-49C5-8211-5ACB44A780A8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Batch", "src\FluentCommand.Batch\FluentCommand.Batch.csproj", "{9DEC5471-EEFE-48EC-8D7A-BEE501087F38}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Batch.Tests", "test\FluentCommand.Batch.Tests\FluentCommand.Batch.Tests.csproj", "{CCC34DD0-4706-44CB-AC03-A0E607F449A2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{38D98603-4878-4CFA-ACF5-5BEC1218B149}"
@@ -29,18 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Tests", "test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.PostgreSQL.Tests", "test\FluentCommand.PostgreSQL.Tests\FluentCommand.PostgreSQL.Tests.csproj", "{CFCFEA34-ABFA-490E-85BF-A7DC12392245}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.EntityFactory", "src\FluentCommand.EntityFactory\FluentCommand.EntityFactory.csproj", "{F05DE8E6-1CBB-4304-8D41-68D9BB5DF6B6}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.SqlServer", "src\FluentCommand.SqlServer\FluentCommand.SqlServer.csproj", "{536C4B33-C1D8-495B-A282-97F525BF994D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BE1C80C-1E25-4143-8319-0217575B2560}"
-	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Json", "src\FluentCommand.Json\FluentCommand.Json.csproj", "{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Dapper", "src\FluentCommand.Dapper\FluentCommand.Dapper.csproj", "{47EE3C3A-178C-4AE5-8A54-F3791FA76E08}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Generators", "src\FluentCommand.Generators\FluentCommand.Generators.csproj", "{43DCCD08-D585-4905-95A9-120D300C512A}"
 EndProject
@@ -68,10 +57,6 @@ Global
 		{5DE2495F-EC9E-49C5-8211-5ACB44A780A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DE2495F-EC9E-49C5-8211-5ACB44A780A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DE2495F-EC9E-49C5-8211-5ACB44A780A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9DEC5471-EEFE-48EC-8D7A-BEE501087F38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9DEC5471-EEFE-48EC-8D7A-BEE501087F38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9DEC5471-EEFE-48EC-8D7A-BEE501087F38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9DEC5471-EEFE-48EC-8D7A-BEE501087F38}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CCC34DD0-4706-44CB-AC03-A0E607F449A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CCC34DD0-4706-44CB-AC03-A0E607F449A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCC34DD0-4706-44CB-AC03-A0E607F449A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -84,10 +69,6 @@ Global
 		{CFCFEA34-ABFA-490E-85BF-A7DC12392245}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFCFEA34-ABFA-490E-85BF-A7DC12392245}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFCFEA34-ABFA-490E-85BF-A7DC12392245}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F05DE8E6-1CBB-4304-8D41-68D9BB5DF6B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F05DE8E6-1CBB-4304-8D41-68D9BB5DF6B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F05DE8E6-1CBB-4304-8D41-68D9BB5DF6B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F05DE8E6-1CBB-4304-8D41-68D9BB5DF6B6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{536C4B33-C1D8-495B-A282-97F525BF994D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{536C4B33-C1D8-495B-A282-97F525BF994D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{536C4B33-C1D8-495B-A282-97F525BF994D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -96,10 +77,6 @@ Global
 		{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DC02823-0A42-4C2D-8E49-C0BEA9CAE97A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{47EE3C3A-178C-4AE5-8A54-F3791FA76E08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47EE3C3A-178C-4AE5-8A54-F3791FA76E08}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47EE3C3A-178C-4AE5-8A54-F3791FA76E08}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47EE3C3A-178C-4AE5-8A54-F3791FA76E08}.Release|Any CPU.Build.0 = Release|Any CPU
 		{43DCCD08-D585-4905-95A9-120D300C512A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{43DCCD08-D585-4905-95A9-120D300C512A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43DCCD08-D585-4905-95A9-120D300C512A}.Release|Any CPU.ActiveCfg = Release|Any CPU

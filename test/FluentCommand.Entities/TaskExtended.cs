@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
+[Table(nameof(TaskExtended))]
 public class TaskExtended
 {
     public Guid TaskId { get; set; }

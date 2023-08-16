@@ -9,7 +9,6 @@ Fluent Wrapper for DbCommand.
 | Package | Version |
 | :--- | :--- |
 | [FluentCommand](https://www.nuget.org/packages/FluentCommand/) |  [![FluentCommand](https://img.shields.io/nuget/v/FluentCommand.svg)](https://www.nuget.org/packages/FluentCommand/) |
-| [FluentCommand.Dapper](https://www.nuget.org/packages/FluentCommand.Dapper/) |  [![FluentCommand.Dapper](https://img.shields.io/nuget/v/FluentCommand.Dapper.svg)](https://www.nuget.org/packages/FluentCommand.Dapper/) |
 | [FluentCommand.SqlServer](https://www.nuget.org/packages/FluentCommand.SqlServer/) |  [![FluentCommand.SqlServer](https://img.shields.io/nuget/v/FluentCommand.SqlServer.svg)](https://www.nuget.org/packages/FluentCommand.SqlServer/) |
 | [FluentCommand.Json](https://www.nuget.org/packages/FluentCommand.Json/) |  [![FluentCommand.Json](https://img.shields.io/nuget/v/FluentCommand.Json.svg)](https://www.nuget.org/packages/FluentCommand.Json/) |
 
@@ -133,23 +132,6 @@ session
         priorities = q.Query<Priority>().ToList();
     });
 ```
-## Dapper
-
-    PM> Install-Package FluentCommand.Dapper
-
-Use Dapper to materialize data reader to entities
-
-```c#
-
-string email = "kara.thrace@battlestar.com";
-string sql = "select * from [User] where EmailAddress = @EmailAddress";
-
-var session = configuration.CreateSession();
-var user = await session
-    .Sql(sql)
-    .Parameter("@EmailAddress", email)
-    .QuerySingleAsync<User>();
-```
 
 ## Query Builder
 
@@ -165,7 +147,7 @@ var user = await session
         .Select<User>() // table name comes from type
         .Where(p => p.EmailAddress, email)
     )
-    .QuerySingleAsync();
+    .QuerySingleAsync<User>();
 ```
 
 Count query
@@ -231,10 +213,9 @@ var deleteId = await session
 
 ### Source Generator
 
-The project supports generating a DbDataReader from a class via an attribute.  Add the `GenerateDataReaderAttribute` to a class to generate the needed extension methods.
+The project supports generating a DbDataReader from a class via an attribute.  Add the `TableAttribute` to a class to generate the needed extension methods.
 
 ```c#
-[GenerateDataReader]
 [Table("Status", Schema = "dbo")]
 public class Status
 {
@@ -258,6 +239,17 @@ public class Status
 }
 ```
 
+Extension methods are generated to materialize data command to entities
+
+```c#
+string email = "kara.thrace@battlestar.com";
+string sql = "select * from [User] where EmailAddress = @EmailAddress";
+var session = configuration.CreateSession();
+var user = await session
+    .Sql(sql)
+    .Parameter("@EmailAddress", email)
+    .QuerySingleAsync<User>();
+```
 
 
 ## SQL Server Features

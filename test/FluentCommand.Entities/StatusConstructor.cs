@@ -6,7 +6,7 @@ using FluentCommand.Handlers;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
+[Table(nameof(StatusConstructor))]
 public class StatusConstructor
 {
     public StatusConstructor(

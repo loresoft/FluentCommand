@@ -4,10 +4,6 @@ namespace FluentCommand.Generators;
 
 public static class DataReaderFactoryWriter
 {
-#if DEBUG
-    private static int _counter = 0;
-#endif
-
     public static string Generate(EntityClass entityClass)
     {
         if (entityClass == null)
@@ -21,11 +17,6 @@ public static class DataReaderFactoryWriter
             .AppendLine()
             .AppendLine("using global::FluentCommand.Extensions;")
             .AppendLine();
-
-#if DEBUG
-        // used to track re-writes for performance
-        codeBuilder.AppendLine($"// Counter: {Interlocked.Increment(ref _counter)}");
-#endif
 
         codeBuilder
             .Append("namespace ")
@@ -50,7 +41,7 @@ public static class DataReaderFactoryWriter
             .AppendLine("[global::System.Diagnostics.DebuggerStepThroughAttribute]")
             .Append("public static partial class ")
             .Append(entityClass.EntityName)
-            .AppendLine("DataReaderFactoryExtensions")
+            .AppendLine("DataReaderExtensions")
             .AppendLine("{")
             .IncrementIndent();
 
@@ -98,12 +89,18 @@ public static class DataReaderFactoryWriter
             .Append(".")
             .Append(entity.EntityName)
             .Append("> QuerySingle")
-            .Append(entity.EntityName)
-            .AppendLine("Async(")
+            .AppendLine("Async<TEntity>(")
             .IncrementIndent()
             .AppendLine("this global::FluentCommand.IDataQueryAsync dataQuery,")
             .AppendLine("global::System.Threading.CancellationToken cancellationToken = default)")
-            .Append("=> dataQuery.QuerySingleAsync<")
+            .Append("where TEntity : ")
+            .Append(entity.EntityNamespace)
+            .Append(".")
+            .AppendLine(entity.EntityName)
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .Append("return dataQuery.QuerySingleAsync<")
             .Append(entity.EntityNamespace)
             .Append(".")
             .Append(entity.EntityName)
@@ -111,13 +108,16 @@ public static class DataReaderFactoryWriter
             .IncrementIndent()
             .Append("factory: ")
             .Append(entity.EntityName)
-            .Append("DataReaderFactoryExtensions.")
+            .Append("DataReaderExtensions.")
             .Append(entity.EntityName)
             .AppendLine("Factory,")
-            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess | global::System.Data.CommandBehavior.SingleResult | global::System.Data.CommandBehavior.SingleRow,")
+            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleResult |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleRow,")
             .AppendLine("cancellationToken: cancellationToken);")
             .DecrementIndent()
             .DecrementIndent()
+            .AppendLine("}")
             .AppendLine();
     }
 
@@ -145,13 +145,18 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityNamespace)
             .Append(".")
             .Append(entity.EntityName)
-            .Append(">> Query")
-            .Append(entity.EntityName)
-            .AppendLine("Async(")
+            .AppendLine(">> QueryAsync<TEntity>(")
             .IncrementIndent()
             .AppendLine("this global::FluentCommand.IDataQueryAsync dataQuery,")
             .AppendLine("global::System.Threading.CancellationToken cancellationToken = default)")
-            .Append("=> dataQuery.QueryAsync<")
+            .Append("where TEntity : ")
+            .Append(entity.EntityNamespace)
+            .Append(".")
+            .AppendLine(entity.EntityName)
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .Append("return dataQuery.QueryAsync<")
             .Append(entity.EntityNamespace)
             .Append(".")
             .Append(entity.EntityName)
@@ -159,13 +164,15 @@ public static class DataReaderFactoryWriter
             .IncrementIndent()
             .Append("factory: ")
             .Append(entity.EntityName)
-            .Append("DataReaderFactoryExtensions.")
+            .Append("DataReaderExtensions.")
             .Append(entity.EntityName)
             .AppendLine("Factory,")
-            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess | global::System.Data.CommandBehavior.SingleResult,")
+            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleResult,")
             .AppendLine("cancellationToken: cancellationToken);")
             .DecrementIndent()
             .DecrementIndent()
+            .AppendLine("}")
             .AppendLine();
     }
 
@@ -192,12 +199,17 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityNamespace)
             .Append(".")
             .Append(entity.EntityName)
-            .Append(" QuerySingle")
-            .Append(entity.EntityName)
-            .AppendLine("(")
+            .AppendLine(" QuerySingle<TEntity>(")
             .IncrementIndent()
             .AppendLine("this global::FluentCommand.IDataQuery dataQuery)")
-            .Append("=> dataQuery.QuerySingle<")
+            .Append("where TEntity : ")
+            .Append(entity.EntityNamespace)
+            .Append(".")
+            .AppendLine(entity.EntityName)
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .Append("return dataQuery.QuerySingle<")
             .Append(entity.EntityNamespace)
             .Append(".")
             .Append(entity.EntityName)
@@ -205,12 +217,15 @@ public static class DataReaderFactoryWriter
             .IncrementIndent()
             .Append("factory: ")
             .Append(entity.EntityName)
-            .Append("DataReaderFactoryExtensions.")
+            .Append("DataReaderExtensions.")
             .Append(entity.EntityName)
             .AppendLine("Factory,")
-            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess | global::System.Data.CommandBehavior.SingleResult | global::System.Data.CommandBehavior.SingleRow);")
+            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleResult |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleRow);")
             .DecrementIndent()
             .DecrementIndent()
+            .AppendLine("}")
             .AppendLine();
     }
 
@@ -237,12 +252,17 @@ public static class DataReaderFactoryWriter
             .Append(entity.EntityNamespace)
             .Append(".")
             .Append(entity.EntityName)
-            .Append("> Query")
-            .Append(entity.EntityName)
-            .AppendLine("(")
+            .AppendLine("> Query<TEntity>(")
             .IncrementIndent()
             .AppendLine("this global::FluentCommand.IDataQuery dataQuery)")
-            .Append("=> dataQuery.Query<")
+            .Append("where TEntity : ")
+            .Append(entity.EntityNamespace)
+            .Append(".")
+            .AppendLine(entity.EntityName)
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .Append("return dataQuery.Query<")
             .Append(entity.EntityNamespace)
             .Append(".")
             .Append(entity.EntityName)
@@ -250,12 +270,14 @@ public static class DataReaderFactoryWriter
             .IncrementIndent()
             .Append("factory: ")
             .Append(entity.EntityName)
-            .Append("DataReaderFactoryExtensions.")
+            .Append("DataReaderExtensions.")
             .Append(entity.EntityName)
             .AppendLine("Factory,")
-            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess | global::System.Data.CommandBehavior.SingleResult);")
+            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleResult);")
             .DecrementIndent()
             .DecrementIndent()
+            .AppendLine("}")
             .AppendLine();
     }
 

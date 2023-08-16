@@ -7,7 +7,6 @@ using FluentCommand.Handlers;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
 [Table("Status", Schema = "dbo")]
 public class Status
 {
