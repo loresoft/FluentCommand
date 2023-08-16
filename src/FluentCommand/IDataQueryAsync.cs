@@ -16,24 +16,32 @@ public interface IDataQueryAsync
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
     /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TEntity>> QueryAsync<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.SingleResult,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object asynchronously.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default);
+    Task<TEntity> QuerySingleAsync<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes the query and returns the first column of the first row in the result set returned by the query asynchronously. All other columns and rows are ignored.
@@ -44,7 +52,9 @@ public interface IDataQueryAsync
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    Task<TValue> QueryValueAsync<TValue>(Func<object, TValue> convert, CancellationToken cancellationToken = default);
+    Task<TValue> QueryValueAsync<TValue>(
+        Func<object, TValue> convert,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Executes the command against the connection and converts the results to a <see cref="DataTable" /> asynchronously.
@@ -61,5 +71,8 @@ public interface IDataQueryAsync
     /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
-    Task ReadAsync(Func<IDataReader, CancellationToken, Task> readAction, CommandBehavior commandBehavior = CommandBehavior.Default, CancellationToken cancellationToken = default);
+    Task ReadAsync(
+        Func<IDataReader, CancellationToken, Task> readAction,
+        CommandBehavior commandBehavior = CommandBehavior.Default,
+        CancellationToken cancellationToken = default);
 }

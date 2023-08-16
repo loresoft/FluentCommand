@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.Common;
 
 using FluentCommand.Extensions;
+using FluentCommand.Reflection;
 
 namespace FluentCommand;
 
@@ -255,65 +256,6 @@ public static class DataCommandExtensions
         dataCommand.Parameter(parameter);
 
         return dataCommand;
-    }
-
-
-    /// <summary>
-    /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="dataQuery">The <see cref="IDataQuery"/> for this extension method.</param>
-    /// <returns>
-    /// The value of the first column of the first row in the result set.
-    /// </returns>
-    public static TValue QueryValue<TValue>(this IDataQuery dataQuery)
-    {
-        return dataQuery.QueryValue<TValue>(null);
-    }
-
-    /// <summary>
-    /// Executes the query and returns the first column of the first row in the result set returned by the query asynchronously. All other columns and rows are ignored.
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="dataQuery">The <see cref="IDataQuery"/> for this extension method.</param>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <returns>
-    /// The value of the first column of the first row in the result set.
-    /// </returns>
-    public static Task<TValue> QueryValueAsync<TValue>(
-        this IDataQueryAsync dataQuery,
-        CancellationToken cancellationToken = default)
-    {
-        return dataQuery.QueryValueAsync<TValue>(null, cancellationToken);
-    }
-
-    /// <summary>
-    /// Executes the query and returns the first column values in the result set returned by the query. All other columns and rows are ignored.
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="dataQuery">The <see cref="IDataQuery"/> for this extension method.</param>
-    /// <returns>
-    /// The value of the first column values in the result set.
-    /// </returns>
-    public static IEnumerable<TValue> QueryValues<TValue>(this IDataQuery dataQuery)
-    {
-        return dataQuery.Query(r => r.GetValue<TValue>(0));
-    }
-
-    /// <summary>
-    /// Executes the query and returns the first column values in the result set returned by the query. All other columns and rows are ignored.
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="dataQuery">The <see cref="IDataQuery"/> for this extension method.</param>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <returns>
-    /// The value of the first column values in the result set.
-    /// </returns>
-    public static async Task<IEnumerable<TValue>> QueryValuesAsync<TValue>(
-        this IDataQueryAsync dataQuery,
-        CancellationToken cancellationToken = default)
-    {
-        return await dataQuery.QueryAsync(r => r.GetValue<TValue>(0), cancellationToken);
     }
 
 }

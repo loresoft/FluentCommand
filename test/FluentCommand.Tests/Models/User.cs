@@ -6,7 +6,7 @@ using FluentCommand.Handlers;
 
 namespace FluentCommand.Tests.Models;
 
-[GenerateDataReader]
+[Table(nameof(User))]
 public class User
 {
     public Guid Id { get; set; }

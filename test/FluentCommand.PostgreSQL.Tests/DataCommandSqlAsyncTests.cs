@@ -109,7 +109,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         dynamic user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleAsync<dynamic>();
+            .QuerySingleAsync();
 
         Assert.NotNull(user);
         Assert.Equal(user.EmailAddress, email);
@@ -162,7 +162,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         IEnumerable<dynamic> users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryAsync<dynamic>();
+            .QueryAsync();
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -181,7 +181,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync<dynamic>();
+            .QueryAsync();
 
         var userList = users.ToList();
 
@@ -192,7 +192,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync<dynamic>();
+            .QueryAsync();
 
         var cachedList = cachedUsers.ToList();
 
@@ -266,7 +266,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             {
                 while (reader.Read())
                 {
-                    var user = ReaderFactory.DynamicFactory(reader);
+                    var user = DataReaderExtensions.DynamicFactory(reader);
                     users.Add(user);
                 }
 

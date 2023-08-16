@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
+[Table(nameof(UserLogin))]
 public class UserLogin
 {
     public Guid Id { get; set; }

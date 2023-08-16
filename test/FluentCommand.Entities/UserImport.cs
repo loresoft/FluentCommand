@@ -1,8 +1,9 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
+[Table("User")]
 public class UserImport
 {
     public string EmailAddress { get; set; }

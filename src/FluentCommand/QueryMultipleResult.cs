@@ -28,10 +28,13 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <returns>
     /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
-    public IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory)
+    public IEnumerable<TEntity> Query<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         NextResult();
 
@@ -50,11 +53,15 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
     /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
-    public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.Default,
+        CancellationToken cancellationToken = default)
     {
         await NextResultAsync(cancellationToken).ConfigureAwait(false);
 
@@ -74,10 +81,13 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
-    public TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory)
+    public TEntity QuerySingle<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         NextResult();
 
@@ -93,11 +103,15 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
-    public async Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default)
+    public async Task<TEntity> QuerySingleAsync<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.Default,
+        CancellationToken cancellationToken = default)
     {
         await NextResultAsync(cancellationToken).ConfigureAwait(false);
 
@@ -139,7 +153,9 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public async Task<TValue> QueryValueAsync<TValue>(Func<object, TValue> convert, CancellationToken cancellationToken = default)
+    public async Task<TValue> QueryValueAsync<TValue>(
+        Func<object, TValue> convert,
+        CancellationToken cancellationToken = default)
     {
         await NextResultAsync(cancellationToken).ConfigureAwait(false);
 
@@ -193,7 +209,9 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <exception cref="System.NotImplementedException"></exception>
-    public void Read(Action<IDataReader> readAction, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public void Read(
+        Action<IDataReader> readAction,
+        CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         NextResult();
 
@@ -208,7 +226,10 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns></returns>
     /// <exception cref="System.NotImplementedException"></exception>
-    public async Task ReadAsync(Func<IDataReader, CancellationToken, Task> readAction, CommandBehavior commandBehavior = CommandBehavior.Default, CancellationToken cancellationToken = default)
+    public async Task ReadAsync(
+        Func<IDataReader, CancellationToken, Task> readAction,
+        CommandBehavior commandBehavior = CommandBehavior.Default,
+        CancellationToken cancellationToken = default)
     {
         await NextResultAsync(cancellationToken);
 

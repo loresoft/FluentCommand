@@ -1,10 +1,11 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using FluentCommand.Handlers;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
+[Table(nameof(StatusRecord))]
 public record StatusRecord(
     int Id,
     string Name,

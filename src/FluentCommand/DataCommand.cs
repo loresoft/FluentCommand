@@ -196,10 +196,13 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <returns>
     /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
-    public IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory)
+    public IEnumerable<TEntity> Query<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.SingleResult)
     {
         if (factory == null)
             throw new ArgumentNullException(nameof(factory));
@@ -208,7 +211,7 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             var results = new List<TEntity>();
 
-            using var reader = Command.ExecuteReader(CommandBehavior.SingleResult);
+            using var reader = Command.ExecuteReader(commandBehavior);
             while (reader.Read())
             {
                 var entity = factory(reader);
@@ -224,12 +227,16 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
     /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.SingleResult,
+        CancellationToken cancellationToken = default)
     {
         if (factory == null)
             throw new ArgumentNullException(nameof(factory));
@@ -238,7 +245,7 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             var results = new List<TEntity>();
 
-            using var reader = await Command.ExecuteReaderAsync(CommandBehavior.SingleResult, token);
+            using var reader = await Command.ExecuteReaderAsync(commandBehavior, token);
             while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
                 var entity = factory(reader);
@@ -256,18 +263,21 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    public TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory)
+    public TEntity QuerySingle<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow)
     {
         if (factory == null)
             throw new ArgumentNullException(nameof(factory));
 
         return QueryFactory(() =>
         {
-            using var reader = Command.ExecuteReader(CommandBehavior.SingleResult | CommandBehavior.SingleRow);
+            using var reader = Command.ExecuteReader(commandBehavior);
             var result = reader.Read()
                 ? factory(reader)
                 : default;
@@ -281,19 +291,26 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    public async Task<TEntity> QuerySingleAsync<TEntity>(Func<IDataReader, TEntity> factory, CancellationToken cancellationToken = default)
+    public async Task<TEntity> QuerySingleAsync<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow,
+        CancellationToken cancellationToken = default)
     {
         if (factory == null)
             throw new ArgumentNullException(nameof(factory));
 
         return await QueryFactoryAsync(async (token) =>
         {
-            using var reader = await Command.ExecuteReaderAsync(CommandBehavior.SingleResult | CommandBehavior.SingleRow, token).ConfigureAwait(false);
+            using var reader = await Command
+                .ExecuteReaderAsync(commandBehavior, token)
+                .ConfigureAwait(false);
+
             var result = await reader.ReadAsync(token).ConfigureAwait(false)
                ? factory(reader)
                : default;
@@ -331,7 +348,9 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public async Task<TValue> QueryValueAsync<TValue>(Func<object, TValue> convert, CancellationToken cancellationToken = default)
+    public async Task<TValue> QueryValueAsync<TValue>(
+        Func<object, TValue> convert,
+        CancellationToken cancellationToken = default)
     {
         return await QueryFactoryAsync(async (token) =>
         {
@@ -409,7 +428,9 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </summary>
     /// <param name="queryAction">The query action delegate to pass the open <see cref="IDataQueryAsync" /> for reading multiple results.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
-    public async Task QueryMultipleAsync(Func<IDataQueryAsync, Task> queryAction, CancellationToken cancellationToken = default)
+    public async Task QueryMultipleAsync(
+        Func<IDataQueryAsync, Task> queryAction,
+        CancellationToken cancellationToken = default)
     {
         if (queryAction == null)
             throw new ArgumentNullException(nameof(queryAction));
@@ -462,7 +483,9 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </summary>
     /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
-    public void Read(Action<IDataReader> readAction, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public void Read(
+        Action<IDataReader> readAction,
+        CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         QueryFactory(() =>
         {
@@ -479,7 +502,10 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
-    public async Task ReadAsync(Func<IDataReader, CancellationToken, Task> readAction, CommandBehavior commandBehavior = CommandBehavior.Default, CancellationToken cancellationToken = default)
+    public async Task ReadAsync(
+        Func<IDataReader, CancellationToken, Task> readAction,
+        CommandBehavior commandBehavior = CommandBehavior.Default,
+        CancellationToken cancellationToken = default)
     {
         await QueryFactoryAsync(async (token) =>
         {
@@ -568,7 +594,10 @@ public class DataCommand : DisposableBase, IDataCommand
         }
     }
 
-    private async Task<TResult> QueryFactoryAsync<TResult>(Func<CancellationToken, Task<TResult>> query, bool supportCache, CancellationToken cancellationToken = default)
+    private async Task<TResult> QueryFactoryAsync<TResult>(
+        Func<CancellationToken, Task<TResult>> query,
+        bool supportCache,
+        CancellationToken cancellationToken = default)
     {
         if (query == null)
             throw new ArgumentNullException(nameof(query));

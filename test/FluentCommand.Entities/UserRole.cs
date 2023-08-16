@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
+[Table(nameof(UserRole))]
 public class UserRole
 {
     public Guid UserId { get; set; }

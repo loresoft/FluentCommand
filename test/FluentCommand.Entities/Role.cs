@@ -7,7 +7,7 @@ using FluentCommand.Handlers;
 
 namespace FluentCommand.Entities;
 
-[GenerateDataReader]
+[Table(nameof(Role))]
 public class Role
 {
     public Guid Id { get; set; }

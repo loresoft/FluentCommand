@@ -65,7 +65,7 @@ public class DataCommandSqlTests : DatabaseTestBase
 
         var user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleUser();
+            .QuerySingle<User>();
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -83,7 +83,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         var user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleUser();
+            .QuerySingle<User>();
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -91,7 +91,7 @@ public class DataCommandSqlTests : DatabaseTestBase
         var cachedUser = session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleUser();
+            .QuerySingle<User>();
 
         cachedUser.Should().NotBeNull();
         cachedUser.EmailAddress.Should().Be(email);
@@ -109,7 +109,7 @@ public class DataCommandSqlTests : DatabaseTestBase
 
         dynamic user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingle<dynamic>();
+            .QuerySingle();
 
         Assert.NotNull(user);
         Assert.Equal(user.EmailAddress, email);
@@ -162,7 +162,7 @@ public class DataCommandSqlTests : DatabaseTestBase
 
         IEnumerable<dynamic> users = session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .Query<dynamic>();
+            .Query();
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -181,7 +181,7 @@ public class DataCommandSqlTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .Query<dynamic>()
+            .Query()
             .ToList();
 
         users.Should().NotBeNull();
@@ -191,7 +191,7 @@ public class DataCommandSqlTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .Query<dynamic>()
+            .Query()
             .ToList();
 
         cachedUsers.Should().NotBeNull();
@@ -209,7 +209,7 @@ public class DataCommandSqlTests : DatabaseTestBase
 
         var users = session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryUser();
+            .Query<User>();
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -264,7 +264,7 @@ public class DataCommandSqlTests : DatabaseTestBase
             {
                 while (reader.Read())
                 {
-                    var user = ReaderFactory.DynamicFactory(reader);
+                    var user = DataReaderExtensions.DynamicFactory(reader);
                     users.Add(user);
                 }
             });
@@ -293,9 +293,9 @@ public class DataCommandSqlTests : DatabaseTestBase
                 .Parameter("@EmailAddress", email)
                 .QueryMultiple(q =>
                 {
-                    user = q.QuerySingleUser();
-                    roles = q.QueryRole().ToList();
-                    priorities = q.QueryPriority().ToList();
+                    user = q.QuerySingle<User>();
+                    roles = q.Query<Role>().ToList();
+                    priorities = q.Query<Priority>().ToList();
                 });
         }
 

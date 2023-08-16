@@ -29,7 +29,7 @@ public class GeneratorTests : DatabaseTestBase
                 .OrderBy(p => p.DisplayOrder)
                 .Limit(0, 1000)
             )
-            .QueryStatusAsync();
+            .QueryAsync<Status>();
 
         results.Should().NotBeNull();
     }
@@ -46,7 +46,7 @@ public class GeneratorTests : DatabaseTestBase
                 .OrderBy(p => p.DisplayOrder)
                 .Limit(0, 1000)
             )
-            .QueryStatusRecordAsync();
+            .QueryAsync<StatusRecord>();
 
         results.Should().NotBeNull();
     }
@@ -63,7 +63,7 @@ public class GeneratorTests : DatabaseTestBase
                 .OrderBy(p => p.DisplayOrder)
                 .Limit(0, 1000)
             )
-            .QueryStatusReadOnlyAsync();
+            .QueryAsync<StatusReadOnly>();
 
         results.Should().NotBeNull();
     }
@@ -80,7 +80,7 @@ public class GeneratorTests : DatabaseTestBase
                 .OrderBy(p => p.DisplayOrder)
                 .Limit(0, 1000)
             )
-            .QueryStatusConstructorAsync();
+            .QueryAsync<StatusConstructor>();
 
         results.Should().NotBeNull();
     }

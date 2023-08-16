@@ -12,20 +12,26 @@ public interface IDataQuery : IDisposable
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate"/> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <returns>
     /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
-    IEnumerable<TEntity> Query<TEntity>(Func<IDataReader, TEntity> factory);
+    IEnumerable<TEntity> Query<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.SingleResult);
 
     /// <summary>
     /// Executes the query and returns the first row in the result as a <typeparamref name="TEntity" /> object.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="factory">The <see langword="delegate"/> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
+    /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
-    TEntity QuerySingle<TEntity>(Func<IDataReader, TEntity> factory);
+    TEntity QuerySingle<TEntity>(
+        Func<IDataReader, TEntity> factory,
+        CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow);
 
     /// <summary>
     /// Executes the query and returns the first column of the first row in the result set returned by the query. All other columns and rows are ignored.
@@ -48,5 +54,7 @@ public interface IDataQuery : IDisposable
     /// </summary>
     /// <param name="readAction">The read action delegate to pass the open <see cref="IDataReader" />.</param>
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
-    void Read(Action<IDataReader> readAction, CommandBehavior commandBehavior = CommandBehavior.Default);
+    void Read(
+        Action<IDataReader> readAction,
+        CommandBehavior commandBehavior = CommandBehavior.Default);
 }
