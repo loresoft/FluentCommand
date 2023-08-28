@@ -19,8 +19,8 @@ The FluentCommand library is available on nuget.org via package name `FluentComm
 To install FluentCommand, run the following command in the Package Manager Console
 
     PM> Install-Package FluentCommand
-    
-More information about NuGet package avaliable at
+
+More information about NuGet package available at
 <https://nuget.org/packages/FluentCommand>
 
 
@@ -49,7 +49,7 @@ IDataConfiguration dataConfiguration  = new DataConfiguration(
 
 ### Example
 
-Query all users with email domain.  Entity is automaticly created from DataReader.
+Query all users with email domain.  Entity is automatically created from DataReader.
 
 ```c#
 string email = "%@battlestar.com";
@@ -179,7 +179,7 @@ var userId = await session
         .Value(p => p.FirstName, "First")
         .Value(p => p.LastName, "Last")
         .Output(p => p.Id) // return key as output value
-        .Tag() // add comment tag to querey
+        .Tag() // add comment tag to query
     )
     .QueryValueAsync<Guid>();
 ```

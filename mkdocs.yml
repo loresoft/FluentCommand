@@ -4,6 +4,14 @@ repo_url: https://github.com/loresoft/FluentCommand
 
 nav:
   - Home: index.md
+  - Configuration: configuration.md
+  - SQL Builder: sql.md
+  - Parameters: parameter.md
+  - Execute: execute.md
+  - Queries: query.md
+  - Caching: cache.md
+  - Logging: logging.md
+  - Generation: generation.md
 
 theme:
   name: material

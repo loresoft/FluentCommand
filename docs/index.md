@@ -1,17 +1,36 @@
-# Welcome to MkDocs
+# FluentCommand
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Fluent Wrapper for DbCommand.
 
-## Commands
+[![Build status](https://github.com/loresoft/FluentCommand/workflows/Build/badge.svg)](https://github.com/loresoft/FluentCommand/actions)
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+[![Coverage Status](https://coveralls.io/repos/github/loresoft/FluentCommand/badge.svg?branch=master)](https://coveralls.io/github/loresoft/FluentCommand?branch=master)
 
-## Project layout
+| Package | Version |
+| :--- | :--- |
+| [FluentCommand](https://www.nuget.org/packages/FluentCommand/) |  [![FluentCommand](https://img.shields.io/nuget/v/FluentCommand.svg)](https://www.nuget.org/packages/FluentCommand/) |
+| [FluentCommand.SqlServer](https://www.nuget.org/packages/FluentCommand.SqlServer/) |  [![FluentCommand.SqlServer](https://img.shields.io/nuget/v/FluentCommand.SqlServer.svg)](https://www.nuget.org/packages/FluentCommand.SqlServer/) |
+| [FluentCommand.Json](https://www.nuget.org/packages/FluentCommand.Json/) |  [![FluentCommand.Json](https://img.shields.io/nuget/v/FluentCommand.Json.svg)](https://www.nuget.org/packages/FluentCommand.Json/) |
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+## Download
+
+The FluentCommand library is available on nuget.org via package name `FluentCommand`.
+
+To install FluentCommand, run the following command in the Package Manager Console
+
+    PM> Install-Package FluentCommand
+
+More information about NuGet package available at
+<https://nuget.org/packages/FluentCommand>
+
+## Features
+
+- Fluent wrapper over DbConnection and DbCommand
+- Callback for parameter return values
+- Automatic handling of connection state
+- Caching of results
+- Automatic creating of entity from DataReader via Dapper
+- Create Dynamic objects from DataReader via Dapper
+- Handles multiple result sets
+- Basic SQL query builder
+- Source Generate DataReader
