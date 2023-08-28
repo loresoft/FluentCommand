@@ -1,0 +1,21 @@
+site_name: FluentCommand
+
+repo_url: https://github.com/loresoft/FluentCommand
+
+nav:
+  - Home: index.md
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/logo.png
+
+markdown_extensions:
+  - tables
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
