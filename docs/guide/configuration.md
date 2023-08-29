@@ -2,7 +2,7 @@
 
 Configuration for SQL Server
 
-```c#
+```cs
 IDataConfiguration dataConfiguration  = new DataConfiguration(
     SqlClientFactory.Instance, 
     ConnectionString

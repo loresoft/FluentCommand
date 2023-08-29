@@ -1,0 +1,64 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [
+            "src/FluentCommand/bin/Release/net7.0/FluentCommand.dll",
+            "src/FluentCommand.SqlServer/bin/Release/net7.0/FluentCommand.SqlServer.dll",
+            "src/FluentCommand.Json/bin/Release/net7.0/FluentCommand.Json.dll"
+          ],
+          "src": "../"
+        }
+      ],
+      "dest": "reference"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "reference/**.yml",
+          "reference/index.md"
+        ]
+      },
+      {
+        "files": [
+          "guide/**.md",
+          "guide/**/toc.yml",
+          "toc.yml",
+          "*.md"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "assets/**"
+        ]
+      }
+    ],
+    "postProcessors": [
+      "ExtractSearchIndex"
+    ],
+    "globalMetadata": {
+      "_appTitle": "FluentCommand",
+      "_appName": "FluentCommand",
+      "_appFooter": "Copyright &copy; 2023 LoreSoft",
+      "_appLogoPath": "assets/logo.png",
+      "_appFaviconPath": "assets/logo.png",
+      "_enableSearch": true
+    },
+    "sitemap": {
+      "baseUrl": "https://loresoft.com/FluentCommand",
+      "priority": 0.5,
+      "changefreq": "daily"
+    },
+    "output": "_site",
+    "template": [
+      "default",
+      "modern",
+      "template"
+    ]
+  }
+}
