@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
+using System.Collections;
 
 namespace FluentCommand.Generators.Internal;
 
-public readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnumerable<T>
+public readonly struct EquatableArray<T> : IReadOnlyCollection<T>, IEquatable<EquatableArray<T>>
     where T : IEquatable<T>
 {
     public static readonly EquatableArray<T> Empty = new(Array.Empty<T>());
