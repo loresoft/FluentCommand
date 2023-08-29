@@ -14,8 +14,6 @@ on:
       - develop
     tags:
       - 'v*'
-    paths-ignore:
-      - 'docs/**'
   pull_request:
     branches:
       - master
@@ -79,7 +77,7 @@ jobs:
       if: success()
       uses: coverallsapp/github-action@v2
       with:
-          file: artifacts/lcov.info
+          file: '${{github.workspace}}/test/*/TestResults/*/coverage.info'
           format: lcov
 
     - name: Create Packages
@@ -92,6 +90,21 @@ jobs:
       with:
         name: packages
         path: '${{env.BUILD_PATH}}'
+
+    - name: Install docfx
+      if: success() && startsWith(github.ref, 'refs/tags/v')
+      run: dotnet tool update -g docfx
+
+    - name: Create Documentation
+      if: success() && startsWith(github.ref, 'refs/tags/v')
+      run: docfx docs/docfx.json
+
+    - name: Deploy Documentation
+      if: success() && startsWith(github.ref, 'refs/tags/v')
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_site
 
   deploy:
     runs-on: ubuntu-latest
