@@ -8,7 +8,7 @@ namespace FluentCommand;
 /// <summary>
 /// Extension methods for <see cref="IDataCommand"/>
 /// </summary>
-public static class DataCommandExtensions
+public static class JsonCommandExtensions
 {
     /// <summary>
     /// Executes the query and returns a JSON string from data set returned by the query.

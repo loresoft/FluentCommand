@@ -560,7 +560,7 @@ public class DataCommand : DisposableBase, IDataCommand
         try
         {
             var cacheKey = CacheKey<TResult>(supportCache);
-            if (GetCache(cacheKey) is TResult results)
+            if (GetCache<TResult>(cacheKey) is TResult results)
                 return results;
 
             _dataSession.EnsureConnection();
@@ -608,7 +608,9 @@ public class DataCommand : DisposableBase, IDataCommand
         try
         {
             var cacheKey = CacheKey<TResult>(supportCache);
-            if (GetCache(cacheKey) is TResult results)
+
+            var cacheValue = await GetCacheAsync<TResult>(cacheKey, cancellationToken).ConfigureAwait(false);
+            if (cacheValue is TResult results)
                 return results;
 
             await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
@@ -617,7 +619,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
             TriggerCallbacks();
 
-            SetCache(cacheKey, results);
+            await SetCacheAsync(cacheKey, results, cancellationToken).ConfigureAwait(false);
 
             return results;
         }
@@ -641,6 +643,7 @@ public class DataCommand : DisposableBase, IDataCommand
             Dispose();
         }
     }
+
 
 
     private string CacheKey<T>(bool supportCache)
@@ -680,22 +683,39 @@ public class DataCommand : DisposableBase, IDataCommand
         return $"global:data:{hashCode}";
     }
 
-    private object GetCache(string key)
+    private T GetCache<T>(string key)
     {
         if (_slidingExpiration == null && _absoluteExpiration == null)
-            return null;
+            return default;
 
         if (key == null)
-            return null;
+            return default;
 
         var cache = _dataSession.Cache;
         if (cache == null)
-            return null;
+            return default;
 
-        return cache.Get(key);
+        return cache.Get<T>(key);
     }
 
-    private void SetCache(string key, object value)
+    private async Task<T> GetCacheAsync<T>(string key, CancellationToken cancellationToken)
+    {
+        if (_slidingExpiration == null && _absoluteExpiration == null)
+            return default;
+
+        if (key == null)
+            return default;
+
+        var cache = _dataSession.Cache;
+        if (cache == null)
+            return default;
+
+        return await cache
+            .GetAsync<T>(key, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private void SetCache<T>(string key, T value)
     {
         if (_slidingExpiration == null && _absoluteExpiration == null)
             return;
@@ -707,10 +727,24 @@ public class DataCommand : DisposableBase, IDataCommand
         if (cache == null)
             return;
 
-        if (_absoluteExpiration.HasValue)
-            cache.Set(key, value, _absoluteExpiration.Value);
-        else if (_slidingExpiration.HasValue)
-            cache.Set(key, value, _slidingExpiration.Value);
+        cache.Set(key, value, _absoluteExpiration, _slidingExpiration);
+    }
+
+    private async Task SetCacheAsync<T>(string key, T value, CancellationToken cancellationToken)
+    {
+        if (_slidingExpiration == null && _absoluteExpiration == null)
+            return;
+
+        if (key == null || value == null)
+            return;
+
+        var cache = _dataSession.Cache;
+        if (cache == null)
+            return;
+
+        await cache
+            .SetAsync(key, value, _absoluteExpiration, _slidingExpiration, cancellationToken)
+            .ConfigureAwait(false);
     }
 
 

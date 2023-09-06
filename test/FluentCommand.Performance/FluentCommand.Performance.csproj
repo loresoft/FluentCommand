@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.7" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.dotTrace" Version="0.13.7" />
+    <PackageReference Include="Dapper" Version="2.0.151" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FluentCommand.Generators\FluentCommand.Generators.csproj">
+      <OutputItemType>Analyzer</OutputItemType>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\FluentCommand.Json\FluentCommand.Json.csproj" />
+    <ProjectReference Include="..\..\src\FluentCommand.SqlServer\FluentCommand.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\FluentCommand\FluentCommand.csproj" />
+    <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.csproj" />
+  </ItemGroup>
+
+</Project>

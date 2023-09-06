@@ -2,9 +2,20 @@
 
 Configuration for SQL Server
 
-```cs
-IDataConfiguration dataConfiguration  = new DataConfiguration(
+```csharp
+var dataConfiguration  = new DataConfiguration(
     SqlClientFactory.Instance, 
     ConnectionString
+);
+```
+
+Configure data logger
+
+```csharp
+var dataLogger = new DataQueryLogger(Output.WriteLine);
+var dataConfiguration  = new DataConfiguration(
+    SqlClientFactory.Instance, 
+    ConnectionString,
+    queryLogger: dataLogger
 );
 ```
