@@ -119,10 +119,10 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
 
 
     /// <summary>
-    /// Converts to string.
+    /// Converts the numeric value of this instance to its equivalent string representation.
     /// </summary>
     /// <returns>
-    /// A <see cref="string" /> that represents this instance.
+    /// The string representation of the value of this instance.
     /// </returns>
     public override string ToString() => _hashCode.ToString();
 

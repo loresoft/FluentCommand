@@ -103,6 +103,11 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         cachedUser.Should().NotBeNull();
         cachedUser.EmailAddress.Should().Be(email);
 
+        // check logs for cache hit
+        var logs = GetLogEntries();
+        var hasHit = logs.Any(l => l.Message.Contains("Cache Hit;"));
+
+        hasHit.Should().BeTrue();
     }
 
     [Fact]

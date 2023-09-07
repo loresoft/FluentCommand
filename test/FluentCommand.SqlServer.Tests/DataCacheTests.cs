@@ -47,6 +47,12 @@ public class DataCacheTests : DatabaseTestBase
             )
             .UseCache(TimeSpan.FromSeconds(5))
             .QueryAsync<Status>();
+
+        // check logs for cache hit
+        var logs = GetLogEntries();
+        var hasHit = logs.Any(l => l.Message.Contains("Cache Hit;"));
+
+        hasHit.Should().BeTrue();
     }
 
 }

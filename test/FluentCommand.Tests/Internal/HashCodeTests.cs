@@ -19,6 +19,7 @@ public class HashCodeTests
         var command = new Command
         {
             Text = "SELECT * FROM dbo.Status WHERE Type = @type OR Name = @name",
+            CommandType = CommandType.Text,
             Parameters =
             {
                 new Parameter{ Name = "@type", Value = 1, DbType = DbType.Int32 },
@@ -28,7 +29,7 @@ public class HashCodeTests
 
         var commandHash = command.GetHashCode();
 
-        commandHash.Should().Be(-2056478655);
+        commandHash.Should().Be(92316680);
     }
 
     [Fact]
