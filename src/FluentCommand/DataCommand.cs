@@ -659,17 +659,16 @@ public class DataCommand : DisposableBase, IDataCommand
         if (_slidingExpiration == null && _absoluteExpiration == null)
             return null;
 
-
         var connectionString = Command.Connection?.ConnectionString;
         var commandText = Command.CommandText;
         var commandType = Command.CommandType;
-        var type = typeof(T);
+        var typeName = typeof(T).FullName;
 
         var hashCode = HashCode.Seed
             .Combine(connectionString)
             .Combine(commandType)
             .Combine(commandText)
-            .Combine(type);
+            .Combine(typeName);
 
         foreach (IDbDataParameter parameter in Command.Parameters)
         {
@@ -682,7 +681,7 @@ public class DataCommand : DisposableBase, IDataCommand
                 .Combine(parameter.DbType);
         }
 
-        return $"global:data:{hashCode}";
+        return $"fluent:data:query:{hashCode:X}";
     }
 
     private (bool Success, T Value) GetCache<T>(string key)

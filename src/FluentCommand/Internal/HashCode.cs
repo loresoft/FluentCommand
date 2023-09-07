@@ -6,7 +6,7 @@ namespace FluentCommand.Internal;
 /// <remarks>
 /// Implements the Jon Skeet suggested implementation of GetHashCode(). 
 /// </remarks>
-public readonly struct HashCode
+public readonly struct HashCode : IFormattable, IEquatable<HashCode>
 {
     /// <summary>
     /// The prime multiplier used to combine hash codes.
@@ -108,16 +108,71 @@ public readonly struct HashCode
         return new HashCode(current);
     }
 
+
     /// <summary>
     /// Returns a hash code for this instance.
     /// </summary>
     /// <returns>
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
     /// </returns>
-    public override int GetHashCode()
-    {
-        return _hashCode;
-    }
+    public override int GetHashCode() => _hashCode;
+
+
+    /// <summary>
+    /// Converts to string.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="string" /> that represents this instance.
+    /// </returns>
+    public override string ToString() => _hashCode.ToString();
+
+    /// <summary>
+    /// Converts the numeric value of this instance to its equivalent string representation using the specified culture-specific format information.
+    /// </summary>
+    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <returns>
+    /// The string representation of the value of this instance as specified by provider.
+    /// </returns>
+    public string ToString(IFormatProvider provider) => _hashCode.ToString(provider);
+
+    /// <summary>
+    /// Converts the numeric value of this instance to its equivalent string representation using the specified format.
+    /// </summary>
+    /// <param name="format">A standard or custom numeric format string.</param>
+    /// <returns>
+    /// The string representation of the value of this instance as specified by format.
+    /// </returns>
+    public string ToString(string format) => _hashCode.ToString(format);
+
+    /// <summary>
+    /// Converts the numeric value of this instance to its equivalent string representation using the specified format and culture-specific format information.
+    /// </summary>
+    /// <param name="format">A standard or custom numeric format string.</param>
+    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <returns>
+    /// The string representation of the value of this instance as specified by format and provider.
+    /// </returns>
+    public string ToString(string format, IFormatProvider provider) => _hashCode.ToString(format, provider);
+
+
+    /// <summary>
+    /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+    /// </summary>
+    /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+    /// </returns>
+    public override bool Equals(object obj) => obj is HashCode code && Equals(code);
+
+    /// <summary>
+    /// Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    /// true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.
+    /// </returns>
+    public bool Equals(HashCode other) => _hashCode == other._hashCode;
+
 
     /// <summary>
     /// Performs an implicit conversion from <see cref="HashCode"/> to <see cref="int"/>.
@@ -126,24 +181,31 @@ public readonly struct HashCode
     /// <returns>
     /// The result of the conversion.
     /// </returns>
-    public static implicit operator int(HashCode hashCode)
-    {
-        return hashCode._hashCode;
-    }
+    public static implicit operator int(HashCode hashCode) => hashCode._hashCode;
 
     /// <summary>
-    /// Converts to string.
+    /// Compares two values to determine equality.
     /// </summary>
+    /// <param name="left">The value to compare with right.</param>
+    /// <param name="right">The value to compare with left.</param>
     /// <returns>
-    /// A <see cref="string" /> that represents this instance.
+    /// true if left is equal to right; otherwise, false.
     /// </returns>
-    public override string ToString()
-    {
-        return _hashCode.ToString();
-    }
+    public static bool operator ==(HashCode left, HashCode right) => left.Equals(right);
 
     /// <summary>
-    /// Deterministic string hash
+    /// Compares two values to determine inequality.
+    /// </summary>
+    /// <param name="left">The value to compare with right.</param>
+    /// <param name="right">The value to compare with left.</param>
+    /// <returns>
+    /// true if left is not equal to right; otherwise, false.
+    /// </returns>
+    public static bool operator !=(HashCode left, HashCode right) => !(left == right);
+
+
+    /// <summary>
+    /// Deterministic string hash function
     /// </summary>
     /// <param name="text">The text to hash.</param>
     /// <returns>A 32-bit signed integer hash code.</returns>
