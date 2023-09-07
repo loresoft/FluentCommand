@@ -31,7 +31,6 @@ public class DataCacheTests : DatabaseTestBase
             .Sql(builder => builder
                 .Select<Status>()
                 .WhereIn(p => p.Id, values)
-                .Tag()
             )
             .UseCache(TimeSpan.FromSeconds(5))
             .QueryAsync<Status>();
@@ -45,7 +44,6 @@ public class DataCacheTests : DatabaseTestBase
             .Sql(builder => builder
                 .Select<Status>()
                 .WhereIn(p => p.Id, values)
-                .Tag()
             )
             .UseCache(TimeSpan.FromSeconds(5))
             .QueryAsync<Status>();
