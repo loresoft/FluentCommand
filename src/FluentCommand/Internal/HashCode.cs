@@ -45,7 +45,67 @@ public readonly struct HashCode
         {
             hashCode = _hashCode * Multiplier + hashCode;
         }
+
         return new HashCode(hashCode);
+    }
+
+    /// <summary>
+    /// Combines this hash code with the hash code of specified <paramref name="value" />.
+    /// </summary>
+    /// <param name="value">The value to combine hash codes with.</param>
+    /// <returns>A new hash code combined with this and the values hash codes.</returns>
+    public HashCode Combine(string value)
+    {
+        // need to handle string values deterministically 
+        var hashCode = HashString(value);
+        unchecked
+        {
+            hashCode = _hashCode * Multiplier + hashCode;
+        }
+
+        return new HashCode(hashCode);
+    }
+
+    /// <summary>
+    /// Combines this hash code with the hash code of specified <paramref name="value" />.
+    /// </summary>
+    /// <param name="value">The value to combine hash codes with.</param>
+    /// <returns>A new hash code combined with this and the values hash codes.</returns>
+    public HashCode Combine(object value)
+    {
+        // need to handle string values deterministically 
+        return value switch
+        {
+            string text => Combine(text),
+            _ => Combine(value is null ? 0 : value.GetHashCode()),
+        };
+    }
+
+    /// <summary>
+    /// Combines this hash code with the hash code of each item specified <paramref name="values" />.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="values">The values to combine hash codes with.</param>
+    /// <returns>A new hash code combined with this and the values hash codes.</returns>
+    public HashCode CombineAll<TValue>(IEnumerable<TValue> values)
+    {
+        if (values == null)
+            return this;
+
+        var comparer = EqualityComparer<TValue>.Default;
+        var current = _hashCode;
+
+        foreach (var value in values)
+        {
+            var hashCode = value is null ? 0 : comparer.GetHashCode(value);
+            unchecked
+            {
+                hashCode = current * Multiplier + hashCode;
+            }
+            current = hashCode;
+        }
+
+        return new HashCode(current);
     }
 
     /// <summary>
@@ -80,5 +140,26 @@ public readonly struct HashCode
     public override string ToString()
     {
         return _hashCode.ToString();
+    }
+
+    /// <summary>
+    /// Deterministic string hash
+    /// </summary>
+    /// <param name="text">The text to hash.</param>
+    /// <returns>A 32-bit signed integer hash code.</returns>
+    public static int HashString(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return 0;
+
+        int hash = Seed;
+
+        unchecked
+        {
+            foreach (char c in text)
+                hash = hash * Multiplier + c;
+        }
+
+        return hash;
     }
 }
