@@ -7,6 +7,8 @@ using FluentCommand.Entities;
 using FluentCommand.Extensions;
 using FluentCommand.Query;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +23,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -59,7 +61,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryCountAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -78,7 +80,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySumAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var count = await session
@@ -94,7 +96,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryValuesAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var ids = await session
@@ -110,7 +112,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryInEntityAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var values = new[] { 1, 2, 3 };
@@ -132,7 +134,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryInComplexEntityAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var values = new[] { 1, 2, 3 }.ToDelimitedString();
@@ -171,7 +173,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlInsertValueQuery()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var id = Guid.NewGuid();
@@ -195,7 +197,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlInsertEntityQuery()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var id = Guid.NewGuid();
@@ -226,7 +228,7 @@ public class DataQueryTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlInsertUpdateDeleteEntityQuery()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var id = Guid.NewGuid();

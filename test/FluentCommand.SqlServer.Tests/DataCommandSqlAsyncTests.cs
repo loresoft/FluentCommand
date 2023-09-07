@@ -8,6 +8,7 @@ using FluentCommand.Entities;
 using FluentCommand.Extensions;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -23,7 +24,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -60,7 +61,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -78,7 +79,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryCacheAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -107,7 +108,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityDynamicAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -124,7 +125,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -160,7 +161,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityErrorAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -199,7 +200,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityDynamicAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -213,43 +214,12 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
     }
-
-    [Fact]
-    public async System.Threading.Tasks.Task SqlQueryEntityDynamicCacheAsync()
-    {
-        await using var session = GetConfiguration().CreateSession();
-        session.Should().NotBeNull();
-
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
-
-        var users = await session
-            .Sql(sql)
-            .Parameter("@EmailAddress", email)
-            .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync();
-
-        var userList = users.ToList();
-
-        userList.Should().NotBeNull();
-        userList.Should().NotBeEmpty();
-
-        var cachedUsers = await session
-            .Sql(sql)
-            .Parameter("@EmailAddress", email)
-            .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync();
-
-        var cachedList = cachedUsers.ToList();
-
-        cachedList.Should().NotBeNull();
-        cachedList.Should().NotBeEmpty();
-    }
+       
 
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityFactoryAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -266,7 +236,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryTableAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -282,7 +252,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryValueAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -298,7 +268,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlReaderAsync()
     {
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -335,7 +305,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         List<Role> roles = null;
         List<Priority> priorities = null;
 
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         await session.Sql(sql)

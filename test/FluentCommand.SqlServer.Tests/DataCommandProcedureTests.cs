@@ -1,14 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-using DataGenerator;
-using DataGenerator.Sources;
+using Bogus;
 
 using FluentAssertions;
 
 using FluentCommand.Entities;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -28,7 +28,7 @@ public class DataCommandProcedureTests : DatabaseTestBase
 
         var email = "%@battlestar.com";
 
-        using var session = GetConfiguration().CreateSession();
+        using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var users = session
@@ -59,7 +59,7 @@ public class DataCommandProcedureTests : DatabaseTestBase
         var username = "test." + DateTime.Now.Ticks;
         var email = username + "@email.com";
 
-        using var session = GetConfiguration().CreateSession();
+        using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var user = session
@@ -93,7 +93,7 @@ public class DataCommandProcedureTests : DatabaseTestBase
 
         var email = "william.adama@battlestar.com";
 
-        using var session = GetConfiguration().CreateSession();
+        using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         result = session
@@ -109,7 +109,7 @@ public class DataCommandProcedureTests : DatabaseTestBase
     [Fact]
     public void ProcedureExecuteTransaction()
     {
-        using var session = GetConfiguration().CreateSession();
+        using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         using var transaction = session.BeginTransaction(IsolationLevel.Unspecified);
@@ -148,19 +148,15 @@ public class DataCommandProcedureTests : DatabaseTestBase
     [Fact]
     public void ProcedureExecuteMerge()
     {
-        var generator = Generator.Create(c => c
-            .ExcludeName("xunit")
-            .Entity<UserImport>(e =>
-            {
-                e.AutoMap();
+        var fakerUser = new Faker<UserImport>()
+            .RuleFor(u => u.FirstName, (f, u) => f.Name.FirstName())
+            .RuleFor(u => u.LastName, (f, u) => f.Name.LastName())
+            .RuleFor(u => u.DisplayName, (f, u) => $"{u.FirstName} {u.LastName}")
+            .RuleFor(u => u.EmailAddress, (f, u) => f.Internet.Email(u.FirstName, u.LastName, uniqueSuffix: $"+{DateTime.Now.Ticks}"));
 
-                e.Property(p => p.DisplayName).DataSource<NameSource>();
-                e.Property(p => p.EmailAddress).Value(u => $"{u.FirstName}.{u.LastName}.{Guid.NewGuid()}@mailinator.com");
-            })
-        );
-        var users = generator.List<UserImport>(100);
+        var users = fakerUser.Generate(100);
 
-        using var session = GetConfiguration().CreateSession();
+        using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var result = session

@@ -1,4 +1,5 @@
 using System.Data;
+using System.Data.Common;
 
 using FluentCommand.Extensions;
 
@@ -367,8 +368,10 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         {
             // resolve auto map
             if (_autoMap == true)
+            {
                 foreach (DataColumn column in table.Columns)
                     Mapping(column.ColumnName, column.ColumnName);
+            }
 
             _dataSession.EnsureConnection();
 
@@ -394,6 +397,16 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
 
         try
         {
+            // resolve auto map
+            if (_autoMap == true)
+            {
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    var name = reader.GetName(i);
+                    Mapping(name, name);
+                }
+            }
+
             _dataSession.EnsureConnection();
 
             using var bulkCopy = Create();

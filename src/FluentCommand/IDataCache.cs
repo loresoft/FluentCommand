@@ -8,21 +8,30 @@ public interface IDataCache
     /// <summary>
     /// Gets the specified cache entry from the cache as an object.
     /// </summary>
+    /// <typeparam name="T">The type of item in cache</typeparam>
     /// <param name="key">A unique identifier for the cache entry.</param>
-    /// <returns>The cache entry that is identified by key.</returns>
-    T Get<T>(string key);
+    /// <returns>
+    ///     <para>Success is true if the key was found; otherwise false</para>
+    ///     <para>Value is the cache entry that is identified by key</para>
+    /// </returns>
+    (bool Success, T Value) Get<T>(string key);
 
     /// <summary>
     /// Gets the specified cache entry from the cache as an object.
     /// </summary>
+    /// <typeparam name="T">The type of item in cache</typeparam>
     /// <param name="key">A unique identifier for the cache entry.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <returns>The cache entry that is identified by key.</returns>
-    Task<T> GetAsync<T>(string key, CancellationToken cancellationToken = default);
+    /// <returns>
+    ///     <para>Success is true if the key was found; otherwise false</para>
+    ///     <para>Value is the cache entry that is identified by key</para>
+    /// </returns>
+    Task<(bool Success, T Value)> GetAsync<T>(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Inserts a cache entry into the cache, specifying information about how the entry will be evicted.
     /// </summary>
+    /// <typeparam name="T">The type of item in cache</typeparam>
     /// <param name="key">A unique identifier for the cache entry.</param>
     /// <param name="value">The object to insert into cache.</param>
     /// <param name="absoluteExpiration">The fixed date and time at which the cache entry will expire.</param>
@@ -32,7 +41,7 @@ public interface IDataCache
     /// <summary>
     /// Inserts a cache entry into the cache, specifying information about how the entry will be evicted.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of item in cache</typeparam>
     /// <param name="key">A unique identifier for the cache entry.</param>
     /// <param name="value">The object to insert into cache.</param>
     /// <param name="absoluteExpiration">The fixed date and time at which the cache entry will expire.</param>

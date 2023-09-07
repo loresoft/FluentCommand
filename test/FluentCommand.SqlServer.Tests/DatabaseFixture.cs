@@ -1,107 +1,50 @@
-using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
+using FluentCommand.Caching;
+using FluentCommand.Query.Generators;
 
-using DbUp;
-using DbUp.Engine.Output;
-
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
-using Xunit.Abstractions;
+using XUnit.Hosting;
 
 namespace FluentCommand.SqlServer.Tests;
 
-public class DatabaseFixture : IUpgradeLog, IDisposable
+public class DatabaseFixture : TestHostFixture
 {
-    private readonly StringBuilder _buffer;
-    private readonly StringWriter _logger;
-
-    public DatabaseFixture()
+    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        _buffer = new StringBuilder();
-        _logger = new StringWriter(_buffer);
+        var trackerConnnection = context.Configuration.GetConnectionString("Tracker");
+        var cacheConnection = context.Configuration.GetConnectionString("DistributedCache");
 
-        ResolveConnectionString();
+        services.AddHostedService<DatabaseInitializer>();
 
-        CreateDatabase();
-    }
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = cacheConnection;
+            options.InstanceName = "FluentCommand";
+        });
 
+        services.TryAddSingleton<IDistributedCacheSerializer>(sp => new MessagePackCacheSerializer());
 
-    public string ConnectionString { get; set; }
+        services.TryAddSingleton<IDataCache, DistributedDataCache>();
+        services.TryAddSingleton<IQueryGenerator, SqlServerGenerator>();
+        services.TryAddSingleton<IDataQueryLogger, DatabaseQueryLogger>();
 
-    public string ConnectionName { get; set; } = "Tracker";
+        services.TryAddSingleton<IDataConfiguration>(sp =>
+            new DataConfiguration(
+                SqlClientFactory.Instance,
+                trackerConnnection,
+                sp.GetService<IDataCache>(),
+                sp.GetService<IQueryGenerator>(),
+                sp.GetService<IDataQueryLogger>()
+            )
+        );
 
-
-    private void CreateDatabase()
-    {
-        EnsureDatabase.For
-            .SqlDatabase(ConnectionString, this);
-
-        var upgradeEngine = DeployChanges.To
-                .SqlDatabase(ConnectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
-                .LogTo(this)
-                .Build();
-
-        var result = upgradeEngine.PerformUpgrade();
-
-        if (result.Successful)
-            return;
-
-        _logger.WriteLine($"Exception: '{result.Error}'");
-
-        throw result.Error;
-    }
-
-    private void ResolveConnectionString()
-    {
-        var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Test";
-        var builder = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddJsonFile($"appsettings.{environmentName}.json", true)
-            .AddEnvironmentVariables();
-
-        var configuration = builder.Build();
-
-        ConnectionString = configuration.GetConnectionString(ConnectionName);
-    }
-
-
-    public void Report(ITestOutputHelper output)
-    {
-        if (_buffer.Length == 0)
-            return;
-
-        _logger.Flush();
-        output.WriteLine(_logger.ToString());
-
-        // reset logger
-        _buffer.Clear();
-    }
-
-    public void Dispose()
-    {
-
-    }
-
-
-    public void WriteInformation(string format, params object[] args)
-    {
-        _logger.Write("INFO : ");
-        _logger.WriteLine(format, args);
-    }
-
-    public void WriteError(string format, params object[] args)
-    {
-        _logger.Write("ERROR: ");
-        _logger.WriteLine(format, args);
-    }
-
-    public void WriteWarning(string format, params object[] args)
-    {
-        _logger.Write("WARN : ");
-        _logger.WriteLine(format, args);
+        services.TryAddTransient<IDataSession>(sp =>
+            new DataSession(sp.GetRequiredService<IDataConfiguration>())
+        );
     }
 
 }

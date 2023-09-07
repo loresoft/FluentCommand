@@ -3,6 +3,8 @@ using FluentAssertions;
 using FluentCommand.Entities;
 using FluentCommand.Query;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +23,7 @@ public class JsonTests : DatabaseTestBase
     [Fact]
     public void QueryJson()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string sql = "select TOP 1000 * from [User]";
@@ -35,7 +37,7 @@ public class JsonTests : DatabaseTestBase
     [Fact]
     public async Task QueryJsonAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string sql = "select TOP 1000 * from [User]";
@@ -50,7 +52,7 @@ public class JsonTests : DatabaseTestBase
     [Fact]
     public async Task QuerySelectAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var json = await session

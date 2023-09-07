@@ -1,13 +1,14 @@
 using System;
 using System.Linq;
 
-using DataGenerator;
-using DataGenerator.Sources;
+using Bogus;
 
 using FluentAssertions;
 
 using FluentCommand.Entities;
 using FluentCommand.Merge;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -24,10 +25,10 @@ public class DataMergeTests : DatabaseTestBase
     [Fact]
     public void ExecuteTest()
     {
-        var generator = UserImportGenerator();
-        var users = generator.List<UserImport>(100);
+        var generator = CreateGenerator();
+        var users = generator.Generate(100);
 
-        using var session = GetConfiguration().CreateSession();
+        using var session = Services.GetRequiredService<IDataSession>();
         var result = session
             .MergeData("dbo.User")
             .Map<UserImport>(m => m
@@ -42,10 +43,10 @@ public class DataMergeTests : DatabaseTestBase
     [Fact]
     public void ExecuteOutputTest()
     {
-        var generator = UserImportGenerator();
-        var users = generator.List<UserImport>(100);
+        var generator = CreateGenerator();
+        var users = generator.Generate(100);
 
-        using var session = GetConfiguration().CreateSession();
+        using var session = Services.GetRequiredService<IDataSession>();
         var result = session
             .MergeData("dbo.User")
             .Map<UserImport>(m => m
@@ -61,10 +62,10 @@ public class DataMergeTests : DatabaseTestBase
     [Fact]
     public void ExecuteBulkCopyTest()
     {
-        var generator = UserImportGenerator();
-        var users = generator.List<UserImport>(100);
+        var generator = CreateGenerator();
+        var users = generator.Generate(100);
 
-        using var session = GetConfiguration().CreateSession();
+        using var session = Services.GetRequiredService<IDataSession>();
         var result = session
             .MergeData("dbo.User")
             .Mode(DataMergeMode.BulkCopy)
@@ -91,10 +92,10 @@ public class DataMergeTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task ExecuteAsyncTest()
     {
-        var generator = UserImportGenerator();
-        var users = generator.List<UserImport>(100);
+        var generator = CreateGenerator();
+        var users = generator.Generate(100);
 
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         var result = await session
             .MergeData("dbo.User")
             .Map<UserImport>(m => m
@@ -109,10 +110,10 @@ public class DataMergeTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task ExecuteOutputAsyncTest()
     {
-        var generator = UserImportGenerator();
-        var users = generator.List<UserImport>(100);
+        var generator = CreateGenerator();
+        var users = generator.Generate(100);
 
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
 
         var changes = await session
             .MergeData("dbo.User")
@@ -130,10 +131,10 @@ public class DataMergeTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task ExecuteAsyncBulkCopyTest()
     {
-        var generator = UserImportGenerator();
-        var users = generator.List<UserImport>(100);
+        var generator = CreateGenerator();
+        var users = generator.Generate(100);
 
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         var result = await session
             .MergeData("dbo.User")
             .Mode(DataMergeMode.BulkCopy)
@@ -161,10 +162,10 @@ public class DataMergeTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task ExecuteAsyncBulkCopyAutoTest()
     {
-        var generator = UserImportGenerator();
-        var users = generator.List<UserImport>(100);
+        var generator = CreateGenerator();
+        var users = generator.Generate(100);
 
-        await using var session = GetConfiguration().CreateSession();
+        await using var session = Services.GetRequiredService<IDataSession>();
         var result = await session
             .MergeData("dbo.User")
             .Mode(DataMergeMode.BulkCopy)
@@ -178,19 +179,14 @@ public class DataMergeTests : DatabaseTestBase
         result.Should().Be(100);
     }
 
-    private static Generator UserImportGenerator()
+    private static Faker<UserImport> CreateGenerator()
     {
-        var generator = Generator.Create(c => c
-            .ExcludeName("xunit")
-            .Entity<UserImport>(e =>
-            {
-                e.AutoMap();
+        var fakerUser = new Faker<UserImport>()
+            .RuleFor(u => u.FirstName, (f, u) => f.Name.FirstName())
+            .RuleFor(u => u.LastName, (f, u) => f.Name.LastName())
+            .RuleFor(u => u.DisplayName, (f, u) => $"{u.FirstName} {u.LastName}")
+            .RuleFor(u => u.EmailAddress, (f, u) => f.Internet.Email(u.FirstName, u.LastName, uniqueSuffix: $"+{DateTime.Now.Ticks}"));
 
-                e.Property(p => p.DisplayName).DataSource<NameSource>();
-                e.Property(p => p.EmailAddress).Value(u => $"test+{DateTime.Now.Ticks}@mailinator.com");
-            })
-        );
-
-        return generator;
+        return fakerUser;
     }
 }

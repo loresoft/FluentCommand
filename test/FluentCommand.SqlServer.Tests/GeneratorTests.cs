@@ -3,6 +3,8 @@ using FluentAssertions;
 using FluentCommand.Entities;
 using FluentCommand.Query;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,7 +22,7 @@ public class GeneratorTests : DatabaseTestBase
     [Fact]
     public async Task QuerySelectStatusAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var results = await session
@@ -37,7 +39,7 @@ public class GeneratorTests : DatabaseTestBase
     [Fact]
     public async Task QuerySelectStatusRecordAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var results = await session
@@ -54,7 +56,7 @@ public class GeneratorTests : DatabaseTestBase
     [Fact]
     public async Task QuerySelectStatusReadOnlyAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var results = await session
@@ -71,7 +73,7 @@ public class GeneratorTests : DatabaseTestBase
     [Fact]
     public async Task QuerySelectStatusConstructorAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         var results = await session

@@ -3,6 +3,7 @@ using System.Data;
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -18,7 +19,7 @@ public class DataSessionTests : DatabaseTestBase
     [Fact]
     public void CreateConnectionName()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
         session.Connection.Should().NotBeNull();
         session.Connection.State.Should().Be(ConnectionState.Closed);
@@ -37,7 +38,7 @@ public class DataSessionTests : DatabaseTestBase
     [Fact]
     public void EnsureConnectionByName()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
         session.Connection.Should().NotBeNull();
         session.Connection.State.Should().Be(ConnectionState.Closed);

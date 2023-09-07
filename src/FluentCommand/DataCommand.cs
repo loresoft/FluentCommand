@@ -560,12 +560,14 @@ public class DataCommand : DisposableBase, IDataCommand
         try
         {
             var cacheKey = CacheKey<TResult>(supportCache);
-            if (GetCache<TResult>(cacheKey) is TResult results)
-                return results;
+
+            (bool cacheSuccess, TResult cacheValue) = GetCache<TResult>(cacheKey);
+            if (cacheSuccess)
+                return cacheValue;
 
             _dataSession.EnsureConnection();
 
-            results = query();
+            var results = query();
 
             TriggerCallbacks();
 
@@ -609,13 +611,13 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             var cacheKey = CacheKey<TResult>(supportCache);
 
-            var cacheValue = await GetCacheAsync<TResult>(cacheKey, cancellationToken).ConfigureAwait(false);
-            if (cacheValue is TResult results)
-                return results;
+            (bool cacheSuccess, TResult cacheValue) = await GetCacheAsync<TResult>(cacheKey, cancellationToken).ConfigureAwait(false);
+            if (cacheSuccess)
+                return cacheValue;
 
             await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
 
-            results = await query(cancellationToken).ConfigureAwait(false);
+            var results = await query(cancellationToken).ConfigureAwait(false);
 
             TriggerCallbacks();
 
@@ -683,32 +685,32 @@ public class DataCommand : DisposableBase, IDataCommand
         return $"global:data:{hashCode}";
     }
 
-    private T GetCache<T>(string key)
+    private (bool Success, T Value) GetCache<T>(string key)
     {
         if (_slidingExpiration == null && _absoluteExpiration == null)
-            return default;
+            return (false, default);
 
         if (key == null)
-            return default;
+            return (false, default);
 
         var cache = _dataSession.Cache;
         if (cache == null)
-            return default;
+            return (false, default);
 
         return cache.Get<T>(key);
     }
 
-    private async Task<T> GetCacheAsync<T>(string key, CancellationToken cancellationToken)
+    private async Task<(bool Success, T Value)> GetCacheAsync<T>(string key, CancellationToken cancellationToken)
     {
         if (_slidingExpiration == null && _absoluteExpiration == null)
-            return default;
+            return (false, default);
 
         if (key == null)
-            return default;
+            return (false, default);
 
         var cache = _dataSession.Cache;
         if (cache == null)
-            return default;
+            return (false, default);
 
         return await cache
             .GetAsync<T>(key, cancellationToken)
