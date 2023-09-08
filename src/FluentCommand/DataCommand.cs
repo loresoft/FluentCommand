@@ -659,13 +659,11 @@ public class DataCommand : DisposableBase, IDataCommand
         if (_slidingExpiration == null && _absoluteExpiration == null)
             return null;
 
-        var connectionString = Command.Connection?.ConnectionString;
         var commandText = Command.CommandText;
         var commandType = Command.CommandType;
         var typeName = typeof(T).FullName;
 
         var hashCode = HashCode.Seed
-            .Combine(connectionString)
             .Combine(commandType)
             .Combine(commandText)
             .Combine(typeName);
