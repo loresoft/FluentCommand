@@ -4,7 +4,7 @@ namespace FluentCommand.Internal;
 /// An immutable hash code structure
 /// </summary>
 /// <remarks>
-/// Implements the Jon Skeet suggested implementation of GetHashCode(). 
+/// Implements the Jon Skeet suggested implementation of GetHashCode().
 /// </remarks>
 public readonly struct HashCode : IFormattable, IEquatable<HashCode>
 {
@@ -56,7 +56,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>A new hash code combined with this and the values hash codes.</returns>
     public HashCode Combine(string value)
     {
-        // need to handle string values deterministically 
+        // need to handle string values deterministically
         var hashCode = HashString(value);
         unchecked
         {
@@ -73,11 +73,11 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>A new hash code combined with this and the values hash codes.</returns>
     public HashCode Combine(object value)
     {
-        // need to handle string values deterministically 
+        // need to handle string values deterministically
         return value switch
         {
             string text => Combine(text),
-            _ => Combine(value is null ? 0 : value.GetHashCode()),
+            _ => Combine(value?.GetHashCode() ?? 0),
         };
     }
 
@@ -113,7 +113,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// Returns a hash code for this instance.
     /// </summary>
     /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
     /// </returns>
     public override int GetHashCode() => _hashCode;
 
