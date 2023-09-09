@@ -32,6 +32,7 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Select<User>()
                 .Where(p => p.EmailAddress, email)
+                .OrderBy(p => p.EmailAddress)
                 .Limit(0, 10)
             )
             .QuerySingleAsync(r => new User
