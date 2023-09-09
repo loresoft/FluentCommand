@@ -93,6 +93,8 @@ CREATE TABLE IF NOT EXISTS "User" (
     "EmailAddress" nvarchar(256) NOT NULL,
     "IsEmailAddressConfirmed" bit NOT NULL DEFAULT (0),
     "DisplayName" nvarchar(256) NOT NULL,
+    "FirstName" nvarchar(256) NULL,
+    "LastName" nvarchar(256) NULL,
     "PasswordHash" text NULL,
     "ResetHash" text NULL,
     "InviteHash" text NULL,

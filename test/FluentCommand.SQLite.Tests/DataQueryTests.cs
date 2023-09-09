@@ -3,6 +3,7 @@ using System.Linq;
 
 using FluentAssertions;
 
+using FluentCommand;
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
 using FluentCommand.Query;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FluentCommand.SqlServer.Tests;
+namespace FluentCommand.SQLite.Tests;
 
 public class DataQueryTests : DatabaseTestBase
 {
@@ -190,45 +191,6 @@ public class DataQueryTests : DatabaseTestBase
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task SqlQueryInComplexEntityAsync()
-    {
-        await using var session = Services.GetRequiredService<IDataSession>();
-        session.Should().NotBeNull();
-
-        var values = new[] { 1, 2, 3 }.ToDelimitedString();
-
-        var results = await session
-            .Sql(builder =>
-            {
-                builder
-                    .Statement()
-                    .Query("CREATE TABLE #identifiers (Id int);");
-
-                builder
-                    .Statement()
-                    .Query("INSERT INTO #identifiers (Id) SELECT CONVERT(int, value) FROM STRING_SPLIT(@Identifiers, @Separator);")
-                    .Parameter("@Identifiers", values)
-                    .Parameter("@Separator", ",");
-
-                builder
-                    .Select<Status>()
-                    .Tag()
-                    .From(tableAlias: "s")
-                    .Join(j => j
-                        .Left("Id", "s")
-                        .Right("Id", "#identifiers", null, "i")
-                    );
-            })
-            .QueryAsync<Status>();
-
-        results.Should().NotBeNull();
-
-        var list = results.ToList();
-        list.Count.Should().Be(3);
-    }
-
-
-    [Fact]
     public async System.Threading.Tasks.Task SqlInsertValueQuery()
     {
         await using var session = Services.GetRequiredService<IDataSession>();
@@ -244,7 +206,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Value(p => p.DisplayName, "Last, First")
                 .Value(p => p.FirstName, "First")
                 .Value(p => p.LastName, "Last")
-                .Output(p => p.Id)
+                .Output(p => p.Id, tableAlias: "")
                 .Tag()
             )
             .QueryValueAsync<Guid>();
@@ -274,14 +236,13 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Insert<User>()
                 .Values(user)
-                .Output(p => p.Id)
+                .Output(p => p.Id, tableAlias: "")
                 .Tag()
             )
             .QueryValueAsync<Guid>();
 
         userId.Should().Be(id);
     }
-
 
     [Fact]
     public async System.Threading.Tasks.Task SqlInsertUpdateDeleteEntityQuery()
@@ -305,7 +266,7 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Insert<User>()
                 .Values(user)
-                .Output(p => p.Id)
+                .Output(p => p.Id, tableAlias: "")
                 .Tag()
             )
             .QueryValueAsync<Guid>();
@@ -327,7 +288,7 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Update<User>()
                 .Value(p => p.DisplayName, "Updated")
-                .Output(p => p.Id)
+                .Output(p => p.Id, tableAlias: "")
                 .Where(p => p.Id, id)
                 .Tag()
             )
@@ -338,7 +299,7 @@ public class DataQueryTests : DatabaseTestBase
         var deleteId = await session
             .Sql(builder => builder
                 .Delete<User>()
-                .Output(p => p.Id)
+                .Output(p => p.Id, tableAlias: "")
                 .Where(p => p.Id, id)
                 .Tag()
             )
@@ -347,5 +308,4 @@ public class DataQueryTests : DatabaseTestBase
         deleteId.Should().Be(id);
 
     }
-
 }

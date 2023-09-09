@@ -591,6 +591,9 @@ public static class ConvertExtensions
         if (convert != null)
             return convert(result);
 
+        if (result is string stringValue && TryConvert(stringValue, typeof(TValue), out object value))
+            return (TValue)value;
+
         return (TValue)Convert.ChangeType(result, typeof(TValue));
     }
 }

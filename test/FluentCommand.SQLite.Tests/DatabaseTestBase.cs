@@ -1,38 +1,15 @@
-using System;
-
-using Microsoft.Data.Sqlite;
-
 using Xunit;
 using Xunit.Abstractions;
+
+using XUnit.Hosting;
 
 namespace FluentCommand.SQLite.Tests;
 
 [Collection(DatabaseCollection.CollectionName)]
-public abstract class DatabaseTestBase : IDisposable
+public abstract class DatabaseTestBase : TestHostBase<DatabaseFixture>
 {
     protected DatabaseTestBase(ITestOutputHelper output, DatabaseFixture databaseFixture)
+        : base(output, databaseFixture)
     {
-        Output = output;
-        Fixture = databaseFixture;
-    }
-
-
-    public ITestOutputHelper Output { get; }
-
-    public DatabaseFixture Fixture { get; }
-
-
-    protected IDataConfiguration GetConfiguration()
-    {
-        var dataLogger = new DataQueryLogger(Output.WriteLine);
-        return new DataConfiguration(
-            SqliteFactory.Instance,
-            Fixture.ConnectionString,
-            queryLogger: dataLogger);
-    }
-
-    public void Dispose()
-    {
-        Fixture?.Report(Output);
     }
 }

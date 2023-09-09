@@ -7,6 +7,8 @@ using FluentAssertions;
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +23,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQuerySingleEntity()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -57,7 +59,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQuerySingleEntityFactory()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -74,7 +76,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQuerySingleEntityFactoryCache()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -101,7 +103,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQuerySingleEntityDynamic()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -118,7 +120,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQueryEntity()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -154,7 +156,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQueryEntityDynamic()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -171,7 +173,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQueryEntityDynamicCache()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -201,7 +203,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQueryEntityFactory()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -218,7 +220,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQueryTable()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -234,7 +236,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlQueryValue()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -250,7 +252,7 @@ public class DataCommandSqlTests : DatabaseTestBase
     [Fact]
     public void SqlReader()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -286,18 +288,18 @@ public class DataCommandSqlTests : DatabaseTestBase
         List<Role> roles = null;
         List<Priority> priorities = null;
 
-        using (var session = GetConfiguration().CreateSession())
-        {
-            session.Should().NotBeNull();
-            session.Sql(sql)
-                .Parameter("@EmailAddress", email)
-                .QueryMultiple(q =>
-                {
-                    user = q.QuerySingle<User>();
-                    roles = q.Query<Role>().ToList();
-                    priorities = q.Query<Priority>().ToList();
-                });
-        }
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        session.Sql(sql)
+            .Parameter("@EmailAddress", email)
+            .QueryMultiple(q =>
+            {
+                user = q.QuerySingle<User>();
+                roles = q.Query<Role>().ToList();
+                priorities = q.Query<Priority>().ToList();
+            });
+
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().NotBeEmpty();

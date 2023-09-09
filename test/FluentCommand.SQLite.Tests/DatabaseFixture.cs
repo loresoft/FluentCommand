@@ -1,101 +1,40 @@
-using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
-
-using DbUp;
-using DbUp.Engine.Output;
+using FluentCommand.Caching;
+using FluentCommand.Query.Generators;
 
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
-using Xunit.Abstractions;
+using XUnit.Hosting;
 
 namespace FluentCommand.SQLite.Tests;
 
-public class DatabaseFixture : IUpgradeLog, IDisposable
+public class DatabaseFixture : TestHostFixture
 {
-    private readonly StringBuilder _buffer;
-    private readonly StringWriter _logger;
-
-    public DatabaseFixture()
+    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        _buffer = new StringBuilder();
-        _logger = new StringWriter(_buffer);
+        var trackerConnnection = context.Configuration.GetConnectionString("Tracker");
+        var cacheConnection = context.Configuration.GetConnectionString("DistributedCache");
 
-        ResolveConnectionString();
+        services.AddHostedService<DatabaseInitializer>();
+                
+        services.TryAddSingleton<IQueryGenerator, SqliteGenerator>();
+        services.TryAddSingleton<IDataQueryLogger, DatabaseQueryLogger>();
 
-        CreateDatabase();
+        services.TryAddSingleton<IDataConfiguration>(sp =>
+            new DataConfiguration(
+                SqliteFactory.Instance,
+                trackerConnnection,
+                sp.GetService<IDataCache>(),
+                sp.GetService<IQueryGenerator>(),
+                sp.GetService<IDataQueryLogger>()
+            )
+        );
+
+        services.TryAddTransient<IDataSession>(sp =>
+            new DataSession(sp.GetRequiredService<IDataConfiguration>())
+        );
     }
-
-
-    public string ConnectionString { get; set; }
-
-    public string ConnectionName { get; set; } = "Tracker";
-
-    private void CreateDatabase()
-    {
-        var upgrader = DeployChanges.To
-                .SQLiteDatabase(ConnectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
-                .LogTo(this)
-                .Build();
-
-        var result = upgrader.PerformUpgrade();
-
-        if (result.Successful)
-            return;
-
-        _logger.WriteLine($"Exception: '{result.Error}'");
-        throw result.Error;
-    }
-
-    private void ResolveConnectionString()
-    {
-        //"Data Source=Tracker.db;Version=3;";
-        var builder = new SqliteConnectionStringBuilder();
-        builder.DataSource = $"Tracker-{Guid.NewGuid():N}.db";
-
-        _logger.WriteLine($"ConnectionString: '{builder}'");
-
-        ConnectionString = builder.ToString();
-    }
-
-
-    public void Report(ITestOutputHelper output)
-    {
-        if (_buffer.Length == 0)
-            return;
-
-        _logger.Flush();
-        output.WriteLine(_logger.ToString());
-
-        // reset logger
-        _buffer.Clear();
-    }
-
-
-    public void Dispose()
-    {
-
-    }
-
-
-    public void WriteInformation(string format, params object[] args)
-    {
-        _logger.Write("INFO : ");
-        _logger.WriteLine(format, args);
-    }
-
-    public void WriteError(string format, params object[] args)
-    {
-        _logger.Write("ERROR: ");
-        _logger.WriteLine(format, args);
-    }
-
-    public void WriteWarning(string format, params object[] args)
-    {
-        _logger.Write("WARN : ");
-        _logger.WriteLine(format, args);
-    }
-
 }
