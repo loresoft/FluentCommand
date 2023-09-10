@@ -1,4 +1,4 @@
-﻿-- Table [dbo].[Priority] data
+-- Table [dbo].[Priority] data
 
 MERGE INTO [dbo].[Priority] AS t
 USING 
@@ -82,5 +82,25 @@ WHEN NOT MATCHED BY TARGET THEN
     VALUES (s.[Id], s.[Name], s.[Description])
 WHEN MATCHED THEN 
     UPDATE SET t.[Name] = s.[Name], t.[Description] = s.[Description]
+OUTPUT $action as [Action];
+
+-- Table [dbo].[UserRole] data
+
+MERGE INTO [dbo].[UserRole] AS t
+USING 
+(
+    VALUES
+    ('83507c95-0744-e811-bd87-f8633fc30ac7', 'b2d78522-0944-e811-bd87-f8633fc30ac7'), 
+    ('490312a6-0744-e811-bd87-f8633fc30ac7', 'b2d78522-0944-e811-bd87-f8633fc30ac7'), 
+    ('fa7515df-0744-e811-bd87-f8633fc30ac7', 'b3d78522-0944-e811-bd87-f8633fc30ac7')
+) 
+AS s
+([UserId], [RoleId])
+ON (t.[UserId] = s.[UserId] and t.[RoleId] = s.[RoleId])
+WHEN NOT MATCHED BY TARGET THEN 
+    INSERT ([UserId], [RoleId])
+    VALUES (s.[UserId], s.[RoleId])
+WHEN MATCHED THEN 
+    UPDATE SET 
 OUTPUT $action as [Action];
 

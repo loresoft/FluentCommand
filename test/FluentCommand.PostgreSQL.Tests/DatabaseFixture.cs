@@ -1,109 +1,40 @@
-using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
-
-using DbUp;
-using DbUp.Engine.Output;
+using FluentCommand.Query.Generators;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
-using Xunit.Abstractions;
+using Npgsql;
+
+using XUnit.Hosting;
 
 namespace FluentCommand.PostgreSQL.Tests;
 
-public class DatabaseFixture : IUpgradeLog, IDisposable
+public class DatabaseFixture : TestHostFixture
 {
-    private readonly StringBuilder _buffer;
-    private readonly StringWriter _logger;
-
-    public DatabaseFixture()
+    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        _buffer = new StringBuilder();
-        _logger = new StringWriter(_buffer);
+        var trackerConnnection = context.Configuration.GetConnectionString("Tracker");
+        var cacheConnection = context.Configuration.GetConnectionString("DistributedCache");
 
-        ResolveConnectionString();
+        services.AddHostedService<DatabaseInitializer>();
 
-        CreateDatabase();
+        services.TryAddSingleton<IQueryGenerator, PostgresqlGenerator>();
+        services.TryAddSingleton<IDataQueryLogger, DatabaseQueryLogger>();
+
+        services.TryAddSingleton<IDataConfiguration>(sp =>
+            new DataConfiguration(
+                NpgsqlFactory.Instance,
+                trackerConnnection,
+                sp.GetService<IDataCache>(),
+                sp.GetService<IQueryGenerator>(),
+                sp.GetService<IDataQueryLogger>()
+            )
+        );
+
+        services.TryAddTransient<IDataSession>(sp =>
+            new DataSession(sp.GetRequiredService<IDataConfiguration>())
+        );
     }
-
-
-    public string ConnectionString { get; set; }
-
-    public string ConnectionName { get; set; } = "Tracker";
-
-
-    private void CreateDatabase()
-    {
-        EnsureDatabase.For
-            .PostgresqlDatabase(ConnectionString, this);
-
-        var upgradeEngine = DeployChanges.To
-                .PostgresqlDatabase(ConnectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
-                .LogTo(this)
-                .Build();
-
-        var result = upgradeEngine.PerformUpgrade();
-
-        if (result.Successful)
-            return;
-
-        _logger.WriteLine($"Exception: '{result.Error}'");
-
-        throw result.Error;
-    }
-
-    private void ResolveConnectionString()
-    {
-        var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Test";
-        var builder = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddJsonFile($"appsettings.{environmentName}.json", true)
-            .AddEnvironmentVariables();
-
-        var configuration = builder.Build();
-
-        var connectionString = configuration.GetConnectionString(ConnectionName);
-
-        ConnectionString = connectionString;
-    }
-
-
-    public void Report(ITestOutputHelper output)
-    {
-        if (_buffer.Length == 0)
-            return;
-
-        _logger.Flush();
-        output.WriteLine(_logger.ToString());
-
-        // reset logger
-        _buffer.Clear();
-    }
-
-    public void Dispose()
-    {
-
-    }
-
-
-    public void WriteInformation(string format, params object[] args)
-    {
-        _logger.Write("INFO : ");
-        _logger.WriteLine(format, args);
-    }
-
-    public void WriteError(string format, params object[] args)
-    {
-        _logger.Write("ERROR: ");
-        _logger.WriteLine(format, args);
-    }
-
-    public void WriteWarning(string format, params object[] args)
-    {
-        _logger.Write("WARN : ");
-        _logger.WriteLine(format, args);
-    }
-
 }

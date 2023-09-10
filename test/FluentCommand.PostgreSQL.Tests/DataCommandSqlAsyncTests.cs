@@ -7,6 +7,8 @@ using FluentAssertions;
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +23,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -57,7 +59,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -74,7 +76,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityFactoryCacheAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -101,7 +103,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQuerySingleEntityDynamicAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "kara.thrace@battlestar.com";
@@ -118,7 +120,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -154,7 +156,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityDynamicAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -171,7 +173,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityDynamicCacheAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -203,7 +205,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityFactoryAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -220,7 +222,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryTableAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -236,7 +238,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryValueAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -252,7 +254,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     [Fact]
     public async System.Threading.Tasks.Task SqlReaderAsync()
     {
-        var session = GetConfiguration().CreateSession();
+        var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string email = "%@battlestar.com";
@@ -290,7 +292,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         List<Role> roles = null;
         List<Priority> priorities = null;
 
-        using (var session = GetConfiguration().CreateSession())
+        using (var session = Services.GetRequiredService<IDataSession>())
         {
             session.Should().NotBeNull();
             await session.Sql(sql)

@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FluentCommand.SQLite.Tests;
+namespace FluentCommand.PostgreSQL.Tests;
 
 public class DataQueryTests : DatabaseTestBase
 {
@@ -229,8 +229,8 @@ public class DataQueryTests : DatabaseTestBase
             DisplayName = "Last, First",
             FirstName = "First",
             LastName = "Last",
-            Created = DateTimeOffset.Now,
-            Updated = DateTimeOffset.Now
+            Created = DateTimeOffset.UtcNow,
+            Updated = DateTimeOffset.UtcNow
         };
 
         var userId = await session
@@ -259,8 +259,8 @@ public class DataQueryTests : DatabaseTestBase
             DisplayName = "Last, First",
             FirstName = "First",
             LastName = "Last",
-            Created = DateTimeOffset.Now,
-            Updated = DateTimeOffset.Now
+            Created = DateTimeOffset.UtcNow,
+            Updated = DateTimeOffset.UtcNow
         };
 
         var userId = await session

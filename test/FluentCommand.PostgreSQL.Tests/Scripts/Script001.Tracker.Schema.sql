@@ -1,4 +1,4 @@
-﻿-- Tables
+-- Tables
 CREATE TABLE IF NOT EXISTS "Audit" (
     "Id" serial NOT NULL,
     "Date" timestamp NOT NULL,
@@ -90,6 +90,8 @@ CREATE TABLE IF NOT EXISTS "User" (
     "EmailAddress" varchar(256) NOT NULL,
     "IsEmailAddressConfirmed" bool NOT NULL DEFAULT (false),
     "DisplayName" varchar(256) NOT NULL,
+    "FirstName" varchar(256) NULL,
+    "LastName" varchar(256) NULL,
     "PasswordHash" text NULL,
     "ResetHash" text NULL,
     "InviteHash" text NULL,

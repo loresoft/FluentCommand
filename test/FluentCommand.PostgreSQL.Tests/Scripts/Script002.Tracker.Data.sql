@@ -1,4 +1,4 @@
-﻿-- Table "Priority" data
+-- Table "Priority" data
 
 INSERT INTO "Priority" 
 ("Id", "Name", "Description", "DisplayOrder", "IsActive")
@@ -60,4 +60,15 @@ DO UPDATE SET
     "EmailAddress" = EXCLUDED."EmailAddress", 
     "IsEmailAddressConfirmed" = EXCLUDED."IsEmailAddressConfirmed", 
     "DisplayName" = EXCLUDED."DisplayName";
+
+-- Table "dbo"."UserRole" data
+
+INSERT INTO "UserRole" 
+("UserId", "RoleId")
+VALUES
+    ('83507c95-0744-e811-bd87-f8633fc30ac7', 'b2d78522-0944-e811-bd87-f8633fc30ac7'), 
+    ('490312a6-0744-e811-bd87-f8633fc30ac7', 'b2d78522-0944-e811-bd87-f8633fc30ac7'), 
+    ('fa7515df-0744-e811-bd87-f8633fc30ac7', 'b3d78522-0944-e811-bd87-f8633fc30ac7')
+ON CONFLICT ("UserId", "RoleId")
+DO NOTHING 
 
