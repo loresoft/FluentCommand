@@ -100,7 +100,5 @@ ON (t.[UserId] = s.[UserId] and t.[RoleId] = s.[RoleId])
 WHEN NOT MATCHED BY TARGET THEN 
     INSERT ([UserId], [RoleId])
     VALUES (s.[UserId], s.[RoleId])
-WHEN MATCHED THEN 
-    UPDATE SET 
 OUTPUT $action as [Action];
 
