@@ -1,10 +1,13 @@
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 using DbUp;
+using DbUp.Engine;
 using DbUp.Engine.Output;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,11 +30,26 @@ public class DatabaseInitializer : IHostedService, IUpgradeLog
     {
         var connectionString = _configuration.GetConnectionString("Tracker");
 
-        EnsureDatabase.For.SqlDatabase(connectionString, this);
+        // create database
+        EnsureDatabase.For
+            .SqlDatabase(connectionString, this);
+
+        // parse connection string
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        var database = builder.InitialCatalog;
 
         var upgradeEngine = DeployChanges.To
                 .SqlDatabase(connectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
+                .WithScript(
+                    "enable-change-tracking",
+                    $"ALTER DATABASE [{database}] SET CHANGE_TRACKING = ON ( CHANGE_RETENTION = 2 DAYS, AUTO_CLEANUP = ON );",
+                    new SqlScriptOptions { RunGroupOrder = 0 }
+                )
+                .WithScriptsEmbeddedInAssembly(
+                    Assembly.GetExecutingAssembly(),
+                    Encoding.Default,
+                    new SqlScriptOptions { RunGroupOrder = 1 }
+                )
                 .LogTo(this)
                 .Build();
 

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Transactions;
 
 using FluentAssertions;
 
@@ -11,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Xunit;
 using Xunit.Abstractions;
+
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace FluentCommand.SqlServer.Tests;
 
@@ -347,6 +350,42 @@ public class DataQueryTests : DatabaseTestBase
 
         deleteId.Should().Be(id);
 
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task SqlQueryChangeTable()
+    {
+        var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        long previousVersion = 0;
+        long currentVersion = 0;
+
+        await using var transaction = await session.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+
+        var changes = session
+            .Sql(builder =>
+            {
+                builder
+                    .Statement()
+                    .Query("SET @currentVersion = CHANGE_TRACKING_CURRENT_VERSION();");
+
+                builder
+                    .Select<User>()
+                    .Columns("t")
+                    .ChangeTable(t => t
+                        .From<User>("c")
+                        .LastVersion(previousVersion)
+                    )
+                    .Join<User>(join => join
+                        .Left(p => p.Id, "c")
+                        .Right(p => p.Id, "t")
+                    );
+            })
+            .ParameterOut<long>("@currentVersion", value => currentVersion = value)
+            .Query<User>();
+
+        await transaction.CommitAsync();
     }
 
 }

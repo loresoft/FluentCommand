@@ -1,0 +1,3 @@
+﻿SELECT [t].[Id], [t].[EmailAddress], [t].[IsEmailAddressConfirmed], [t].[DisplayName], [t].[FirstName], [t].[LastName], [t].[PasswordHash], [t].[ResetHash], [t].[InviteHash], [t].[AccessFailedCount], [t].[LockoutEnabled], [t].[LockoutEnd], [t].[LastLogin], [t].[IsDeleted], [t].[Created], [t].[CreatedBy], [t].[Updated], [t].[UpdatedBy], [t].[RowVersion]
+FROM CHANGETABLE (CHANGES [User], @p0000) AS [c]
+INNER JOIN [User] AS [t] ON [c].[Id] = [t].[Id];

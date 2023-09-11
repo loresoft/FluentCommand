@@ -155,6 +155,30 @@ public class SelectBuilderTest
     }
 
     [Fact]
+    public async System.Threading.Tasks.Task SelectEntityChangeTableBuilder()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<User>(sqlProvider, parameters)
+            .Columns("t")
+            .ChangeTable(t => t
+                .From<User>("c")
+                .LastVersion(0)
+            )
+            .Join<User>(join => join
+                .Left(p => p.Id, "c")
+                .Right(p => p.Id, "t")
+            );
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task SelectEntityWhereIn()
     {
         var sqlProvider = new SqlServerGenerator();

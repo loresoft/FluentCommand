@@ -248,4 +248,6 @@ IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[Us
 CREATE INDEX [IX_UserLogin_UserId]
 ON [dbo].[UserLogin] ([UserId]);
 
-
+-- change tracking
+ALTER TABLE [dbo].[User] 
+    ENABLE CHANGE_TRACKING WITH (TRACK_COLUMNS_UPDATED = OFF);
