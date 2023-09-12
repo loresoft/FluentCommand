@@ -30,7 +30,7 @@ public class DataType
 
     public TimeSpan TimeSpan { get; set; }
 
-#if !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
     public DateOnly DateOnly { get; set; }
 
     public TimeOnly TimeOnly { get; set; }
@@ -56,7 +56,7 @@ public class DataType
 
     public TimeSpan? TimeSpanNull { get; set; }
 
-#if !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
     public DateOnly? DateOnlyNull { get; set; }
 
     public TimeOnly? TimeOnlyNull { get; set; }

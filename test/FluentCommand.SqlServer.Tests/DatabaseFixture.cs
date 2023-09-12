@@ -15,7 +15,7 @@ public class DatabaseFixture : TestHostFixture
 {
     protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        var trackerConnnection = context.Configuration.GetConnectionString("Tracker");
+        var trackerConnection = context.Configuration.GetConnectionString("Tracker");
         var cacheConnection = context.Configuration.GetConnectionString("DistributedCache");
 
         services.AddHostedService<DatabaseInitializer>();
@@ -35,7 +35,7 @@ public class DatabaseFixture : TestHostFixture
         services.TryAddSingleton<IDataConfiguration>(sp =>
             new DataConfiguration(
                 SqlClientFactory.Instance,
-                trackerConnnection,
+                trackerConnection,
                 sp.GetService<IDataCache>(),
                 sp.GetService<IQueryGenerator>(),
                 sp.GetService<IDataQueryLogger>()

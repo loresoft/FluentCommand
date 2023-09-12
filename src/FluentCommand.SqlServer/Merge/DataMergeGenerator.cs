@@ -443,7 +443,7 @@ public static class DataMergeGenerator
             return true;
         if (underType == typeof(Guid))
             return true;
-#if !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
         if (underType == typeof(DateOnly))
             return true;
         if (underType == typeof(TimeOnly))
@@ -465,7 +465,7 @@ public static class DataMergeGenerator
             DateTimeOffset dateTimeOffset => dateTimeOffset.ToString("u"),
             byte[] byteArray => ToHex(byteArray),
             bool boolValue => boolValue ? "1" : "0",
-#if !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
             DateOnly dateValue => dateValue.ToString("yyyy-MM-dd"),
             TimeOnly timeValue => timeValue.ToString("hh:mm:ss.ffffff"),
 #endif

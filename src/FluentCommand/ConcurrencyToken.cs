@@ -15,7 +15,7 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
 
     public ConcurrencyToken(string value)
     {
-#if !NETSTANDARD2_0
+#if NET5_0_OR_GREATER
         Value = string.IsNullOrEmpty(value) ? Array.Empty<byte>() : Convert.FromHexString(value);
 #else
         Value = string.IsNullOrEmpty(value) ? Array.Empty<byte>() : FromHexString(value);
@@ -24,7 +24,7 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
 
     public override string ToString()
     {
-#if !NETSTANDARD2_0
+#if NET5_0_OR_GREATER
         return Value != null ? Convert.ToHexString(Value) : null;
 #else
         return Value != null ? ToHexString(Value) : null;

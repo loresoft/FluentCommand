@@ -10,7 +10,7 @@ namespace FluentCommand;
 /// </summary>
 public interface IDataSession
     : IDisposable
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     , IAsyncDisposable
 #endif
 {
@@ -52,7 +52,7 @@ public interface IDataSession
     /// <returns>A <see cref="DbTransaction"/> representing the new transaction.</returns>
     DbTransaction BeginTransaction(IsolationLevel isolationLevel);
 
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     /// <summary>
     /// Starts a database transaction with the specified isolation level.
     /// </summary>
@@ -99,7 +99,7 @@ public interface IDataSession
     /// </summary>
     void ReleaseConnection();
 
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     /// <summary>
     /// Releases the connection.
     /// </summary>

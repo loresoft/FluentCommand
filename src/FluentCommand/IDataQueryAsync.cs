@@ -6,7 +6,7 @@ namespace FluentCommand;
 /// An <see langword="interface"/> defining a data query operations asynchronously.
 /// </summary>
 public interface IDataQueryAsync
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     : IAsyncDisposable
 #endif
 

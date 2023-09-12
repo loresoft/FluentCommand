@@ -5,7 +5,7 @@ namespace FluentCommand;
 /// </summary>
 public abstract class DisposableBase
     : IDisposable
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     , IAsyncDisposable
 #endif
 {
@@ -65,7 +65,7 @@ public abstract class DisposableBase
     protected virtual void DisposeUnmanagedResources()
     { }
 
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     /// <summary>
     /// Disposes the asynchronous.
     /// </summary>

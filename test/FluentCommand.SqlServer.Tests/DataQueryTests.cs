@@ -388,4 +388,63 @@ public class DataQueryTests : DatabaseTestBase
         await transaction.CommitAsync();
     }
 
+
+    [Fact]
+    public async System.Threading.Tasks.Task SqlTransactionQuery()
+    {
+        await using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        await using var transaction = await session.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+
+        var id = Guid.NewGuid();    
+        var user = new User
+        {
+            Id = id,
+            EmailAddress = $"{id}@email.com",
+            DisplayName = "Last, First",
+            FirstName = "First",
+            LastName = "Last",
+            Created = DateTimeOffset.Now,
+            Updated = DateTimeOffset.Now
+        };
+
+        var userId = await session
+            .Sql(builder => builder
+                .Insert<User>()
+                .Values(user)
+                .Output(p => p.Id)
+                .Tag()
+            )
+            .QueryValueAsync<Guid>();
+
+        userId.Should().Be(id);
+
+        var selected = await session
+            .Sql(builder => builder
+                .Select<User>()
+                .Where(p => p.Id, id)
+                .Tag()
+            )
+            .QuerySingleAsync<User>();
+
+        selected.Should().NotBeNull();
+        selected.Id.Should().Be(id);
+
+        var updateId = await session
+            .Sql(builder => builder
+                .Update<User>()
+                .Value(p => p.DisplayName, "Updated")
+                .Output(p => p.Id)
+                .Where(p => p.Id, id)
+                .Tag()
+            )
+            .QueryValueAsync<Guid>();
+
+        updateId.Should().Be(id);
+
+        await transaction.RollbackAsync();
+    }
+
+
 }

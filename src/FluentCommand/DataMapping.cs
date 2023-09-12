@@ -35,7 +35,7 @@ public static class DataMapping
             {typeof(ushort), DbType.UInt16},
             {typeof(uint), DbType.UInt32},
             {typeof(ulong), DbType.UInt64},
-            #if !NETSTANDARD2_0
+            #if NET6_0_OR_GREATER
             {typeof(DateOnly), DbType.Date},
             {typeof(TimeOnly), DbType.Time},
             #endif

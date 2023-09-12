@@ -124,7 +124,7 @@ public class DataSession : DisposableBase, IDataSession
         return Transaction;
     }
 
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     /// <summary>
     /// Starts a database transaction with the specified isolation level.
     /// </summary>
@@ -237,7 +237,7 @@ public class DataSession : DisposableBase, IDataSession
         _openedConnection = false;
     }
 
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     /// <summary>
     /// Releases the connection.
     /// </summary>

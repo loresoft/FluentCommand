@@ -1,8 +1,8 @@
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 
 using FluentCommand.Extensions;
+using FluentCommand.Internal;
 
 using HashCode = FluentCommand.Internal.HashCode;
 
@@ -162,7 +162,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
     /// <remarks>
-    /// Cached keys are created using the current DataCommand state.  When any Query opertion is
+    /// Cached keys are created using the current DataCommand state.  When any Query operation is
     /// executed with a cache policy, the results are cached.  Use this method with the same parameters
     /// to expire the cached item.
     /// </remarks>
@@ -525,7 +525,7 @@ public class DataCommand : DisposableBase, IDataCommand
         Command?.Dispose();
     }
 
-#if !NETSTANDARD2_0
+#if NETCOREAPP3_0_OR_GREATER
     /// <summary>
     /// Disposes the managed resources.
     /// </summary>
@@ -556,12 +556,14 @@ public class DataCommand : DisposableBase, IDataCommand
 
         AssertDisposed();
 
-        var watch = Stopwatch.StartNew();
+        var watch = SharedStopwatch.StartNew();
+        var logged = false;
+
         try
         {
             var cacheKey = CacheKey<TResult>(supportCache);
 
-            (bool cacheSuccess, TResult cacheValue) = GetCache<TResult>(cacheKey);
+            var (cacheSuccess, cacheValue) = GetCache<TResult>(cacheKey);
             if (cacheSuccess)
                 return cacheValue;
 
@@ -577,19 +579,16 @@ public class DataCommand : DisposableBase, IDataCommand
         }
         catch (Exception ex)
         {
-            watch.Stop();
             LogCommand(watch.Elapsed, ex);
+            logged = true;
 
             throw;
         }
         finally
         {
             // if catch block didn't already log
-            if (watch.IsRunning)
-            {
-                watch.Stop();
+            if (!logged)
                 LogCommand(watch.Elapsed);
-            }
 
             _dataSession.ReleaseConnection();
             Dispose();
@@ -606,12 +605,14 @@ public class DataCommand : DisposableBase, IDataCommand
 
         AssertDisposed();
 
-        var watch = Stopwatch.StartNew();
+        var watch = SharedStopwatch.StartNew();
+        var logged = false;
+
         try
         {
             var cacheKey = CacheKey<TResult>(supportCache);
 
-            (bool cacheSuccess, TResult cacheValue) = await GetCacheAsync<TResult>(cacheKey, cancellationToken).ConfigureAwait(false);
+            var (cacheSuccess, cacheValue) = await GetCacheAsync<TResult>(cacheKey, cancellationToken).ConfigureAwait(false);
             if (cacheSuccess)
                 return cacheValue;
 
@@ -627,22 +628,25 @@ public class DataCommand : DisposableBase, IDataCommand
         }
         catch (Exception ex)
         {
-            watch.Stop();
             LogCommand(watch.Elapsed, ex);
+            logged = true;
 
             throw;
         }
         finally
         {
             // if catch block didn't already log
-            if (watch.IsRunning)
-            {
-                watch.Stop();
+            if (!logged)
                 LogCommand(watch.Elapsed);
-            }
 
+#if NETCOREAPP3_0_OR_GREATER
+
+            await _dataSession.ReleaseConnectionAsync();
+            await DisposeAsync();
+#else
             _dataSession.ReleaseConnection();
             Dispose();
+#endif
         }
     }
 

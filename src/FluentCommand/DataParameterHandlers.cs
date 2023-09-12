@@ -15,7 +15,7 @@ public static class DataParameterHandlers
         _dataTypeHandlers = new ConcurrentDictionary<Type, IDataParameterHandler>();
         _dataTypeHandlers.TryAdd(typeof(ConcurrencyToken), new ConcurrencyTokenHandler());
 
-#if !NETSTANDARD2_0
+#if NET6_0_OR_GREATER
         // once ADO supports DateOnly & TimeOnly, this can be removed
         _dataTypeHandlers.TryAdd(typeof(DateOnly), new DateOnlyHandler());
         _dataTypeHandlers.TryAdd(typeof(TimeOnly), new TimeOnlyHandler());
