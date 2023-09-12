@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 
 using FluentCommand.Extensions;
 using FluentCommand.Internal;
@@ -556,8 +557,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         AssertDisposed();
 
-        var watch = SharedStopwatch.StartNew();
-        var logged = false;
+        var startingTimestamp = Stopwatch.GetTimestamp();
 
         try
         {
@@ -579,16 +579,14 @@ public class DataCommand : DisposableBase, IDataCommand
         }
         catch (Exception ex)
         {
-            LogCommand(watch.Elapsed, ex);
-            logged = true;
+            LogCommand(startingTimestamp, ex);
+            startingTimestamp = 0;
 
             throw;
         }
         finally
         {
-            // if catch block didn't already log
-            if (!logged)
-                LogCommand(watch.Elapsed);
+            LogCommand(startingTimestamp);
 
             _dataSession.ReleaseConnection();
             Dispose();
@@ -605,8 +603,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         AssertDisposed();
 
-        var watch = SharedStopwatch.StartNew();
-        var logged = false;
+        var startingTimestamp = Stopwatch.GetTimestamp();
 
         try
         {
@@ -628,16 +625,14 @@ public class DataCommand : DisposableBase, IDataCommand
         }
         catch (Exception ex)
         {
-            LogCommand(watch.Elapsed, ex);
-            logged = true;
+            LogCommand(startingTimestamp, ex);
+            startingTimestamp = 0;
 
             throw;
         }
         finally
         {
-            // if catch block didn't already log
-            if (!logged)
-                LogCommand(watch.Elapsed);
+            LogCommand(startingTimestamp);
 
 #if NETCOREAPP3_0_OR_GREATER
 
@@ -751,8 +746,22 @@ public class DataCommand : DisposableBase, IDataCommand
     }
 
 
-    private void LogCommand(TimeSpan duration, Exception exception = null)
+    private void LogCommand(long startingTimestamp, Exception exception = null)
     {
+        // indicates already logged
+        if (startingTimestamp == 0)
+            return;
+
+        var endingTimestamp = Stopwatch.GetTimestamp();
+
+#if NET7_0_OR_GREATER
+        var duration = Stopwatch.GetElapsedTime(startingTimestamp, endingTimestamp);
+#else
+        var duration = new TimeSpan((long)((endingTimestamp - startingTimestamp) * _tickFrequency));
+#endif
+
         _dataSession.QueryLogger?.LogCommand(Command, duration, exception, _logState);
     }
+
+    private static readonly double _tickFrequency = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
 }

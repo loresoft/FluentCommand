@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 using XUnit.Hosting;
 
@@ -13,9 +14,15 @@ namespace FluentCommand.SQLite.Tests;
 
 public class DatabaseFixture : TestHostFixture
 {
+    protected override void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
+    {
+        base.ConfigureLogging(context, builder);
+        builder.SetMinimumLevel(LogLevel.Debug);
+    }
+
     protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        var trackerConnnection = context.Configuration.GetConnectionString("Tracker");
+        var trackerConnection = context.Configuration.GetConnectionString("Tracker");
         var cacheConnection = context.Configuration.GetConnectionString("DistributedCache");
 
         services.AddHostedService<DatabaseInitializer>();
@@ -26,7 +33,7 @@ public class DatabaseFixture : TestHostFixture
         services.TryAddSingleton<IDataConfiguration>(sp =>
             new DataConfiguration(
                 SqliteFactory.Instance,
-                trackerConnnection,
+                trackerConnection,
                 sp.GetService<IDataCache>(),
                 sp.GetService<IQueryGenerator>(),
                 sp.GetService<IDataQueryLogger>()

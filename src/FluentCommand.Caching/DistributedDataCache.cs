@@ -196,17 +196,15 @@ public partial class DistributedDataCache : IDataCache
     }
 
 
-    [LoggerMessage(0, LogLevel.Information, "Cache Hit; Key: '{cacheKey}'")]
+    [LoggerMessage(0, LogLevel.Debug, "Cache Hit; Key: '{cacheKey}'")]
     static partial void LogCacheHit(ILogger logger, string cacheKey);
 
-    [LoggerMessage(1, LogLevel.Information, "Cache Miss; Key: '{cacheKey}'")]
+    [LoggerMessage(1, LogLevel.Debug, "Cache Miss; Key: '{cacheKey}'")]
     static partial void LogCacheMiss(ILogger logger, string cacheKey);
 
-    [LoggerMessage(2, LogLevel.Information, "Cache Insert; Key: '{cacheKey}'")]
+    [LoggerMessage(2, LogLevel.Debug, "Cache Insert; Key: '{cacheKey}'")]
     static partial void LogCacheInsert(ILogger logger, string cacheKey);
 
-    [LoggerMessage(3, LogLevel.Information, "Cache Remove; Key: '{cacheKey}'")]
+    [LoggerMessage(3, LogLevel.Debug, "Cache Remove; Key: '{cacheKey}'")]
     static partial void LogCacheRemove(ILogger logger, string cacheKey);
-
-
 }

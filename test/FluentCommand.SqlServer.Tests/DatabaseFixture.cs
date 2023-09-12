@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 using XUnit.Hosting;
 
@@ -13,6 +14,12 @@ namespace FluentCommand.SqlServer.Tests;
 
 public class DatabaseFixture : TestHostFixture
 {
+    protected override void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
+    {
+        base.ConfigureLogging(context, builder);
+        builder.SetMinimumLevel(LogLevel.Debug);
+    }
+
     protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         var trackerConnection = context.Configuration.GetConnectionString("Tracker");
