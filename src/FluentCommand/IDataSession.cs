@@ -106,3 +106,12 @@ public interface IDataSession
     Task ReleaseConnectionAsync();
 #endif
 }
+
+/// <summary>
+/// A fluent interface for a data session by discriminator.  Used to register multiple instances of IDataSession.
+/// </summary>
+/// <typeparam name="TDiscriminator">The type of the discriminator.</typeparam>
+public interface IDataSession<TDiscriminator> : IDataSession
+{
+    
+}

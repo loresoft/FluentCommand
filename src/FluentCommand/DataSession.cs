@@ -94,6 +94,7 @@ public class DataSession : DisposableBase, IDataSession
     /// <summary>
     /// Initializes a new instance of the <see cref="DataSession" /> class.
     /// </summary>
+    /// <param name="dataConfiguration">The configuration for the session</param>
     /// <exception cref="ArgumentNullException"><paramref name="dataConfiguration"/> is null</exception>
     public DataSession(IDataConfiguration dataConfiguration)
     {
@@ -285,5 +286,54 @@ public class DataSession : DisposableBase, IDataSession
         // Dispose the connection created
         if (_disposeConnection)
             Connection.Dispose();
+    }
+}
+
+/// <summary>
+/// A fluent class for a data session by discriminator.  Used to register multiple instances of IDataSession.
+/// </summary>
+/// <typeparam name="TDiscriminator">The type of the discriminator.</typeparam>
+/// <seealso cref="FluentCommand.DisposableBase" />
+/// <seealso cref="FluentCommand.IDataSession" />
+public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscriminator>
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataSession" /> class.
+    /// </summary>
+    /// <param name="connection">The DbConnection to use for the session.</param>
+    /// <param name="disposeConnection">if set to <c>true</c> dispose connection with this session.</param>
+    /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
+    /// <param name="queryGenerator">The query generator provider.</param>
+    /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connection" /> is null</exception>
+    /// <exception cref="ArgumentException">Invalid connection string on <paramref name="connection" /> instance.</exception>
+    public DataSession(DbConnection connection, bool disposeConnection = true, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
+        : base(connection, disposeConnection, cache, queryGenerator, logger)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataSession"/> class.
+    /// </summary>
+    /// <param name="transaction">The DbTransaction to use for the session.</param>
+    /// <param name="disposeConnection">if set to <c>true</c> dispose connection with this session.</param>
+    /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
+    /// <param name="queryGenerator">The query generator provider.</param>
+    /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="transaction" /> is null</exception>
+    /// <exception cref="ArgumentException">Invalid connection string on <paramref name="transaction" /> instance.</exception>
+    public DataSession(DbTransaction transaction, bool disposeConnection = false, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
+        : base(transaction, disposeConnection, cache, queryGenerator, logger)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataSession" /> class.
+    /// </summary>
+    /// <param name="dataConfiguration">The configuration for the session</param>
+    /// <exception cref="ArgumentNullException"><paramref name="dataConfiguration" /> is null</exception>
+    public DataSession(IDataConfiguration<TDiscriminator> dataConfiguration)
+        : base(dataConfiguration)
+    {
     }
 }
