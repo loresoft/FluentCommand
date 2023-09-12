@@ -128,6 +128,31 @@ public class DataConfiguration : IDataConfiguration
         connection.ConnectionString = connectionString;
         return connection;
     }
+}
 
 
+/// <summary>
+/// The database configuration by discriminator.  Used to register multiple instances of IDataConfiguration.
+/// </summary>
+/// <typeparam name="TDiscriminator">The type of the discriminator.</typeparam>
+/// <seealso cref="FluentCommand.IDataConfiguration" />
+public class DataConfiguration<TDiscriminator> : DataConfiguration, IDataConfiguration<TDiscriminator>
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataConfiguration{TDiscriminator}"/> class.
+    /// </summary>
+    /// <param name="providerFactory">The database provider factory.</param>
+    /// <param name="connectionString">The database connection string.</param>
+    /// <param name="cache">The data cache manager.</param>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <param name="queryLogger">The query command logger.</param>
+    public DataConfiguration(
+        DbProviderFactory providerFactory,
+        string connectionString,
+        IDataCache cache = null,
+        IQueryGenerator queryGenerator = null,
+        IDataQueryLogger queryLogger = null)
+        : base(providerFactory, connectionString, cache, queryGenerator, queryLogger)
+    {
+    }
 }

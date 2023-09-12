@@ -76,3 +76,12 @@ public interface IDataConfiguration
     /// </returns>
     DbConnection CreateConnection(string connectionString = null);
 }
+
+/// <summary>
+/// The database configuration by discriminator.  Used to register multiple instances of IDataConfiguration.
+/// </summary>
+/// <typeparam name="TDiscriminator">The type of the discriminator.</typeparam>
+public interface IDataConfiguration<TDiscriminator> : IDataConfiguration
+{
+
+}
