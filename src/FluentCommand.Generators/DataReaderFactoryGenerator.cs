@@ -57,11 +57,11 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
     private static bool SyntacticPredicate(SyntaxNode syntaxNode, CancellationToken cancellationToken)
     {
         return syntaxNode is ClassDeclarationSyntax
-               { AttributeLists.Count: > 0 } classDeclaration
+        { AttributeLists.Count: > 0 } classDeclaration
                && !classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
                && !classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
             || syntaxNode is RecordDeclarationSyntax
-               { AttributeLists.Count: > 0 } recordDeclaration
+            { AttributeLists.Count: > 0 } recordDeclaration
                && !recordDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
                && !recordDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword);
     }
@@ -78,12 +78,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             ? InitializationMode.ObjectInitializer
             : InitializationMode.Constructor;
 
-        var propertySymbols = targetSymbol
-            .GetMembers()
-            .Where(m => m.Kind == SymbolKind.Property)
-            .OfType<IPropertySymbol>()
-            .Where(IsIncluded)
-            .ToList();
+        var propertySymbols = GetProperties(targetSymbol);
 
         if (mode == InitializationMode.ObjectInitializer)
         {
@@ -141,6 +136,31 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
 
         var entityClass = new EntityClass(mode, classNamespace, className, properties);
         return new EntityContext(entityClass, diagnostics);
+    }
+
+    private static List<IPropertySymbol> GetProperties(INamedTypeSymbol targetSymbol)
+    {
+        var properties = new Dictionary<string, IPropertySymbol>();
+
+        var currentSymbol = targetSymbol;
+
+        // get nested properties
+        while (currentSymbol != null)
+        {
+            var propertySymbols = currentSymbol
+                .GetMembers()
+                .Where(m => m.Kind == SymbolKind.Property)
+                .OfType<IPropertySymbol>()
+                .Where(IsIncluded)
+                .Where(p => !properties.ContainsKey(p.Name));
+
+            foreach (var propertySymbol in propertySymbols)
+                properties.Add(propertySymbol.Name, propertySymbol);
+
+            currentSymbol = currentSymbol.BaseType;
+        }
+
+        return properties.Values.ToList();
     }
 
     private static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string parameterName = null)
