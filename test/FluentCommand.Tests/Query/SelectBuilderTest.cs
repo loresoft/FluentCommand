@@ -272,6 +272,21 @@ public class SelectBuilderTest
         await Verifier.Verify(sql).UseDirectory("Snapshots");
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task SelectEntityFilterBuilder()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<User>(sqlProvider, parameters)
+            .Columns("t", p => p.Name != nameof(User.PasswordHash));
+
+        var queryStatement = builder.BuildStatement();
+
+        var sql = queryStatement.Statement;
+
+        await Verifier.Verify(sql).UseDirectory("Snapshots");
+    }
     private class EntityAlias
     {
         [Column("EntityId")]

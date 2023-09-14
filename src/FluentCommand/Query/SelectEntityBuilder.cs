@@ -87,13 +87,17 @@ public class SelectEntityBuilder<TEntity>
     }
 
     public SelectEntityBuilder<TEntity> Columns(
-        string tableAlias = null)
+        string tableAlias = null,
+        Func<IMemberAccessor, bool> filter = null)
     {
         var properties = _typeAccessor.GetProperties();
 
         foreach (var property in properties)
         {
             if (property.IsNotMapped)
+                continue;
+
+            if (filter != null && !filter(property))
                 continue;
 
             // alias column as property name if don't match
@@ -107,7 +111,8 @@ public class SelectEntityBuilder<TEntity>
     }
 
     public SelectEntityBuilder<TEntity> Columns<TModel>(
-        string tableAlias = null)
+        string tableAlias = null,
+        Func<IMemberAccessor, bool> filter = null)
     {
         var typeAccessor = TypeAccessor.GetAccessor(typeof(TModel));
         var properties = typeAccessor.GetProperties();
@@ -115,6 +120,9 @@ public class SelectEntityBuilder<TEntity>
         foreach (var property in properties)
         {
             if (property.IsNotMapped)
+                continue;
+
+            if (filter != null && !filter(property))
                 continue;
 
             // alias column as property name if don't match

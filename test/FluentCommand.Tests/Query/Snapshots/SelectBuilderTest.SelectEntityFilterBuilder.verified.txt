@@ -1,0 +1,2 @@
+﻿SELECT [t].[Id], [t].[EmailAddress], [t].[IsEmailAddressConfirmed], [t].[DisplayName], [t].[FirstName], [t].[LastName], [t].[ResetHash], [t].[InviteHash], [t].[AccessFailedCount], [t].[LockoutEnabled], [t].[LockoutEnd], [t].[LastLogin], [t].[IsDeleted], [t].[Created], [t].[CreatedBy], [t].[Updated], [t].[UpdatedBy], [t].[RowVersion]
+FROM [User];
