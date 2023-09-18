@@ -51,7 +51,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
 
         var source = DataReaderFactoryWriter.Generate(entityClass);
 
-        context.AddSource($"{qualifiedName}DataReaderExtensions.g.cs", source);
+         context.AddSource($"{qualifiedName}DataReaderExtensions.g.cs", source);
     }
 
     private static bool SyntacticPredicate(SyntaxNode syntaxNode, CancellationToken cancellationToken)

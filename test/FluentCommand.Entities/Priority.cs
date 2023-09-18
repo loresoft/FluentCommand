@@ -16,9 +16,9 @@ public class Priority
     public int DisplayOrder { get; set; }
     public bool IsActive { get; set; }
     public DateTimeOffset Created { get; set; }
-    public string CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
     public DateTimeOffset Updated { get; set; }
-    public string UpdatedBy { get; set; }
+    public string? UpdatedBy { get; set; }
 
     [ConcurrencyCheck]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

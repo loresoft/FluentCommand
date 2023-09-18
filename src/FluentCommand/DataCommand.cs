@@ -752,16 +752,9 @@ public class DataCommand : DisposableBase, IDataCommand
         if (startingTimestamp == 0)
             return;
 
-        var endingTimestamp = Stopwatch.GetTimestamp();
-
-#if NET7_0_OR_GREATER
-        var duration = Stopwatch.GetElapsedTime(startingTimestamp, endingTimestamp);
-#else
-        var duration = new TimeSpan((long)((endingTimestamp - startingTimestamp) * _tickFrequency));
-#endif
+        var duration = startingTimestamp.GetElapsedTime();
 
         _dataSession.QueryLogger?.LogCommand(Command, duration, exception, _logState);
     }
 
-    private static readonly double _tickFrequency = (double)TimeSpan.TicksPerSecond / Stopwatch.Frequency;
 }

@@ -199,6 +199,58 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(updateBuilder);
     }
 
+    public string BuildUpsert(UpsertStatement updateStatement)
+    {
+        if (updateStatement.TableExpression == null)
+            throw new ArgumentException("No table specified to update", nameof(updateStatement));
+
+        if (updateStatement.UpsertExpressions == null || updateStatement.UpsertExpressions.Count == 0)
+            throw new ArgumentException("No values specified for update", nameof(updateStatement));
+
+        var updateBuilder = StringBuilderCache.Acquire();
+
+        if (updateStatement.CommentExpressions?.Count > 0)
+        {
+            updateBuilder
+                .AppendJoin(Environment.NewLine, updateStatement.CommentExpressions)
+                .AppendLine();
+        }
+
+        var table = TableExpression(updateStatement.TableExpression);
+        var valueExpressions = updateStatement.UpsertExpressions.Select(p => p.ParameterName);
+
+        updateBuilder
+            .Append("MERGE INTO ")
+            .Append(table)
+            .AppendLine("WITH (UPDLOCK, SERIALIZABLE) AS t")
+            .AppendLine("USING ")
+            .AppendLine("(")
+            .Append("    VALUES ")
+            .Append("(")
+            .AppendJoin(", ", valueExpressions)
+            .AppendLine(")")
+            .AppendLine(")")
+            .Append("AS s ")
+            .Append(" (")
+            .AppendJoin(", ", updateStatement.UpsertExpressions.Select(ColumnExpression))
+            .AppendLine(")");
+
+
+        if (updateStatement.WhereExpressions?.Count > 0)
+        {
+            updateBuilder
+                .AppendLine()
+                .Append("ON ")
+                .Append("(")
+                .AppendJoin(" AND ", updateStatement.WhereExpressions.Select(WhereExpression))
+                .Append(")");
+        }
+
+
+
+        return StringBuilderCache.ToString(updateBuilder);
+    }
+
     public virtual string BuildDelete(DeleteStatement deleteStatement)
     {
         if (deleteStatement.TableExpression == null)

@@ -10,6 +10,8 @@ public interface IQueryGenerator
 
     string BuildUpdate(UpdateStatement updateStatement);
 
+    string BuildUpsert(UpsertStatement updateStatement);
+
 
     string BuildWhere(IReadOnlyCollection<WhereExpression> whereExpressions);
 

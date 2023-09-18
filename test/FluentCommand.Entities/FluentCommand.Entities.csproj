@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
     <LangVersion>latest</LangVersion>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

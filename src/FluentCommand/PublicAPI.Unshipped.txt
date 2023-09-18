@@ -1,0 +1,987 @@
+abstract FluentCommand.Query.StatementBuilder<TBuilder>.BuildStatement() -> FluentCommand.Query.QueryStatement
+abstract FluentCommand.Reflection.MemberAccessor.GetValue(object instance) -> object
+abstract FluentCommand.Reflection.MemberAccessor.HasGetter.get -> bool
+abstract FluentCommand.Reflection.MemberAccessor.HasSetter.get -> bool
+abstract FluentCommand.Reflection.MemberAccessor.MemberType.get -> System.Type
+abstract FluentCommand.Reflection.MemberAccessor.Name.get -> string
+abstract FluentCommand.Reflection.MemberAccessor.SetValue(object instance, object value) -> void
+const FluentCommand.Internal.HashCode.Multiplier = 31 -> int
+FluentCommand.ConcurrencyToken
+FluentCommand.ConcurrencyToken.ConcurrencyToken() -> void
+FluentCommand.ConcurrencyToken.ConcurrencyToken(byte[] value) -> void
+FluentCommand.ConcurrencyToken.ConcurrencyToken(string value) -> void
+FluentCommand.ConcurrencyToken.Equals(FluentCommand.ConcurrencyToken other) -> bool
+FluentCommand.ConcurrencyToken.Value.get -> byte[]
+FluentCommand.DataCommand
+FluentCommand.DataCommand.Command.get -> System.Data.Common.DbCommand
+FluentCommand.DataCommand.CommandTimeout(int timeout) -> FluentCommand.IDataCommand
+FluentCommand.DataCommand.DataCommand(FluentCommand.IDataSession dataSession, System.Data.Common.DbTransaction transaction) -> void
+FluentCommand.DataCommand.Execute() -> int
+FluentCommand.DataCommand.ExecuteAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>
+FluentCommand.DataCommand.ExpireCache<TEntity>() -> FluentCommand.IDataCommand
+FluentCommand.DataCommand.LogState(object state) -> FluentCommand.IDataCommand
+FluentCommand.DataCommand.Parameter(System.Data.Common.DbParameter parameter) -> FluentCommand.IDataCommand
+FluentCommand.DataCommand.Query<TEntity>(System.Func<System.Data.IDataReader, TEntity> factory, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.SingleResult) -> System.Collections.Generic.IEnumerable<TEntity>
+FluentCommand.DataCommand.QueryAsync<TEntity>(System.Func<System.Data.IDataReader, TEntity> factory, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.SingleResult, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<TEntity>>
+FluentCommand.DataCommand.QueryMultiple(System.Action<FluentCommand.IDataQuery> queryAction) -> void
+FluentCommand.DataCommand.QueryMultipleAsync(System.Func<FluentCommand.IDataQueryAsync, System.Threading.Tasks.Task> queryAction, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task
+FluentCommand.DataCommand.QuerySingle<TEntity>(System.Func<System.Data.IDataReader, TEntity> factory, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.SingleResult | System.Data.CommandBehavior.SingleRow) -> TEntity
+FluentCommand.DataCommand.QuerySingleAsync<TEntity>(System.Func<System.Data.IDataReader, TEntity> factory, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.SingleResult | System.Data.CommandBehavior.SingleRow, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TEntity>
+FluentCommand.DataCommand.QueryTable() -> System.Data.DataTable
+FluentCommand.DataCommand.QueryTableAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Data.DataTable>
+FluentCommand.DataCommand.QueryValue<TValue>(System.Func<object, TValue> convert) -> TValue
+FluentCommand.DataCommand.QueryValueAsync<TValue>(System.Func<object, TValue> convert, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TValue>
+FluentCommand.DataCommand.Read(System.Action<System.Data.IDataReader> readAction, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.Default) -> void
+FluentCommand.DataCommand.ReadAsync(System.Func<System.Data.IDataReader, System.Threading.CancellationToken, System.Threading.Tasks.Task> readAction, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.Default, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task
+FluentCommand.DataCommand.RegisterCallback<TParameter>(System.Data.Common.DbParameter parameter, System.Action<TParameter> callback) -> FluentCommand.IDataCommand
+FluentCommand.DataCommand.Sql(string sql) -> FluentCommand.IDataCommand
+FluentCommand.DataCommand.StoredProcedure(string storedProcedure) -> FluentCommand.IDataCommand
+FluentCommand.DataCommand.UseCache(System.DateTimeOffset absoluteExpiration) -> FluentCommand.IDataCommand
+FluentCommand.DataCommand.UseCache(System.TimeSpan slidingExpiration) -> FluentCommand.IDataCommand
+FluentCommand.DataCommandExtensions
+FluentCommand.DataConfiguration
+FluentCommand.DataConfiguration.CreateSession(System.Data.Common.DbTransaction transaction) -> FluentCommand.IDataSession
+FluentCommand.DataConfiguration.DataConfiguration(System.Data.Common.DbProviderFactory providerFactory, string connectionString, FluentCommand.IDataCache cache = null, FluentCommand.Query.Generators.IQueryGenerator queryGenerator = null, FluentCommand.IDataQueryLogger queryLogger = null) -> void
+FluentCommand.DataConfiguration.QueryGenerator.get -> FluentCommand.Query.Generators.IQueryGenerator
+FluentCommand.DataConfiguration.QueryLogger.get -> FluentCommand.IDataQueryLogger
+FluentCommand.DataConfiguration<TDiscriminator>
+FluentCommand.DataConfiguration<TDiscriminator>.DataConfiguration(System.Data.Common.DbProviderFactory providerFactory, string connectionString, FluentCommand.IDataCache cache = null, FluentCommand.Query.Generators.IQueryGenerator queryGenerator = null, FluentCommand.IDataQueryLogger queryLogger = null) -> void
+FluentCommand.DataFieldConverterAttribute
+FluentCommand.DataFieldConverterAttribute.ConverterType.get -> System.Type
+FluentCommand.DataFieldConverterAttribute.DataFieldConverterAttribute(System.Type converterType) -> void
+FluentCommand.DataMapping
+FluentCommand.DataParameter<TValue>
+FluentCommand.DataParameter<TValue>.Direction(System.Data.ParameterDirection parameterDirection) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.DataParameter<TValue>.Name(string parameterName) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.DataParameter<TValue>.Output(System.Action<TValue> callback) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.DataParameter<TValue>.Return(System.Action<TValue> callback) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.DataParameter<TValue>.Size(int size) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.DataParameter<TValue>.Type(System.Data.DbType dbType) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.DataParameter<TValue>.Value(TValue value) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.DataParameterHandlers
+FluentCommand.DataQueryExtensions
+FluentCommand.DataQueryLogger
+FluentCommand.DataQueryLogger.DataQueryLogger() -> void
+FluentCommand.DataQueryLogger.DataQueryLogger(System.Action<string> logger) -> void
+FluentCommand.DataReaderExtensions
+FluentCommand.DataSession
+FluentCommand.DataSession.BeginTransaction(System.Data.IsolationLevel isolationLevel = System.Data.IsolationLevel.Unspecified) -> System.Data.Common.DbTransaction
+FluentCommand.DataSession.Cache.get -> FluentCommand.IDataCache
+FluentCommand.DataSession.Connection.get -> System.Data.Common.DbConnection
+FluentCommand.DataSession.DataSession(FluentCommand.IDataConfiguration dataConfiguration) -> void
+FluentCommand.DataSession.DataSession(System.Data.Common.DbConnection connection, bool disposeConnection = true, FluentCommand.IDataCache cache = null, FluentCommand.Query.Generators.IQueryGenerator queryGenerator = null, FluentCommand.IDataQueryLogger logger = null) -> void
+FluentCommand.DataSession.DataSession(System.Data.Common.DbTransaction transaction, bool disposeConnection = false, FluentCommand.IDataCache cache = null, FluentCommand.Query.Generators.IQueryGenerator queryGenerator = null, FluentCommand.IDataQueryLogger logger = null) -> void
+FluentCommand.DataSession.EnsureConnection() -> void
+FluentCommand.DataSession.EnsureConnectionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task
+FluentCommand.DataSession.QueryGenerator.get -> FluentCommand.Query.Generators.IQueryGenerator
+FluentCommand.DataSession.QueryLogger.get -> FluentCommand.IDataQueryLogger
+FluentCommand.DataSession.ReleaseConnection() -> void
+FluentCommand.DataSession.Sql(string sql) -> FluentCommand.IDataCommand
+FluentCommand.DataSession.StoredProcedure(string storedProcedureName) -> FluentCommand.IDataCommand
+FluentCommand.DataSession.Transaction.get -> System.Data.Common.DbTransaction
+FluentCommand.DataSession<TDiscriminator>
+FluentCommand.DataSession<TDiscriminator>.DataSession(FluentCommand.IDataConfiguration<TDiscriminator> dataConfiguration) -> void
+FluentCommand.DataSession<TDiscriminator>.DataSession(System.Data.Common.DbConnection connection, bool disposeConnection = true, FluentCommand.IDataCache cache = null, FluentCommand.Query.Generators.IQueryGenerator queryGenerator = null, FluentCommand.IDataQueryLogger logger = null) -> void
+FluentCommand.DataSession<TDiscriminator>.DataSession(System.Data.Common.DbTransaction transaction, bool disposeConnection = false, FluentCommand.IDataCache cache = null, FluentCommand.Query.Generators.IQueryGenerator queryGenerator = null, FluentCommand.IDataQueryLogger logger = null) -> void
+FluentCommand.DisposableBase
+FluentCommand.DisposableBase.AssertDisposed() -> void
+FluentCommand.DisposableBase.DisposableBase() -> void
+FluentCommand.DisposableBase.Dispose() -> void
+FluentCommand.DisposableBase.Dispose(bool disposing) -> void
+FluentCommand.DisposableBase.IsDisposed.get -> bool
+FluentCommand.DisposableBase.~DisposableBase() -> void
+FluentCommand.Extensions.CollectionExtensions
+FluentCommand.Extensions.ConvertExtensions
+FluentCommand.Extensions.DataRecordExtensions
+FluentCommand.Extensions.DataTableExtensions
+FluentCommand.Extensions.EnumerableExtensions
+FluentCommand.Extensions.EnumExtensions
+FluentCommand.Extensions.StringExtensions
+FluentCommand.Extensions.TypeExtensions
+FluentCommand.Handlers.ConcurrencyTokenHandler
+FluentCommand.Handlers.ConcurrencyTokenHandler.ConcurrencyTokenHandler() -> void
+FluentCommand.Handlers.ConcurrencyTokenHandler.ReadValue(System.Data.IDataRecord dataRecord, int fieldIndex) -> FluentCommand.ConcurrencyToken
+FluentCommand.Handlers.ConcurrencyTokenHandler.ReadValue(System.Data.IDbDataParameter parameter) -> object
+FluentCommand.Handlers.ConcurrencyTokenHandler.SetValue(System.Data.IDbDataParameter parameter, object value) -> void
+FluentCommand.Handlers.ConcurrencyTokenHandler.ValueType.get -> System.Type
+FluentCommand.IDataCache
+FluentCommand.IDataCache.Get<T>(string key) -> (bool Success, T Value)
+FluentCommand.IDataCache.GetAsync<T>(string key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<(bool Success, T Value)>
+FluentCommand.IDataCache.Remove(string key) -> void
+FluentCommand.IDataCache.RemoveAsync(string key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task
+FluentCommand.IDataCache.Set<T>(string key, T value, System.DateTimeOffset? absoluteExpiration = null, System.TimeSpan? slidingExpiration = null) -> void
+FluentCommand.IDataCache.SetAsync<T>(string key, T value, System.DateTimeOffset? absoluteExpiration = null, System.TimeSpan? slidingExpiration = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task
+FluentCommand.IDataCommand
+FluentCommand.IDataCommand.Command.get -> System.Data.Common.DbCommand
+FluentCommand.IDataCommand.CommandTimeout(int timeout) -> FluentCommand.IDataCommand
+FluentCommand.IDataCommand.Execute() -> int
+FluentCommand.IDataCommand.ExecuteAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>
+FluentCommand.IDataCommand.ExpireCache<TEntity>() -> FluentCommand.IDataCommand
+FluentCommand.IDataCommand.LogState(object state) -> FluentCommand.IDataCommand
+FluentCommand.IDataCommand.Parameter(System.Data.Common.DbParameter parameter) -> FluentCommand.IDataCommand
+FluentCommand.IDataCommand.QueryMultiple(System.Action<FluentCommand.IDataQuery> queryAction) -> void
+FluentCommand.IDataCommand.QueryMultipleAsync(System.Func<FluentCommand.IDataQueryAsync, System.Threading.Tasks.Task> queryAction, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task
+FluentCommand.IDataCommand.RegisterCallback<TParameter>(System.Data.Common.DbParameter parameter, System.Action<TParameter> callback) -> FluentCommand.IDataCommand
+FluentCommand.IDataCommand.Sql(string sql) -> FluentCommand.IDataCommand
+FluentCommand.IDataCommand.StoredProcedure(string storedProcedure) -> FluentCommand.IDataCommand
+FluentCommand.IDataCommand.UseCache(System.DateTimeOffset absoluteExpiration) -> FluentCommand.IDataCommand
+FluentCommand.IDataCommand.UseCache(System.TimeSpan slidingExpiration) -> FluentCommand.IDataCommand
+FluentCommand.IDataConfiguration
+FluentCommand.IDataConfiguration.ConnectionString.get -> string
+FluentCommand.IDataConfiguration.CreateConnection(string connectionString = null) -> System.Data.Common.DbConnection
+FluentCommand.IDataConfiguration.CreateSession(string connectionString = null) -> FluentCommand.IDataSession
+FluentCommand.IDataConfiguration.CreateSession(System.Data.Common.DbTransaction transaction) -> FluentCommand.IDataSession
+FluentCommand.IDataConfiguration.DataCache.get -> FluentCommand.IDataCache
+FluentCommand.IDataConfiguration.ProviderFactory.get -> System.Data.Common.DbProviderFactory
+FluentCommand.IDataConfiguration.QueryGenerator.get -> FluentCommand.Query.Generators.IQueryGenerator
+FluentCommand.IDataConfiguration.QueryLogger.get -> FluentCommand.IDataQueryLogger
+FluentCommand.IDataConfiguration<TDiscriminator>
+FluentCommand.IDataFieldConverter<TValue>
+FluentCommand.IDataFieldConverter<TValue>.ReadValue(System.Data.IDataRecord dataRecord, int fieldIndex) -> TValue
+FluentCommand.IDataParameter<TValue>
+FluentCommand.IDataParameter<TValue>.Direction(System.Data.ParameterDirection parameterDirection) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.IDataParameter<TValue>.Name(string parameterName) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.IDataParameter<TValue>.Output(System.Action<TValue> callback) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.IDataParameter<TValue>.Return(System.Action<TValue> callback) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.IDataParameter<TValue>.Size(int size) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.IDataParameter<TValue>.Type(System.Data.DbType dbType) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.IDataParameter<TValue>.Value(TValue value) -> FluentCommand.IDataParameter<TValue>
+FluentCommand.IDataParameterHandler
+FluentCommand.IDataParameterHandler.ReadValue(System.Data.IDbDataParameter parameter) -> object
+FluentCommand.IDataParameterHandler.SetValue(System.Data.IDbDataParameter parameter, object value) -> void
+FluentCommand.IDataParameterHandler.ValueType.get -> System.Type
+FluentCommand.IDataQuery
+FluentCommand.IDataQuery.Query<TEntity>(System.Func<System.Data.IDataReader, TEntity> factory, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.SingleResult) -> System.Collections.Generic.IEnumerable<TEntity>
+FluentCommand.IDataQuery.QuerySingle<TEntity>(System.Func<System.Data.IDataReader, TEntity> factory, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.SingleResult | System.Data.CommandBehavior.SingleRow) -> TEntity
+FluentCommand.IDataQuery.QueryTable() -> System.Data.DataTable
+FluentCommand.IDataQuery.QueryValue<TValue>(System.Func<object, TValue> convert) -> TValue
+FluentCommand.IDataQuery.Read(System.Action<System.Data.IDataReader> readAction, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.Default) -> void
+FluentCommand.IDataQueryAsync
+FluentCommand.IDataQueryAsync.QueryAsync<TEntity>(System.Func<System.Data.IDataReader, TEntity> factory, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.SingleResult, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<TEntity>>
+FluentCommand.IDataQueryAsync.QuerySingleAsync<TEntity>(System.Func<System.Data.IDataReader, TEntity> factory, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.SingleResult | System.Data.CommandBehavior.SingleRow, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TEntity>
+FluentCommand.IDataQueryAsync.QueryTableAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Data.DataTable>
+FluentCommand.IDataQueryAsync.QueryValueAsync<TValue>(System.Func<object, TValue> convert, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TValue>
+FluentCommand.IDataQueryAsync.ReadAsync(System.Func<System.Data.IDataReader, System.Threading.CancellationToken, System.Threading.Tasks.Task> readAction, System.Data.CommandBehavior commandBehavior = System.Data.CommandBehavior.Default, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task
+FluentCommand.IDataQueryLogger
+FluentCommand.IDataQueryLogger.LogCommand(System.Data.IDbCommand command, System.TimeSpan duration, System.Exception exception = null, object state = null) -> void
+FluentCommand.IDataSession
+FluentCommand.IDataSession.BeginTransaction(System.Data.IsolationLevel isolationLevel) -> System.Data.Common.DbTransaction
+FluentCommand.IDataSession.Cache.get -> FluentCommand.IDataCache
+FluentCommand.IDataSession.Connection.get -> System.Data.Common.DbConnection
+FluentCommand.IDataSession.EnsureConnection() -> void
+FluentCommand.IDataSession.EnsureConnectionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task
+FluentCommand.IDataSession.QueryGenerator.get -> FluentCommand.Query.Generators.IQueryGenerator
+FluentCommand.IDataSession.QueryLogger.get -> FluentCommand.IDataQueryLogger
+FluentCommand.IDataSession.ReleaseConnection() -> void
+FluentCommand.IDataSession.Sql(string sql) -> FluentCommand.IDataCommand
+FluentCommand.IDataSession.StoredProcedure(string storedProcedureName) -> FluentCommand.IDataCommand
+FluentCommand.IDataSession.Transaction.get -> System.Data.Common.DbTransaction
+FluentCommand.IDataSession<TDiscriminator>
+FluentCommand.Internal.HashCode
+FluentCommand.Internal.HashCode.Combine(object value) -> FluentCommand.Internal.HashCode
+FluentCommand.Internal.HashCode.Combine(string value) -> FluentCommand.Internal.HashCode
+FluentCommand.Internal.HashCode.Combine<TValue>(TValue value) -> FluentCommand.Internal.HashCode
+FluentCommand.Internal.HashCode.CombineAll<TValue>(System.Collections.Generic.IEnumerable<TValue> values) -> FluentCommand.Internal.HashCode
+FluentCommand.Internal.HashCode.Equals(FluentCommand.Internal.HashCode other) -> bool
+FluentCommand.Internal.HashCode.HashCode() -> void
+FluentCommand.Internal.HashCode.HashCode(int hashCode) -> void
+FluentCommand.Internal.HashCode.ToString(string format) -> string
+FluentCommand.Internal.HashCode.ToString(string format, System.IFormatProvider provider) -> string
+FluentCommand.Internal.HashCode.ToString(System.IFormatProvider provider) -> string
+FluentCommand.Internal.Singleton<T>
+FluentCommand.Internal.StringBuilderCache
+FluentCommand.ListDataReader<T>
+FluentCommand.ListDataReader<T>.Close() -> void
+FluentCommand.ListDataReader<T>.Depth.get -> int
+FluentCommand.ListDataReader<T>.Dispose() -> void
+FluentCommand.ListDataReader<T>.FieldCount.get -> int
+FluentCommand.ListDataReader<T>.GetBoolean(int i) -> bool
+FluentCommand.ListDataReader<T>.GetByte(int i) -> byte
+FluentCommand.ListDataReader<T>.GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) -> long
+FluentCommand.ListDataReader<T>.GetChar(int i) -> char
+FluentCommand.ListDataReader<T>.GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) -> long
+FluentCommand.ListDataReader<T>.GetData(int i) -> System.Data.IDataReader
+FluentCommand.ListDataReader<T>.GetDataTypeName(int i) -> string
+FluentCommand.ListDataReader<T>.GetDateTime(int i) -> System.DateTime
+FluentCommand.ListDataReader<T>.GetDecimal(int i) -> decimal
+FluentCommand.ListDataReader<T>.GetDouble(int i) -> double
+FluentCommand.ListDataReader<T>.GetFieldType(int i) -> System.Type
+FluentCommand.ListDataReader<T>.GetFloat(int i) -> float
+FluentCommand.ListDataReader<T>.GetGuid(int i) -> System.Guid
+FluentCommand.ListDataReader<T>.GetInt16(int i) -> short
+FluentCommand.ListDataReader<T>.GetInt32(int i) -> int
+FluentCommand.ListDataReader<T>.GetInt64(int i) -> long
+FluentCommand.ListDataReader<T>.GetName(int i) -> string
+FluentCommand.ListDataReader<T>.GetOrdinal(string name) -> int
+FluentCommand.ListDataReader<T>.GetSchemaTable() -> System.Data.DataTable
+FluentCommand.ListDataReader<T>.GetString(int i) -> string
+FluentCommand.ListDataReader<T>.GetValue(int i) -> object
+FluentCommand.ListDataReader<T>.GetValues(object[] values) -> int
+FluentCommand.ListDataReader<T>.IsClosed.get -> bool
+FluentCommand.ListDataReader<T>.IsDBNull(int i) -> bool
+FluentCommand.ListDataReader<T>.ListDataReader(System.Collections.Generic.IEnumerable<T> list, System.Collections.Generic.IEnumerable<string> ignoreNames = null) -> void
+FluentCommand.ListDataReader<T>.NextResult() -> bool
+FluentCommand.ListDataReader<T>.Read() -> bool
+FluentCommand.ListDataReader<T>.RecordsAffected.get -> int
+FluentCommand.ListDataReader<T>.this[int i].get -> object
+FluentCommand.ListDataReader<T>.this[string name].get -> object
+FluentCommand.Query.AggregateFunctions
+FluentCommand.Query.AggregateFunctions.Average = 0 -> FluentCommand.Query.AggregateFunctions
+FluentCommand.Query.AggregateFunctions.Count = 1 -> FluentCommand.Query.AggregateFunctions
+FluentCommand.Query.AggregateFunctions.Max = 2 -> FluentCommand.Query.AggregateFunctions
+FluentCommand.Query.AggregateFunctions.Min = 3 -> FluentCommand.Query.AggregateFunctions
+FluentCommand.Query.AggregateFunctions.Sum = 4 -> FluentCommand.Query.AggregateFunctions
+FluentCommand.Query.DeleteBuilder
+FluentCommand.Query.DeleteBuilder.DeleteBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.DeleteBuilder<TBuilder>
+FluentCommand.Query.DeleteBuilder<TBuilder>.DeleteBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.DeleteBuilder<TBuilder>.FromExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.TableExpression>
+FluentCommand.Query.DeleteBuilder<TBuilder>.FromRaw(string fromClause) -> TBuilder
+FluentCommand.Query.DeleteBuilder<TBuilder>.Join(System.Action<FluentCommand.Query.JoinBuilder> builder) -> TBuilder
+FluentCommand.Query.DeleteBuilder<TBuilder>.JoinExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.JoinExpression>
+FluentCommand.Query.DeleteBuilder<TBuilder>.Output(string columnName, string tableAlias = "DELETED", string columnAlias = null) -> TBuilder
+FluentCommand.Query.DeleteBuilder<TBuilder>.Output(System.Collections.Generic.IEnumerable<string> columnNames, string tableAlias = "DELETED") -> TBuilder
+FluentCommand.Query.DeleteBuilder<TBuilder>.OutputExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.DeleteBuilder<TBuilder>.OutputIf(string columnName, string tableAlias = "DELETED", string columnAlias = null, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.DeleteBuilder<TBuilder>.Table(string tableName, string tableSchema = null, string tableAlias = null) -> TBuilder
+FluentCommand.Query.DeleteBuilder<TBuilder>.TableExpression.get -> FluentCommand.Query.Generators.TableExpression
+FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.DeleteEntityBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.Join<TLeft, TRight>(System.Action<FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>> builder) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.Join<TRight>(System.Action<FluentCommand.Query.JoinEntityBuilder<TEntity, TRight>> builder) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.Output<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = "DELETED", string columnAlias = null) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.OutputIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = "DELETED", string columnAlias = null, System.Func<string, bool> condition = null) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.Where<TModel, TValue>(System.Linq.Expressions.Expression<System.Func<TModel, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.WhereAnd(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.WhereIn<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.DeleteEntityBuilder<TEntity>.WhereOr(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.Contains = 2 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.EndsWith = 1 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.Equal = 3 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.GreaterThan = 7 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.GreaterThanOrEqual = 8 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.In = 11 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.IsNotNull = 10 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.IsNull = 9 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.LessThan = 5 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.LessThanOrEqual = 6 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.NotEqual = 4 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.FilterOperators.StartsWith = 0 -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.Generators.AggregateExpression
+FluentCommand.Query.Generators.AggregateExpression.Aggregate.get -> FluentCommand.Query.AggregateFunctions
+FluentCommand.Query.Generators.AggregateExpression.Aggregate.init -> void
+FluentCommand.Query.Generators.AggregateExpression.AggregateExpression(FluentCommand.Query.AggregateFunctions Aggregate, string ColumnName, string TableAlias = null, string ColumnAlias = null, bool IsRaw = false) -> void
+FluentCommand.Query.Generators.ColumnExpression
+FluentCommand.Query.Generators.ColumnExpression.ColumnAlias.get -> string
+FluentCommand.Query.Generators.ColumnExpression.ColumnAlias.init -> void
+FluentCommand.Query.Generators.ColumnExpression.ColumnExpression(string ColumnName, string TableAlias = null, string ColumnAlias = null, bool IsRaw = false) -> void
+FluentCommand.Query.Generators.ColumnExpression.ColumnName.get -> string
+FluentCommand.Query.Generators.ColumnExpression.ColumnName.init -> void
+FluentCommand.Query.Generators.ColumnExpression.IsRaw.get -> bool
+FluentCommand.Query.Generators.ColumnExpression.IsRaw.init -> void
+FluentCommand.Query.Generators.ColumnExpression.TableAlias.get -> string
+FluentCommand.Query.Generators.ColumnExpression.TableAlias.init -> void
+FluentCommand.Query.Generators.DeleteStatement
+FluentCommand.Query.Generators.DeleteStatement.CommentExpressions.get -> System.Collections.Generic.IReadOnlyCollection<string>
+FluentCommand.Query.Generators.DeleteStatement.CommentExpressions.init -> void
+FluentCommand.Query.Generators.DeleteStatement.DeleteStatement(FluentCommand.Query.Generators.TableExpression TableExpression, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression> OutputExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.TableExpression> FromExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.JoinExpression> JoinExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression> WhereExpressions, System.Collections.Generic.IReadOnlyCollection<string> CommentExpressions) -> void
+FluentCommand.Query.Generators.DeleteStatement.FromExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.TableExpression>
+FluentCommand.Query.Generators.DeleteStatement.FromExpressions.init -> void
+FluentCommand.Query.Generators.DeleteStatement.JoinExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.JoinExpression>
+FluentCommand.Query.Generators.DeleteStatement.JoinExpressions.init -> void
+FluentCommand.Query.Generators.DeleteStatement.OutputExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.Generators.DeleteStatement.OutputExpressions.init -> void
+FluentCommand.Query.Generators.DeleteStatement.TableExpression.get -> FluentCommand.Query.Generators.TableExpression
+FluentCommand.Query.Generators.DeleteStatement.TableExpression.init -> void
+FluentCommand.Query.Generators.DeleteStatement.WhereExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression>
+FluentCommand.Query.Generators.DeleteStatement.WhereExpressions.init -> void
+FluentCommand.Query.Generators.GroupExpression
+FluentCommand.Query.Generators.GroupExpression.GroupExpression(string ColumnName, string TableAlias = null, bool IsRaw = false) -> void
+FluentCommand.Query.Generators.InsertStatement
+FluentCommand.Query.Generators.InsertStatement.ColumnExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.Generators.InsertStatement.ColumnExpressions.init -> void
+FluentCommand.Query.Generators.InsertStatement.CommentExpressions.get -> System.Collections.Generic.IReadOnlyCollection<string>
+FluentCommand.Query.Generators.InsertStatement.CommentExpressions.init -> void
+FluentCommand.Query.Generators.InsertStatement.InsertStatement(FluentCommand.Query.Generators.TableExpression TableExpression, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression> ColumnExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression> OutputExpressions, System.Collections.Generic.IReadOnlyCollection<string> ValueExpressions, System.Collections.Generic.IReadOnlyCollection<string> CommentExpressions) -> void
+FluentCommand.Query.Generators.InsertStatement.OutputExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.Generators.InsertStatement.OutputExpressions.init -> void
+FluentCommand.Query.Generators.InsertStatement.TableExpression.get -> FluentCommand.Query.Generators.TableExpression
+FluentCommand.Query.Generators.InsertStatement.TableExpression.init -> void
+FluentCommand.Query.Generators.InsertStatement.ValueExpressions.get -> System.Collections.Generic.IReadOnlyCollection<string>
+FluentCommand.Query.Generators.InsertStatement.ValueExpressions.init -> void
+FluentCommand.Query.Generators.IQueryGenerator
+FluentCommand.Query.Generators.IQueryGenerator.AggregateExpression(FluentCommand.Query.Generators.AggregateExpression aggregateExpression) -> string
+FluentCommand.Query.Generators.IQueryGenerator.BuildDelete(FluentCommand.Query.Generators.DeleteStatement deleteStatement) -> string
+FluentCommand.Query.Generators.IQueryGenerator.BuildInsert(FluentCommand.Query.Generators.InsertStatement insertStatement) -> string
+FluentCommand.Query.Generators.IQueryGenerator.BuildOrder(System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.SortExpression> sortExpressions) -> string
+FluentCommand.Query.Generators.IQueryGenerator.BuildSelect(FluentCommand.Query.Generators.SelectStatement selectStatement) -> string
+FluentCommand.Query.Generators.IQueryGenerator.BuildUpdate(FluentCommand.Query.Generators.UpdateStatement updateStatement) -> string
+FluentCommand.Query.Generators.IQueryGenerator.BuildUpsert(FluentCommand.Query.Generators.UpsertStatement updateStatement) -> string
+FluentCommand.Query.Generators.IQueryGenerator.BuildWhere(System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression> whereExpressions) -> string
+FluentCommand.Query.Generators.IQueryGenerator.ColumnExpression(FluentCommand.Query.Generators.ColumnExpression columnExpression) -> string
+FluentCommand.Query.Generators.IQueryGenerator.CommentExpression(string comment) -> string
+FluentCommand.Query.Generators.IQueryGenerator.GroupExpression(FluentCommand.Query.Generators.GroupExpression groupExpression) -> string
+FluentCommand.Query.Generators.IQueryGenerator.JoinExpression(FluentCommand.Query.Generators.JoinExpression joinExpression) -> string
+FluentCommand.Query.Generators.IQueryGenerator.LimitExpression(FluentCommand.Query.Generators.LimitExpression limitExpression) -> string
+FluentCommand.Query.Generators.IQueryGenerator.LogicalExpression(System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression> whereExpressions, FluentCommand.Query.LogicalOperators logicalOperator) -> string
+FluentCommand.Query.Generators.IQueryGenerator.SortExpression(FluentCommand.Query.Generators.SortExpression sortExpression) -> string
+FluentCommand.Query.Generators.IQueryGenerator.TableExpression(FluentCommand.Query.Generators.TableExpression tableExpression) -> string
+FluentCommand.Query.Generators.IQueryGenerator.UpdateExpression(FluentCommand.Query.Generators.UpdateExpression updateExpression) -> string
+FluentCommand.Query.Generators.IQueryGenerator.WhereExpression(FluentCommand.Query.Generators.WhereExpression whereExpression) -> string
+FluentCommand.Query.Generators.JoinExpression
+FluentCommand.Query.Generators.JoinExpression.JoinExpression(string LeftTableAlias = null, string LeftColumnName = null, string RightTableName = null, string RightTableSchema = null, string RightTableAlias = null, string RightColumnName = null, FluentCommand.Query.JoinTypes JoinType = FluentCommand.Query.JoinTypes.Inner) -> void
+FluentCommand.Query.Generators.JoinExpression.JoinType.get -> FluentCommand.Query.JoinTypes
+FluentCommand.Query.Generators.JoinExpression.JoinType.init -> void
+FluentCommand.Query.Generators.JoinExpression.LeftColumnName.get -> string
+FluentCommand.Query.Generators.JoinExpression.LeftColumnName.init -> void
+FluentCommand.Query.Generators.JoinExpression.LeftTableAlias.get -> string
+FluentCommand.Query.Generators.JoinExpression.LeftTableAlias.init -> void
+FluentCommand.Query.Generators.JoinExpression.RightColumnName.get -> string
+FluentCommand.Query.Generators.JoinExpression.RightColumnName.init -> void
+FluentCommand.Query.Generators.JoinExpression.RightTableAlias.get -> string
+FluentCommand.Query.Generators.JoinExpression.RightTableAlias.init -> void
+FluentCommand.Query.Generators.JoinExpression.RightTableName.get -> string
+FluentCommand.Query.Generators.JoinExpression.RightTableName.init -> void
+FluentCommand.Query.Generators.JoinExpression.RightTableSchema.get -> string
+FluentCommand.Query.Generators.JoinExpression.RightTableSchema.init -> void
+FluentCommand.Query.Generators.LimitExpression
+FluentCommand.Query.Generators.LimitExpression.LimitExpression(int Offset, int Size) -> void
+FluentCommand.Query.Generators.LimitExpression.Offset.get -> int
+FluentCommand.Query.Generators.LimitExpression.Offset.init -> void
+FluentCommand.Query.Generators.LimitExpression.Size.get -> int
+FluentCommand.Query.Generators.LimitExpression.Size.init -> void
+FluentCommand.Query.Generators.PostgresqlGenerator
+FluentCommand.Query.Generators.PostgresqlGenerator.PostgresqlGenerator() -> void
+FluentCommand.Query.Generators.SelectStatement
+FluentCommand.Query.Generators.SelectStatement.CommentExpressions.get -> System.Collections.Generic.IReadOnlyCollection<string>
+FluentCommand.Query.Generators.SelectStatement.CommentExpressions.init -> void
+FluentCommand.Query.Generators.SelectStatement.FromExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.TableExpression>
+FluentCommand.Query.Generators.SelectStatement.FromExpressions.init -> void
+FluentCommand.Query.Generators.SelectStatement.GroupExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.GroupExpression>
+FluentCommand.Query.Generators.SelectStatement.GroupExpressions.init -> void
+FluentCommand.Query.Generators.SelectStatement.JoinExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.JoinExpression>
+FluentCommand.Query.Generators.SelectStatement.JoinExpressions.init -> void
+FluentCommand.Query.Generators.SelectStatement.LimitExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.LimitExpression>
+FluentCommand.Query.Generators.SelectStatement.LimitExpressions.init -> void
+FluentCommand.Query.Generators.SelectStatement.SelectExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.Generators.SelectStatement.SelectExpressions.init -> void
+FluentCommand.Query.Generators.SelectStatement.SelectStatement(System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression> SelectExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.TableExpression> FromExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.JoinExpression> JoinExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression> WhereExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.SortExpression> SortExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.GroupExpression> GroupExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.LimitExpression> LimitExpressions, System.Collections.Generic.IReadOnlyCollection<string> CommentExpressions) -> void
+FluentCommand.Query.Generators.SelectStatement.SortExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.SortExpression>
+FluentCommand.Query.Generators.SelectStatement.SortExpressions.init -> void
+FluentCommand.Query.Generators.SelectStatement.WhereExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression>
+FluentCommand.Query.Generators.SelectStatement.WhereExpressions.init -> void
+FluentCommand.Query.Generators.SortExpression
+FluentCommand.Query.Generators.SortExpression.SortDirection.get -> FluentCommand.Query.SortDirections
+FluentCommand.Query.Generators.SortExpression.SortDirection.init -> void
+FluentCommand.Query.Generators.SortExpression.SortExpression(string ColumnName, string TableAlias = null, FluentCommand.Query.SortDirections SortDirection = FluentCommand.Query.SortDirections.Ascending, bool IsRaw = false) -> void
+FluentCommand.Query.Generators.SqliteGenerator
+FluentCommand.Query.Generators.SqliteGenerator.SqliteGenerator() -> void
+FluentCommand.Query.Generators.SqlServerGenerator
+FluentCommand.Query.Generators.SqlServerGenerator.BuildUpsert(FluentCommand.Query.Generators.UpsertStatement updateStatement) -> string
+FluentCommand.Query.Generators.SqlServerGenerator.SqlServerGenerator() -> void
+FluentCommand.Query.Generators.TableExpression
+FluentCommand.Query.Generators.TableExpression.IsRaw.get -> bool
+FluentCommand.Query.Generators.TableExpression.IsRaw.init -> void
+FluentCommand.Query.Generators.TableExpression.TableAlias.get -> string
+FluentCommand.Query.Generators.TableExpression.TableAlias.init -> void
+FluentCommand.Query.Generators.TableExpression.TableExpression(string TableName, string TableSchema = null, string TableAlias = null, bool IsRaw = false) -> void
+FluentCommand.Query.Generators.TableExpression.TableName.get -> string
+FluentCommand.Query.Generators.TableExpression.TableName.init -> void
+FluentCommand.Query.Generators.TableExpression.TableSchema.get -> string
+FluentCommand.Query.Generators.TableExpression.TableSchema.init -> void
+FluentCommand.Query.Generators.UpdateExpression
+FluentCommand.Query.Generators.UpdateExpression.ParameterName.get -> string
+FluentCommand.Query.Generators.UpdateExpression.ParameterName.init -> void
+FluentCommand.Query.Generators.UpdateExpression.UpdateExpression(string ColumnName, string ParameterName, string TableAlias = null, bool IsRaw = false) -> void
+FluentCommand.Query.Generators.UpdateStatement
+FluentCommand.Query.Generators.UpdateStatement.CommentExpressions.get -> System.Collections.Generic.IReadOnlyCollection<string>
+FluentCommand.Query.Generators.UpdateStatement.CommentExpressions.init -> void
+FluentCommand.Query.Generators.UpdateStatement.FromExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.TableExpression>
+FluentCommand.Query.Generators.UpdateStatement.FromExpressions.init -> void
+FluentCommand.Query.Generators.UpdateStatement.JoinExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.JoinExpression>
+FluentCommand.Query.Generators.UpdateStatement.JoinExpressions.init -> void
+FluentCommand.Query.Generators.UpdateStatement.OutputExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.Generators.UpdateStatement.OutputExpressions.init -> void
+FluentCommand.Query.Generators.UpdateStatement.TableExpression.get -> FluentCommand.Query.Generators.TableExpression
+FluentCommand.Query.Generators.UpdateStatement.TableExpression.init -> void
+FluentCommand.Query.Generators.UpdateStatement.UpdateExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.UpdateExpression>
+FluentCommand.Query.Generators.UpdateStatement.UpdateExpressions.init -> void
+FluentCommand.Query.Generators.UpdateStatement.UpdateStatement(FluentCommand.Query.Generators.TableExpression TableExpression, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.UpdateExpression> UpdateExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression> OutputExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.TableExpression> FromExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.JoinExpression> JoinExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression> WhereExpressions, System.Collections.Generic.IReadOnlyCollection<string> CommentExpressions) -> void
+FluentCommand.Query.Generators.UpdateStatement.WhereExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression>
+FluentCommand.Query.Generators.UpdateStatement.WhereExpressions.init -> void
+FluentCommand.Query.Generators.UpsertExpression
+FluentCommand.Query.Generators.UpsertExpression.ParameterName.get -> string
+FluentCommand.Query.Generators.UpsertExpression.ParameterName.init -> void
+FluentCommand.Query.Generators.UpsertExpression.UpsertExpression(string ColumnName, string ParameterName, string TableAlias = null, FluentCommand.Query.Generators.UpsertState UpsertState = FluentCommand.Query.Generators.UpsertState.InsertUpdate, bool IsRaw = false) -> void
+FluentCommand.Query.Generators.UpsertExpression.UpsertState.get -> FluentCommand.Query.Generators.UpsertState
+FluentCommand.Query.Generators.UpsertExpression.UpsertState.init -> void
+FluentCommand.Query.Generators.UpsertState
+FluentCommand.Query.Generators.UpsertState.Insert = 0 -> FluentCommand.Query.Generators.UpsertState
+FluentCommand.Query.Generators.UpsertState.InsertUpdate = 1 -> FluentCommand.Query.Generators.UpsertState
+FluentCommand.Query.Generators.UpsertState.Update = 1 -> FluentCommand.Query.Generators.UpsertState
+FluentCommand.Query.Generators.UpsertStatement
+FluentCommand.Query.Generators.UpsertStatement.CommentExpressions.get -> System.Collections.Generic.IReadOnlyCollection<string>
+FluentCommand.Query.Generators.UpsertStatement.CommentExpressions.init -> void
+FluentCommand.Query.Generators.UpsertStatement.FromExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.TableExpression>
+FluentCommand.Query.Generators.UpsertStatement.FromExpressions.init -> void
+FluentCommand.Query.Generators.UpsertStatement.JoinExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.JoinExpression>
+FluentCommand.Query.Generators.UpsertStatement.JoinExpressions.init -> void
+FluentCommand.Query.Generators.UpsertStatement.OutputExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.Generators.UpsertStatement.OutputExpressions.init -> void
+FluentCommand.Query.Generators.UpsertStatement.TableExpression.get -> FluentCommand.Query.Generators.TableExpression
+FluentCommand.Query.Generators.UpsertStatement.TableExpression.init -> void
+FluentCommand.Query.Generators.UpsertStatement.UpsertExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.UpsertExpression>
+FluentCommand.Query.Generators.UpsertStatement.UpsertExpressions.init -> void
+FluentCommand.Query.Generators.UpsertStatement.UpsertStatement(FluentCommand.Query.Generators.TableExpression TableExpression, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.UpsertExpression> UpsertExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.ColumnExpression> OutputExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.TableExpression> FromExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.JoinExpression> JoinExpressions, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression> WhereExpressions, System.Collections.Generic.IReadOnlyCollection<string> CommentExpressions) -> void
+FluentCommand.Query.Generators.UpsertStatement.WhereExpressions.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression>
+FluentCommand.Query.Generators.UpsertStatement.WhereExpressions.init -> void
+FluentCommand.Query.Generators.WhereExpression
+FluentCommand.Query.Generators.WhereExpression.FilterOperator.get -> FluentCommand.Query.FilterOperators
+FluentCommand.Query.Generators.WhereExpression.FilterOperator.init -> void
+FluentCommand.Query.Generators.WhereExpression.ParameterName.get -> string
+FluentCommand.Query.Generators.WhereExpression.ParameterName.init -> void
+FluentCommand.Query.Generators.WhereExpression.WhereExpression(string ColumnName, string ParameterName = null, string TableAlias = null, FluentCommand.Query.FilterOperators FilterOperator = FluentCommand.Query.FilterOperators.Equal, bool IsRaw = false) -> void
+FluentCommand.Query.InsertBuilder
+FluentCommand.Query.InsertBuilder.InsertBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.InsertBuilder<TBuilder>
+FluentCommand.Query.InsertBuilder<TBuilder>.ColumnExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.InsertBuilder<TBuilder>.InsertBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.InsertBuilder<TBuilder>.Into(string tableName, string tableSchema = null, string tableAlias = null) -> TBuilder
+FluentCommand.Query.InsertBuilder<TBuilder>.Output(string columnName, string tableAlias = "INSERTED", string columnAlias = null) -> TBuilder
+FluentCommand.Query.InsertBuilder<TBuilder>.Output(System.Collections.Generic.IEnumerable<string> columnNames, string tableAlias = "INSERTED") -> TBuilder
+FluentCommand.Query.InsertBuilder<TBuilder>.OutputExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.InsertBuilder<TBuilder>.OutputIf(string columnName, string tableAlias = "INSERTED", string columnAlias = null, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.InsertBuilder<TBuilder>.TableExpression.get -> FluentCommand.Query.Generators.TableExpression
+FluentCommand.Query.InsertBuilder<TBuilder>.Value(string columnName, object parameterValue, System.Type parameterType) -> TBuilder
+FluentCommand.Query.InsertBuilder<TBuilder>.Value<TValue>(string columnName, TValue parameterValue) -> TBuilder
+FluentCommand.Query.InsertBuilder<TBuilder>.ValueExpressions.get -> System.Collections.Generic.HashSet<string>
+FluentCommand.Query.InsertBuilder<TBuilder>.ValueIf<TValue>(string columnName, TValue parameterValue, System.Func<string, TValue, bool> condition) -> TBuilder
+FluentCommand.Query.InsertEntityBuilder<TEntity>
+FluentCommand.Query.InsertEntityBuilder<TEntity>.InsertEntityBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.InsertEntityBuilder<TEntity>.Output<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = "INSERTED", string columnAlias = null) -> FluentCommand.Query.InsertEntityBuilder<TEntity>
+FluentCommand.Query.InsertEntityBuilder<TEntity>.OutputIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = "INSERTED", string columnAlias = null, System.Func<string, bool> condition = null) -> FluentCommand.Query.InsertEntityBuilder<TEntity>
+FluentCommand.Query.InsertEntityBuilder<TEntity>.Value<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue) -> FluentCommand.Query.InsertEntityBuilder<TEntity>
+FluentCommand.Query.InsertEntityBuilder<TEntity>.ValueIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, System.Func<string, TValue, bool> condition) -> FluentCommand.Query.InsertEntityBuilder<TEntity>
+FluentCommand.Query.InsertEntityBuilder<TEntity>.Values(TEntity entity, System.Collections.Generic.IEnumerable<string> columnNames = null) -> FluentCommand.Query.InsertEntityBuilder<TEntity>
+FluentCommand.Query.IQueryBuilder
+FluentCommand.Query.IQueryBuilder.Parameters.get -> System.Collections.Generic.List<FluentCommand.Query.QueryParameter>
+FluentCommand.Query.IQueryBuilder.QueryGenerator.get -> FluentCommand.Query.Generators.IQueryGenerator
+FluentCommand.Query.IQueryStatement
+FluentCommand.Query.IQueryStatement.Parameters.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.QueryParameter>
+FluentCommand.Query.IQueryStatement.Statement.get -> string
+FluentCommand.Query.IStatementBuilder
+FluentCommand.Query.IStatementBuilder.BuildStatement() -> FluentCommand.Query.QueryStatement
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> TBuilder
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> TBuilder
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.WhereAnd(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> TBuilder
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> TBuilder
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> TBuilder
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.WhereIn<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias) -> TBuilder
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> TBuilder
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> TBuilder
+FluentCommand.Query.IWhereEntityBuilder<TEntity, TBuilder>.WhereOr(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> TBuilder
+FluentCommand.Query.JoinBuilder
+FluentCommand.Query.JoinBuilder.JoinBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.JoinBuilder<TBuilder>
+FluentCommand.Query.JoinBuilder<TBuilder>.JoinBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.JoinBuilder<TBuilder>.JoinExpression.get -> FluentCommand.Query.Generators.JoinExpression
+FluentCommand.Query.JoinBuilder<TBuilder>.JoinExpression.set -> void
+FluentCommand.Query.JoinBuilder<TBuilder>.Left(string columnName, string tableAlias) -> TBuilder
+FluentCommand.Query.JoinBuilder<TBuilder>.Right(string columnName, string tableName, string tableSchema, string tableAlias) -> TBuilder
+FluentCommand.Query.JoinBuilder<TBuilder>.Type(FluentCommand.Query.JoinTypes joinType) -> TBuilder
+FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>
+FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>.JoinEntityBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>.Left<TValue>(System.Linq.Expressions.Expression<System.Func<TLeft, TValue>> property, string tableAlias) -> FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>
+FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>.Right<TValue>(System.Linq.Expressions.Expression<System.Func<TRight, TValue>> property, string tableAlias) -> FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>
+FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>.Right<TValue>(System.Linq.Expressions.Expression<System.Func<TRight, TValue>> property, string tableName, string tableSchema, string tableAlias) -> FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>
+FluentCommand.Query.JoinTypes
+FluentCommand.Query.JoinTypes.Inner = 0 -> FluentCommand.Query.JoinTypes
+FluentCommand.Query.JoinTypes.Left = 1 -> FluentCommand.Query.JoinTypes
+FluentCommand.Query.JoinTypes.Right = 2 -> FluentCommand.Query.JoinTypes
+FluentCommand.Query.LogicalBuilder
+FluentCommand.Query.LogicalBuilder.LogicalBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.LogicalBuilder<TBuilder>
+FluentCommand.Query.LogicalBuilder<TBuilder>.LogicalBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.LogicalEntityBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators whereOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.WhereAnd(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.WhereIn<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalEntityBuilder<TEntity>.WhereOr(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.LogicalEntityBuilder<TEntity>
+FluentCommand.Query.LogicalOperators
+FluentCommand.Query.LogicalOperators.And = 0 -> FluentCommand.Query.LogicalOperators
+FluentCommand.Query.LogicalOperators.Or = 1 -> FluentCommand.Query.LogicalOperators
+FluentCommand.Query.OrderBuilder
+FluentCommand.Query.OrderBuilder.OrderBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.OrderBuilder<TBuilder>
+FluentCommand.Query.OrderBuilder<TBuilder>.OrderBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.OrderBuilder<TBuilder>.OrderBy(string columnName, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending) -> TBuilder
+FluentCommand.Query.OrderBuilder<TBuilder>.OrderBy(string columnName, string tableAlias, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending) -> TBuilder
+FluentCommand.Query.OrderBuilder<TBuilder>.OrderByIf(string columnName, string tableAlias = null, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.OrderBuilder<TBuilder>.OrderByRaw(string sortExpression) -> TBuilder
+FluentCommand.Query.OrderBuilder<TBuilder>.OrderByRaw(System.Collections.Generic.IEnumerable<string> sortExpressions) -> TBuilder
+FluentCommand.Query.OrderBuilder<TBuilder>.OrderByRawIf(string sortExpression, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.OrderBuilder<TBuilder>.SortExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.SortExpression>
+FluentCommand.Query.OrderEntityBuilder<TEntity>
+FluentCommand.Query.OrderEntityBuilder<TEntity>.OrderBy<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending) -> FluentCommand.Query.OrderEntityBuilder<TEntity>
+FluentCommand.Query.OrderEntityBuilder<TEntity>.OrderBy<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending) -> FluentCommand.Query.OrderEntityBuilder<TEntity>
+FluentCommand.Query.OrderEntityBuilder<TEntity>.OrderByIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = null, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending, System.Func<string, bool> condition = null) -> FluentCommand.Query.OrderEntityBuilder<TEntity>
+FluentCommand.Query.OrderEntityBuilder<TEntity>.OrderEntityBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.QueryBuilder
+FluentCommand.Query.QueryBuilder.BuildStatement() -> FluentCommand.Query.QueryStatement
+FluentCommand.Query.QueryBuilder.Delete() -> FluentCommand.Query.DeleteBuilder
+FluentCommand.Query.QueryBuilder.Delete<TEntity>() -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+FluentCommand.Query.QueryBuilder.Insert() -> FluentCommand.Query.InsertBuilder
+FluentCommand.Query.QueryBuilder.Insert<TEntity>() -> FluentCommand.Query.InsertEntityBuilder<TEntity>
+FluentCommand.Query.QueryBuilder.Parameters.get -> System.Collections.Generic.List<FluentCommand.Query.QueryParameter>
+FluentCommand.Query.QueryBuilder.QueryBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.QueryBuilder.QueryGenerator.get -> FluentCommand.Query.Generators.IQueryGenerator
+FluentCommand.Query.QueryBuilder.Select() -> FluentCommand.Query.SelectBuilder
+FluentCommand.Query.QueryBuilder.Select<TEntity>() -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.QueryBuilder.Statement() -> FluentCommand.Query.StatementBuilder
+FluentCommand.Query.QueryBuilder.Update() -> FluentCommand.Query.UpdateBuilder
+FluentCommand.Query.QueryBuilder.Update<TEntity>() -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.QueryBuilderExtensions
+FluentCommand.Query.QueryParameter
+FluentCommand.Query.QueryParameter.Name.get -> string
+FluentCommand.Query.QueryParameter.QueryParameter(string name, object value, System.Type type) -> void
+FluentCommand.Query.QueryParameter.Type.get -> System.Type
+FluentCommand.Query.QueryParameter.Value.get -> object
+FluentCommand.Query.QueryStatement
+FluentCommand.Query.QueryStatement.Parameters.get -> System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.QueryParameter>
+FluentCommand.Query.QueryStatement.QueryStatement(string statement, System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.QueryStatement.Statement.get -> string
+FluentCommand.Query.SelectBuilder
+FluentCommand.Query.SelectBuilder.SelectBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.SelectBuilder<TBuilder>
+FluentCommand.Query.SelectBuilder<TBuilder>.Aggregate(FluentCommand.Query.AggregateFunctions function, string columnName, string tableAlias = null, string columnAlias = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.Column(string columnName, string tableAlias = null, string columnAlias = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.ColumnIf(string columnName, string tableAlias = null, string columnAlias = null, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.Count(string columnName = "*", string tableAlias = null, string columnAlias = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.From<TEntity>(string tableAlias = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.FromExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.TableExpression>
+FluentCommand.Query.SelectBuilder<TBuilder>.FromRaw(string fromClause) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.GroupBy(string columnName, string tableAlias = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.GroupExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.GroupExpression>
+FluentCommand.Query.SelectBuilder<TBuilder>.Join(System.Action<FluentCommand.Query.JoinBuilder> builder) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.JoinExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.JoinExpression>
+FluentCommand.Query.SelectBuilder<TBuilder>.Limit(int offset = 0, int size = 0) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.LimitExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.LimitExpression>
+FluentCommand.Query.SelectBuilder<TBuilder>.OrderBy(string columnName, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.OrderBy(string columnName, string tableAlias, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.OrderByIf(string columnName, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.OrderByIf(string columnName, string tableAlias, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.OrderByRaw(string sortExpression) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.OrderByRaw(System.Collections.Generic.IEnumerable<string> sortExpressions) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.OrderByRawIf(string sortExpression, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.Page(int page = 0, int pageSize = 0) -> TBuilder
+FluentCommand.Query.SelectBuilder<TBuilder>.SelectBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.SelectBuilder<TBuilder>.SelectExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.SelectBuilder<TBuilder>.SortExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.SortExpression>
+FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Aggregate<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, FluentCommand.Query.AggregateFunctions function, string tableAlias = null, string columnAlias = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Column(System.Linq.Expressions.Expression<System.Func<TEntity, object>> property, string tableAlias = null, string columnAlias = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Column<TModel>(System.Linq.Expressions.Expression<System.Func<TModel, object>> property, string tableAlias = null, string columnAlias = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.ColumnIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = null, string columnAlias = null, System.Func<string, bool> condition = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Columns(string tableAlias = null, System.Func<FluentCommand.Reflection.IMemberAccessor, bool> filter = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Columns<TModel>(string tableAlias = null, System.Func<FluentCommand.Reflection.IMemberAccessor, bool> filter = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Count<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = null, string columnAlias = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.GroupBy<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Join<TLeft, TRight>(System.Action<FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>> builder) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Join<TRight>(System.Action<FluentCommand.Query.JoinEntityBuilder<TEntity, TRight>> builder) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.OrderBy<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.OrderBy<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.OrderByIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending, System.Func<string, bool> condition = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.OrderByIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias, FluentCommand.Query.SortDirections sortDirection = FluentCommand.Query.SortDirections.Ascending, System.Func<string, bool> condition = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.SelectEntityBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Where<TModel, TValue>(System.Linq.Expressions.Expression<System.Func<TModel, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.WhereAnd(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.WhereIn<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SelectEntityBuilder<TEntity>.WhereOr(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+FluentCommand.Query.SortDirections
+FluentCommand.Query.SortDirections.Ascending = 0 -> FluentCommand.Query.SortDirections
+FluentCommand.Query.SortDirections.Descending = 1 -> FluentCommand.Query.SortDirections
+FluentCommand.Query.StatementBuilder
+FluentCommand.Query.StatementBuilder.Parameter<TValue>(string name, TValue value) -> FluentCommand.Query.StatementBuilder
+FluentCommand.Query.StatementBuilder.Query(string queryStatement) -> FluentCommand.Query.StatementBuilder
+FluentCommand.Query.StatementBuilder.Statement.get -> string
+FluentCommand.Query.StatementBuilder.Statement.set -> void
+FluentCommand.Query.StatementBuilder.StatementBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.StatementBuilder<TBuilder>
+FluentCommand.Query.StatementBuilder<TBuilder>.Comment(string comment) -> TBuilder
+FluentCommand.Query.StatementBuilder<TBuilder>.CommentExpressions.get -> System.Collections.Generic.List<string>
+FluentCommand.Query.StatementBuilder<TBuilder>.CommentExpressions.set -> void
+FluentCommand.Query.StatementBuilder<TBuilder>.NextParameter() -> string
+FluentCommand.Query.StatementBuilder<TBuilder>.Parameters.get -> System.Collections.Generic.List<FluentCommand.Query.QueryParameter>
+FluentCommand.Query.StatementBuilder<TBuilder>.QueryGenerator.get -> FluentCommand.Query.Generators.IQueryGenerator
+FluentCommand.Query.StatementBuilder<TBuilder>.StatementBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters) -> void
+FluentCommand.Query.StatementBuilder<TBuilder>.Tag(string comment = "Caller", string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0) -> TBuilder
+FluentCommand.Query.UpdateBuilder
+FluentCommand.Query.UpdateBuilder.UpdateBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.UpdateBuilder<TBuilder>
+FluentCommand.Query.UpdateBuilder<TBuilder>.FromExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.TableExpression>
+FluentCommand.Query.UpdateBuilder<TBuilder>.FromRaw(string fromClause) -> TBuilder
+FluentCommand.Query.UpdateBuilder<TBuilder>.Join(System.Action<FluentCommand.Query.JoinBuilder> builder) -> TBuilder
+FluentCommand.Query.UpdateBuilder<TBuilder>.JoinExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.JoinExpression>
+FluentCommand.Query.UpdateBuilder<TBuilder>.Output(string columnName, string tableAlias = "INSERTED", string columnAlias = null) -> TBuilder
+FluentCommand.Query.UpdateBuilder<TBuilder>.Output(System.Collections.Generic.IEnumerable<string> columnNames, string tableAlias = "INSERTED") -> TBuilder
+FluentCommand.Query.UpdateBuilder<TBuilder>.OutputExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.ColumnExpression>
+FluentCommand.Query.UpdateBuilder<TBuilder>.OutputIf(string columnName, string tableAlias = "INSERTED", string columnAlias = null, System.Func<string, bool> condition = null) -> TBuilder
+FluentCommand.Query.UpdateBuilder<TBuilder>.Table(string tableName, string tableSchema = null, string tableAlias = null) -> TBuilder
+FluentCommand.Query.UpdateBuilder<TBuilder>.TableExpression.get -> FluentCommand.Query.Generators.TableExpression
+FluentCommand.Query.UpdateBuilder<TBuilder>.UpdateBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.UpdateBuilder<TBuilder>.UpdateExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.UpdateExpression>
+FluentCommand.Query.UpdateBuilder<TBuilder>.Value(string columnName, object parameterValue, System.Type parameterType) -> TBuilder
+FluentCommand.Query.UpdateBuilder<TBuilder>.Value<TValue>(string columnName, TValue parameterValue) -> TBuilder
+FluentCommand.Query.UpdateBuilder<TBuilder>.ValueIf<TValue>(string columnName, TValue parameterValue, System.Func<string, TValue, bool> condition) -> TBuilder
+FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.Join<TLeft, TRight>(System.Action<FluentCommand.Query.JoinEntityBuilder<TLeft, TRight>> builder) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.Join<TRight>(System.Action<FluentCommand.Query.JoinEntityBuilder<TEntity, TRight>> builder) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.Output<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = "INSERTED", string columnAlias = null) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.OutputIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, string tableAlias = "INSERTED", string columnAlias = null, System.Func<string, bool> condition = null) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.UpdateEntityBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.Value<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.ValueIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, System.Func<string, TValue, bool> condition) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.Values(TEntity entity, System.Collections.Generic.IEnumerable<string> columnNames = null) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.Where<TModel, TValue>(System.Linq.Expressions.Expression<System.Func<TModel, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.WhereAnd(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.WhereIn<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.UpdateEntityBuilder<TEntity>.WhereOr(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+FluentCommand.Query.WhereBuilder
+FluentCommand.Query.WhereBuilder.WhereBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.WhereBuilder<TBuilder>
+FluentCommand.Query.WhereBuilder<TBuilder>.LogicalOperator.get -> FluentCommand.Query.LogicalOperators
+FluentCommand.Query.WhereBuilder<TBuilder>.Where<TValue>(string columnName, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.Where<TValue>(string columnName, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereAnd(System.Action<FluentCommand.Query.LogicalBuilder> builder) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereExpressions.get -> System.Collections.Generic.HashSet<FluentCommand.Query.Generators.WhereExpression>
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereIf<TValue>(string columnName, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereIf<TValue>(string columnName, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereIn<TValue>(string columnName, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias = null) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereInIf<TValue>(string columnName, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereInIf<TValue>(string columnName, System.Collections.Generic.IEnumerable<TValue> parameterValues, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereOr(System.Action<FluentCommand.Query.LogicalBuilder> builder) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereRaw(string whereClause, System.Collections.Generic.IEnumerable<FluentCommand.Query.QueryParameter> parameters = null) -> TBuilder
+FluentCommand.Query.WhereBuilder<TBuilder>.WhereRawIf(string whereClause, System.Collections.Generic.IEnumerable<FluentCommand.Query.QueryParameter> parameters = null, System.Func<string, System.Collections.Generic.IEnumerable<FluentCommand.Query.QueryParameter>, bool> condition = null) -> TBuilder
+FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.Where<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.WhereAnd(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.WhereEntityBuilder(FluentCommand.Query.Generators.IQueryGenerator queryGenerator, System.Collections.Generic.List<FluentCommand.Query.QueryParameter> parameters, FluentCommand.Query.LogicalOperators logicalOperator = FluentCommand.Query.LogicalOperators.And) -> void
+FluentCommand.Query.WhereEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.WhereIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, TValue parameterValue, string tableAlias, FluentCommand.Query.FilterOperators filterOperator = FluentCommand.Query.FilterOperators.Equal, System.Func<string, TValue, bool> condition = null) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.WhereIn<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, string tableAlias, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.WhereInIf<TValue>(System.Linq.Expressions.Expression<System.Func<TEntity, TValue>> property, System.Collections.Generic.IEnumerable<TValue> parameterValues, System.Func<string, System.Collections.Generic.IEnumerable<TValue>, bool> condition = null) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Query.WhereEntityBuilder<TEntity>.WhereOr(System.Action<FluentCommand.Query.LogicalEntityBuilder<TEntity>> builder) -> FluentCommand.Query.WhereEntityBuilder<TEntity>
+FluentCommand.Reflection.FieldAccessor
+FluentCommand.Reflection.FieldAccessor.FieldAccessor(System.Reflection.FieldInfo fieldInfo) -> void
+FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.IMemberAccessor.GetValue(object instance) -> object
+FluentCommand.Reflection.IMemberAccessor.SetValue(object instance, object value) -> void
+FluentCommand.Reflection.IMemberInformation
+FluentCommand.Reflection.IMemberInformation.Column.get -> string
+FluentCommand.Reflection.IMemberInformation.ForeignKey.get -> string
+FluentCommand.Reflection.IMemberInformation.HasGetter.get -> bool
+FluentCommand.Reflection.IMemberInformation.HasSetter.get -> bool
+FluentCommand.Reflection.IMemberInformation.IsConcurrencyCheck.get -> bool
+FluentCommand.Reflection.IMemberInformation.IsDatabaseGenerated.get -> bool
+FluentCommand.Reflection.IMemberInformation.IsKey.get -> bool
+FluentCommand.Reflection.IMemberInformation.IsNotMapped.get -> bool
+FluentCommand.Reflection.IMemberInformation.MemberInfo.get -> System.Reflection.MemberInfo
+FluentCommand.Reflection.IMemberInformation.MemberType.get -> System.Type
+FluentCommand.Reflection.IMemberInformation.Name.get -> string
+FluentCommand.Reflection.IMethodAccessor
+FluentCommand.Reflection.IMethodAccessor.Invoke(object instance, params object[] arguments) -> object
+FluentCommand.Reflection.IMethodAccessor.MethodInfo.get -> System.Reflection.MethodInfo
+FluentCommand.Reflection.IMethodAccessor.Name.get -> string
+FluentCommand.Reflection.MemberAccessor
+FluentCommand.Reflection.MemberAccessor.Column.get -> string
+FluentCommand.Reflection.MemberAccessor.Equals(FluentCommand.Reflection.IMemberAccessor other) -> bool
+FluentCommand.Reflection.MemberAccessor.ForeignKey.get -> string
+FluentCommand.Reflection.MemberAccessor.IsConcurrencyCheck.get -> bool
+FluentCommand.Reflection.MemberAccessor.IsDatabaseGenerated.get -> bool
+FluentCommand.Reflection.MemberAccessor.IsKey.get -> bool
+FluentCommand.Reflection.MemberAccessor.IsNotMapped.get -> bool
+FluentCommand.Reflection.MemberAccessor.MemberAccessor(System.Reflection.MemberInfo memberInfo) -> void
+FluentCommand.Reflection.MemberAccessor.MemberInfo.get -> System.Reflection.MemberInfo
+FluentCommand.Reflection.MethodAccessor
+FluentCommand.Reflection.MethodAccessor.Invoke(object instance, params object[] arguments) -> object
+FluentCommand.Reflection.MethodAccessor.MethodAccessor(System.Reflection.MethodInfo methodInfo) -> void
+FluentCommand.Reflection.MethodAccessor.MethodInfo.get -> System.Reflection.MethodInfo
+FluentCommand.Reflection.MethodAccessor.Name.get -> string
+FluentCommand.Reflection.PropertyAccessor
+FluentCommand.Reflection.PropertyAccessor.PropertyAccessor(System.Reflection.PropertyInfo propertyInfo) -> void
+FluentCommand.Reflection.TypeAccessor
+FluentCommand.Reflection.TypeAccessor.Create() -> object
+FluentCommand.Reflection.TypeAccessor.Find(string name) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.Find(string name, System.Reflection.BindingFlags flags) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.FindColumn(string name) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.FindColumn(string name, System.Reflection.BindingFlags flags) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.FindField(string name) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.FindField(string name, System.Reflection.BindingFlags flags) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.FindMethod(string name) -> FluentCommand.Reflection.IMethodAccessor
+FluentCommand.Reflection.TypeAccessor.FindMethod(string name, params System.Type[] parameterTypes) -> FluentCommand.Reflection.IMethodAccessor
+FluentCommand.Reflection.TypeAccessor.FindMethod(string name, System.Type[] parameterTypes, System.Reflection.BindingFlags flags) -> FluentCommand.Reflection.IMethodAccessor
+FluentCommand.Reflection.TypeAccessor.FindProperty(string name) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.FindProperty(string name, System.Reflection.BindingFlags flags) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.FindProperty<T>(System.Linq.Expressions.Expression<System.Func<T>> propertyExpression) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.FindProperty<TSource, TValue>(System.Linq.Expressions.Expression<System.Func<TSource, TValue>> propertyExpression) -> FluentCommand.Reflection.IMemberAccessor
+FluentCommand.Reflection.TypeAccessor.GetProperties() -> System.Collections.Generic.IEnumerable<FluentCommand.Reflection.IMemberAccessor>
+FluentCommand.Reflection.TypeAccessor.GetProperties(System.Reflection.BindingFlags flags) -> System.Collections.Generic.IEnumerable<FluentCommand.Reflection.IMemberAccessor>
+FluentCommand.Reflection.TypeAccessor.Name.get -> string
+FluentCommand.Reflection.TypeAccessor.TableName.get -> string
+FluentCommand.Reflection.TypeAccessor.TableSchema.get -> string
+FluentCommand.Reflection.TypeAccessor.Type.get -> System.Type
+FluentCommand.Reflection.TypeAccessor.TypeAccessor(System.Type type) -> void
+override FluentCommand.ConcurrencyToken.Equals(object obj) -> bool
+override FluentCommand.ConcurrencyToken.GetHashCode() -> int
+override FluentCommand.ConcurrencyToken.ToString() -> string
+override FluentCommand.DataCommand.DisposeManagedResources() -> void
+override FluentCommand.DataSession.DisposeManagedResources() -> void
+override FluentCommand.Internal.HashCode.Equals(object obj) -> bool
+override FluentCommand.Internal.HashCode.GetHashCode() -> int
+override FluentCommand.Internal.HashCode.ToString() -> string
+override FluentCommand.Query.DeleteBuilder<TBuilder>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.DeleteEntityBuilder<TEntity>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.DeleteEntityBuilder<TEntity>.From(string tableName = null, string tableSchema = null, string tableAlias = null) -> FluentCommand.Query.DeleteEntityBuilder<TEntity>
+override FluentCommand.Query.Generators.PostgresqlGenerator.BuildDelete(FluentCommand.Query.Generators.DeleteStatement deleteStatement) -> string
+override FluentCommand.Query.Generators.PostgresqlGenerator.BuildInsert(FluentCommand.Query.Generators.InsertStatement insertStatement) -> string
+override FluentCommand.Query.Generators.PostgresqlGenerator.BuildUpdate(FluentCommand.Query.Generators.UpdateStatement updateStatement) -> string
+override FluentCommand.Query.Generators.PostgresqlGenerator.LimitExpression(FluentCommand.Query.Generators.LimitExpression limitExpression) -> string
+override FluentCommand.Query.Generators.PostgresqlGenerator.ParseIdentifier(string name) -> string
+override FluentCommand.Query.Generators.PostgresqlGenerator.QuoteIdentifier(string name) -> string
+override FluentCommand.Query.Generators.PostgresqlGenerator.TableExpression(FluentCommand.Query.Generators.TableExpression tableExpression) -> string
+override FluentCommand.Query.Generators.PostgresqlGenerator.WhereExpression(FluentCommand.Query.Generators.WhereExpression whereExpression) -> string
+override FluentCommand.Query.Generators.SqliteGenerator.BuildDelete(FluentCommand.Query.Generators.DeleteStatement deleteStatement) -> string
+override FluentCommand.Query.Generators.SqliteGenerator.BuildInsert(FluentCommand.Query.Generators.InsertStatement insertStatement) -> string
+override FluentCommand.Query.Generators.SqliteGenerator.BuildUpdate(FluentCommand.Query.Generators.UpdateStatement updateStatement) -> string
+override FluentCommand.Query.Generators.SqliteGenerator.LimitExpression(FluentCommand.Query.Generators.LimitExpression limitExpression) -> string
+override FluentCommand.Query.Generators.SqliteGenerator.ParseIdentifier(string name) -> string
+override FluentCommand.Query.Generators.SqliteGenerator.QuoteIdentifier(string name) -> string
+override FluentCommand.Query.Generators.SqliteGenerator.TableExpression(FluentCommand.Query.Generators.TableExpression tableExpression) -> string
+override FluentCommand.Query.InsertBuilder<TBuilder>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.InsertEntityBuilder<TEntity>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.JoinBuilder<TBuilder>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.LogicalBuilder<TBuilder>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.OrderBuilder<TBuilder>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.SelectBuilder<TBuilder>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.SelectEntityBuilder<TEntity>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.SelectEntityBuilder<TEntity>.Columns(System.Collections.Generic.IEnumerable<string> columnNames, string tableAlias = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+override FluentCommand.Query.SelectEntityBuilder<TEntity>.From(string tableName = null, string tableSchema = null, string tableAlias = null) -> FluentCommand.Query.SelectEntityBuilder<TEntity>
+override FluentCommand.Query.StatementBuilder.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.UpdateBuilder<TBuilder>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.UpdateEntityBuilder<TEntity>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.UpdateEntityBuilder<TEntity>.From(string tableName = null, string tableSchema = null, string tableAlias = null) -> FluentCommand.Query.UpdateEntityBuilder<TEntity>
+override FluentCommand.Query.WhereBuilder.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Query.WhereEntityBuilder<TEntity>.BuildStatement() -> FluentCommand.Query.QueryStatement
+override FluentCommand.Reflection.FieldAccessor.GetValue(object instance) -> object
+override FluentCommand.Reflection.FieldAccessor.HasGetter.get -> bool
+override FluentCommand.Reflection.FieldAccessor.HasSetter.get -> bool
+override FluentCommand.Reflection.FieldAccessor.MemberType.get -> System.Type
+override FluentCommand.Reflection.FieldAccessor.Name.get -> string
+override FluentCommand.Reflection.FieldAccessor.SetValue(object instance, object value) -> void
+override FluentCommand.Reflection.MemberAccessor.Equals(object obj) -> bool
+override FluentCommand.Reflection.MemberAccessor.GetHashCode() -> int
+override FluentCommand.Reflection.PropertyAccessor.GetValue(object instance) -> object
+override FluentCommand.Reflection.PropertyAccessor.HasGetter.get -> bool
+override FluentCommand.Reflection.PropertyAccessor.HasSetter.get -> bool
+override FluentCommand.Reflection.PropertyAccessor.MemberType.get -> System.Type
+override FluentCommand.Reflection.PropertyAccessor.Name.get -> string
+override FluentCommand.Reflection.PropertyAccessor.SetValue(object instance, object value) -> void
+static FluentCommand.ConcurrencyToken.implicit operator byte[](FluentCommand.ConcurrencyToken token) -> byte[]
+static FluentCommand.ConcurrencyToken.implicit operator FluentCommand.ConcurrencyToken(byte[] token) -> FluentCommand.ConcurrencyToken
+static FluentCommand.ConcurrencyToken.implicit operator FluentCommand.ConcurrencyToken(string token) -> FluentCommand.ConcurrencyToken
+static FluentCommand.ConcurrencyToken.implicit operator string(FluentCommand.ConcurrencyToken token) -> string
+static FluentCommand.DataCommandExtensions.CommandTimeout(this FluentCommand.IDataCommand dataCommand, System.TimeSpan timeSpan) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.Parameter(this FluentCommand.IDataCommand dataCommand, string name, object value, System.Type type) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.Parameter(this FluentCommand.IDataCommand dataCommand, System.Collections.Generic.IEnumerable<System.Data.Common.DbParameter> parameters) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.Parameter<TParameter>(this FluentCommand.IDataCommand dataCommand, string name, TParameter value) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.Parameter<TParameter>(this FluentCommand.IDataCommand dataCommand, System.Action<FluentCommand.IDataParameter<TParameter>> configurator) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.ParameterIf(this FluentCommand.IDataCommand dataCommand, string name, object value, System.Type type, System.Func<string, object, bool> condition = null) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.ParameterIf<TParameter>(this FluentCommand.IDataCommand dataCommand, string name, TParameter value, System.Func<string, TParameter, bool> condition = null) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.ParameterOut<TParameter>(this FluentCommand.IDataCommand dataCommand, string name, System.Action<TParameter> callback) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.ParameterOut<TParameter>(this FluentCommand.IDataCommand dataCommand, string name, TParameter value, System.Action<TParameter> callback) -> FluentCommand.IDataCommand
+static FluentCommand.DataCommandExtensions.Return<TParameter>(this FluentCommand.IDataCommand dataCommand, System.Action<TParameter> callback) -> FluentCommand.IDataCommand
+static FluentCommand.DataMapping.ToDbType(this System.Type type) -> System.Data.DbType
+static FluentCommand.DataMapping.ToType(this System.Data.DbType dbType) -> System.Type
+static FluentCommand.DataParameterHandlers.AddTypeHandler<THandler>() -> void
+static FluentCommand.DataParameterHandlers.AddTypeHandler<THandler>(THandler handler) -> void
+static FluentCommand.DataParameterHandlers.GetTypeHandler(System.Type type) -> FluentCommand.IDataParameterHandler
+static FluentCommand.DataParameterHandlers.SetValue(System.Data.Common.DbParameter parameter, object value, System.Type type) -> void
+static FluentCommand.DataQueryExtensions.Query(this FluentCommand.IDataQuery dataQuery) -> System.Collections.Generic.IEnumerable<dynamic>
+static FluentCommand.DataQueryExtensions.QueryAsync(this FluentCommand.IDataQueryAsync dataQuery, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<dynamic>>
+static FluentCommand.DataQueryExtensions.QueryAsync<TEntity>(this FluentCommand.IDataQueryAsync dataQuery, System.Func<System.Data.IDataReader, TEntity> factory, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<TEntity>>
+static FluentCommand.DataQueryExtensions.QuerySingle(this FluentCommand.IDataQuery dataQuery) -> dynamic
+static FluentCommand.DataQueryExtensions.QuerySingleAsync(this FluentCommand.IDataQueryAsync dataQuery, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<dynamic>
+static FluentCommand.DataQueryExtensions.QuerySingleAsync<TEntity>(this FluentCommand.IDataQueryAsync dataQuery, System.Func<System.Data.IDataReader, TEntity> factory, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TEntity>
+static FluentCommand.DataQueryExtensions.QueryValue<TValue>(this FluentCommand.IDataQuery dataQuery) -> TValue
+static FluentCommand.DataQueryExtensions.QueryValueAsync<TValue>(this FluentCommand.IDataQueryAsync dataQuery, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<TValue>
+static FluentCommand.DataQueryExtensions.QueryValues<TValue>(this FluentCommand.IDataQuery dataQuery) -> System.Collections.Generic.IEnumerable<TValue>
+static FluentCommand.DataQueryExtensions.QueryValuesAsync<TValue>(this FluentCommand.IDataQueryAsync dataQuery, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<TValue>>
+static FluentCommand.DataQueryLogger.FormatCommand(System.Data.IDbCommand command, System.TimeSpan duration, System.Exception exception) -> string
+static FluentCommand.DataReaderExtensions.DynamicFactory(System.Data.IDataReader reader) -> dynamic
+static FluentCommand.DataReaderExtensions.EntityFactory<TEntity>(this System.Data.IDataReader reader) -> TEntity
+static FluentCommand.Extensions.CollectionExtensions.FirstOrAdd<T>(this System.Collections.Generic.ICollection<T> source, System.Func<T, bool> predicate, System.Func<T> valueFactory) -> T
+static FluentCommand.Extensions.CollectionExtensions.RemoveAll<T>(this System.Collections.Generic.ICollection<T> collection, System.Func<T, bool> filter) -> int
+static FluentCommand.Extensions.ConvertExtensions.ConvertValue<TValue>(this object result, System.Func<object, TValue> convert = null) -> TValue
+static FluentCommand.Extensions.ConvertExtensions.ToBoolean(this string value) -> bool
+static FluentCommand.Extensions.ConvertExtensions.ToByte(this string value) -> byte
+static FluentCommand.Extensions.ConvertExtensions.ToByte(this string value, System.IFormatProvider provider) -> byte
+static FluentCommand.Extensions.ConvertExtensions.ToDateTime(this string value) -> System.DateTime
+static FluentCommand.Extensions.ConvertExtensions.ToDateTime(this string value, System.IFormatProvider provider) -> System.DateTime
+static FluentCommand.Extensions.ConvertExtensions.ToDecimal(this string value) -> decimal
+static FluentCommand.Extensions.ConvertExtensions.ToDecimal(this string value, System.IFormatProvider provider) -> decimal
+static FluentCommand.Extensions.ConvertExtensions.ToDouble(this string value) -> double
+static FluentCommand.Extensions.ConvertExtensions.ToDouble(this string value, System.IFormatProvider provider) -> double
+static FluentCommand.Extensions.ConvertExtensions.ToGuid(this string value) -> System.Guid
+static FluentCommand.Extensions.ConvertExtensions.ToInt16(this string value) -> short
+static FluentCommand.Extensions.ConvertExtensions.ToInt16(this string value, System.IFormatProvider provider) -> short
+static FluentCommand.Extensions.ConvertExtensions.ToInt32(this string value) -> int
+static FluentCommand.Extensions.ConvertExtensions.ToInt32(this string value, System.IFormatProvider provider) -> int
+static FluentCommand.Extensions.ConvertExtensions.ToInt64(this string value) -> long
+static FluentCommand.Extensions.ConvertExtensions.ToInt64(this string value, System.IFormatProvider provider) -> long
+static FluentCommand.Extensions.ConvertExtensions.ToSingle(this string value) -> float
+static FluentCommand.Extensions.ConvertExtensions.ToSingle(this string value, System.IFormatProvider provider) -> float
+static FluentCommand.Extensions.ConvertExtensions.ToTimeSpan(this string value) -> System.TimeSpan
+static FluentCommand.Extensions.ConvertExtensions.ToUInt16(this string value) -> ushort
+static FluentCommand.Extensions.ConvertExtensions.ToUInt16(this string value, System.IFormatProvider provider) -> ushort
+static FluentCommand.Extensions.ConvertExtensions.ToUInt32(this string value) -> uint
+static FluentCommand.Extensions.ConvertExtensions.ToUInt32(this string value, System.IFormatProvider provider) -> uint
+static FluentCommand.Extensions.ConvertExtensions.ToUInt64(this string value) -> ulong
+static FluentCommand.Extensions.ConvertExtensions.ToUInt64(this string value, System.IFormatProvider provider) -> ulong
+static FluentCommand.Extensions.ConvertExtensions.TryConvert(this string input, System.Type type, out object value) -> bool
+static FluentCommand.Extensions.DataRecordExtensions.GetBoolean(this System.Data.IDataRecord dataRecord, string name) -> bool
+static FluentCommand.Extensions.DataRecordExtensions.GetBooleanNull(this System.Data.IDataRecord dataRecord, string name) -> bool?
+static FluentCommand.Extensions.DataRecordExtensions.GetByte(this System.Data.IDataRecord dataRecord, string name) -> byte
+static FluentCommand.Extensions.DataRecordExtensions.GetByteNull(this System.Data.IDataRecord dataRecord, string name) -> byte?
+static FluentCommand.Extensions.DataRecordExtensions.GetBytes(this System.Data.IDataRecord dataRecord, int index) -> byte[]
+static FluentCommand.Extensions.DataRecordExtensions.GetBytes(this System.Data.IDataRecord dataRecord, string name) -> byte[]
+static FluentCommand.Extensions.DataRecordExtensions.GetBytes(this System.Data.IDataRecord dataRecord, string name, long fieldOffset, byte[] buffer, int bufferOffset, int length) -> long
+static FluentCommand.Extensions.DataRecordExtensions.GetChar(this System.Data.IDataRecord dataRecord, string name) -> char
+static FluentCommand.Extensions.DataRecordExtensions.GetCharNull(this System.Data.IDataRecord dataRecord, string name) -> char?
+static FluentCommand.Extensions.DataRecordExtensions.GetChars(this System.Data.IDataRecord dataRecord, string name, long fieldOffset, char[] buffer, int bufferOffset, int length) -> long
+static FluentCommand.Extensions.DataRecordExtensions.GetData(this System.Data.IDataRecord dataRecord, string name) -> System.Data.IDataReader
+static FluentCommand.Extensions.DataRecordExtensions.GetDataTypeName(this System.Data.IDataRecord dataRecord, string name) -> string
+static FluentCommand.Extensions.DataRecordExtensions.GetDateTime(this System.Data.IDataRecord dataRecord, string name) -> System.DateTime
+static FluentCommand.Extensions.DataRecordExtensions.GetDateTimeNull(this System.Data.IDataRecord dataRecord, string name) -> System.DateTime?
+static FluentCommand.Extensions.DataRecordExtensions.GetDateTimeOffset(this System.Data.IDataRecord dataRecord, int index) -> System.DateTimeOffset
+static FluentCommand.Extensions.DataRecordExtensions.GetDateTimeOffset(this System.Data.IDataRecord dataRecord, string name) -> System.DateTimeOffset
+static FluentCommand.Extensions.DataRecordExtensions.GetDateTimeOffsetNull(this System.Data.IDataRecord dataRecord, string name) -> System.DateTimeOffset?
+static FluentCommand.Extensions.DataRecordExtensions.GetDecimal(this System.Data.IDataRecord dataRecord, string name) -> decimal
+static FluentCommand.Extensions.DataRecordExtensions.GetDecimalNull(this System.Data.IDataRecord dataRecord, string name) -> decimal?
+static FluentCommand.Extensions.DataRecordExtensions.GetDouble(this System.Data.IDataRecord dataRecord, string name) -> double
+static FluentCommand.Extensions.DataRecordExtensions.GetDoubleNull(this System.Data.IDataRecord dataRecord, string name) -> double?
+static FluentCommand.Extensions.DataRecordExtensions.GetFieldType(this System.Data.IDataRecord dataRecord, string name) -> System.Type
+static FluentCommand.Extensions.DataRecordExtensions.GetFloat(this System.Data.IDataRecord dataRecord, string name) -> float
+static FluentCommand.Extensions.DataRecordExtensions.GetFloatNull(this System.Data.IDataRecord dataRecord, string name) -> float?
+static FluentCommand.Extensions.DataRecordExtensions.GetGuid(this System.Data.IDataRecord dataRecord, string name) -> System.Guid
+static FluentCommand.Extensions.DataRecordExtensions.GetGuidNull(this System.Data.IDataRecord dataRecord, string name) -> System.Guid?
+static FluentCommand.Extensions.DataRecordExtensions.GetInt16(this System.Data.IDataRecord dataRecord, string name) -> short
+static FluentCommand.Extensions.DataRecordExtensions.GetInt16Null(this System.Data.IDataRecord dataRecord, string name) -> short?
+static FluentCommand.Extensions.DataRecordExtensions.GetInt32(this System.Data.IDataRecord dataRecord, string name) -> int
+static FluentCommand.Extensions.DataRecordExtensions.GetInt32Null(this System.Data.IDataRecord dataRecord, string name) -> int?
+static FluentCommand.Extensions.DataRecordExtensions.GetInt64(this System.Data.IDataRecord dataRecord, string name) -> long
+static FluentCommand.Extensions.DataRecordExtensions.GetInt64Null(this System.Data.IDataRecord dataRecord, string name) -> long?
+static FluentCommand.Extensions.DataRecordExtensions.GetString(this System.Data.IDataRecord dataRecord, string name) -> string
+static FluentCommand.Extensions.DataRecordExtensions.GetStringNull(this System.Data.IDataRecord dataRecord, string name) -> string
+static FluentCommand.Extensions.DataRecordExtensions.GetValue(this System.Data.IDataRecord dataRecord, string name) -> object
+static FluentCommand.Extensions.DataRecordExtensions.GetValue<T>(this System.Data.IDataRecord dataRecord, int index) -> T
+static FluentCommand.Extensions.DataRecordExtensions.IsDBNull(this System.Data.IDataRecord dataRecord, string name) -> bool
+static FluentCommand.Extensions.DataTableExtensions.ToDataTable<T>(this System.Collections.Generic.IEnumerable<T> source, System.Collections.Generic.IEnumerable<string> ignoreNames = null) -> System.Data.DataTable
+static FluentCommand.Extensions.EnumerableExtensions.ToDelimitedString(this System.Collections.Generic.IEnumerable<string> values) -> string
+static FluentCommand.Extensions.EnumerableExtensions.ToDelimitedString(this System.Collections.Generic.IEnumerable<string> values, string delimiter) -> string
+static FluentCommand.Extensions.EnumerableExtensions.ToDelimitedString(this System.Collections.Generic.IEnumerable<string> values, string delimiter, System.Func<string, string> escapeDelimiter) -> string
+static FluentCommand.Extensions.EnumerableExtensions.ToDelimitedString<T>(this System.Collections.Generic.IEnumerable<T> values) -> string
+static FluentCommand.Extensions.EnumerableExtensions.ToDelimitedString<T>(this System.Collections.Generic.IEnumerable<T> values, string delimiter) -> string
+static FluentCommand.Extensions.EnumerableExtensions.ToHashSet<T>(this System.Collections.Generic.IEnumerable<T> source) -> System.Collections.Generic.HashSet<T>
+static FluentCommand.Extensions.EnumerableExtensions.ToHashSet<T>(this System.Collections.Generic.IEnumerable<T> source, System.Collections.Generic.IEqualityComparer<T> comparer) -> System.Collections.Generic.HashSet<T>
+static FluentCommand.Extensions.EnumExtensions.IsAnyFlagOn<T>(this System.Enum mask, T flag) -> bool
+static FluentCommand.Extensions.EnumExtensions.IsFlagOn<T>(this System.Enum mask, T flag) -> bool
+static FluentCommand.Extensions.EnumExtensions.SetFlagOff<T>(this System.Enum mask, T flag) -> T
+static FluentCommand.Extensions.EnumExtensions.SetFlagOn<T>(this System.Enum mask, T flag) -> T
+static FluentCommand.Extensions.EnumExtensions.ToggleFlag<T>(this System.Enum mask, T flag) -> T
+static FluentCommand.Extensions.StringExtensions.AppendIf(this System.Text.StringBuilder sb, string text, bool condition) -> System.Text.StringBuilder
+static FluentCommand.Extensions.StringExtensions.AppendIf(this System.Text.StringBuilder sb, string text, System.Func<string, bool> condition = null) -> System.Text.StringBuilder
+static FluentCommand.Extensions.StringExtensions.AppendJoin<T>(this System.Text.StringBuilder sb, string separator, System.Collections.Generic.IEnumerable<T> values) -> System.Text.StringBuilder
+static FluentCommand.Extensions.StringExtensions.AppendLine(this System.Text.StringBuilder sb, string format, params object[] args) -> System.Text.StringBuilder
+static FluentCommand.Extensions.StringExtensions.AppendLineIf(this System.Text.StringBuilder sb, string text, System.Func<string, bool> condition = null) -> System.Text.StringBuilder
+static FluentCommand.Extensions.StringExtensions.FormatWith(this string format, params object[] args) -> string
+static FluentCommand.Extensions.StringExtensions.HasValue(this string value) -> bool
+static FluentCommand.Extensions.StringExtensions.IsNullOrEmpty(this string item) -> bool
+static FluentCommand.Extensions.StringExtensions.IsNullOrWhiteSpace(this string item) -> bool
+static FluentCommand.Extensions.TypeExtensions.Default(this System.Type type) -> object
+static FluentCommand.Extensions.TypeExtensions.GetUnderlyingType(this System.Type type) -> System.Type
+static FluentCommand.Extensions.TypeExtensions.IsNullable(this System.Type type) -> bool
+static FluentCommand.Internal.HashCode.HashString(string text) -> int
+static FluentCommand.Internal.HashCode.implicit operator int(FluentCommand.Internal.HashCode hashCode) -> int
+static FluentCommand.Internal.HashCode.operator !=(FluentCommand.Internal.HashCode left, FluentCommand.Internal.HashCode right) -> bool
+static FluentCommand.Internal.HashCode.operator ==(FluentCommand.Internal.HashCode left, FluentCommand.Internal.HashCode right) -> bool
+static FluentCommand.Internal.HashCode.Seed.get -> FluentCommand.Internal.HashCode
+static FluentCommand.Internal.Singleton<T>.Current.get -> T
+static FluentCommand.Internal.StringBuilderCache.Acquire(int capacity = 16) -> System.Text.StringBuilder
+static FluentCommand.Internal.StringBuilderCache.Release(System.Text.StringBuilder sb) -> void
+static FluentCommand.Internal.StringBuilderCache.ToString(System.Text.StringBuilder sb) -> string
+static FluentCommand.Query.QueryBuilderExtensions.Sql(this FluentCommand.IDataSession dataSession, System.Action<FluentCommand.Query.QueryBuilder> builder) -> FluentCommand.IDataCommand
+static FluentCommand.Reflection.TypeAccessor.GetAccessor(System.Type type) -> FluentCommand.Reflection.TypeAccessor
+static FluentCommand.Reflection.TypeAccessor.GetAccessor<T>() -> FluentCommand.Reflection.TypeAccessor
+static readonly FluentCommand.ConcurrencyToken.None -> FluentCommand.ConcurrencyToken
+virtual FluentCommand.DataConfiguration.ConnectionString.get -> string
+virtual FluentCommand.DataConfiguration.CreateConnection(string connectionString = null) -> System.Data.Common.DbConnection
+virtual FluentCommand.DataConfiguration.CreateSession(string connectionString = null) -> FluentCommand.IDataSession
+virtual FluentCommand.DataConfiguration.DataCache.get -> FluentCommand.IDataCache
+virtual FluentCommand.DataConfiguration.ProviderFactory.get -> System.Data.Common.DbProviderFactory
+virtual FluentCommand.DataQueryLogger.LogCommand(System.Data.IDbCommand command, System.TimeSpan duration, System.Exception exception = null, object state = null) -> void
+virtual FluentCommand.DisposableBase.DisposeManagedResources() -> void
+virtual FluentCommand.DisposableBase.DisposeUnmanagedResources() -> void
+virtual FluentCommand.Query.DeleteBuilder<TBuilder>.From(string tableName, string tableSchema = null, string tableAlias = null) -> TBuilder
+virtual FluentCommand.Query.Generators.SqlServerGenerator.AggregateExpression(FluentCommand.Query.Generators.AggregateExpression aggregateExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.BuildDelete(FluentCommand.Query.Generators.DeleteStatement deleteStatement) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.BuildInsert(FluentCommand.Query.Generators.InsertStatement insertStatement) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.BuildOrder(System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.SortExpression> sortExpressions) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.BuildSelect(FluentCommand.Query.Generators.SelectStatement selectStatement) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.BuildUpdate(FluentCommand.Query.Generators.UpdateStatement updateStatement) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.BuildWhere(System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression> whereExpressions) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.ColumnExpression(FluentCommand.Query.Generators.ColumnExpression columnExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.CommentExpression(string comment) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.GroupExpression(FluentCommand.Query.Generators.GroupExpression groupExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.JoinExpression(FluentCommand.Query.Generators.JoinExpression joinExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.LimitExpression(FluentCommand.Query.Generators.LimitExpression limitExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.LogicalExpression(System.Collections.Generic.IReadOnlyCollection<FluentCommand.Query.Generators.WhereExpression> whereExpressions, FluentCommand.Query.LogicalOperators logicalOperator) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.ParseIdentifier(string name) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.QuoteIdentifier(string name) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.SelectExpression(FluentCommand.Query.Generators.ColumnExpression columnExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.SortExpression(FluentCommand.Query.Generators.SortExpression sortExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.TableExpression(FluentCommand.Query.Generators.TableExpression tableExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.UpdateExpression(FluentCommand.Query.Generators.UpdateExpression updateExpression) -> string
+virtual FluentCommand.Query.Generators.SqlServerGenerator.WhereExpression(FluentCommand.Query.Generators.WhereExpression whereExpression) -> string
+virtual FluentCommand.Query.JoinBuilder<TBuilder>.BuildExpression() -> FluentCommand.Query.Generators.JoinExpression
+virtual FluentCommand.Query.SelectBuilder<TBuilder>.Columns(System.Collections.Generic.IEnumerable<string> columnNames, string tableAlias = null) -> TBuilder
+virtual FluentCommand.Query.SelectBuilder<TBuilder>.From(string tableName, string tableSchema = null, string tableAlias = null) -> TBuilder
+virtual FluentCommand.Query.UpdateBuilder<TBuilder>.From(string tableName, string tableSchema = null, string tableAlias = null) -> TBuilder

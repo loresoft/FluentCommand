@@ -19,6 +19,14 @@ public record UpdateExpression(
     bool IsRaw = false)
     : ColumnExpression(ColumnName, TableAlias, null, IsRaw);
 
+public record UpsertExpression(
+        string ColumnName,
+        string ParameterName,
+        string TableAlias = null,
+        UpsertType UpsertType = UpsertType.InsertUpdate,
+        bool IsRaw = false)
+    : ColumnExpression(ColumnName, TableAlias, null, IsRaw);
+
 public record SortExpression(
     string ColumnName,
     string TableAlias = null,
@@ -88,6 +96,15 @@ public record UpdateStatement(
     IReadOnlyCollection<WhereExpression> WhereExpressions,
     IReadOnlyCollection<string> CommentExpressions);
 
+public record UpsertStatement(
+    TableExpression TableExpression,
+    IReadOnlyCollection<UpsertExpression> UpsertExpressions,
+    IReadOnlyCollection<ColumnExpression> OutputExpressions,
+    IReadOnlyCollection<TableExpression> FromExpressions,
+    IReadOnlyCollection<JoinExpression> JoinExpressions,
+    IReadOnlyCollection<WhereExpression> WhereExpressions,
+    IReadOnlyCollection<string> CommentExpressions);
+
 public record DeleteStatement(
     TableExpression TableExpression,
     IReadOnlyCollection<ColumnExpression> OutputExpressions,
@@ -95,3 +112,11 @@ public record DeleteStatement(
     IReadOnlyCollection<JoinExpression> JoinExpressions,
     IReadOnlyCollection<WhereExpression> WhereExpressions,
     IReadOnlyCollection<string> CommentExpressions);
+
+[Flags]
+public enum UpsertType
+{
+    Insert = 0,
+    Update = 1,
+    InsertUpdate = Insert | Update,
+}
