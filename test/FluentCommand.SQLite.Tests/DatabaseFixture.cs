@@ -28,7 +28,7 @@ public class DatabaseFixture : TestHostFixture
         services.AddHostedService<DatabaseInitializer>();
                 
         services.TryAddSingleton<IQueryGenerator, SqliteGenerator>();
-        services.TryAddSingleton<IDataQueryLogger, DatabaseQueryLogger>();
+        services.TryAddSingleton<IDataQueryLogger, DataQueryLogger>();
 
         services.TryAddSingleton<IDataConfiguration>(sp =>
             new DataConfiguration(

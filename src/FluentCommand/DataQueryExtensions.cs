@@ -1,8 +1,6 @@
 using System.Data;
-using System.Dynamic;
 
 using FluentCommand.Extensions;
-using FluentCommand.Reflection;
 
 namespace FluentCommand;
 

@@ -27,8 +27,8 @@ public class DatabaseFixture : TestHostFixture
 
         services.AddHostedService<DatabaseInitializer>();
 
-        services.TryAddSingleton<IQueryGenerator, PostgresqlGenerator>();
-        services.TryAddSingleton<IDataQueryLogger, DatabaseQueryLogger>();
+        services.TryAddSingleton<IQueryGenerator, PostgreSqlGenerator>();
+        services.TryAddSingleton<IDataQueryLogger, DataQueryLogger>();
 
         services.TryAddSingleton<IDataConfiguration>(sp =>
             new DataConfiguration(

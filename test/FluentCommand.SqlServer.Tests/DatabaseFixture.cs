@@ -35,9 +35,16 @@ public class DatabaseFixture : TestHostFixture
 
         services.TryAddSingleton<IDistributedCacheSerializer>(sp => new MessagePackCacheSerializer());
 
+
+        services.AddFluentCommand(builder => builder
+            .UseConnectionString(trackerConnection)
+            .AddProviderFactory(SqlClientFactory.Instance)
+            .AddDataCache<DistributedDataCache>()
+        );
+
         services.TryAddSingleton<IDataCache, DistributedDataCache>();
         services.TryAddSingleton<IQueryGenerator, SqlServerGenerator>();
-        services.TryAddSingleton<IDataQueryLogger, DatabaseQueryLogger>();
+        services.TryAddSingleton<IDataQueryLogger, DataQueryLogger>();
 
         services.TryAddSingleton<IDataConfiguration>(sp =>
             new DataConfiguration(
