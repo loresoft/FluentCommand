@@ -1,10 +1,8 @@
 using FluentCommand.Caching;
-using FluentCommand.Query.Generators;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -33,31 +31,11 @@ public class DatabaseFixture : TestHostFixture
             options.InstanceName = "FluentCommand";
         });
 
-        services.TryAddSingleton<IDistributedCacheSerializer>(sp => new MessagePackCacheSerializer());
-
-
         services.AddFluentCommand(builder => builder
             .UseConnectionString(trackerConnection)
             .AddProviderFactory(SqlClientFactory.Instance)
-            .AddDataCache<DistributedDataCache>()
-        );
-
-        services.TryAddSingleton<IDataCache, DistributedDataCache>();
-        services.TryAddSingleton<IQueryGenerator, SqlServerGenerator>();
-        services.TryAddSingleton<IDataQueryLogger, DataQueryLogger>();
-
-        services.TryAddSingleton<IDataConfiguration>(sp =>
-            new DataConfiguration(
-                SqlClientFactory.Instance,
-                trackerConnection,
-                sp.GetService<IDataCache>(),
-                sp.GetService<IQueryGenerator>(),
-                sp.GetService<IDataQueryLogger>()
-            )
-        );
-
-        services.TryAddTransient<IDataSession>(sp =>
-            new DataSession(sp.GetRequiredService<IDataConfiguration>())
+            .AddSqlServerGenerator()
+            .AddDistributedDataCache()
         );
     }
 

@@ -7,7 +7,7 @@ namespace FluentCommand;
 /// <summary>
 /// An interface for database configuration
 /// </summary>
-public interface IDataConfiguration
+public interface IDataConfiguration : IDataSessionFactory
 {
     /// <summary>
     /// Gets the database provider factory.
@@ -50,24 +50,6 @@ public interface IDataConfiguration
     IQueryGenerator QueryGenerator { get; }
 
     /// <summary>
-    /// Creates a new data session from this database configuration
-    /// </summary>
-    /// <param name="connectionString">The connection string to use for the session.  If <paramref name="connectionString"/> is <c>null</c>, <see cref="ConnectionString"/> will be used.</param>
-    /// <returns>
-    /// A new <see cref="IDataSession" /> instance.
-    /// </returns>
-    IDataSession CreateSession(string connectionString = null);
-
-    /// <summary>
-    /// Creates a new data session from this database configuration
-    /// </summary>
-    /// <param name="transaction">The transaction to create the session with.</param>
-    /// <returns>
-    /// A new <see cref="IDataSession" /> instance.
-    /// </returns>
-    IDataSession CreateSession(DbTransaction transaction);
-
-    /// <summary>
     /// Creates a new <see cref="DbConnection" /> instance from this database configuration.
     /// </summary>
     /// <returns>
@@ -81,7 +63,7 @@ public interface IDataConfiguration
 /// The database configuration by discriminator.  Used to register multiple instances of IDataConfiguration.
 /// </summary>
 /// <typeparam name="TDiscriminator">The type of the discriminator.</typeparam>
-public interface IDataConfiguration<TDiscriminator> : IDataConfiguration
+public interface IDataConfiguration<TDiscriminator> : IDataConfiguration, IDataSessionFactory<TDiscriminator>
 {
 
 }

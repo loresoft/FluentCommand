@@ -1,7 +1,4 @@
-using FluentCommand.Query.Generators;
-
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FluentCommand;
 
@@ -19,9 +16,24 @@ public static class ServiceCollectionExtensions
         var configurationBuilder = new DataConfigurationBuilder(services);
         builder(configurationBuilder);
 
-        // add defaults if not already added
-        services.TryAddSingleton<IQueryGenerator, SqlServerGenerator>();
-        services.TryAddSingleton<IDataQueryLogger, DataQueryLogger>();
+        configurationBuilder.AddConfiguration();
+
+        return services;
+    }
+
+    public static IServiceCollection AddFluentCommand<TDiscriminator>(this IServiceCollection services, string connectionString)
+    {
+        services.AddFluentCommand<TDiscriminator>(builder => builder.UseConnectionString(connectionString));
+
+        return services;
+    }
+
+    public static IServiceCollection AddFluentCommand<TDiscriminator>(this IServiceCollection services, Action<DataConfigurationBuilder> builder)
+    {
+        var configurationBuilder = new DataConfigurationBuilder(services);
+        builder(configurationBuilder);
+
+        configurationBuilder.AddConfiguration<TDiscriminator>();
 
         return services;
     }
