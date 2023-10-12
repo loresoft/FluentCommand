@@ -10,7 +10,7 @@ public interface IDataSessionFactory
     /// <summary>
     /// Creates a new data session from this database configuration
     /// </summary>
-    /// <param name="connectionString">The connection string to use for the session.  If <paramref name="connectionString"/> is <c>null</c>, <see cref="ConnectionString"/> will be used.</param>
+    /// <param name="connectionString">The connection string to use for the session</param>
     /// <returns>
     /// A new <see cref="IDataSession" /> instance.
     /// </returns>

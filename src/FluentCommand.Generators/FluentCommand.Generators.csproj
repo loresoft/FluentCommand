@@ -13,6 +13,7 @@
     <AnalyzerLanguage>cs</AnalyzerLanguage>
     <AnalyzerRoslynVersion>4.3</AnalyzerRoslynVersion>
     <LangVersion>latest</LangVersion>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
   </PropertyGroup>
 
   <ItemGroup>

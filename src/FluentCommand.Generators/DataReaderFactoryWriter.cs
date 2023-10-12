@@ -323,7 +323,9 @@ public static class DataReaderFactoryWriter
                 .Append(aliasType)
                 .Append(" v_")
                 .Append(fieldName)
-                .AppendLine(" = default;");
+                .Append(" = default")
+                .AppendIf("!", _ => !entityProperty.PropertyType.EndsWith("?"))
+                .AppendLine(";");
         }
 
         codeBuilder
