@@ -37,8 +37,7 @@ public class DataConfigurationTests : DatabaseTestBase
 
         var sqlGenerator = services.GetService<SqlServerGenerator>();
         sqlGenerator.Should().NotBeNull();
-
-
+        
         var dataCache = services.GetService<IDataCache>();
         dataCache.Should().NotBeNull();
 
@@ -47,6 +46,23 @@ public class DataConfigurationTests : DatabaseTestBase
 
         var sessionFactory = services.GetService<IDataSessionFactory>();
         sessionFactory.Should().NotBeNull();
+
+        var dataConfiguration = services.GetService<IDataConfiguration>();
+        dataConfiguration.Should().NotBeNull();
+        dataConfiguration.ConnectionString.Should().NotEndWith("ApplicationIntent=ReadOnly;");
+
+        var dataSession = services.GetService<IDataSession>();
+        dataSession.Should().NotBeNull();
+        
+        var readonlyFactory = services.GetService<IDataSessionFactory<ReadOnlyIntent>>();
+        readonlyFactory.Should().NotBeNull();
+
+        var readonlyConfiguration = services.GetService<IDataConfiguration<ReadOnlyIntent>>();
+        readonlyConfiguration.Should().NotBeNull();
+        readonlyConfiguration.ConnectionString.Should().EndWith("ApplicationIntent=ReadOnly;");
+
+        var readonlySession = services.GetService<IDataSession<ReadOnlyIntent>>();
+        readonlySession.Should().NotBeNull();
 
     }
 }

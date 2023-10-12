@@ -37,6 +37,15 @@ public class DatabaseFixture : TestHostFixture
             .AddSqlServerGenerator()
             .AddDistributedDataCache()
         );
+
+        var readOnlyConnection = trackerConnection + "ApplicationIntent=ReadOnly;";
+
+        services.AddFluentCommand<ReadOnlyIntent>(builder => builder
+            .UseConnectionString(readOnlyConnection)
+            .AddProviderFactory(SqlClientFactory.Instance)
+            .AddSqlServerGenerator()
+            .AddDistributedDataCache()
+        );
     }
 
 }
