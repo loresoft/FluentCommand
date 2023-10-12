@@ -10,7 +10,7 @@ namespace FluentCommand;
 /// A class to log queries to string delegate
 /// </summary>
 /// <seealso cref="FluentCommand.IDataQueryLogger" />
-public class DataQueryLogger : IDataQueryLogger
+public partial class DataQueryLogger : IDataQueryLogger
 {
     private readonly ILogger<DataQueryLogger> _logger;
     private readonly IDataQueryFormatter _formatter;
@@ -44,6 +44,15 @@ public class DataQueryLogger : IDataQueryLogger
 
         var output = _formatter.FormatCommand(command, duration, exception);
 
-        _logger.LogInformation(exception, output);
+        if (exception == null)
+            LogCommand(output);
+        else
+            LogError(output, exception);
     }
+
+    [LoggerMessage(0, LogLevel.Debug, "{output}")]
+    public partial void LogCommand(string output);
+
+    [LoggerMessage(1, LogLevel.Error, "{output}")]
+    public partial void LogError(string output, Exception exception);
 }

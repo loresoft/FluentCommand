@@ -2,17 +2,37 @@ using FluentCommand.Internal;
 
 namespace FluentCommand;
 
+/// <summary>
+/// A structure to hold concurrency token
+/// </summary>
 public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
 {
+    /// <summary>
+    /// The default empty token
+    /// </summary>
     public static readonly ConcurrencyToken None = new(Array.Empty<byte>());
 
+    /// <summary>
+    /// Gets the underlying value of the token.
+    /// </summary>
+    /// <value>
+    /// The underlying value of the token.
+    /// </value>
     public byte[] Value { get; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConcurrencyToken"/> struct.
+    /// </summary>
+    /// <param name="value">The value.</param>
     public ConcurrencyToken(byte[] value)
     {
         Value = value ?? Array.Empty<byte>();
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConcurrencyToken"/> struct.
+    /// </summary>
+    /// <param name="value">The value.</param>
     public ConcurrencyToken(string value)
     {
 #if NET5_0_OR_GREATER
@@ -22,6 +42,7 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
 #endif
     }
 
+    /// <inheritdoc />
     public override string ToString()
     {
 #if NET5_0_OR_GREATER
@@ -31,16 +52,19 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
 #endif
     }
 
+    /// <inheritdoc />
     public override bool Equals(object obj)
     {
         return obj is ConcurrencyToken token && Equals(token);
     }
 
+    /// <inheritdoc />
     public bool Equals(ConcurrencyToken other)
     {
         return EqualityComparer<byte[]>.Default.Equals(Value, other.Value);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         return Value.GetHashCode();

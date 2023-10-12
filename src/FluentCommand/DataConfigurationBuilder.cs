@@ -9,6 +9,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FluentCommand;
 
+/// <summary>
+/// A configuration builder class
+/// </summary>
 public class DataConfigurationBuilder
 {
     private readonly IServiceCollection _services;
@@ -19,18 +22,36 @@ public class DataConfigurationBuilder
     private Type _queryGeneratorType;
     private Type _queryLoggerType;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataConfigurationBuilder"/> class.
+    /// </summary>
+    /// <param name="services">The services.</param>
     public DataConfigurationBuilder(IServiceCollection services)
     {
         _services = services;
     }
 
 
+    /// <summary>
+    /// The name of the connection to resolve the connection string from configuration.
+    /// </summary>
+    /// <param name="connectionName">Name of the connection.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
     public DataConfigurationBuilder UseConnectionName(string connectionName)
     {
         _connectionName = connectionName;
         return this;
     }
 
+    /// <summary>
+    /// The connection string to use with fluent command.
+    /// </summary>
+    /// <param name="connectionString">The connection string.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
     public DataConfigurationBuilder UseConnectionString(string connectionString)
     {
         _connectionString = connectionString;
@@ -38,6 +59,15 @@ public class DataConfigurationBuilder
     }
 
 
+    /// <summary>
+    /// Adds the provider factory to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="providerFactory">The provider factory.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="DbProviderFactory"/>
     public DataConfigurationBuilder AddProviderFactory<TService>(TService providerFactory)
         where TService : DbProviderFactory
     {
@@ -46,6 +76,15 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the provider factory to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="implementationFactory">The implementation factory.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="DbProviderFactory"/>
     public DataConfigurationBuilder AddProviderFactory<TService>(Func<IServiceProvider, TService> implementationFactory)
         where TService : DbProviderFactory
     {
@@ -54,6 +93,14 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the provider factory to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="DbProviderFactory"/>
     public DataConfigurationBuilder AddProviderFactory<TService>()
         where TService : DbProviderFactory
     {
@@ -63,6 +110,15 @@ public class DataConfigurationBuilder
     }
 
 
+    /// <summary>
+    /// Adds the data cache service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="dataCache">The data cache.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataCache"/>
     public DataConfigurationBuilder AddDataCache<TService>(TService dataCache)
         where TService : class, IDataCache
     {
@@ -71,6 +127,15 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the data cache service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="implementationFactory">The implementation factory.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataCache"/>
     public DataConfigurationBuilder AddDataCache<TService>(Func<IServiceProvider, TService> implementationFactory)
         where TService : class, IDataCache
     {
@@ -79,6 +144,14 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the data cache service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataCache"/>
     public DataConfigurationBuilder AddDataCache<TService>()
         where TService : class, IDataCache
     {
@@ -88,6 +161,15 @@ public class DataConfigurationBuilder
     }
 
 
+    /// <summary>
+    /// Adds the query generator service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IQueryGenerator"/>
     public DataConfigurationBuilder AddQueryGenerator<TService>(TService queryGenerator)
         where TService : class, IQueryGenerator
     {
@@ -96,6 +178,14 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the query generator service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IQueryGenerator"/>
     public DataConfigurationBuilder AddQueryGenerator<TService>()
         where TService : class, IQueryGenerator
     {
@@ -104,6 +194,15 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the query generator service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="implementationFactory">The implementation factory.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IQueryGenerator"/>
     public DataConfigurationBuilder AddQueryGenerator<TService>(Func<IServiceProvider, TService> implementationFactory)
         where TService : class, IQueryGenerator
     {
@@ -112,18 +211,36 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the SQL server generator to use with this configuration.
+    /// </summary>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
     public DataConfigurationBuilder AddSqlServerGenerator()
     {
         AddQueryGenerator<SqlServerGenerator>();
         return this;
     }
 
+    /// <summary>
+    /// Adds the sqlite generator to use with this configuration.
+    /// </summary>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
     public DataConfigurationBuilder AddSqliteGenerator()
     {
         AddQueryGenerator<SqliteGenerator>();
         return this;
     }
 
+    /// <summary>
+    /// Adds the PostgreSQL generator to use with this configuration.
+    /// </summary>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
     public DataConfigurationBuilder AddPostgreSqlGenerator()
     {
         AddQueryGenerator<PostgreSqlGenerator>();
@@ -131,6 +248,15 @@ public class DataConfigurationBuilder
     }
 
 
+    /// <summary>
+    /// Adds the query logger service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="queryLogger">The query logger.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataQueryLogger"/>
     public DataConfigurationBuilder AddQueryLogger<TService>(TService queryLogger)
         where TService : class, IDataQueryLogger
     {
@@ -139,6 +265,14 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the query logger service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataQueryLogger"/>
     public DataConfigurationBuilder AddQueryLogger<TService>()
         where TService : class, IDataQueryLogger
     {
@@ -147,6 +281,15 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds the query logger service to use with this configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="implementationFactory">The implementation factory.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataQueryLogger"/>
     public DataConfigurationBuilder AddQueryLogger<TService>(Func<IServiceProvider, TService> implementationFactory)
         where TService : class, IDataQueryLogger
     {
@@ -156,6 +299,13 @@ public class DataConfigurationBuilder
     }
 
 
+    /// <summary>
+    /// Adds services via the configuration setup action.
+    /// </summary>
+    /// <param name="setupAction">The configuration setup action.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
     public DataConfigurationBuilder AddService(Action<IServiceCollection> setupAction)
     {
         setupAction(_services);
