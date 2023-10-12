@@ -60,7 +60,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
         var hashCode = HashString(value);
         unchecked
         {
-            hashCode = _hashCode * Multiplier + hashCode;
+            hashCode = (_hashCode * Multiplier) + hashCode;
         }
 
         return new HashCode(hashCode);
@@ -97,11 +97,18 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
 
         foreach (var value in values)
         {
-            var hashCode = value is null ? 0 : comparer.GetHashCode(value);
+            var hashCode = value switch
+            {
+                string text => HashString(text),
+                TValue instance => comparer.GetHashCode(instance),
+                _ => 0
+            };
+
             unchecked
             {
-                hashCode = current * Multiplier + hashCode;
+                hashCode = (current * Multiplier) + hashCode;
             }
+
             current = hashCode;
         }
 
@@ -219,7 +226,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
         unchecked
         {
             foreach (char c in text)
-                hash = hash * Multiplier + c;
+                hash = (hash * Multiplier) + c;
         }
 
         return hash;

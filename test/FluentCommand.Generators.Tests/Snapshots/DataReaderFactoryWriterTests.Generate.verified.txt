@@ -101,11 +101,11 @@ namespace FluentCommand.Entities
             if (dataRecord == null)
                 throw new global::System.ArgumentNullException(nameof(dataRecord));
 
-            int v_id = default;
-            string v_name = default;
-            bool v_isActive = default;
-            System.DateTimeOffset v_updated = default;
-            byte[] v_rowVersion = default;
+            int v_id = default!;
+            string v_name = default!;
+            bool v_isActive = default!;
+            System.DateTimeOffset v_updated = default!;
+            byte[] v_rowVersion = default!;
 
             for (var __index = 0; __index < dataRecord.FieldCount; __index++)
             {

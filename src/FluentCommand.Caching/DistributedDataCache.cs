@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace FluentCommand.Caching;
 
 /// <summary>
-/// Distributed cache implemenation
+/// Distributed data cache implementation
 /// </summary>
 /// <seealso cref="FluentCommand.IDataCache" />
 public partial class DistributedDataCache : IDataCache
@@ -40,7 +40,7 @@ public partial class DistributedDataCache : IDataCache
     /// <para>Success is true if the key was found; otherwise false</para>
     /// <para>Value is the cache entry that is identified by key</para>
     /// </returns>
-    /// <exception cref="System.ArgumentException">'{nameof(key)}' cannot be null or empty. - key</exception>
+    /// <exception cref="System.ArgumentException">key cannot be null or empty. - key</exception>
     public (bool Success, T Value) Get<T>(string key)
     {
         if (string.IsNullOrEmpty(key))
@@ -71,7 +71,7 @@ public partial class DistributedDataCache : IDataCache
     /// <para>Success is true if the key was found; otherwise false</para>
     /// <para>Value is the cache entry that is identified by key</para>
     /// </returns>
-    /// <exception cref="System.ArgumentException">'{nameof(key)}' cannot be null or empty. - key</exception>
+    /// <exception cref="System.ArgumentException">'key' cannot be null or empty. - key</exception>
     public async Task<(bool Success, T Value)> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(key))
@@ -104,7 +104,7 @@ public partial class DistributedDataCache : IDataCache
     /// <param name="value">The object to insert into cache.</param>
     /// <param name="absoluteExpiration">The fixed date and time at which the cache entry will expire.</param>
     /// <param name="slidingExpiration">A value that indicates whether a cache entry should be evicted if it has not been accessed in a given span of time.</param>
-    /// <exception cref="System.ArgumentException">'{nameof(key)}' cannot be null or empty. - key</exception>
+    /// <exception cref="System.ArgumentException">'key' cannot be null or empty. - key</exception>
     /// <exception cref="System.ArgumentNullException">value</exception>
     public void Set<T>(string key, T value, DateTimeOffset? absoluteExpiration = null, TimeSpan? slidingExpiration = null)
     {
@@ -136,7 +136,7 @@ public partial class DistributedDataCache : IDataCache
     /// <param name="absoluteExpiration">The fixed date and time at which the cache entry will expire.</param>
     /// <param name="slidingExpiration">A value that indicates whether a cache entry should be evicted if it has not been accessed in a given span of time.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <exception cref="System.ArgumentException">'{nameof(key)}' cannot be null or empty. - key</exception>
+    /// <exception cref="System.ArgumentException">'key' cannot be null or empty. - key</exception>
     /// <exception cref="System.ArgumentNullException">value</exception>
     public async Task SetAsync<T>(string key, T value, DateTimeOffset? absoluteExpiration = null, TimeSpan? slidingExpiration = null, CancellationToken cancellationToken = default)
     {
@@ -168,7 +168,7 @@ public partial class DistributedDataCache : IDataCache
     /// Removes the cache entry from the cache
     /// </summary>
     /// <param name="key">A unique identifier for the cache entry.</param>
-    /// <exception cref="System.ArgumentException">'{nameof(key)}' cannot be null or empty. - key</exception>
+    /// <exception cref="System.ArgumentException">'key' cannot be null or empty. - key</exception>
     public void Remove(string key)
     {
         if (string.IsNullOrEmpty(key))
@@ -184,7 +184,7 @@ public partial class DistributedDataCache : IDataCache
     /// </summary>
     /// <param name="key">A unique identifier for the cache entry.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <exception cref="System.ArgumentException">'{nameof(key)}' cannot be null or empty. - key</exception>
+    /// <exception cref="System.ArgumentException">'key' cannot be null or empty. - key</exception>
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(key))

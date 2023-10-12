@@ -3,7 +3,7 @@ using FluentCommand.Internal;
 
 namespace FluentCommand.Query.Generators;
 
-public class PostgresqlGenerator : SqlServerGenerator
+public class PostgreSqlGenerator : SqlServerGenerator
 {
     public override string BuildInsert(InsertStatement insertStatement)
     {

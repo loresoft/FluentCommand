@@ -1,10 +1,8 @@
 using FluentCommand.Caching;
-using FluentCommand.Query.Generators;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -33,24 +31,20 @@ public class DatabaseFixture : TestHostFixture
             options.InstanceName = "FluentCommand";
         });
 
-        services.TryAddSingleton<IDistributedCacheSerializer>(sp => new MessagePackCacheSerializer());
-
-        services.TryAddSingleton<IDataCache, DistributedDataCache>();
-        services.TryAddSingleton<IQueryGenerator, SqlServerGenerator>();
-        services.TryAddSingleton<IDataQueryLogger, DatabaseQueryLogger>();
-
-        services.TryAddSingleton<IDataConfiguration>(sp =>
-            new DataConfiguration(
-                SqlClientFactory.Instance,
-                trackerConnection,
-                sp.GetService<IDataCache>(),
-                sp.GetService<IQueryGenerator>(),
-                sp.GetService<IDataQueryLogger>()
-            )
+        services.AddFluentCommand(builder => builder
+            .UseConnectionString(trackerConnection)
+            .AddProviderFactory(SqlClientFactory.Instance)
+            .AddSqlServerGenerator()
+            .AddDistributedDataCache()
         );
 
-        services.TryAddTransient<IDataSession>(sp =>
-            new DataSession(sp.GetRequiredService<IDataConfiguration>())
+        var readOnlyConnection = trackerConnection + "ApplicationIntent=ReadOnly;";
+
+        services.AddFluentCommand<ReadOnlyIntent>(builder => builder
+            .UseConnectionString(readOnlyConnection)
+            .AddProviderFactory(SqlClientFactory.Instance)
+            .AddSqlServerGenerator()
+            .AddDistributedDataCache()
         );
     }
 
