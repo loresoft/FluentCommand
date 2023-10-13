@@ -33,7 +33,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="xunit" Version="2.5.1" />
+    <PackageReference Include="xunit" Version="2.5.2" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
   </ItemGroup>
 
