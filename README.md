@@ -47,6 +47,42 @@ IDataConfiguration dataConfiguration  = new DataConfiguration(
 );
 ```
 
+Register with dependency injection
+
+```c#
+services.AddFluentCommand(builder => builder
+    .UseConnectionString(ConnectionString)
+    .UseSqlServer()
+);
+```
+
+Register using a connection name from the appsettings.json
+
+```c#
+services.AddFluentCommand(builder => builder
+    .UseConnectionName("Tracker")
+    .UseSqlServer()
+);
+```
+
+```json
+{
+  "ConnectionStrings": {
+    "Tracker": "Data Source=(local);Initial Catalog=TrackerTest;Integrated Security=True;TrustServerCertificate=True;"
+  }
+}
+```
+
+Register for PostgreSQL
+
+```c#
+services.AddFluentCommand(builder => builder
+    .UseConnectionName("Tracker")
+    .AddProviderFactory(NpgsqlFactory.Instance)
+    .AddPostgreSqlGenerator()
+);
+```
+
 ### Example
 
 Query all users with email domain.  Entity is automatically created from DataReader.

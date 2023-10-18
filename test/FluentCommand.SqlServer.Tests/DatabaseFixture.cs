@@ -33,8 +33,7 @@ public class DatabaseFixture : TestHostFixture
 
         services.AddFluentCommand(builder => builder
             .UseConnectionString(trackerConnection)
-            .AddProviderFactory(SqlClientFactory.Instance)
-            .AddSqlServerGenerator()
+            .UseSqlServer()
             .AddDistributedDataCache()
         );
 
@@ -42,8 +41,7 @@ public class DatabaseFixture : TestHostFixture
 
         services.AddFluentCommand<ReadOnlyIntent>(builder => builder
             .UseConnectionString(readOnlyConnection)
-            .AddProviderFactory(SqlClientFactory.Instance)
-            .AddSqlServerGenerator()
+            .UseSqlServer()
             .AddDistributedDataCache()
         );
     }
