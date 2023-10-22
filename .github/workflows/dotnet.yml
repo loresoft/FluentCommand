@@ -26,7 +26,7 @@ jobs:
 
     services:
       mssql:
-        image: mcr.microsoft.com/mssql/server:2019-latest
+        image: mcr.microsoft.com/mssql/server:2022-latest
         env:
           MSSQL_SA_PASSWORD: "!P@ssw0rd"
           ACCEPT_EULA: "Y"
