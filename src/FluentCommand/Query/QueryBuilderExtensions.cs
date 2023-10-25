@@ -1,7 +1,18 @@
 namespace FluentCommand.Query;
 
+/// <summary>
+/// Extension methods for building a query for the data session
+/// </summary>
 public static class QueryBuilderExtensions
 {
+    /// <summary>
+    /// Set the data command statement using the builder action.
+    /// </summary>
+    /// <param name="dataSession">The data session.</param>
+    /// <param name="builder">The query builder action.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to a data command.
+    /// </returns>
     public static IDataCommand Sql(this IDataSession dataSession, Action<QueryBuilder> builder)
     {
         var queryParameters = new List<QueryParameter>();

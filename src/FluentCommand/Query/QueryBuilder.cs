@@ -4,22 +4,47 @@ using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
 
-
+/// <summary>
+/// High level query builder
+/// </summary>
+/// <seealso cref="FluentCommand.Query.IStatementBuilder" />
 public class QueryBuilder : IStatementBuilder
 {
     private readonly Queue<IStatementBuilder> _builderQueue = new();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="QueryBuilder"/> class.
+    /// </summary>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <param name="parameters">The parameters.</param>
+    /// <exception cref="System.ArgumentNullException">queryGenerator or parameters</exception>
     public QueryBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
     {
         QueryGenerator = queryGenerator ?? throw new ArgumentNullException(nameof(queryGenerator));
         Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
     }
 
+    /// <summary>
+    /// Gets the query generator.
+    /// </summary>
+    /// <value>
+    /// The query generator.
+    /// </value>
     protected IQueryGenerator QueryGenerator { get; }
 
+    /// <summary>
+    /// Gets the query parameters.
+    /// </summary>
+    /// <value>
+    /// The query parameters.
+    /// </value>
     protected List<QueryParameter> Parameters { get; }
 
 
+    /// <summary>
+    /// Starts a statement builder
+    /// </summary>
+    /// <returns>A new statement builder</returns>
     public StatementBuilder Statement()
     {
         var builder = new StatementBuilder(QueryGenerator, Parameters);
@@ -29,6 +54,11 @@ public class QueryBuilder : IStatementBuilder
         return builder;
     }
 
+    /// <summary>
+    /// Starts a select statement builder
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <returns>A new select statement builder</returns>
     public SelectEntityBuilder<TEntity> Select<TEntity>()
         where TEntity : class
     {
@@ -39,6 +69,10 @@ public class QueryBuilder : IStatementBuilder
         return builder;
     }
 
+    /// <summary>
+    /// Starts a select statement builder
+    /// </summary>
+    /// <returns>A new select statement builder</returns>
     public SelectBuilder Select()
     {
         var builder = new SelectBuilder(QueryGenerator, Parameters);
@@ -49,6 +83,11 @@ public class QueryBuilder : IStatementBuilder
 
     }
 
+    /// <summary>
+    /// Starts an insert statement builder
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <returns>A new insert statement builder</returns>
     public InsertEntityBuilder<TEntity> Insert<TEntity>()
         where TEntity : class
     {
@@ -59,6 +98,10 @@ public class QueryBuilder : IStatementBuilder
         return builder;
     }
 
+    /// <summary>
+    /// Starts an insert statement builder
+    /// </summary>
+    /// <returns>A new insert statement builder</returns>
     public InsertBuilder Insert()
     {
         var builder = new InsertBuilder(QueryGenerator, Parameters);
@@ -69,6 +112,11 @@ public class QueryBuilder : IStatementBuilder
 
     }
 
+    /// <summary>
+    /// Starts an update statement builder
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <returns>A new update statement builder</returns>
     public UpdateEntityBuilder<TEntity> Update<TEntity>()
         where TEntity : class
     {
@@ -80,6 +128,10 @@ public class QueryBuilder : IStatementBuilder
 
     }
 
+    /// <summary>
+    /// Starts an update statement builder
+    /// </summary>
+    /// <returns>A new update statement builder</returns>
     public UpdateBuilder Update()
     {
         var builder = new UpdateBuilder(QueryGenerator, Parameters);
@@ -89,6 +141,11 @@ public class QueryBuilder : IStatementBuilder
         return builder;
     }
 
+    /// <summary>
+    /// Starts a delete statement builder
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <returns>A new delete statement builder</returns>
     public DeleteEntityBuilder<TEntity> Delete<TEntity>()
         where TEntity : class
     {
@@ -100,6 +157,10 @@ public class QueryBuilder : IStatementBuilder
 
     }
 
+    /// <summary>
+    /// Starts a delete statement builder
+    /// </summary>
+    /// <returns>A new insert statement builder</returns>
     public DeleteBuilder Delete()
     {
         var builder = new DeleteBuilder(QueryGenerator, Parameters);
@@ -109,7 +170,7 @@ public class QueryBuilder : IStatementBuilder
         return builder;
     }
 
-
+    /// <inheritdoc />
     public QueryStatement BuildStatement()
     {
         // optimize for when only 1 builder

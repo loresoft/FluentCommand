@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Dynamic;
 
 using FluentCommand.Reflection;
@@ -16,6 +16,7 @@ public static class DataReaderExtensions
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="reader">The open <see cref="IDataReader" /> to get the object from.</param>
     /// <returns>A TEntity object having property names set that match the field names in the <see cref="IDataReader" />.</returns>
+    [Obsolete("Use generated data reader factory")]
     public static TEntity EntityFactory<TEntity>(this IDataReader reader)
         where TEntity : class, new()
     {

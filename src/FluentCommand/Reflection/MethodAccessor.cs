@@ -59,13 +59,8 @@ public class MethodAccessor : IMethodAccessor
     /// <returns>The method key</returns>
     internal static int GetKey(string name, IEnumerable<Type> parameterTypes)
     {
-        unchecked
-        {
-            int result = name?.GetHashCode() ?? 0;
-            result = parameterTypes.Aggregate(result,
-              (r, p) => (r * 397) ^ (p?.GetHashCode() ?? 0));
-
-            return result;
-        }
+        return Internal.HashCode.Seed
+            .Combine(name)
+            .CombineAll(parameterTypes);
     }
 }

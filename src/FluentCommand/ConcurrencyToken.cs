@@ -70,12 +70,40 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
         return Value.GetHashCode();
     }
 
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="ConcurrencyToken"/> to byte array.
+    /// </summary>
+    /// <param name="token">The concurrency token.</param>
+    /// <returns>
+    /// The result of the conversion.
+    /// </returns>
     public static implicit operator byte[](ConcurrencyToken token) => token.Value;
 
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="ConcurrencyToken"/> to <see cref="System.String"/>.
+    /// </summary>
+    /// <param name="token">The concurrency token.</param>
+    /// <returns>
+    /// The result of the conversion.
+    /// </returns>
     public static implicit operator string(ConcurrencyToken token) => token.ToString();
 
+    /// <summary>
+    /// Performs an implicit conversion from byte array to <see cref="ConcurrencyToken"/>.
+    /// </summary>
+    /// <param name="token">The concurrency token.</param>
+    /// <returns>
+    /// The result of the conversion.
+    /// </returns>
     public static implicit operator ConcurrencyToken(byte[] token) => new(token);
 
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="ConcurrencyToken"/>.
+    /// </summary>
+    /// <param name="token">The concurrency token.</param>
+    /// <returns>
+    /// The result of the conversion.
+    /// </returns>
     public static implicit operator ConcurrencyToken(string token) => new(token);
 
 

@@ -6,12 +6,22 @@ using FluentCommand.Reflection;
 
 namespace FluentCommand.Query;
 
+/// <summary>
+/// Update query statement builder
+/// </summary>
+/// <typeparam name="TEntity">The type of the entity.</typeparam>
 public class UpdateEntityBuilder<TEntity>
     : UpdateBuilder<UpdateEntityBuilder<TEntity>>, IWhereEntityBuilder<TEntity, UpdateEntityBuilder<TEntity>>
     where TEntity : class
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UpdateEntityBuilder{TEntity}"/> class.
+    /// </summary>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <param name="parameters">The parameters.</param>
+    /// <param name="logicalOperator">The logical operator.</param>
     public UpdateEntityBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -20,6 +30,15 @@ public class UpdateEntityBuilder<TEntity>
     {
     }
 
+    /// <summary>
+    /// Adds a value with specified property and value.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">The property.</param>
+    /// <param name="parameterValue">The parameter value.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> Value<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue)
@@ -28,6 +47,16 @@ public class UpdateEntityBuilder<TEntity>
         return Value(propertyAccessor?.Column, parameterValue);
     }
 
+    /// <summary>
+    /// Conditionally adds a value with specified property and value.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">The property.</param>
+    /// <param name="parameterValue">The parameter value.</param>
+    /// <param name="condition">The condition.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> ValueIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -37,6 +66,15 @@ public class UpdateEntityBuilder<TEntity>
         return ValueIf(propertyAccessor?.Column, parameterValue, condition);
     }
 
+    /// <summary>
+    /// Adds a values from the specified entity. If column names are passed in,
+    /// only those that match an entity property name will be included.
+    /// </summary>
+    /// <param name="entity">The entity to update.</param>
+    /// <param name="columnNames">The column names to include.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> Values(
         TEntity entity,
         IEnumerable<string> columnNames = null)
@@ -63,6 +101,16 @@ public class UpdateEntityBuilder<TEntity>
     }
 
 
+    /// <summary>
+    /// Add an output clause for the specified property.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">The property.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnAlias">The column alias.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
         string tableAlias = "INSERTED",
@@ -72,6 +120,17 @@ public class UpdateEntityBuilder<TEntity>
         return Output(propertyAccessor?.Column, tableAlias, columnAlias);
     }
 
+    /// <summary>
+    /// Conditionally add an output clause for the specified property.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">The property.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnAlias">The column alias.</param>
+    /// <param name="condition">The condition.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         string tableAlias = "INSERTED",
@@ -82,6 +141,15 @@ public class UpdateEntityBuilder<TEntity>
         return OutputIf(propertyAccessor?.Column, tableAlias, columnAlias, condition);
     }
 
+    /// <summary>
+    /// Add a from clause to the query.
+    /// </summary>
+    /// <param name="tableName">Name of the table.</param>
+    /// <param name="tableSchema">The table schema.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public override UpdateEntityBuilder<TEntity> From(
         string tableName = null,
         string tableSchema = null,
@@ -93,6 +161,14 @@ public class UpdateEntityBuilder<TEntity>
             tableAlias);
     }
 
+    /// <summary>
+    /// Add a join clause using the specified builder action
+    /// </summary>
+    /// <typeparam name="TRight">The right join entity</typeparam>
+    /// <param name="builder">The join builder.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> Join<TRight>(Action<JoinEntityBuilder<TEntity, TRight>> builder)
         where TRight : class
     {
@@ -104,6 +180,15 @@ public class UpdateEntityBuilder<TEntity>
         return this;
     }
 
+    /// <summary>
+    /// Add a join clause using the specified builder action
+    /// </summary>
+    /// <typeparam name="TLeft">The left join entity</typeparam>
+    /// <typeparam name="TRight">The right join entity</typeparam>
+    /// <param name="builder">The join builder.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> Join<TLeft, TRight>(Action<JoinEntityBuilder<TLeft, TRight>> builder)
         where TLeft : class
         where TRight : class
@@ -117,6 +202,7 @@ public class UpdateEntityBuilder<TEntity>
     }
 
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -125,6 +211,7 @@ public class UpdateEntityBuilder<TEntity>
         return Where<TValue>(property, parameterValue, null, filterOperator);
     }
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -136,6 +223,18 @@ public class UpdateEntityBuilder<TEntity>
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
 
+    /// <summary>
+    /// Create a where clause with the specified property, value, operator and table alias
+    /// </summary>
+    /// <typeparam name="TModel">The type of the model</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">The property.</param>
+    /// <param name="parameterValue">The parameter value.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="filterOperator">The filter operator.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> Where<TModel, TValue>(
         Expression<Func<TModel, TValue>> property,
         TValue parameterValue,
@@ -148,6 +247,7 @@ public class UpdateEntityBuilder<TEntity>
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -157,6 +257,7 @@ public class UpdateEntityBuilder<TEntity>
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -169,6 +270,7 @@ public class UpdateEntityBuilder<TEntity>
         return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -179,6 +281,7 @@ public class UpdateEntityBuilder<TEntity>
         return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
     }
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -189,6 +292,7 @@ public class UpdateEntityBuilder<TEntity>
         return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
     }
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -200,6 +304,7 @@ public class UpdateEntityBuilder<TEntity>
         return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
     }
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, LogicalOperators.Or);
@@ -214,6 +319,7 @@ public class UpdateEntityBuilder<TEntity>
         return this;
     }
 
+    /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereAnd(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, LogicalOperators.And);
@@ -229,6 +335,7 @@ public class UpdateEntityBuilder<TEntity>
     }
 
 
+    /// <inheritdoc />
     public override QueryStatement BuildStatement()
     {
         // add table and schema from attribute if not set

@@ -6,12 +6,22 @@ using FluentCommand.Reflection;
 
 namespace FluentCommand.Query;
 
+/// <summary>
+/// A logical query expression builder 
+/// </summary>
+/// <typeparam name="TEntity">The type of the entity.</typeparam>
 public class LogicalEntityBuilder<TEntity>
     : LogicalBuilder<LogicalEntityBuilder<TEntity>>, IWhereEntityBuilder<TEntity, LogicalEntityBuilder<TEntity>>
     where TEntity : class
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LogicalEntityBuilder{TEntity}"/> class.
+    /// </summary>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <param name="parameters">The query parameters.</param>
+    /// <param name="logicalOperator">The query logical operator.</param>
     public LogicalEntityBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -20,6 +30,7 @@ public class LogicalEntityBuilder<TEntity>
     {
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -28,6 +39,7 @@ public class LogicalEntityBuilder<TEntity>
         return Where(property, parameterValue, null, filterOperator);
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -39,6 +51,7 @@ public class LogicalEntityBuilder<TEntity>
         return Where(propertyAccessor.Column, parameterValue, tableAlias, whereOperator);
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -48,6 +61,7 @@ public class LogicalEntityBuilder<TEntity>
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -60,6 +74,7 @@ public class LogicalEntityBuilder<TEntity>
         return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -70,6 +85,7 @@ public class LogicalEntityBuilder<TEntity>
         return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -80,6 +96,7 @@ public class LogicalEntityBuilder<TEntity>
         return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -91,6 +108,7 @@ public class LogicalEntityBuilder<TEntity>
         return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, LogicalOperators.Or);
@@ -105,6 +123,7 @@ public class LogicalEntityBuilder<TEntity>
         return this;
     }
 
+    /// <inheritdoc />
     public LogicalEntityBuilder<TEntity> WhereAnd(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, LogicalOperators.And);

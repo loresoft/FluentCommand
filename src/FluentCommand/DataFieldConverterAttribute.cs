@@ -35,6 +35,9 @@ public class DataFieldConverterAttribute : Attribute
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 public class DataFieldConverterAttribute<TConverter> : DataFieldConverterAttribute
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataFieldConverterAttribute"/> class.
+    /// </summary>
     public DataFieldConverterAttribute() : base(typeof(TConverter))
     {
     }

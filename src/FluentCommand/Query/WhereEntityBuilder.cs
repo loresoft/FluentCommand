@@ -6,12 +6,22 @@ using FluentCommand.Reflection;
 
 namespace FluentCommand.Query;
 
+/// <summary>
+/// Where clause builder
+/// </summary>
+/// <typeparam name="TEntity">The type of the entity.</typeparam>
 public class WhereEntityBuilder<TEntity>
     : WhereBuilder<WhereEntityBuilder<TEntity>>, IWhereEntityBuilder<TEntity, WhereEntityBuilder<TEntity>>
     where TEntity : class
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WhereEntityBuilder{TEntity}"/> class.
+    /// </summary>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <param name="parameters">The query parameters.</param>
+    /// <param name="logicalOperator">The logical operator.</param>
     public WhereEntityBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -20,6 +30,8 @@ public class WhereEntityBuilder<TEntity>
     {
     }
 
+
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -28,6 +40,7 @@ public class WhereEntityBuilder<TEntity>
         return Where(property, parameterValue, null, filterOperator);
     }
 
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -39,6 +52,7 @@ public class WhereEntityBuilder<TEntity>
         return Where(propertyAccessor?.Column, parameterValue, tableAlias, filterOperator);
     }
 
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -49,6 +63,7 @@ public class WhereEntityBuilder<TEntity>
         return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
     }
 
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -59,6 +74,7 @@ public class WhereEntityBuilder<TEntity>
         return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
     }
 
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -70,6 +86,7 @@ public class WhereEntityBuilder<TEntity>
         return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
     }
 
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -79,6 +96,7 @@ public class WhereEntityBuilder<TEntity>
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
 
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -91,6 +109,7 @@ public class WhereEntityBuilder<TEntity>
         return WhereIf(propertyAccessor?.Column, parameterValue, tableAlias, filterOperator, condition);
     }
 
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, LogicalOperators.Or);
@@ -105,6 +124,7 @@ public class WhereEntityBuilder<TEntity>
         return this;
     }
 
+    /// <inheritdoc />
     public WhereEntityBuilder<TEntity> WhereAnd(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, LogicalOperators.And);
@@ -119,6 +139,7 @@ public class WhereEntityBuilder<TEntity>
         return this;
     }
 
+    /// <inheritdoc />
     public override QueryStatement BuildStatement()
     {
         if (WhereExpressions == null || WhereExpressions.Count == 0)

@@ -6,12 +6,23 @@ using FluentCommand.Reflection;
 
 namespace FluentCommand.Query;
 
+
+/// <summary>
+/// Delete query statement builder
+/// </summary>
+/// <typeparam name="TEntity">The type of the entity.</typeparam>
 public class DeleteEntityBuilder<TEntity>
     : DeleteBuilder<DeleteEntityBuilder<TEntity>>, IWhereEntityBuilder<TEntity, DeleteEntityBuilder<TEntity>>
     where TEntity : class
 {
     private static readonly TypeAccessor _typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeleteEntityBuilder{TEntity}"/> class.
+    /// </summary>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <param name="parameters">The parameters.</param>
+    /// <param name="logicalOperator">The logical operator.</param>
     public DeleteEntityBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -21,6 +32,16 @@ public class DeleteEntityBuilder<TEntity>
     }
 
 
+    /// <summary>
+    /// Add an output clause for the specified property.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">The property.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnAlias">The column alias.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public DeleteEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
         string tableAlias = "DELETED",
@@ -30,6 +51,17 @@ public class DeleteEntityBuilder<TEntity>
         return Output(propertyAccessor.Column, tableAlias, columnAlias);
     }
 
+    /// <summary>
+    /// Conditionally add an output clause for the specified property.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">The property.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnAlias">The column alias.</param>
+    /// <param name="condition">The condition.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public DeleteEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         string tableAlias = "DELETED",
@@ -40,6 +72,7 @@ public class DeleteEntityBuilder<TEntity>
         return OutputIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
     }
 
+    /// <inheritdoc />
     public override DeleteEntityBuilder<TEntity> From(
         string tableName = null,
         string tableSchema = null,
@@ -51,6 +84,14 @@ public class DeleteEntityBuilder<TEntity>
             tableAlias);
     }
 
+    /// <summary>
+    /// Add a join clause using the specified builder action
+    /// </summary>
+    /// <typeparam name="TRight">The right join entity</typeparam>
+    /// <param name="builder">The join builder.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public DeleteEntityBuilder<TEntity> Join<TRight>(Action<JoinEntityBuilder<TEntity, TRight>> builder)
         where TRight : class
     {
@@ -62,6 +103,15 @@ public class DeleteEntityBuilder<TEntity>
         return this;
     }
 
+    /// <summary>
+    /// Add a join clause using the specified builder action
+    /// </summary>
+    /// <typeparam name="TLeft">The left join entity</typeparam>
+    /// <typeparam name="TRight">The right join entity</typeparam>
+    /// <param name="builder">The join builder.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public DeleteEntityBuilder<TEntity> Join<TLeft, TRight>(Action<JoinEntityBuilder<TLeft, TRight>> builder)
         where TLeft : class
         where TRight : class
@@ -75,6 +125,7 @@ public class DeleteEntityBuilder<TEntity>
     }
 
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -83,6 +134,7 @@ public class DeleteEntityBuilder<TEntity>
         return Where<TValue>(property, parameterValue, null, filterOperator);
     }
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -94,6 +146,18 @@ public class DeleteEntityBuilder<TEntity>
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
 
+    /// <summary>
+    /// Create a where clause with the specified property, value, operator and table alias
+    /// </summary>
+    /// <typeparam name="TModel">The type of the model</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">The property.</param>
+    /// <param name="parameterValue">The parameter value.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="filterOperator">The filter operator.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public DeleteEntityBuilder<TEntity> Where<TModel, TValue>(
         Expression<Func<TModel, TValue>> property,
         TValue parameterValue,
@@ -106,6 +170,7 @@ public class DeleteEntityBuilder<TEntity>
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -115,6 +180,7 @@ public class DeleteEntityBuilder<TEntity>
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue,
@@ -127,6 +193,7 @@ public class DeleteEntityBuilder<TEntity>
         return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -137,6 +204,7 @@ public class DeleteEntityBuilder<TEntity>
         return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
     }
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -147,6 +215,7 @@ public class DeleteEntityBuilder<TEntity>
         return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
     }
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
@@ -158,6 +227,7 @@ public class DeleteEntityBuilder<TEntity>
         return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
     }
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> WhereOr(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, LogicalOperators.Or);
@@ -172,6 +242,7 @@ public class DeleteEntityBuilder<TEntity>
         return this;
     }
 
+    /// <inheritdoc />
     public DeleteEntityBuilder<TEntity> WhereAnd(Action<LogicalEntityBuilder<TEntity>> builder)
     {
         var innerBuilder = new LogicalEntityBuilder<TEntity>(QueryGenerator, Parameters, LogicalOperators.And);
@@ -187,6 +258,7 @@ public class DeleteEntityBuilder<TEntity>
     }
 
 
+    /// <inheritdoc />
     public override QueryStatement BuildStatement()
     {
         // add table and schema from attribute if not set

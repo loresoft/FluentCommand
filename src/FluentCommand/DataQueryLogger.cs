@@ -1,13 +1,11 @@
 using System.Data;
 
-using FluentCommand.Internal;
-
 using Microsoft.Extensions.Logging;
 
 namespace FluentCommand;
 
 /// <summary>
-/// A class to log queries to string delegate
+/// A class for logging queries 
 /// </summary>
 /// <seealso cref="FluentCommand.IDataQueryLogger" />
 public partial class DataQueryLogger : IDataQueryLogger
@@ -51,8 +49,8 @@ public partial class DataQueryLogger : IDataQueryLogger
     }
 
     [LoggerMessage(0, LogLevel.Debug, "{output}")]
-    public partial void LogCommand(string output);
+    private partial void LogCommand(string output);
 
     [LoggerMessage(1, LogLevel.Error, "{output}")]
-    public partial void LogError(string output, Exception exception);
+    private partial void LogError(string output, Exception exception);
 }

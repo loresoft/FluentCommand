@@ -225,8 +225,11 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
 
         unchecked
         {
-            foreach (char c in text)
-                hash = (hash * Multiplier) + c;
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var index = 0; index < text.Length; index++)
+                hash = (hash * Multiplier) + text[index];
+
         }
 
         return hash;

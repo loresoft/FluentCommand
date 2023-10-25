@@ -3,8 +3,17 @@ using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
 
+/// <summary>
+/// Update query statement builder
+/// </summary>
 public class UpdateBuilder : UpdateBuilder<UpdateBuilder>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UpdateBuilder"/> class.
+    /// </summary>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <param name="parameters">The parameters.</param>
+    /// <param name="logicalOperator">The logical operator.</param>
     public UpdateBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -14,9 +23,18 @@ public class UpdateBuilder : UpdateBuilder<UpdateBuilder>
     }
 }
 
+/// <summary>
+/// Insert query statement builder
+/// </summary>
 public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     where TBuilder : UpdateBuilder<TBuilder>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UpdateBuilder{TBuilder}"/> class.
+    /// </summary>
+    /// <param name="queryGenerator">The query generator.</param>
+    /// <param name="parameters">The parameters.</param>
+    /// <param name="logicalOperator">The logical operator.</param>
     protected UpdateBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -26,17 +44,56 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
+    /// <summary>
+    /// Gets the update expressions.
+    /// </summary>
+    /// <value>
+    /// The update expressions.
+    /// </value>
     protected HashSet<UpdateExpression> UpdateExpressions { get; } = new();
 
+    /// <summary>
+    /// Gets the output expressions.
+    /// </summary>
+    /// <value>
+    /// The output expressions.
+    /// </value>
     protected HashSet<ColumnExpression> OutputExpressions { get; } = new();
 
+    /// <summary>
+    /// Gets from expressions.
+    /// </summary>
+    /// <value>
+    /// From expressions.
+    /// </value>
     protected HashSet<TableExpression> FromExpressions { get; } = new();
 
+    /// <summary>
+    /// Gets the join expressions.
+    /// </summary>
+    /// <value>
+    /// The join expressions.
+    /// </value>
     protected HashSet<JoinExpression> JoinExpressions { get; } = new();
 
+    /// <summary>
+    /// Gets the table expression.
+    /// </summary>
+    /// <value>
+    /// The table expression.
+    /// </value>
     protected TableExpression TableExpression { get; private set; }
 
 
+    /// <summary>
+    /// Set the target table to update.
+    /// </summary>
+    /// <param name="tableName">Name of the table.</param>
+    /// <param name="tableSchema">The table schema.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder Table(
         string tableName,
         string tableSchema = null,
@@ -48,6 +105,15 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
+    /// <summary>
+    /// Adds a value with specified column name and value.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="columnName">Name of the column.</param>
+    /// <param name="parameterValue">The parameter value.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder Value<TValue>(
         string columnName,
         TValue parameterValue)
@@ -55,6 +121,15 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return Value(columnName, parameterValue, typeof(TValue));
     }
 
+    /// <summary>
+    /// Adds a value with specified column name and value.
+    /// </summary>
+    /// <param name="columnName">Name of the column.</param>
+    /// <param name="parameterValue">The parameter value.</param>
+    /// <param name="parameterType">Type of the parameter.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder Value(
         string columnName,
         object parameterValue,
@@ -72,6 +147,16 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
+    /// <summary>
+    /// Conditionally adds a value with specified column name and value.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="columnName">Name of the column.</param>
+    /// <param name="parameterValue">The parameter value.</param>
+    /// <param name="condition">The condition.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder ValueIf<TValue>(
         string columnName,
         TValue parameterValue,
@@ -84,6 +169,14 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
+    /// <summary>
+    /// Add an output clause for the specified column names.
+    /// </summary>
+    /// <param name="columnNames">The column names.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder Output(
         IEnumerable<string> columnNames,
         string tableAlias = "INSERTED")
@@ -97,6 +190,15 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
+    /// <summary>
+    /// Add an output clause for the specified column name.
+    /// </summary>
+    /// <param name="columnName">Name of the column.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnAlias">The column alias.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder Output(
         string columnName,
         string tableAlias = "INSERTED",
@@ -109,6 +211,16 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
+    /// <summary>
+    /// Conditionally add an output clause for the specified column name.
+    /// </summary>
+    /// <param name="columnName">Name of the column.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnAlias">The column alias.</param>
+    /// <param name="condition">The condition.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder OutputIf(
         string columnName,
         string tableAlias = "INSERTED",
@@ -122,6 +234,15 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
 
+    /// <summary>
+    /// Add a from clause to the query.
+    /// </summary>
+    /// <param name="tableName">Name of the table.</param>
+    /// <param name="tableSchema">The table schema.</param>
+    /// <param name="tableAlias">The table alias.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public virtual TBuilder From(
         string tableName,
         string tableSchema = null,
@@ -134,6 +255,13 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
+    /// <summary>
+    /// Add a raw from clause to the query.
+    /// </summary>
+    /// <param name="fromClause">From clause.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder FromRaw(string fromClause)
     {
         if (fromClause.HasValue())
@@ -142,6 +270,13 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
+    /// <summary>
+    /// Add a join clause using the specified builder action
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <returns>
+    /// The same builder so that multiple calls can be chained.
+    /// </returns>
     public TBuilder Join(Action<JoinBuilder> builder)
     {
         var innerBuilder = new JoinBuilder(QueryGenerator, Parameters);
@@ -152,7 +287,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-
+    /// <inheritdoc />
     public override QueryStatement BuildStatement()
     {
         var updateStatement = new UpdateStatement(
