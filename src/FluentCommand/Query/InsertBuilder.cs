@@ -96,7 +96,7 @@ public abstract class InsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="columnName">Name of the column.</param>
     /// <param name="parameterValue">The parameter value.</param>
-c    public TBuilder Value<TValue>(
+    public TBuilder Value<TValue>(
         string columnName,
         TValue parameterValue)
     {
