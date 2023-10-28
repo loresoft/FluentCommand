@@ -207,7 +207,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Value(p => p.DisplayName, "Last, First")
                 .Value(p => p.FirstName, "First")
                 .Value(p => p.LastName, "Last")
-                .Output(p => p.Id, tableAlias: "")
+                .Output(p => p.Id)
                 .Tag()
             )
             .QueryValueAsync<Guid>();
@@ -237,7 +237,7 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Insert<User>()
                 .Values(user)
-                .Output(p => p.Id, tableAlias: "")
+                .Output(p => p.Id)
                 .Tag()
             )
             .QueryValueAsync<Guid>();
@@ -267,7 +267,7 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Insert<User>()
                 .Values(user)
-                .Output(p => p.Id, tableAlias: "")
+                .Output(p => p.Id)
                 .Tag()
             )
             .QueryValueAsync<Guid>();
@@ -289,7 +289,7 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Update<User>()
                 .Value(p => p.DisplayName, "Updated")
-                .Output(p => p.Id, tableAlias: "")
+                .Output(p => p.Id)
                 .Where(p => p.Id, id)
                 .Tag()
             )
@@ -300,7 +300,7 @@ public class DataQueryTests : DatabaseTestBase
         var deleteId = await session
             .Sql(builder => builder
                 .Delete<User>()
-                .Output(p => p.Id, tableAlias: "")
+                .Output(p => p.Id)
                 .Where(p => p.Id, id)
                 .Tag()
             )

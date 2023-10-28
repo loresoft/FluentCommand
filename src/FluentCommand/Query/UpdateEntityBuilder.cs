@@ -113,7 +113,7 @@ public class UpdateEntityBuilder<TEntity>
     /// </returns>
     public UpdateEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = "INSERTED",
+        string tableAlias = null,
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
@@ -133,7 +133,7 @@ public class UpdateEntityBuilder<TEntity>
     /// </returns>
     public UpdateEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = "INSERTED",
+        string tableAlias = null,
         string columnAlias = null,
         Func<string, bool> condition = null)
     {

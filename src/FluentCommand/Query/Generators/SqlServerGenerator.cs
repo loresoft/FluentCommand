@@ -116,10 +116,11 @@ public class SqlServerGenerator : IQueryGenerator
 
         if (insertStatement.OutputExpressions?.Count > 0)
         {
+
             insertBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(", ", insertStatement.OutputExpressions.Select(ColumnExpression));
+                .AppendJoin(", ", insertStatement.OutputExpressions.Select(c => ColumnExpression(c, "INSERTED")));
         }
 
         insertBuilder
@@ -163,7 +164,7 @@ public class SqlServerGenerator : IQueryGenerator
             updateBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(", ", updateStatement.OutputExpressions.Select(ColumnExpression));
+                .AppendJoin(", ", updateStatement.OutputExpressions.Select(c => ColumnExpression(c, "INSERTED")));
         }
 
         if (updateStatement.FromExpressions?.Count > 0)
@@ -224,7 +225,7 @@ public class SqlServerGenerator : IQueryGenerator
             deleteBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(", ", deleteStatement.OutputExpressions.Select(ColumnExpression));
+                .AppendJoin(", ", deleteStatement.OutputExpressions.Select(c => ColumnExpression(c, "DELETED")));
         }
 
         if (deleteStatement.FromExpressions?.Count > 0)
@@ -538,4 +539,14 @@ public class SqlServerGenerator : IQueryGenerator
         return name;
     }
 
+
+    private string ColumnExpression(ColumnExpression columnExpression, string tableAlias)
+    {
+        var column = columnExpression with
+        {
+            TableAlias = columnExpression.TableAlias ?? tableAlias
+        };
+
+        return ColumnExpression(column);
+    }
 }

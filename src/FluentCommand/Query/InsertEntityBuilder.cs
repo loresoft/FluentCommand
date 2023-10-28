@@ -108,7 +108,7 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// </returns>
     public InsertEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = "INSERTED",
+        string tableAlias = null,
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
@@ -128,7 +128,7 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// </returns>
     public InsertEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = "INSERTED",
+        string tableAlias = null,
         string columnAlias = null,
         Func<string, bool> condition = null)
     {

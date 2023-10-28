@@ -179,7 +179,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Output(
         IEnumerable<string> columnNames,
-        string tableAlias = "INSERTED")
+        string tableAlias = null)
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -201,7 +201,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Output(
         string columnName,
-        string tableAlias = "INSERTED",
+        string tableAlias = null,
         string columnAlias = null)
     {
         var outputClause = new ColumnExpression(columnName, tableAlias, columnAlias);
@@ -223,7 +223,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder OutputIf(
         string columnName,
-        string tableAlias = "INSERTED",
+        string tableAlias = null,
         string columnAlias = null,
         Func<string, bool> condition = null)
     {

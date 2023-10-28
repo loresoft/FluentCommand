@@ -44,7 +44,7 @@ public class DeleteEntityBuilder<TEntity>
     /// </returns>
     public DeleteEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = "DELETED",
+        string tableAlias = null,
         string columnAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
@@ -64,7 +64,7 @@ public class DeleteEntityBuilder<TEntity>
     /// </returns>
     public DeleteEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = "DELETED",
+        string tableAlias = null,
         string columnAlias = null,
         Func<string, bool> condition = null)
     {
