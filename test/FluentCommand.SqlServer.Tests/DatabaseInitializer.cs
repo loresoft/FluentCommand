@@ -8,7 +8,6 @@ using DbUp.Engine;
 using DbUp.Engine.Output;
 
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -17,9 +16,9 @@ namespace FluentCommand.SqlServer.Tests;
 public class DatabaseInitializer : IHostedService, IUpgradeLog
 {
     private readonly ILogger<DatabaseInitializer> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly IDataConfiguration _configuration;
 
-    public DatabaseInitializer(ILogger<DatabaseInitializer> logger, IConfiguration configuration)
+    public DatabaseInitializer(ILogger<DatabaseInitializer> logger, IDataConfiguration configuration)
     {
         _logger = logger;
         _configuration = configuration;
@@ -28,7 +27,7 @@ public class DatabaseInitializer : IHostedService, IUpgradeLog
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        var connectionString = _configuration.GetConnectionString("Tracker");
+        var connectionString = _configuration.ConnectionString;
 
         // create database
         EnsureDatabase.For
