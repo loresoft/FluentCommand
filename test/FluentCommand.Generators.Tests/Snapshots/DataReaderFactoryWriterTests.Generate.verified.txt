@@ -8,9 +8,6 @@ namespace FluentCommand.Entities
     /// <summary>
     /// Extension methods for FluentCommand
     /// </summary>
-    [global::System.CodeDom.Compiler.GeneratedCode("FluentCommand.Generators", "1.0.0.0")]
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.Diagnostics.DebuggerStepThroughAttribute]
     public static partial class StatusDataReaderExtensions
     {
         /// <summary>

@@ -28,6 +28,6 @@ public class User
 
     [ConcurrencyCheck]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    [DataFieldConverter<ConcurrencyTokenHandler>]
+    [DataFieldConverter(typeof(ConcurrencyTokenHandler))]
     public ConcurrencyToken RowVersion { get; set; }
 }

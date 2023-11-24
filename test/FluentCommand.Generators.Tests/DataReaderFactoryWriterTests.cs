@@ -28,6 +28,7 @@ public class DataReaderFactoryWriterTests
 
         await Verifier
             .Verify(source)
-            .UseDirectory("Snapshots");
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("GeneratedCodeAttribute");
     }
 }
