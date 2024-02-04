@@ -10,7 +10,6 @@ using Xunit;
 
 namespace FluentCommand.Tests.Query;
 
-[UsesVerify]
 public class UpdateBuilderTest
 {
     [Fact]

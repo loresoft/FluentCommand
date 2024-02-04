@@ -443,6 +443,24 @@ public static class DataRecordExtensions
     /// </summary>
     /// <typeparam name="T">The record value type</typeparam>
     /// <param name="dataRecord">The data record.</param>
+    /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+    /// <returns>
+    /// The <typeparamref name="T"/> which will contain the field value upon return.
+    /// </returns>
+    public static T GetValue<T>(this IDataRecord dataRecord, string name)
+    {
+        int ordinal = dataRecord.GetOrdinal(name);
+        if (dataRecord is DbDataReader dataReader)
+            return dataReader.GetFieldValue<T>(ordinal);
+
+        return (T)dataRecord.GetValue(ordinal);
+    }
+
+    /// <summary>
+    /// Gets the value of the specified field.
+    /// </summary>
+    /// <typeparam name="T">The record value type</typeparam>
+    /// <param name="dataRecord">The data record.</param>
     /// <param name="index">The zero-based column ordinal.</param>
     /// <returns>
     /// The <typeparamref name="T"/> which will contain the field value upon return.

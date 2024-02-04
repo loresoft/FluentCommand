@@ -12,7 +12,6 @@ using Xunit;
 
 namespace FluentCommand.Tests.Query;
 
-[UsesVerify]
 public class SelectBuilderTest
 {
     [Fact]
