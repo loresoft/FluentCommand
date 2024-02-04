@@ -1,4 +1,4 @@
-﻿/* Caller; SelectEntityJoinBuilder() in SelectBuilderTest.cs:line 247 */
+﻿/* Caller; SelectEntityJoinBuilder() in SelectBuilderTest.cs:line 246 */
 SELECT [t].[Id], [t].[Description], [t].[DueDate], [u].[DisplayName], [u].[EmailAddress] AS [Email], [s].[Name] AS [Status]
 FROM [Task] AS [t]
 INNER JOIN [dbo].[Status] AS [s] ON [t].[StatusId] = [s].[Id]

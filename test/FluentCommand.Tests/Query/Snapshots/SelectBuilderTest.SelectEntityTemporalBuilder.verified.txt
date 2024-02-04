@@ -1,4 +1,4 @@
-﻿/* Caller; SelectEntityTemporalBuilder() in SelectBuilderTest.cs:line 143 */
+﻿/* Caller; SelectEntityTemporalBuilder() in SelectBuilderTest.cs:line 142 */
 SELECT [Id], [Name]
 FROM [dbo].[Status] FOR SYSTEM_TIME AS OF @p0000
 WHERE ([Id] = @p0001)

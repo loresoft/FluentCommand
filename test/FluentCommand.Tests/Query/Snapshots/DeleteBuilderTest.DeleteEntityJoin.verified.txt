@@ -1,4 +1,4 @@
-﻿/* Caller; DeleteEntityJoin() in DeleteBuilderTest.cs:line 58 */
+﻿/* Caller; DeleteEntityJoin() in DeleteBuilderTest.cs:line 57 */
 DELETE FROM [Task]
 OUTPUT [DELETED].[Id]
 FROM [Task] AS [t]

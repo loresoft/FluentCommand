@@ -4,7 +4,6 @@ using FluentCommand.Generators.Models;
 
 namespace FluentCommand.Generators.Tests;
 
-[UsesVerify]
 public class DataReaderFactoryWriterTests
 {
     [Fact]
