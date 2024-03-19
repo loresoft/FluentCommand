@@ -35,7 +35,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Generators.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Performance", "test\FluentCommand.Performance\FluentCommand.Performance.csproj", "{A5C1646D-4508-46C4-9C5B-17D0654AFEE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Caching", "src\FluentCommand.Caching\FluentCommand.Caching.csproj", "{4565EA0D-C7E4-4327-B78D-C5B19C76AC8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Caching", "src\FluentCommand.Caching\FluentCommand.Caching.csproj", "{4565EA0D-C7E4-4327-B78D-C5B19C76AC8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Csv", "src\FluentCommand.Csv\FluentCommand.Csv.csproj", "{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +93,10 @@ Global
 		{4565EA0D-C7E4-4327-B78D-C5B19C76AC8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4565EA0D-C7E4-4327-B78D-C5B19C76AC8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4565EA0D-C7E4-4327-B78D-C5B19C76AC8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

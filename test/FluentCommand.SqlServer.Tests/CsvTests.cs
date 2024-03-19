@@ -18,30 +18,30 @@ using Task = System.Threading.Tasks.Task;
 
 namespace FluentCommand.SqlServer.Tests;
 
-public class JsonTests : DatabaseTestBase
+public class CsvTests : DatabaseTestBase
 {
-    public JsonTests(ITestOutputHelper output, DatabaseFixture databaseFixture)
+    public CsvTests(ITestOutputHelper output, DatabaseFixture databaseFixture)
         : base(output, databaseFixture)
     {
 
     }
 
     [Fact]
-    public void QueryJson()
+    public void QueryCsv()
     {
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string sql = "select TOP 1000 * from [User]";
 
-        var json = session.Sql(sql)
-            .QueryJson();
+        var data = session.Sql(sql)
+            .QueryCsv();
 
-        json.Should().NotBeNull();
+        data.Should().NotBeNull();
     }
 
     [Fact]
-    public void QueryJsonSteamAzurite()
+    public void QueryCsvSteamAzurite()
     {
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
@@ -51,14 +51,14 @@ public class JsonTests : DatabaseTestBase
 
         blobContainer.CreateIfNotExists();
 
-        var exportFile = $"{nameof(QueryJsonSteamAzurite)}-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.json";
+        var exportFile = $"{nameof(QueryCsvSteamAzurite)}-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.csv";
         var exportClient = blobContainer.GetBlobClient(exportFile);
 
         var options = new BlobOpenWriteOptions
         {
             HttpHeaders = new BlobHttpHeaders
             {
-                ContentType = MediaTypeNames.Application.Json
+                ContentType = "text/csv"
             }
         };
 
@@ -67,27 +67,27 @@ public class JsonTests : DatabaseTestBase
         string sql = "select TOP 1000 * from [User]";
 
         session.Sql(sql)
-            .QueryJson(exportStream);
+            .QueryCsv(exportStream);
 
         exportStream.Flush();
     }
 
     [Fact]
-    public async Task QueryJsonAsync()
+    public async Task QueryCsvAsync()
     {
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
         string sql = "select TOP 1000 * from [User]";
 
-        var json = await session.Sql(sql)
-            .QueryJsonAsync();
+        var data = await session.Sql(sql)
+            .QueryCsvAsync();
 
-        json.Should().NotBeNull();
+        data.Should().NotBeNull();
     }
 
     [Fact]
-    public async Task QueryJsonSteamAzuriteAsync()
+    public async Task QueryCsvSteamAzuriteAsync()
     {
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
@@ -97,14 +97,14 @@ public class JsonTests : DatabaseTestBase
 
         await blobContainer.CreateIfNotExistsAsync();
 
-        var exportFile = $"{nameof(QueryJsonSteamAzuriteAsync)}-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.json";
+        var exportFile = $"{nameof(QueryCsvSteamAzuriteAsync)}-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.csv";
         var exportClient = blobContainer.GetBlobClient(exportFile);
 
         var options = new BlobOpenWriteOptions
         {
             HttpHeaders = new BlobHttpHeaders
             {
-                ContentType = MediaTypeNames.Application.Json
+                ContentType = "text/csv"
             }
         };
 
@@ -113,7 +113,7 @@ public class JsonTests : DatabaseTestBase
         string sql = "select TOP 1000 * from [User]";
 
         await session.Sql(sql)
-            .QueryJsonAsync(exportStream);
+            .QueryCsvAsync(exportStream);
 
         await exportStream.FlushAsync();
     }
@@ -124,14 +124,14 @@ public class JsonTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        var json = await session
+        var data = await session
             .Sql(builder => builder
                 .Select<Status>()
                 .OrderBy(p => p.DisplayOrder)
                 .Limit(0, 1000)
             )
-            .QueryJsonAsync();
+            .QueryCsvAsync();
 
-        json.Should().NotBeNull();
+        data.Should().NotBeNull();
     }
 }

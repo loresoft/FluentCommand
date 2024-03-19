@@ -1,7 +1,10 @@
+using System.Buffers;
 using System.Data;
 using System.Data.Common;
 using System.Text;
 using System.Text.Json;
+
+using Microsoft.IO;
 
 namespace FluentCommand;
 
@@ -10,6 +13,8 @@ namespace FluentCommand;
 /// </summary>
 public static class JsonCommandExtensions
 {
+    private static readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
+
     /// <summary>
     /// Executes the query and returns a JSON string from data set returned by the query.
     /// </summary>
@@ -20,19 +25,41 @@ public static class JsonCommandExtensions
     /// </returns>
     public static string QueryJson(this IDataCommand dataCommand, JsonWriterOptions options = default)
     {
-        using var stream = new MemoryStream();
-        using var writer = new Utf8JsonWriter(stream, options);
+        using var stream = _memoryStreamManager.GetStream();
+
+        QueryJson(dataCommand, stream, options);
+
+        var bytes = stream.GetReadOnlySequence();
+
+#if NETSTANDARD2_1_OR_GREATER
+        return Encoding.UTF8.GetString(bytes);
+#else
+        return Encoding.UTF8.GetString(bytes.ToArray());
+#endif
+    }
+
+    /// <summary>
+    /// Executes the query and returns a JSON string from data set returned by the query.
+    /// </summary>
+    /// <param name="dataCommand">The data command.</param>
+    /// <param name="stream">The destination for writing JSON text.</param>
+    /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
+    /// <returns>
+    /// A JSON string representing the <see cref="IDataReader" /> result of the command.
+    /// </returns>
+    public static void QueryJson(this IDataCommand dataCommand, Stream stream, JsonWriterOptions options = default)
+    {
+        var writer = new Utf8JsonWriter(stream, options);
 
         writer.WriteStartArray();
 
-        dataCommand.Read(reader => WriteData(reader, writer), CommandBehavior.SequentialAccess);
+        dataCommand.Read(reader => WriteData(reader, writer), CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
 
         writer.WriteEndArray();
 
         writer.Flush();
-
-        return Encoding.UTF8.GetString(stream.ToArray());
     }
+
 
     /// <summary>
     /// Executes the query and returns a JSON string from data set returned by the query asynchronously.
@@ -45,8 +72,33 @@ public static class JsonCommandExtensions
     /// </returns>
     public static async Task<string> QueryJsonAsync(this IDataCommand dataCommand, JsonWriterOptions options = default, CancellationToken cancellationToken = default)
     {
-        using var stream = new MemoryStream();
-        await using var writer = new Utf8JsonWriter(stream, options);
+        using var stream = _memoryStreamManager.GetStream();
+
+        await QueryJsonAsync(dataCommand, stream, options, cancellationToken);
+
+        var bytes = stream.GetReadOnlySequence();
+
+#if NETSTANDARD2_1_OR_GREATER
+        return Encoding.UTF8.GetString(bytes);
+#else
+        return Encoding.UTF8.GetString(bytes.ToArray());
+#endif
+
+    }
+
+    /// <summary>
+    /// Executes the query and returns a JSON string from data set returned by the query asynchronously.
+    /// </summary>
+    /// <param name="dataCommand">The data command.</param>
+    /// <param name="stream">The destination for writing JSON text.</param>
+    /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    /// A JSON string representing the <see cref="IDataReader" /> result of the command.
+    /// </returns>
+    public static async Task QueryJsonAsync(this IDataCommand dataCommand, Stream stream, JsonWriterOptions options = default, CancellationToken cancellationToken = default)
+    {
+        var writer = new Utf8JsonWriter(stream, options);
 
         writer.WriteStartArray();
 
@@ -62,9 +114,8 @@ public static class JsonCommandExtensions
         writer.WriteEndArray();
 
         await writer.FlushAsync(cancellationToken);
-
-        return Encoding.UTF8.GetString(stream.ToArray());
     }
+
 
     private static void WriteData(IDataReader reader, Utf8JsonWriter writer)
     {

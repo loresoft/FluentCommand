@@ -239,7 +239,6 @@ _Pvt_Extensions
 /artifacts
 /Tools
 *.GhostDoc.xml
-*.csv
 coverage.xml
 coverage.opencover.xml
 *.received.txt

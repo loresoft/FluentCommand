@@ -24,29 +24,33 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="35.4.0" />
-    <PackageReference Include="coverlet.collector" Version="6.0.0">
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
+    <PackageReference Include="Bogus" Version="35.5.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="CsvHelper" Version="31.0.2" />
     <PackageReference Include="dbup-sqlserver" Version="5.0.40" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="Testcontainers.MsSql" Version="3.7.0" />
-    <PackageReference Include="Testcontainers.Redis" Version="3.7.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="Testcontainers.Azurite" Version="3.8.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="3.8.0" />
+    <PackageReference Include="Testcontainers.Redis" Version="3.8.0" />
     <PackageReference Include="XUnit.Hosting" Version="1.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="xunit" Version="2.6.6" />
+    <PackageReference Include="xunit" Version="2.7.0" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FluentCommand.Caching\FluentCommand.Caching.csproj" />
+    <ProjectReference Include="..\..\src\FluentCommand.Csv\FluentCommand.Csv.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand.Json\FluentCommand.Json.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand.SqlServer\FluentCommand.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand\FluentCommand.csproj" />
