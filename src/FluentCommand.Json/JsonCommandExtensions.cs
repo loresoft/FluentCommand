@@ -25,13 +25,16 @@ public static class JsonCommandExtensions
     /// </returns>
     public static string QueryJson(this IDataCommand dataCommand, JsonWriterOptions options = default)
     {
+        if (dataCommand is null)
+            throw new ArgumentNullException(nameof(dataCommand));
+
         using var stream = _memoryStreamManager.GetStream();
 
         QueryJson(dataCommand, stream, options);
 
         var bytes = stream.GetReadOnlySequence();
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NET5_0_OR_GREATER
         return Encoding.UTF8.GetString(bytes);
 #else
         return Encoding.UTF8.GetString(bytes.ToArray());
@@ -49,6 +52,11 @@ public static class JsonCommandExtensions
     /// </returns>
     public static void QueryJson(this IDataCommand dataCommand, Stream stream, JsonWriterOptions options = default)
     {
+        if (dataCommand is null)
+            throw new ArgumentNullException(nameof(dataCommand));
+        if (stream is null)
+            throw new ArgumentNullException(nameof(stream));
+
         var writer = new Utf8JsonWriter(stream, options);
 
         writer.WriteStartArray();
@@ -72,13 +80,16 @@ public static class JsonCommandExtensions
     /// </returns>
     public static async Task<string> QueryJsonAsync(this IDataCommand dataCommand, JsonWriterOptions options = default, CancellationToken cancellationToken = default)
     {
+        if (dataCommand is null)
+            throw new ArgumentNullException(nameof(dataCommand));
+
         using var stream = _memoryStreamManager.GetStream();
 
         await QueryJsonAsync(dataCommand, stream, options, cancellationToken);
 
         var bytes = stream.GetReadOnlySequence();
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NET5_0_OR_GREATER
         return Encoding.UTF8.GetString(bytes);
 #else
         return Encoding.UTF8.GetString(bytes.ToArray());
@@ -98,6 +109,11 @@ public static class JsonCommandExtensions
     /// </returns>
     public static async Task QueryJsonAsync(this IDataCommand dataCommand, Stream stream, JsonWriterOptions options = default, CancellationToken cancellationToken = default)
     {
+        if (dataCommand is null)
+            throw new ArgumentNullException(nameof(dataCommand));
+        if (stream is null)
+            throw new ArgumentNullException(nameof(stream));
+
         var writer = new Utf8JsonWriter(stream, options);
 
         writer.WriteStartArray();

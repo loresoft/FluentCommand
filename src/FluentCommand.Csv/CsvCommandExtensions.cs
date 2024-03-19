@@ -25,13 +25,16 @@ public static class CsvCommandExtensions
     /// </returns>
     public static string QueryCsv(this IDataCommand dataCommand, CsvConfiguration csvConfiguration = default)
     {
+        if (dataCommand is null)
+            throw new ArgumentNullException(nameof(dataCommand));
+
         using var stream = _memoryStreamManager.GetStream();
 
         QueryCsv(dataCommand, stream, csvConfiguration);
 
         var bytes = stream.GetReadOnlySequence();
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NET5_0_OR_GREATER
         return Encoding.UTF8.GetString(bytes);
 #else
         return Encoding.UTF8.GetString(bytes.ToArray());
@@ -46,6 +49,11 @@ public static class CsvCommandExtensions
     /// <param name="csvConfiguration">The configuration used for the CSV writer</param>
     public static void QueryCsv(this IDataCommand dataCommand, Stream stream, CsvConfiguration csvConfiguration = default)
     {
+        if (dataCommand is null)
+            throw new ArgumentNullException(nameof(dataCommand));
+        if (stream is null)
+            throw new ArgumentNullException(nameof(stream));
+
         if (csvConfiguration == null)
             csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };
 
@@ -70,12 +78,16 @@ public static class CsvCommandExtensions
     /// </returns>
     public static async Task<string> QueryCsvAsync(this IDataCommand dataCommand, CsvConfiguration csvConfiguration = default, CancellationToken cancellationToken = default)
     {
+        if (dataCommand is null)
+            throw new ArgumentNullException(nameof(dataCommand));
+
         using var stream = _memoryStreamManager.GetStream();
 
         await QueryCsvAsync(dataCommand, stream, csvConfiguration, cancellationToken);
 
         var bytes = stream.GetReadOnlySequence();
-#if NETSTANDARD2_1_OR_GREATER
+
+#if NET5_0_OR_GREATER
         return Encoding.UTF8.GetString(bytes);
 #else
         return Encoding.UTF8.GetString(bytes.ToArray());
@@ -94,6 +106,11 @@ public static class CsvCommandExtensions
     /// </returns>
     public static async Task QueryCsvAsync(this IDataCommand dataCommand, Stream stream, CsvConfiguration csvConfiguration = default, CancellationToken cancellationToken = default)
     {
+        if (dataCommand is null)
+            throw new ArgumentNullException(nameof(dataCommand));
+        if (stream is null)
+            throw new ArgumentNullException(nameof(stream));
+
         if (csvConfiguration == null)
             csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };
 
