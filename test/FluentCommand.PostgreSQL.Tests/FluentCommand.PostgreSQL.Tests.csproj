@@ -31,7 +31,7 @@
     <PackageReference Include="Npgsql" Version="8.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="Testcontainers.Postgresql" Version="3.8.0" />
-    <PackageReference Include="XUnit.Hosting" Version="1.2.0" />
+    <PackageReference Include="XUnit.Hosting" Version="1.5.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
