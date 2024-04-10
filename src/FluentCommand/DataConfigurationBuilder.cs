@@ -15,8 +15,7 @@ namespace FluentCommand;
 public class DataConfigurationBuilder
 {
     private readonly IServiceCollection _services;
-    private string _connectionName;
-    private string _connectionString;
+    private string _nameOrConnectionString;
     private Type _providerFactoryType;
     private Type _dataCacheType;
     private Type _queryGeneratorType;
@@ -33,15 +32,15 @@ public class DataConfigurationBuilder
 
 
     /// <summary>
-    /// The name of the connection to resolve the connection string from configuration.
+    /// Set the connection string or the name of connection string located in the application configuration
     /// </summary>
-    /// <param name="connectionName">Name of the connection.</param>
+    /// <param name="nameOrConnectionString">The connection string or the name of connection string located in the application configuration.</param>
     /// <returns>
     /// The same configuration builder so that multiple calls can be chained.
     /// </returns>
-    public DataConfigurationBuilder UseConnectionName(string connectionName)
+    public DataConfigurationBuilder UseConnectionName(string nameOrConnectionString)
     {
-        _connectionName = connectionName;
+        _nameOrConnectionString = nameOrConnectionString;
         return this;
     }
 
@@ -54,7 +53,7 @@ public class DataConfigurationBuilder
     /// </returns>
     public DataConfigurationBuilder UseConnectionString(string connectionString)
     {
-        _connectionString = connectionString;
+        _nameOrConnectionString = connectionString;
         return this;
     }
 
@@ -323,34 +322,18 @@ public class DataConfigurationBuilder
         var queryGenerator = _queryGeneratorType ?? typeof(IQueryGenerator);
         var queryLogger = _queryLoggerType ?? typeof(IDataQueryLogger);
 
-        if (_connectionName.HasValue())
+        _services.TryAddSingleton<IDataConfiguration>(sp =>
         {
-            _services.TryAddSingleton<IDataConfiguration>(sp =>
-            {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-                var connectionString = configuration.GetConnectionString(_connectionName);
+            var connectionString = ResolveConnectionString(sp, _nameOrConnectionString);
 
-                return new DataConfiguration(
-                    sp.GetRequiredService(providerFactory) as DbProviderFactory,
-                    connectionString,
-                    sp.GetService(dataCache) as IDataCache,
-                    sp.GetService(queryGenerator) as IQueryGenerator,
-                    sp.GetService(queryLogger) as IDataQueryLogger
-                );
-            });
-        }
-        else
-        {
-            _services.TryAddSingleton<IDataConfiguration>(sp =>
-                new DataConfiguration(
-                    sp.GetRequiredService(providerFactory) as DbProviderFactory,
-                    _connectionString,
-                    sp.GetService(dataCache) as IDataCache,
-                    sp.GetService(queryGenerator) as IQueryGenerator,
-                    sp.GetService(queryLogger) as IDataQueryLogger
-                )
+            return new DataConfiguration(
+                sp.GetRequiredService(providerFactory) as DbProviderFactory,
+                connectionString,
+                sp.GetService(dataCache) as IDataCache,
+                sp.GetService(queryGenerator) as IQueryGenerator,
+                sp.GetService(queryLogger) as IDataQueryLogger
             );
-        }
+        });
 
         _services.TryAddTransient<IDataSessionFactory>(sp => sp.GetService<IDataConfiguration>());
         _services.TryAddTransient<IDataSession, DataSession>();
@@ -366,34 +349,18 @@ public class DataConfigurationBuilder
         var queryGenerator = _queryGeneratorType ?? typeof(IQueryGenerator);
         var queryLogger = _queryLoggerType ?? typeof(IDataQueryLogger);
 
-        if (_connectionName.HasValue())
+        _services.TryAddSingleton<IDataConfiguration<TDiscriminator>>(sp =>
         {
-            _services.TryAddSingleton<IDataConfiguration<TDiscriminator>>(sp =>
-            {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-                var connectionString = configuration.GetConnectionString(_connectionName);
+            var connectionString = ResolveConnectionString(sp, _nameOrConnectionString);
 
-                return new DataConfiguration<TDiscriminator>(
-                    sp.GetRequiredService(providerFactory) as DbProviderFactory,
-                    connectionString,
-                    sp.GetService(dataCache) as IDataCache,
-                    sp.GetService(queryGenerator) as IQueryGenerator,
-                    sp.GetService(queryLogger) as IDataQueryLogger
-                );
-            });
-        }
-        else
-        {
-            _services.TryAddSingleton<IDataConfiguration<TDiscriminator>>(sp =>
-                new DataConfiguration<TDiscriminator>(
-                    sp.GetRequiredService(providerFactory) as DbProviderFactory,
-                    _connectionString,
-                    sp.GetService(dataCache) as IDataCache,
-                    sp.GetService(queryGenerator) as IQueryGenerator,
-                    sp.GetService(queryLogger) as IDataQueryLogger
-                )
+            return new DataConfiguration<TDiscriminator>(
+                sp.GetRequiredService(providerFactory) as DbProviderFactory,
+                connectionString,
+                sp.GetService(dataCache) as IDataCache,
+                sp.GetService(queryGenerator) as IQueryGenerator,
+                sp.GetService(queryLogger) as IDataQueryLogger
             );
-        }
+        });
 
         _services.TryAddTransient<IDataSessionFactory<TDiscriminator>>(sp => sp.GetService<IDataConfiguration<TDiscriminator>>());
         _services.TryAddTransient<IDataSession<TDiscriminator>, DataSession<TDiscriminator>>();
@@ -421,5 +388,26 @@ public class DataConfigurationBuilder
         else
             _services.TryAddSingleton<IDataQueryLogger, DataQueryLogger>();
 
+    }
+
+    private static string ResolveConnectionString(IServiceProvider serviceProvider, string nameOrConnectionString)
+    {
+        var isConnectionString = nameOrConnectionString.IndexOfAny([';', '=']) > 0;
+        if (isConnectionString)
+            return nameOrConnectionString;
+
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+        // first try connection strings section
+        var connectionString = configuration.GetConnectionString(nameOrConnectionString);
+        if (connectionString.HasValue())
+            return connectionString;
+
+        // next try root collection
+        connectionString = configuration[nameOrConnectionString];
+        if (connectionString.HasValue())
+            return connectionString;
+
+        return null;
     }
 }

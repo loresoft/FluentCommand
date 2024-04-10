@@ -11,13 +11,13 @@ public static class ServiceCollectionExtensions
     /// Adds the fluent command services with the specified connection string.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-    /// <param name="connectionString">The connection string to use.</param>
+    /// <param name="nameOrConnectionString">The connection string or the name of connection string located in the application configuration.</param>
     /// <returns>
     /// The same service collection so that multiple calls can be chained.
     /// </returns>
-    public static IServiceCollection AddFluentCommand(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddFluentCommand(this IServiceCollection services, string nameOrConnectionString)
     {
-        services.AddFluentCommand(builder => builder.UseConnectionString(connectionString));
+        services.AddFluentCommand(builder => builder.UseConnectionName(nameOrConnectionString));
 
         return services;
     }
@@ -45,13 +45,13 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <typeparam name="TDiscriminator">The type of the discriminator.</typeparam>
     /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-    /// <param name="connectionString">The connection string to use.</param>
+    /// <param name="nameOrConnectionString">The connection string or the name of connection string located in the application configuration.</param>
     /// <returns>
     /// The same service collection so that multiple calls can be chained.
     /// </returns>
-    public static IServiceCollection AddFluentCommand<TDiscriminator>(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddFluentCommand<TDiscriminator>(this IServiceCollection services, string nameOrConnectionString)
     {
-        services.AddFluentCommand<TDiscriminator>(builder => builder.UseConnectionString(connectionString));
+        services.AddFluentCommand<TDiscriminator>(builder => builder.UseConnectionName(nameOrConnectionString));
 
         return services;
     }
