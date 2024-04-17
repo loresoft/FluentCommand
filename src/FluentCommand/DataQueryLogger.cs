@@ -1,28 +1,30 @@
 using System.Data;
+using System.Text;
+
+using FluentCommand.Extensions;
+using FluentCommand.Internal;
 
 using Microsoft.Extensions.Logging;
 
 namespace FluentCommand;
 
 /// <summary>
-/// A class for logging queries 
+/// A class for logging queries
 /// </summary>
 /// <seealso cref="FluentCommand.IDataQueryLogger" />
 public partial class DataQueryLogger : IDataQueryLogger
 {
-    private readonly ILogger<DataQueryLogger> _logger;
-    private readonly IDataQueryFormatter _formatter;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataQueryLogger"/> class.
     /// </summary>
     /// <param name="logger">The logger.</param>
-    /// <param name="formatter">The formatter for the data command</param>
-    public DataQueryLogger(ILogger<DataQueryLogger> logger, IDataQueryFormatter formatter)
+    public DataQueryLogger(ILogger<DataQueryLogger> logger)
     {
-        _logger = logger;
-        _formatter = formatter;
+        Logger = logger;
     }
+
+    protected ILogger Logger { get; }
 
     /// <summary>
     /// Log the current specified <paramref name="command" />
@@ -34,23 +36,69 @@ public partial class DataQueryLogger : IDataQueryLogger
     /// <exception cref="System.ArgumentNullException">command</exception>
     public virtual void LogCommand(IDbCommand command, TimeSpan duration, Exception exception = null, object state = null)
     {
-        if (_logger == null)
+        if (Logger == null)
             return;
 
         if (command is null)
             throw new ArgumentNullException(nameof(command));
 
-        var output = _formatter.FormatCommand(command, duration, exception);
+        var elapsed = duration.TotalMilliseconds;
+        var commandType = command.CommandType;
+        var commandTimeout = command.CommandTimeout;
+        var commandText = command.CommandText;
+        var parameterText = FormatParameters(command);
 
         if (exception == null)
-            LogCommand(output);
+            LogCommand(Logger, elapsed, commandType, commandTimeout, commandText, parameterText);
         else
-            LogError(output, exception);
+            LogError(Logger, elapsed, commandType, commandTimeout, commandText, parameterText, exception);
     }
 
-    [LoggerMessage(0, LogLevel.Debug, "{output}")]
-    private partial void LogCommand(string output);
+    protected static string FormatParameters(IDbCommand command)
+    {
+        if (command is null || command.Parameters == null || command.Parameters.Count == 0)
+            return string.Empty;
 
-    [LoggerMessage(1, LogLevel.Error, "{output}")]
-    private partial void LogError(string output, Exception exception);
+        var parameterText = StringBuilderCache.Acquire();
+
+        foreach (IDataParameter parameter in command.Parameters)
+        {
+            int precision = 0;
+            int scale = 0;
+            int size = 0;
+
+            if (parameter is IDbDataParameter dataParameter)
+            {
+                precision = dataParameter.Precision;
+                scale = dataParameter.Scale;
+                size = dataParameter.Size;
+            }
+
+            parameterText
+                .AppendLineIf(() => parameterText.Length > 0)
+                .Append("-- ")
+                .Append(parameter.ParameterName)
+                .Append(": ")
+                .Append(parameter.Direction)
+                .Append(" ")
+                .Append(parameter.DbType)
+                .Append("(Size=")
+                .Append(size)
+                .Append("; Precision=")
+                .Append(precision)
+                .Append("; Scale=")
+                .Append(scale)
+                .Append(") [")
+                .Append(parameter.Value)
+                .Append("]");
+        }
+
+        return parameterText.ToString();
+    }
+
+    [LoggerMessage(0, LogLevel.Debug, "Executed DbCommand ({Elapsed} ms) [CommandType='{CommandType}', CommandTimeout='{CommandTimeout}']\r\n{CommandText}\r\n{ParameterText}")]
+    protected static partial void LogCommand(ILogger logger, double elapsed, CommandType commandType, int commandTimeout, string commandText, string parameterText);
+
+    [LoggerMessage(1, LogLevel.Error, "Error Executing DbCommand ({Elapsed} ms) [CommandType='{CommandType}', CommandTimeout='{CommandTimeout}']\r\n{CommandText}\r\n{ParameterText}")]
+    protected static partial void LogError(ILogger logger, double elapsed, CommandType commandType, int commandTimeout, string commandText, string parameterText, Exception exception);
 }

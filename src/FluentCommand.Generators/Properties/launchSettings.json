@@ -3,6 +3,10 @@
     "FluentCommand.Tests": {
       "commandName": "DebugRoslynComponent",
       "targetProject": "..\\..\\test\\FluentCommand.Tests\\FluentCommand.Tests.csproj"
+    },
+    "FluentCommand.Entities": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\test\\FluentCommand.Entities\\FluentCommand.Entities.csproj"
     }
   }
 }
