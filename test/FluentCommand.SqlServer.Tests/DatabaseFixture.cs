@@ -7,7 +7,6 @@ using FluentCommand.Caching;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 using Testcontainers.Azurite;
 using Testcontainers.MsSql;
@@ -19,7 +18,7 @@ using XUnit.Hosting;
 
 namespace FluentCommand.SqlServer.Tests;
 
-public class DatabaseFixture : TestHostFixture, IAsyncLifetime
+public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
 {
     private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
@@ -46,14 +45,12 @@ public class DatabaseFixture : TestHostFixture, IAsyncLifetime
         await _azuriteContainer.DisposeAsync();
     }
 
-    protected override void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
+    protected override void ConfigureApplication(HostApplicationBuilder builder)
     {
-        base.ConfigureLogging(context, builder);
-        builder.SetMinimumLevel(LogLevel.Debug);
-    }
+        base.ConfigureApplication(builder);
 
-    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-    {
+        var services = builder.Services;
+
         // change database from container default
         var connectionBuilder = new SqlConnectionStringBuilder(_msSqlContainer.GetConnectionString())
         {

@@ -14,7 +14,7 @@ using XUnit.Hosting;
 
 namespace FluentCommand.PostgreSQL.Tests;
 
-public class DatabaseFixture : TestHostFixture, IAsyncLifetime
+public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
         .WithDatabase("TrackerDocker")
@@ -30,15 +30,11 @@ public class DatabaseFixture : TestHostFixture, IAsyncLifetime
         await _postgreSqlContainer.DisposeAsync();
     }
 
-
-    protected override void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
+    protected override void ConfigureApplication(HostApplicationBuilder builder)
     {
-        base.ConfigureLogging(context, builder);
-        builder.SetMinimumLevel(LogLevel.Debug);
-    }
+        base.ConfigureApplication(builder);
 
-    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-    {
+        var services = builder.Services;
         var trackerConnection = _postgreSqlContainer.GetConnectionString();
 
         services.AddHostedService<DatabaseInitializer>();
