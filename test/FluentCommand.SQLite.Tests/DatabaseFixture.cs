@@ -1,22 +1,19 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 using XUnit.Hosting;
 
 namespace FluentCommand.SQLite.Tests;
 
-public class DatabaseFixture : TestHostFixture
+public class DatabaseFixture : TestApplicationFixture
 {
-    protected override void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
+    protected override void ConfigureApplication(HostApplicationBuilder builder)
     {
-        base.ConfigureLogging(context, builder);
-        builder.SetMinimumLevel(LogLevel.Debug);
-    }
+        base.ConfigureApplication(builder);
 
-    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-    {
+        var services = builder.Services;
+
         services.AddHostedService<DatabaseInitializer>();
 
         services.AddFluentCommand(builder => builder

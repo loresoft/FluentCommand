@@ -1,11 +1,6 @@
-using System;
 using System.Data;
 
-using FluentAssertions;
-
 using FluentCommand.Tests.Models;
-
-using Xunit;
 
 using HashCode = FluentCommand.Internal.HashCode;
 

@@ -1,12 +1,6 @@
-using System.Collections.Generic;
-
 using FluentCommand.Entities;
 using FluentCommand.Query;
 using FluentCommand.Query.Generators;
-
-using VerifyXunit;
-
-using Xunit;
 
 namespace FluentCommand.Tests.Query;
 
@@ -53,7 +47,7 @@ public class DeleteBuilderTest
         var sqlProvider = new SqlServerGenerator();
         var parameters = new List<QueryParameter>();
 
-        var builder = new DeleteEntityBuilder<Task>(sqlProvider, parameters)
+        var builder = new DeleteEntityBuilder<Entities.Task>(sqlProvider, parameters)
             .Tag()
             .Output(p => p.Id)
             .From(tableAlias: "t")

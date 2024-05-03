@@ -1,7 +1,5 @@
 using System.Data;
 
-using FluentCommand.Internal;
-
 namespace FluentCommand.Tests.Models;
 
 public class Parameter
@@ -12,7 +10,7 @@ public class Parameter
 
     public override int GetHashCode()
     {
-        return HashCode.Seed
+        return FluentCommand.Internal.HashCode.Seed
             .Combine(Name)
             .Combine(Value)
             .Combine(DbType);

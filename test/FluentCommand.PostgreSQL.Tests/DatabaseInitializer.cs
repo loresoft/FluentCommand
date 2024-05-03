@@ -1,11 +1,8 @@
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 
 using DbUp;
 using DbUp.Engine.Output;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

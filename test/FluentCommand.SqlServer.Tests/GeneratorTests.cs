@@ -1,12 +1,7 @@
-using FluentAssertions;
-
 using FluentCommand.Entities;
 using FluentCommand.Query;
 
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
-using Xunit.Abstractions;
 
 using Task = System.Threading.Tasks.Task;
 

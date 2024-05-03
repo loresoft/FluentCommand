@@ -1,6 +1,3 @@
-using Xunit;
-using Xunit.Abstractions;
-
 using XUnit.Hosting;
 
 namespace FluentCommand.SqlServer.Tests;

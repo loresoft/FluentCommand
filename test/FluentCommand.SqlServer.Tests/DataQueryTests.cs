@@ -1,17 +1,8 @@
-using System;
-using System.Linq;
-using System.Transactions;
-
-using FluentAssertions;
-
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
 using FluentCommand.Query;
 
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
-using Xunit.Abstractions;
 
 using IsolationLevel = System.Data.IsolationLevel;
 

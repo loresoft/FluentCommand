@@ -1,13 +1,5 @@
-using System;
-using System.Collections.Generic;
-
-using FluentAssertions;
-
 using FluentCommand.Entities;
 using FluentCommand.Merge;
-
-using Xunit;
-using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests;
 

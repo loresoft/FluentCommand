@@ -1,18 +1,10 @@
-using System;
-using System.Net.Mime;
-
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-
-using FluentAssertions;
 
 using FluentCommand.Entities;
 using FluentCommand.Query;
 
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
-using Xunit.Abstractions;
 
 using Task = System.Threading.Tasks.Task;
 

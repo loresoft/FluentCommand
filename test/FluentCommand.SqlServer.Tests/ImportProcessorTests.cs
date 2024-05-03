@@ -1,12 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using FluentAssertions;
-
 using FluentCommand.Import;
-
-using Xunit;
 
 namespace FluentCommand.SqlServer.Tests;
 

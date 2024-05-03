@@ -1,15 +1,10 @@
 using System.Data.Common;
 
-using FluentAssertions;
-
 using FluentCommand.Caching;
 using FluentCommand.Query.Generators;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
-using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests;
 

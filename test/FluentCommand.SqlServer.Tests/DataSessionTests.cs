@@ -1,12 +1,7 @@
 using System.Data;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
-using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests;
 

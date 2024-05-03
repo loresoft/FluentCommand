@@ -1,12 +1,6 @@
-using System.Collections.Generic;
-
 using FluentCommand.Entities;
 using FluentCommand.Query;
 using FluentCommand.Query.Generators;
-
-using VerifyXunit;
-
-using Xunit;
 
 namespace FluentCommand.Tests.Query;
 
@@ -40,7 +34,7 @@ public class UpdateBuilderTest
         var sqlProvider = new SqlServerGenerator();
         var parameters = new List<QueryParameter>();
 
-        var builder = new UpdateEntityBuilder<Task>(sqlProvider, parameters)
+        var builder = new UpdateEntityBuilder<Entities.Task>(sqlProvider, parameters)
             .Value(p => p.Description, "test")
             .Value(p => p.Updated, System.DateTimeOffset.UtcNow)
             .Output(p => p.Id)

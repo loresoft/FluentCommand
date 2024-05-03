@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 using Azure.Storage.Blobs;
 
 using FluentCommand.Caching;
@@ -11,8 +9,6 @@ using Microsoft.Extensions.Hosting;
 using Testcontainers.Azurite;
 using Testcontainers.MsSql;
 using Testcontainers.Redis;
-
-using Xunit;
 
 using XUnit.Hosting;
 

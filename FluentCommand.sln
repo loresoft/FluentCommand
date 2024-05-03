@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand", "src\FluentCommand\FluentCommand.csproj", "{4D5F125D-8DD5-496B-959E-78F55D8BE946}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{228D7B65-A886-4D86-AED0-F3CB0C61819B}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Entities", "test\FluentCommand.Entities\FluentCommand.Entities.csproj", "{A1DC06EF-CBFB-4EE7-883D-4BF0369F2654}"
 EndProject
@@ -37,7 +40,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Performance",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Caching", "src\FluentCommand.Caching\FluentCommand.Caching.csproj", "{4565EA0D-C7E4-4327-B78D-C5B19C76AC8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Csv", "src\FluentCommand.Csv\FluentCommand.Csv.csproj", "{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Csv", "src\FluentCommand.Csv\FluentCommand.Csv.csproj", "{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

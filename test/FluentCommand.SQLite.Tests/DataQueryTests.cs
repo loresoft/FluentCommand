@@ -1,17 +1,9 @@
-using System;
-using System.Linq;
-
-using FluentAssertions;
-
 using FluentCommand;
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
 using FluentCommand.Query;
 
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
-using Xunit.Abstractions;
 
 namespace FluentCommand.SQLite.Tests;
 

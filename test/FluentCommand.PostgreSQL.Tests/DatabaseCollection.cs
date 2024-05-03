@@ -1,7 +1,3 @@
-using System;
-
-using Xunit;
-
 namespace FluentCommand.PostgreSQL.Tests;
 
 [CollectionDefinition(DatabaseCollection.CollectionName)]

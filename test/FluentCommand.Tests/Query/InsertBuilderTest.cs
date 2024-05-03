@@ -1,12 +1,6 @@
-using System.Collections.Generic;
-
 using FluentCommand.Entities;
 using FluentCommand.Query;
 using FluentCommand.Query.Generators;
-
-using VerifyXunit;
-
-using Xunit;
 
 namespace FluentCommand.Tests.Query;
 

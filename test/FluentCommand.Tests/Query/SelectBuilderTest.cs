@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using FluentCommand.Entities;
 using FluentCommand.Query;
 using FluentCommand.Query.Generators;
-
-using VerifyXunit;
-
-using Xunit;
 
 namespace FluentCommand.Tests.Query;
 
@@ -242,7 +236,7 @@ public class SelectBuilderTest
         var sqlProvider = new SqlServerGenerator();
         var parameters = new List<QueryParameter>();
 
-        var builder = new SelectEntityBuilder<Task>(sqlProvider, parameters, LogicalOperators.And)
+        var builder = new SelectEntityBuilder<Entities.Task>(sqlProvider, parameters, LogicalOperators.And)
             .Tag()
             .Column(p => p.Id, "t")
             .Column(p => p.Description, "t")

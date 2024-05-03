@@ -1,17 +1,10 @@
-using System;
 using System.Data;
-using System.Linq;
 
 using Bogus;
-
-using FluentAssertions;
 
 using FluentCommand.Entities;
 
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
-using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests;
 

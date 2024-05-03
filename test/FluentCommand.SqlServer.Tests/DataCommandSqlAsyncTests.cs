@@ -1,17 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using FluentAssertions;
-
 using FluentCommand.Entities;
 using FluentCommand.Extensions;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
-
-using Xunit;
-using Xunit.Abstractions;
 
 namespace FluentCommand.SqlServer.Tests;
 
