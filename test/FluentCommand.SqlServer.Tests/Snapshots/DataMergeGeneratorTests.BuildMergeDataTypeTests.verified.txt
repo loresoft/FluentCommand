@@ -1,0 +1,102 @@
+﻿MERGE INTO [dbo].[DataType] AS t
+USING
+(
+    VALUES
+    (1, 'Test1', 0, 2, 200, 200.2, 300.35, 456.12, '2024-05-01 08:00:00Z', '2024-05-01 14:00:00Z', '00000000-0000-0000-0000-000000000000', '01:00:00', '2022-12-01', '01:30:00.000000', 0, 2, 200, 200.2, 300.35, 456.12, '2024-04-01 08:00:00Z', '2024-04-01 14:00:00Z', '00000000-0000-0000-0000-000000000000', '01:00:00', '2022-12-01', '01:30:00.000000'), 
+    (2, 'Test2', 1, 3, 400, 600.2, 700.35, 856.12, '2024-05-01 08:00:00Z', '2024-05-01 14:00:00Z', '00000000-0000-0000-0000-000000000000', '02:00:00', '2022-12-12', '06:30:00.000000', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+)
+AS s
+(
+    [Id], [Name], [Boolean], [Short], [Long], [Float], [Double], [Decimal], [DateTime], [DateTimeOffset], [Guid], [TimeSpan], [DateOnly], [TimeOnly], [BooleanNull], [ShortNull], [LongNull], [FloatNull], [DoubleNull], [DecimalNull], [DateTimeNull], [DateTimeOffsetNull], [GuidNull], [TimeSpanNull], [DateOnlyNull], [TimeOnlyNull]
+)
+ON
+(
+    t.[Id] = s.[Id]
+)
+WHEN NOT MATCHED BY TARGET THEN 
+    INSERT
+    (
+        [Id],
+        [Name],
+        [Boolean],
+        [Short],
+        [Long],
+        [Float],
+        [Double],
+        [Decimal],
+        [DateTime],
+        [DateTimeOffset],
+        [Guid],
+        [TimeSpan],
+        [DateOnly],
+        [TimeOnly],
+        [BooleanNull],
+        [ShortNull],
+        [LongNull],
+        [FloatNull],
+        [DoubleNull],
+        [DecimalNull],
+        [DateTimeNull],
+        [DateTimeOffsetNull],
+        [GuidNull],
+        [TimeSpanNull],
+        [DateOnlyNull],
+        [TimeOnlyNull]
+    )
+    VALUES
+    (
+        s.[Id],
+        s.[Name],
+        s.[Boolean],
+        s.[Short],
+        s.[Long],
+        s.[Float],
+        s.[Double],
+        s.[Decimal],
+        s.[DateTime],
+        s.[DateTimeOffset],
+        s.[Guid],
+        s.[TimeSpan],
+        s.[DateOnly],
+        s.[TimeOnly],
+        s.[BooleanNull],
+        s.[ShortNull],
+        s.[LongNull],
+        s.[FloatNull],
+        s.[DoubleNull],
+        s.[DecimalNull],
+        s.[DateTimeNull],
+        s.[DateTimeOffsetNull],
+        s.[GuidNull],
+        s.[TimeSpanNull],
+        s.[DateOnlyNull],
+        s.[TimeOnlyNull]
+    )
+WHEN MATCHED THEN 
+    UPDATE SET
+        t.[Name] = s.[Name],
+        t.[Boolean] = s.[Boolean],
+        t.[Short] = s.[Short],
+        t.[Long] = s.[Long],
+        t.[Float] = s.[Float],
+        t.[Double] = s.[Double],
+        t.[Decimal] = s.[Decimal],
+        t.[DateTime] = s.[DateTime],
+        t.[DateTimeOffset] = s.[DateTimeOffset],
+        t.[Guid] = s.[Guid],
+        t.[TimeSpan] = s.[TimeSpan],
+        t.[DateOnly] = s.[DateOnly],
+        t.[TimeOnly] = s.[TimeOnly],
+        t.[BooleanNull] = s.[BooleanNull],
+        t.[ShortNull] = s.[ShortNull],
+        t.[LongNull] = s.[LongNull],
+        t.[FloatNull] = s.[FloatNull],
+        t.[DoubleNull] = s.[DoubleNull],
+        t.[DecimalNull] = s.[DecimalNull],
+        t.[DateTimeNull] = s.[DateTimeNull],
+        t.[DateTimeOffsetNull] = s.[DateTimeOffsetNull],
+        t.[GuidNull] = s.[GuidNull],
+        t.[TimeSpanNull] = s.[TimeSpanNull],
+        t.[DateOnlyNull] = s.[DateOnlyNull],
+        t.[TimeOnlyNull] = s.[TimeOnlyNull]
+;

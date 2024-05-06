@@ -126,14 +126,38 @@ public class DataMergeGeneratorTests
         Output.WriteLine("MergeStatement:");
         Output.WriteLine(sql);
     }
+
     [Fact]
-    public void BuildMergeDataTypeTests()
+    public async System.Threading.Tasks.Task BuildTableSqlTest()
     {
         var definition = new DataMergeDefinition();
 
         DataMergeDefinition.AutoMap<DataType>(definition);
         definition.Columns.Should().NotBeNullOrEmpty();
+        definition.TargetTable = "dbo.DataType";
 
+        var column = definition.Columns.Find(c => c.SourceColumn == "Id");
+        column.Should().NotBeNull();
+
+        column.IsKey = true;
+        column.CanUpdate = false;
+
+        var tableStatement = DataMergeGenerator.BuildTable(definition);
+        tableStatement.Should().NotBeNull();
+        await Verifier
+            .Verify(tableStatement)
+            .UseDirectory("Snapshots")
+            .AddScrubber(scrubber => scrubber.Replace(definition.TemporaryTable, "#MergeTable"));
+
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task BuildMergeDataTypeTests()
+    {
+        var definition = new DataMergeDefinition();
+
+        DataMergeDefinition.AutoMap<DataType>(definition);
+        definition.Columns.Should().NotBeNullOrEmpty();
         definition.TargetTable = "dbo.DataType";
 
         var column = definition.Columns.Find(c => c.SourceColumn == "Id");
@@ -144,8 +168,7 @@ public class DataMergeGeneratorTests
 
         var users = new List<DataType>
         {
-            new DataType
-            {
+            new() {
                 Id = 1,
                 Name = "Test1",
                 Boolean = false,
@@ -154,8 +177,8 @@ public class DataMergeGeneratorTests
                 Float = 200.20F,
                 Double = 300.35,
                 Decimal = 456.12M,
-                DateTime = DateTime.Now,
-                DateTimeOffset = DateTimeOffset.Now,
+                DateTime = new DateTime(2024, 5, 1, 8, 0, 0),
+                DateTimeOffset = new DateTimeOffset(2024, 5, 1, 8, 0, 0, TimeSpan.FromHours(-6)),
                 Guid = Guid.Empty,
                 TimeSpan = TimeSpan.FromHours(1),
                 DateOnly = new DateOnly(2022, 12, 1),
@@ -166,15 +189,14 @@ public class DataMergeGeneratorTests
                 FloatNull = 200.20F,
                 DoubleNull = 300.35,
                 DecimalNull = 456.12M,
-                DateTimeNull = DateTime.Now,
-                DateTimeOffsetNull = DateTimeOffset.Now,
+                DateTimeNull = new DateTime(2024, 4, 1, 8, 0, 0),
+                DateTimeOffsetNull = new DateTimeOffset(2024, 4, 1, 8, 0, 0, TimeSpan.FromHours(-6)),
                 GuidNull = Guid.Empty,
                 TimeSpanNull = TimeSpan.FromHours(1),
                 DateOnlyNull = new DateOnly(2022, 12, 1),
                 TimeOnlyNull = new TimeOnly(1, 30, 0),
             },
-            new DataType
-            {
+            new() {
                 Id = 2,
                 Name = "Test2",
                 Boolean = true,
@@ -183,8 +205,8 @@ public class DataMergeGeneratorTests
                 Float = 600.20F,
                 Double = 700.35,
                 Decimal = 856.12M,
-                DateTime = DateTime.Now,
-                DateTimeOffset = DateTimeOffset.Now,
+                DateTime = new DateTime(2024, 5, 1, 8, 0, 0),
+                DateTimeOffset = new DateTimeOffset(2024, 5, 1, 8, 0, 0, TimeSpan.FromHours(-6)),
                 Guid = Guid.Empty,
                 TimeSpan = TimeSpan.FromHours(2),
                 DateOnly = new DateOnly(2022, 12, 12),
@@ -194,11 +216,35 @@ public class DataMergeGeneratorTests
 
         var listDataReader = new ListDataReader<DataType>(users);
 
-        var sql = DataMergeGenerator.BuildMerge(definition, listDataReader);
-        sql.Should().NotBeNullOrEmpty();
+        var mergeDataStatement = DataMergeGenerator.BuildMerge(definition, listDataReader);
+        mergeDataStatement.Should().NotBeNullOrEmpty();
+        await Verifier
+            .Verify(mergeDataStatement)
+            .UseDirectory("Snapshots")
+            .AddScrubber(scrubber => scrubber.Replace(definition.TemporaryTable, "#MergeTable"));
+    }
 
-        Output.WriteLine("MergeStatement:");
-        Output.WriteLine(sql);
+    [Fact]
+    public async System.Threading.Tasks.Task BuildMergeDataTableTests()
+    {
+        var definition = new DataMergeDefinition();
+
+        DataMergeDefinition.AutoMap<DataType>(definition);
+        definition.Columns.Should().NotBeNullOrEmpty();
+        definition.TargetTable = "dbo.DataType";
+
+        var column = definition.Columns.Find(c => c.SourceColumn == "Id");
+        column.Should().NotBeNull();
+
+        column.IsKey = true;
+        column.CanUpdate = false;
+
+        var mergeStatement = DataMergeGenerator.BuildMerge(definition);
+        mergeStatement.Should().NotBeNull();
+        await Verifier
+            .Verify(mergeStatement)
+            .UseDirectory("Snapshots")
+            .AddScrubber(scrubber => scrubber.Replace(definition.TemporaryTable, "#MergeTable"));
     }
 
     [Fact]

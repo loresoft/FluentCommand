@@ -1,0 +1,124 @@
+﻿MERGE INTO [dbo].[DataType] AS t
+USING
+(
+    SELECT
+        [Id],
+        [Name],
+        [Boolean],
+        [Short],
+        [Long],
+        [Float],
+        [Double],
+        [Decimal],
+        [DateTime],
+        [DateTimeOffset],
+        [Guid],
+        [TimeSpan],
+        [DateOnly],
+        [TimeOnly],
+        [BooleanNull],
+        [ShortNull],
+        [LongNull],
+        [FloatNull],
+        [DoubleNull],
+        [DecimalNull],
+        [DateTimeNull],
+        [DateTimeOffsetNull],
+        [GuidNull],
+        [TimeSpanNull],
+        [DateOnlyNull],
+        [TimeOnlyNull]
+    FROM [#MergeTable]
+)
+AS s
+ON
+(
+    t.[Id] = s.[Id]
+)
+WHEN NOT MATCHED BY TARGET THEN 
+    INSERT
+    (
+        [Id],
+        [Name],
+        [Boolean],
+        [Short],
+        [Long],
+        [Float],
+        [Double],
+        [Decimal],
+        [DateTime],
+        [DateTimeOffset],
+        [Guid],
+        [TimeSpan],
+        [DateOnly],
+        [TimeOnly],
+        [BooleanNull],
+        [ShortNull],
+        [LongNull],
+        [FloatNull],
+        [DoubleNull],
+        [DecimalNull],
+        [DateTimeNull],
+        [DateTimeOffsetNull],
+        [GuidNull],
+        [TimeSpanNull],
+        [DateOnlyNull],
+        [TimeOnlyNull]
+    )
+    VALUES
+    (
+        s.[Id],
+        s.[Name],
+        s.[Boolean],
+        s.[Short],
+        s.[Long],
+        s.[Float],
+        s.[Double],
+        s.[Decimal],
+        s.[DateTime],
+        s.[DateTimeOffset],
+        s.[Guid],
+        s.[TimeSpan],
+        s.[DateOnly],
+        s.[TimeOnly],
+        s.[BooleanNull],
+        s.[ShortNull],
+        s.[LongNull],
+        s.[FloatNull],
+        s.[DoubleNull],
+        s.[DecimalNull],
+        s.[DateTimeNull],
+        s.[DateTimeOffsetNull],
+        s.[GuidNull],
+        s.[TimeSpanNull],
+        s.[DateOnlyNull],
+        s.[TimeOnlyNull]
+    )
+WHEN MATCHED THEN 
+    UPDATE SET
+        t.[Name] = s.[Name],
+        t.[Boolean] = s.[Boolean],
+        t.[Short] = s.[Short],
+        t.[Long] = s.[Long],
+        t.[Float] = s.[Float],
+        t.[Double] = s.[Double],
+        t.[Decimal] = s.[Decimal],
+        t.[DateTime] = s.[DateTime],
+        t.[DateTimeOffset] = s.[DateTimeOffset],
+        t.[Guid] = s.[Guid],
+        t.[TimeSpan] = s.[TimeSpan],
+        t.[DateOnly] = s.[DateOnly],
+        t.[TimeOnly] = s.[TimeOnly],
+        t.[BooleanNull] = s.[BooleanNull],
+        t.[ShortNull] = s.[ShortNull],
+        t.[LongNull] = s.[LongNull],
+        t.[FloatNull] = s.[FloatNull],
+        t.[DoubleNull] = s.[DoubleNull],
+        t.[DecimalNull] = s.[DecimalNull],
+        t.[DateTimeNull] = s.[DateTimeNull],
+        t.[DateTimeOffsetNull] = s.[DateTimeOffsetNull],
+        t.[GuidNull] = s.[GuidNull],
+        t.[TimeSpanNull] = s.[TimeSpanNull],
+        t.[DateOnlyNull] = s.[DateOnlyNull],
+        t.[TimeOnlyNull] = s.[TimeOnlyNull]
+;

@@ -73,6 +73,22 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     public string Column => _columnAttribute.Value?.Name ?? Name;
 
     /// <summary>
+    /// Gets the database provider specific data type of the column the property is mapped to
+    /// </summary>
+    /// <value>
+    /// The database provider specific data type of the column the property is mapped to
+    /// </value>
+    public string ColumnType => _columnAttribute.Value?.TypeName;
+
+    /// <summary>
+    /// Gets the zero-based order of the column the property is mapped to
+    /// </summary>
+    /// <value>
+    /// The zero-based order of the column the property is mapped to
+    /// </value>
+    public int? ColumnOrder => _columnAttribute.Value?.Order;
+
+    /// <summary>
     /// Gets a value indicating that this property is the unique identify for the entity
     /// </summary>
     /// <value>
@@ -170,7 +186,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// Returns a hash code for this instance.
     /// </summary>
     /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
     /// </returns>
     public override int GetHashCode()
     {

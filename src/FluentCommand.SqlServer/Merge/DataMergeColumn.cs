@@ -72,10 +72,21 @@ public class DataMergeColumn
     public bool IsKey { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the column is ignored, not used by merge.  
+    /// Gets or sets a value indicating whether the column is ignored, not used by merge.
     /// </summary>
     /// <value>
     /// <c>true</c> if the column is ignored; otherwise, <c>false</c>.
     /// </value>
     public bool IsIgnored { get; set; }
+
+    /// <summary>
+    /// Converts to string.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String" /> that represents this instance.
+    /// </returns>
+    public override string ToString()
+    {
+        return $"Source: {SourceColumn}, Target: {TargetColumn}, NativeType: {NativeType}, Key: {IsKey}, Ignored: {IsIgnored}";
+    }
 }

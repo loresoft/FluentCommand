@@ -1,8 +1,5 @@
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
 using FluentCommand.Extensions;
+using FluentCommand.Reflection;
 
 namespace FluentCommand.Merge;
 
@@ -116,64 +113,29 @@ public class DataMergeDefinition
     /// <param name="mergeDefinition">The merge definition up auto map to.</param>
     public static void AutoMap<TEntity>(DataMergeDefinition mergeDefinition)
     {
-        var entityType = typeof(TEntity);
-        var properties = TypeDescriptor.GetProperties(entityType);
+        var typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
+        // don't overwrite existing
+        if (mergeDefinition.TargetTable.IsNullOrEmpty())
+            mergeDefinition.TargetTable = typeAccessor.TableSchema.HasValue() ? $"{typeAccessor.TableSchema}.{typeAccessor.TableName}" : typeAccessor.TableName;
 
-        var tableAttribute = Attribute.GetCustomAttribute(entityType, typeof(TableAttribute)) as TableAttribute;
-        if (tableAttribute != null)
+        foreach (var property in typeAccessor.GetProperties())
         {
-            string targetTable = tableAttribute.Name;
-            if (!string.IsNullOrEmpty(tableAttribute.Schema))
-                targetTable = tableAttribute.Schema + "." + targetTable;
+            string sourceColumn = property.Name;
+            string targetColumn = property.Column;
+            string nativeType = property.ColumnType ?? SqlTypeMapping.NativeType(property.MemberType);
 
-            mergeDefinition.TargetTable = targetTable;
-        }
-
-        if (string.IsNullOrEmpty(mergeDefinition.TargetTable))
-            mergeDefinition.TargetTable = entityType.Name;
-
-        foreach (PropertyDescriptor p in properties)
-        {
-            string sourceColumn = p.Name;
-            string targetColumn = sourceColumn;
-            string nativeType = SqlTypeMapping.NativeType(p.PropertyType);
-
-            var columnAttribute = p.Attributes
-                .OfType<ColumnAttribute>()
-                .FirstOrDefault();
-
-            if (columnAttribute != null)
-            {
-                if (columnAttribute.Name.HasValue())
-                    targetColumn = columnAttribute.Name;
-                if (columnAttribute.TypeName.HasValue())
-                    nativeType = columnAttribute.TypeName;
-            }
-
+            // find existing map and update
             var mergeColumn = mergeDefinition.Columns.FirstOrAdd(
                 m => m.SourceColumn == sourceColumn,
                 () => new DataMergeColumn { SourceColumn = sourceColumn });
 
             mergeColumn.TargetColumn = targetColumn;
             mergeColumn.NativeType = nativeType;
-
-            var keyAttribute = p.Attributes
-                .OfType<KeyAttribute>()
-                .FirstOrDefault();
-
-            if (keyAttribute != null)
-            {
-                mergeColumn.IsKey = true;
-                mergeColumn.CanUpdate = false;
-            }
-
-            var ignoreAttribute = p.Attributes
-                .OfType<NotMappedAttribute>()
-                .FirstOrDefault();
-
-            if (ignoreAttribute != null)
-                mergeColumn.IsIgnored = true;
+            mergeColumn.IsKey = property.IsKey;
+            mergeColumn.CanUpdate = !property.IsKey && !property.IsDatabaseGenerated && !property.IsConcurrencyCheck;
+            mergeColumn.CanInsert = !property.IsDatabaseGenerated && !property.IsConcurrencyCheck;
+            mergeColumn.IsIgnored = property.IsNotMapped;
         }
     }
 

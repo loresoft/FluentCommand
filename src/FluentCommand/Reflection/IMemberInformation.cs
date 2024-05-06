@@ -34,6 +34,22 @@ public interface IMemberInformation
     string Column { get; }
 
     /// <summary>
+    /// Gets the database provider specific data type of the column the property is mapped to
+    /// </summary>
+    /// <value>
+    /// The database provider specific data type of the column the property is mapped to
+    /// </value>
+    string ColumnType { get; }
+
+    /// <summary>
+    /// Gets the zero-based order of the column the property is mapped to
+    /// </summary>
+    /// <value>
+    /// The zero-based order of the column the property is mapped to
+    /// </value>
+    int? ColumnOrder { get; }
+
+    /// <summary>
     /// Gets a value indicating that this property is the unique identify for the entity
     /// </summary>
     /// <value>

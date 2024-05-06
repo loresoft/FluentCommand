@@ -20,7 +20,11 @@ public static class SqlTypeMapping
         {typeof(TimeSpan), "time"},
         {typeof(DateTime), "datetime2"},
         {typeof(DateTimeOffset), "datetimeoffset"},
-        {typeof(Guid), "uniqueidentifier"}
+        {typeof(Guid), "uniqueidentifier"},
+        #if NET6_0_OR_GREATER
+        {typeof(DateOnly), "date"},
+        {typeof(TimeOnly), "time"},
+        #endif
     };
 
     /// <summary>
