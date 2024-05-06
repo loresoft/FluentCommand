@@ -1,4 +1,3 @@
-﻿/* Caller; DeleteEntityWithComment() in DeleteBuilderTest.cs:line 39 */
-DELETE FROM [dbo].[Status]
+﻿DELETE FROM [dbo].[Status]
 OUTPUT [DELETED].[Id]
 WHERE ([Id] = @p0000);

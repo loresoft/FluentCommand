@@ -25,7 +25,10 @@ public class UpdateBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -49,6 +52,9 @@ public class UpdateBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 }

@@ -24,6 +24,9 @@ public class InsertBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 }

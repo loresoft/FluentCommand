@@ -35,7 +35,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -58,7 +61,9 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots");
     }
 
     [Fact]
@@ -82,7 +87,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -103,7 +111,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -123,7 +134,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -144,7 +158,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -168,7 +185,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -188,7 +208,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
     [Fact]
     public async System.Threading.Tasks.Task SelectEntityWhereInDouble()
@@ -208,7 +231,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
     [Fact]
     public async System.Threading.Tasks.Task SelectEntityWhereInIf()
@@ -227,7 +253,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -262,7 +291,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
 
     [Fact]
@@ -278,7 +310,10 @@ public class SelectBuilderTest
 
         var sql = queryStatement.Statement;
 
-        await Verifier.Verify(sql).UseDirectory("Snapshots");
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .ScrubLinesContaining("/* Caller;");
     }
     private class EntityAlias
     {

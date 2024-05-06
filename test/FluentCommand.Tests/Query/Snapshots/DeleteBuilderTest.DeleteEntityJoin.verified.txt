@@ -1,5 +1,4 @@
-﻿/* Caller; DeleteEntityJoin() in DeleteBuilderTest.cs:line 57 */
-DELETE FROM [Task]
+﻿DELETE FROM [Task]
 OUTPUT [DELETED].[Id]
 FROM [Task] AS [t]
 INNER JOIN [Priority] AS [p] ON [t].[PriorityId] = [p].[Id]

@@ -1,5 +1,4 @@
-﻿/* Caller; SelectColumnsAliasWhereTagBuilder() in SelectBuilderTest.cs:line 122 */
-SELECT [EntityId] AS [Id], [Name]
+﻿SELECT [EntityId] AS [Id], [Name]
 FROM [EntityAlias]
 WHERE ([EntityId] = @p0000)
 ORDER BY [Name] ASC;
