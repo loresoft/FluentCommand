@@ -334,9 +334,7 @@ public class DataCommand : DisposableBase, IDataCommand
         return QueryFactory(() =>
         {
             var result = Command.ExecuteScalar();
-            var value = result.ConvertValue(convert);
-
-            return value;
+            return ConvertExtensions.ConvertValue(result, convert);
         }, true);
     }
 
@@ -356,9 +354,7 @@ public class DataCommand : DisposableBase, IDataCommand
         return await QueryFactoryAsync(async (token) =>
         {
             var result = await Command.ExecuteScalarAsync(token).ConfigureAwait(false);
-            var value = result.ConvertValue(convert);
-
-            return value;
+            return ConvertExtensions.ConvertValue(result, convert);
         }, true, cancellationToken).ConfigureAwait(false);
     }
 

@@ -139,9 +139,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
             ? _reader.GetValue(0)
             : default(TValue);
 
-        var value = result.ConvertValue(convert);
-
-        return value;
+        return ConvertExtensions.ConvertValue(result, convert);
     }
 
     /// <summary>
@@ -163,9 +161,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
             ? _reader.GetValue(0)
             : default(TValue);
 
-        var value = result.ConvertValue(convert);
-
-        return value;
+        return ConvertExtensions.ConvertValue(result, convert);
     }
 
 

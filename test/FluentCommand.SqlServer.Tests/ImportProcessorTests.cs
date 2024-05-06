@@ -99,11 +99,7 @@ public class ImportProcessorTests : ImportProcessor
     }
 
     [Theory]
-    [InlineData("1", typeof(int), 1)]
-    [InlineData("true", typeof(bool), true)]
-    [InlineData("", typeof(int?), null)]
-    [InlineData("", typeof(int), 0)]
-    [InlineData("test", typeof(string), "test")]
+    [MemberData(nameof(ConvertData))]
     public async Task ConvertValueTest(string value, Type type, object expected)
     {
         var fieldDefinition = new FieldDefinition();
@@ -111,7 +107,7 @@ public class ImportProcessorTests : ImportProcessor
         fieldDefinition.DataType = type;
 
         var convertedValue = await ConvertValue(null, fieldDefinition, value);
-        Assert.Equal(convertedValue, expected);
+        Assert.Equal(expected, convertedValue);
     }
 
     [Theory]
@@ -128,6 +124,21 @@ public class ImportProcessorTests : ImportProcessor
         var resultValue = GetDefault(fieldDefinition, "test@user.com");
         Assert.Equal(resultValue, expected);
     }
+
+    public static TheoryData<string, Type, object> ConvertData =>
+        new()
+        {
+            { "1", typeof(int), 1 },
+            { "true", typeof(bool), true },
+            { "", typeof(int?), null },
+            { "", typeof(int), 0 },
+            { "test", typeof(string), "test" },
+            { "3/5/2024", typeof(DateOnly), new DateOnly(2024, 3, 5) },
+            { "2024-03-05", typeof(DateOnly), new DateOnly(2024, 3, 5) },
+            { "", typeof(DateOnly), DateOnly.MinValue },
+            { "", typeof(DateOnly?), null },
+        };
+
 
     private static ImportData CreateImportData()
     {

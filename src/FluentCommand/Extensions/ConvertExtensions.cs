@@ -1,6 +1,9 @@
 using System.Globalization;
 
+#nullable enable
+
 namespace FluentCommand.Extensions;
+
 
 /// <summary>
 /// Converts a string data type to another base data type using a safe conversion method.
@@ -14,7 +17,7 @@ public static class ConvertExtensions
     /// <returns>
     /// true if <paramref name="value"/> equals <see cref="F:System.Boolean.TrueString"/>, or false if <paramref name="value"/> equals <see cref="F:System.Boolean.FalseString"/> or null.
     /// </returns>
-    public static bool ToBoolean(this string value)
+    public static bool ToBoolean(this string? value)
     {
         if (value == null)
             return false;
@@ -43,14 +46,15 @@ public static class ConvertExtensions
     /// <returns>
     /// An 8-bit unsigned integer that is equivalent to <paramref name="value"/>, or zero if <paramref name="value"/> is null.
     /// </returns>
-    public static byte ToByte(this string value)
+    public static byte? ToByte(this string? value)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        byte.TryParse(value, out var result);
+        if (byte.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -61,14 +65,15 @@ public static class ConvertExtensions
     /// <returns>
     /// An 8-bit unsigned integer that is equivalent to <paramref name="value"/>, or zero if <paramref name="value"/> is null.
     /// </returns>
-    public static byte ToByte(this string value, IFormatProvider provider)
+    public static byte? ToByte(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        byte.TryParse(value, NumberStyles.Integer, provider, out var result);
+        if (byte.TryParse(value, NumberStyles.Integer, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -78,10 +83,10 @@ public static class ConvertExtensions
     /// <returns>
     /// The date and time equivalent of the value of <paramref name="value"/>, or the date and time equivalent of <see cref="F:System.DateTime.MinValue"/> if <paramref name="value"/> is null.
     /// </returns>
-    public static DateTime ToDateTime(this string value)
+    public static DateTime? ToDateTime(this string? value)
     {
         if (value == null)
-            return new DateTime(0L);
+            return null;
 
         if (DateTime.TryParse(value, out var result))
             return result;
@@ -92,7 +97,7 @@ public static class ConvertExtensions
         if (DateTime.TryParseExact(value, "M/d/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out result))
             return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -103,10 +108,10 @@ public static class ConvertExtensions
     /// <returns>
     /// The date and time equivalent of the value of <paramref name="value"/>, or the date and time equivalent of <see cref="F:System.DateTime.MinValue"/> if <paramref name="value"/> is null.
     /// </returns>
-    public static DateTime ToDateTime(this string value, IFormatProvider provider)
+    public static DateTime? ToDateTime(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return new DateTime(0L);
+            return null;
 
         if (DateTime.TryParse(value, out var result))
             return result;
@@ -117,7 +122,7 @@ public static class ConvertExtensions
         if (DateTime.TryParseExact(value, "M/d/yyyy", provider, DateTimeStyles.None, out result))
             return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -127,14 +132,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A decimal number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static decimal ToDecimal(this string value)
+    public static decimal? ToDecimal(this string? value)
     {
         if (value == null)
-            return 0M;
+            return null;
 
-        decimal.TryParse(value, NumberStyles.Currency, CultureInfo.CurrentCulture, out var result);
+        if (decimal.TryParse(value, NumberStyles.Currency, CultureInfo.CurrentCulture, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -145,14 +151,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A decimal number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static decimal ToDecimal(this string value, IFormatProvider provider)
+    public static decimal? ToDecimal(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0M;
+            return null;
 
-        decimal.TryParse(value, NumberStyles.Currency, provider, out var result);
+        if (decimal.TryParse(value, NumberStyles.Currency, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -162,14 +169,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A double-precision floating-point number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static double ToDouble(this string value)
+    public static double? ToDouble(this string? value)
     {
         if (value == null)
-            return 0.0;
+            return null;
 
-        double.TryParse(value, out var result);
+        if (double.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -180,14 +188,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A double-precision floating-point number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static double ToDouble(this string value, IFormatProvider provider)
+    public static double? ToDouble(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0.0;
+            return null;
 
-        double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, provider, out var result);
+        if (double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -197,14 +206,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 16-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static short ToInt16(this string value)
+    public static short? ToInt16(this string? value)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        short.TryParse(value, out var result);
+        if (short.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -215,14 +225,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 16-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static short ToInt16(this string value, IFormatProvider provider)
+    public static short? ToInt16(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        short.TryParse(value, NumberStyles.Integer, provider, out var result);
+        if (short.TryParse(value, NumberStyles.Integer, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -232,14 +243,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 32-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static int ToInt32(this string value)
+    public static int? ToInt32(this string? value)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        int.TryParse(value, out var result);
+        if (int.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -250,14 +262,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 32-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static int ToInt32(this string value, IFormatProvider provider)
+    public static int? ToInt32(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        int.TryParse(value, NumberStyles.Integer, provider, out var result);
+        if (int.TryParse(value, NumberStyles.Integer, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -267,14 +280,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 64-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static long ToInt64(this string value)
+    public static long? ToInt64(this string? value)
     {
         if (value == null)
-            return 0L;
+            return null;
 
-        long.TryParse(value, out var result);
+        if (long.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -285,14 +299,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 64-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static long ToInt64(this string value, IFormatProvider provider)
+    public static long? ToInt64(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0L;
+            return null;
 
-        long.TryParse(value, NumberStyles.Integer, provider, out var result);
+        if (long.TryParse(value, NumberStyles.Integer, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -302,14 +317,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A single-precision floating-point number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static float ToSingle(this string value)
+    public static float? ToSingle(this string? value)
     {
         if (value == null)
-            return 0f;
+            return null;
 
-        float.TryParse(value, out var result);
+        if (float.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -320,14 +336,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A single-precision floating-point number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static float ToSingle(this string value, IFormatProvider provider)
+    public static float? ToSingle(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0F;
+            return null;
 
-        float.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, provider, out var result);
+        if (float.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -337,14 +354,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 16-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static ushort ToUInt16(this string value)
+    public static ushort? ToUInt16(this string? value)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        ushort.TryParse(value, out var result);
+        if (ushort.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -355,14 +373,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 16-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static ushort ToUInt16(this string value, IFormatProvider provider)
+    public static ushort? ToUInt16(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        ushort.TryParse(value, NumberStyles.Integer, provider, out var result);
+        if (ushort.TryParse(value, NumberStyles.Integer, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -372,14 +391,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 32-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static uint ToUInt32(this string value)
+    public static uint? ToUInt32(this string? value)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        uint.TryParse(value, out var result);
+        if (uint.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -390,14 +410,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 32-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static uint ToUInt32(this string value, IFormatProvider provider)
+    public static uint? ToUInt32(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0;
+            return null;
 
-        uint.TryParse(value, NumberStyles.Integer, provider, out var result);
+        if (uint.TryParse(value, NumberStyles.Integer, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -407,14 +428,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 64-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static ulong ToUInt64(this string value)
+    public static ulong? ToUInt64(this string? value)
     {
         if (value == null)
-            return 0L;
+            return null;
 
-        ulong.TryParse(value, out var result);
+        if (ulong.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -425,14 +447,15 @@ public static class ConvertExtensions
     /// <returns>
     /// A 64-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
     /// </returns>
-    public static ulong ToUInt64(this string value, IFormatProvider provider)
+    public static ulong? ToUInt64(this string? value, IFormatProvider provider)
     {
         if (value == null)
-            return 0L;
+            return null;
 
-        ulong.TryParse(value, NumberStyles.Integer, provider, out var result);
+        if (ulong.TryParse(value, NumberStyles.Integer, provider, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -442,14 +465,15 @@ public static class ConvertExtensions
     /// <returns>
     /// The <see cref="TimeSpan"/> equivalent of the <paramref name="value"/>, or <see cref="F:System.TimeSpan.Zero"/> if <paramref name="value"/> is null.
     /// </returns>
-    public static TimeSpan ToTimeSpan(this string value)
+    public static TimeSpan? ToTimeSpan(this string? value)
     {
         if (value == null)
-            return TimeSpan.Zero;
+            return null;
 
-        TimeSpan.TryParse(value, out var result);
+        if (TimeSpan.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
 
     /// <summary>
@@ -459,117 +483,180 @@ public static class ConvertExtensions
     /// <returns>
     /// The <see cref="Guid"/> equivalent of the <paramref name="value"/>, or <see cref="F:System.Guid.Empty"/> if <paramref name="value"/> is null.
     /// </returns>
-    public static Guid ToGuid(this string value)
+    public static Guid? ToGuid(this string? value)
     {
         if (value == null)
-            return Guid.Empty;
+            return null;
 
-        Guid.TryParse(value, out var result);
+        if (Guid.TryParse(value, out var result))
+            return result;
 
-        return result;
+        return null;
     }
+
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Converts the specified string to an equivalent <see cref="TimeSpan"/> value.
+    /// </summary>
+    /// <param name="value">The string representation of a <see cref="TimeSpan"/>.</param>
+    /// <returns>
+    /// The <see cref="TimeSpan"/> equivalent of the <paramref name="value"/>, or <see cref="F:System.TimeSpan.Zero"/> if <paramref name="value"/> is null.
+    /// </returns>
+    public static DateOnly? ToDateOnly(this string? value)
+    {
+        if (value == null)
+            return null;
+
+        if (DateOnly.TryParse(value, out var dateOnly))
+            return dateOnly;
+
+        if (DateTime.TryParse(value, out var dateTime))
+            return DateOnly.FromDateTime(dateTime);
+
+        if (DateTimeOffset.TryParse(value, out var dateTimeOffset))
+            return DateOnly.FromDateTime(dateTimeOffset.DateTime);
+
+        return null;
+    }
+
+    /// <summary>
+    /// Converts the specified string to an equivalent <see cref="TimeSpan"/> value.
+    /// </summary>
+    /// <param name="value">The string representation of a <see cref="TimeSpan"/>.</param>
+    /// <returns>
+    /// The <see cref="TimeSpan"/> equivalent of the <paramref name="value"/>, or <see cref="F:System.TimeSpan.Zero"/> if <paramref name="value"/> is null.
+    /// </returns>
+    public static TimeOnly? ToTimeOnly(this string? value)
+    {
+        if (value == null)
+            return null;
+
+        if (TimeOnly.TryParse(value, out var timeOnly))
+            return timeOnly;
+
+        if (TimeSpan.TryParse(value, out var timeSpan))
+            return TimeOnly.FromTimeSpan(timeSpan);
+
+        if (DateTime.TryParse(value, out var dateTime))
+            return TimeOnly.FromDateTime(dateTime);
+
+        if (DateTimeOffset.TryParse(value, out var dateTimeOffset))
+            return TimeOnly.FromDateTime(dateTimeOffset.DateTime);
+
+        return null;
+    }
+#endif
+
 
     /// <summary>
     /// Tries to convert the <paramref name="input"/> to the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="input">The input to convert.</param>
     /// <param name="type">The type to convert to.</param>
-    /// <param name="value">The converted value.</param>
-    /// <returns><c>true</c> if the value was converted; otherwise <c>false</c>.</returns>
-    public static bool TryConvert(this string input, Type type, out object value)
+    /// <returns>The converted value.</returns>
+    public static object? SafeConvert(Type type, string? input)
     {
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
+
         // first try string
         if (type == typeof(string))
         {
-            value = input;
-            return true;
+            return input;
         }
 
-        if ((input == null || input.IsNullOrEmpty()) && type.IsNullable())
+        var isNullable = type.IsNullable();
+        if ((input?.IsNullOrEmpty() != false) && isNullable)
         {
-            value = null;
-            return true;
+            return null;
         }
-
 
         input = input?.Trim();
-
-        Type underlyingType = type.GetUnderlyingType();
+        var underlyingType = type.GetUnderlyingType();
 
         // convert by type
         if (underlyingType == typeof(bool))
         {
-            value = input.ToBoolean();
-            return true;
+            return input.ToBoolean();
         }
         if (underlyingType == typeof(byte))
         {
-            value = input.ToByte();
-            return true;
+            var value = input.ToByte();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(DateTime))
         {
-            value = input.ToDateTime();
-            return true;
+            var value = input.ToDateTime();
+            return value.HasValue ? value.Value : isNullable ? null : DateTime.MinValue;
         }
         if (underlyingType == typeof(decimal))
         {
-            value = input.ToDecimal();
-            return true;
+            var value = input.ToDecimal();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(double))
         {
-            value = input.ToDouble();
-            return true;
+            var value = input.ToDouble();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(short))
         {
-            value = input.ToInt16();
-            return true;
+            var value = input.ToInt16();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(int))
         {
-            value = input.ToInt32();
-            return true;
+            var value = input.ToInt32();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(long))
         {
-            value = input.ToInt64();
-            return true;
+            var value = input.ToInt64();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(float))
         {
-            value = input.ToSingle();
-            return true;
+            var value = input.ToSingle();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(ushort))
         {
-            value = input.ToUInt16();
-            return true;
+            var value = input.ToUInt16();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(uint))
         {
-            value = input.ToUInt32();
-            return true;
+            var value = input.ToUInt32();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(ulong))
         {
-            value = input.ToUInt64();
-            return true;
+            var value = input.ToUInt64();
+            return value.HasValue ? value.Value : isNullable ? null : 0;
         }
         if (underlyingType == typeof(TimeSpan))
         {
-            value = input.ToTimeSpan();
-            return true;
+            var value = input.ToTimeSpan();
+            return value.HasValue ? value.Value : isNullable ? null : TimeSpan.Zero;
         }
         if (underlyingType == typeof(Guid))
         {
-            value = input.ToGuid();
-            return true;
+            var value = input.ToGuid();
+            return value.HasValue ? value.Value : isNullable ? null : Guid.Empty;
         }
-
-        value = default;
-        return false;
+#if NET6_0_OR_GREATER
+        if (underlyingType == typeof(DateOnly))
+        {
+            var value = input.ToDateOnly();
+            return value.HasValue ? value.Value : isNullable ? null : DateOnly.MinValue;
+        }
+        if (underlyingType == typeof(TimeOnly))
+        {
+            var value = input.ToTimeOnly();
+            return value.HasValue ? value.Value : isNullable ? null : TimeOnly.MinValue;
+        }
+#endif
+        return default;
     }
 
 
@@ -580,7 +667,7 @@ public static class ConvertExtensions
     /// <param name="result">The result to convert.</param>
     /// <param name="convert">The optional convert function.</param>
     /// <returns>The converted value.</returns>
-    public static TValue ConvertValue<TValue>(this object result, Func<object, TValue> convert = null)
+    public static TValue? ConvertValue<TValue>(object? result, Func<object?, TValue>? convert = null)
     {
         if (result is null || result == DBNull.Value)
             return default;
@@ -591,8 +678,8 @@ public static class ConvertExtensions
         if (convert != null)
             return convert(result);
 
-        if (result is string stringValue && TryConvert(stringValue, typeof(TValue), out object value))
-            return (TValue)value;
+        if (result is string stringValue)
+            return (TValue?)SafeConvert(typeof(TValue), stringValue);
 
         return (TValue)Convert.ChangeType(result, typeof(TValue));
     }

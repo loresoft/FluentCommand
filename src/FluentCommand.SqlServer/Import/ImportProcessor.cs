@@ -203,8 +203,7 @@ public class ImportProcessor : IImportProcessor
     {
         if (field.Translator == null)
         {
-            value.TryConvert(field.DataType, out var convertValue);
-            return convertValue;
+            return ConvertExtensions.SafeConvert(field.DataType, value);
         }
 
         var translator = importContext.GetService(field.Translator) as IFieldTranslator;
