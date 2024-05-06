@@ -461,8 +461,8 @@ public static class DataMergeGenerator
         return value switch
         {
             string stringValue => stringValue,
-            DateTime dateTimeValue => dateTimeValue.ToString("u"),
-            DateTimeOffset dateTimeOffset => dateTimeOffset.ToString("u"),
+            DateTime dateTimeValue => dateTimeValue.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+            DateTimeOffset dateTimeOffset => dateTimeOffset.ToString("yyyy-MM-dd HH:mm:ss.ffffffzzz"),
             byte[] byteArray => ToHex(byteArray),
             bool boolValue => boolValue ? "1" : "0",
 #if NET6_0_OR_GREATER
