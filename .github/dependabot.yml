@@ -43,4 +43,7 @@ updates:
       xUnit:
         patterns:
           - "xunit"
+          - "xunit.assert"
+          - "xunit.core"
+          - "xunit.extensibility.*"
           - "xunit.runner.*"
