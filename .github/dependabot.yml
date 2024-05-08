@@ -37,6 +37,10 @@ updates:
       OpenTelemetry:
         patterns:
           - "OpenTelemetry.*"
+      Hangfire:
+        patterns:
+          - "Hangfire"
+          - "Hangfire.*"
       Testcontainers:
         patterns:
           - "Testcontainers.*"
