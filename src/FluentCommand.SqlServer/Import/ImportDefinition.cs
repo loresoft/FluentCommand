@@ -90,4 +90,8 @@ public class ImportDefinition
         return importDefinition;
     }
 
+    public override string ToString()
+    {
+        return $"Name: {Name}, Table: {TargetTable}, Insert: {CanInsert}, Update: {CanUpdate}";
+    }
 }
