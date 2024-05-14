@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
@@ -6,7 +7,8 @@ namespace FluentCommand.Entities;
 [Table("DataType", Schema = "dbo")]
 public class DataType
 {
-    public int Id { get; set; }
+    [Key]
+    public long Id { get; set; }
 
     public string Name { get; set; }
 

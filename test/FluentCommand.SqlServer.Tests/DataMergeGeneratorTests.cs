@@ -166,7 +166,7 @@ public class DataMergeGeneratorTests
         column.IsKey = true;
         column.CanUpdate = false;
 
-        var users = new List<DataType>
+        var items = new List<DataType>
         {
             new() {
                 Id = 1,
@@ -214,7 +214,7 @@ public class DataMergeGeneratorTests
             }
         };
 
-        var listDataReader = new ListDataReader<DataType>(users);
+        var listDataReader = new ListDataReader<DataType>(items);
 
         var mergeDataStatement = DataMergeGenerator.BuildMerge(definition, listDataReader);
         mergeDataStatement.Should().NotBeNullOrEmpty();

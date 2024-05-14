@@ -146,7 +146,7 @@ CREATE TABLE [dbo].[UserRole] (
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataType]') AND type in (N'U'))
 CREATE TABLE [dbo].[DataType] (
-    [Id] int NOT NULL,
+    [Id] bigint NOT NULL,
     [Name] nvarchar(100) NOT NULL,
     [Boolean] bit NOT NULL,
     [Short] smallint NOT NULL,
@@ -176,7 +176,7 @@ CREATE TABLE [dbo].[DataType] (
 );
 
 -- Types
-CREATE TYPE [dbo].[UserImportType] AS TABLE 
+CREATE TYPE [dbo].[UserImportType] AS TABLE
 (
     [EmailAddress] [nvarchar](256) NOT NULL,
     [DisplayName] [nvarchar](256) NOT NULL,
@@ -249,5 +249,5 @@ CREATE INDEX [IX_UserLogin_UserId]
 ON [dbo].[UserLogin] ([UserId]);
 
 -- change tracking
-ALTER TABLE [dbo].[User] 
+ALTER TABLE [dbo].[User]
     ENABLE CHANGE_TRACKING WITH (TRACK_COLUMNS_UPDATED = OFF);

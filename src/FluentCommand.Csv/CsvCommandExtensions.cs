@@ -7,6 +7,8 @@ using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 
+using FluentCommand.Extensions;
+
 using Microsoft.IO;
 
 namespace FluentCommand;
@@ -257,17 +259,53 @@ public static class CsvCommandExtensions
             return;
         }
 
+#if NET6_0_OR_GREATER
+        if (type == typeof(DateOnly))
+        {
+            var value = reader.GetValue<DateOnly>(index);
+            var formatted = value.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
+
+            writer.WriteField(formatted);
+            return;
+        }
+
+        if (type == typeof(TimeOnly))
+        {
+            var value = reader.GetValue<TimeOnly>(index);
+            string formatted = value.Second == 0 && value.Millisecond == 0
+                ? value.ToString("HH':'mm", CultureInfo.InvariantCulture)
+                : value.ToString(CultureInfo.InvariantCulture);
+
+            writer.WriteField(formatted);
+            return;
+        }
+#endif
+
         if (type == typeof(TimeSpan))
         {
-            var value = reader.GetDateTime(index);
-            writer.WriteField(value);
+            var value = reader.GetValue<TimeSpan>(index);
+            string formatted = value.Seconds == 0 && value.Milliseconds == 0
+                ? value.ToString(@"hh\:mm", CultureInfo.InvariantCulture)
+                : value.ToString();
+
+            writer.WriteField(formatted);
             return;
         }
 
         if (type == typeof(DateTime))
         {
             var value = reader.GetDateTime(index);
-            writer.WriteField(value);
+            var dataType = reader.GetDataTypeName(index).ToLowerInvariant();
+
+            if (string.Equals(dataType, "date", StringComparison.OrdinalIgnoreCase))
+            {
+                var formattedDate = value.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
+                writer.WriteField(formattedDate);
+            }
+            else
+            {
+                writer.WriteField(value);
+            }
             return;
         }
 

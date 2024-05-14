@@ -1,8 +1,12 @@
+using System;
 using System.Buffers;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
+
+using FluentCommand.Extensions;
 
 using Microsoft.IO;
 
@@ -173,7 +177,6 @@ public static class JsonCommandExtensions
         }
 
         var type = reader.GetFieldType(index);
-
         if (type == typeof(string))
         {
             var value = reader.GetString(index);
@@ -237,17 +240,53 @@ public static class JsonCommandExtensions
             return;
         }
 
+#if NET6_0_OR_GREATER
+        if (type == typeof(DateOnly))
+        {
+            var value = reader.GetValue<DateOnly>(index);
+            var formatted = value.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
+
+            writer.WriteStringValue(formatted);
+            return;
+        }
+
+        if (type == typeof(TimeOnly))
+        {
+            var value = reader.GetValue<TimeOnly>(index);
+            string formatted = value.Second == 0 && value.Millisecond == 0
+                ? value.ToString("HH':'mm", CultureInfo.InvariantCulture)
+                : value.ToString("HH':'mm':'ss.FFFFFFF", CultureInfo.InvariantCulture);
+
+            writer.WriteStringValue(formatted);
+            return;
+        }
+#endif
+
         if (type == typeof(TimeSpan))
         {
-            var value = reader.GetDateTime(index);
-            writer.WriteStringValue(value);
+            var value = reader.GetValue<TimeSpan>(index);
+            string formatted = value.Seconds == 0 && value.Milliseconds == 0
+                ? value.ToString(@"hh\:mm", CultureInfo.InvariantCulture)
+                : value.ToString();
+
+            writer.WriteStringValue(formatted);
             return;
         }
 
         if (type == typeof(DateTime))
         {
             var value = reader.GetDateTime(index);
-            writer.WriteStringValue(value);
+            var dataType = reader.GetDataTypeName(index).ToLowerInvariant();
+
+            if (string.Equals(dataType, "date", StringComparison.OrdinalIgnoreCase))
+            {
+                var formattedDate = value.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
+                writer.WriteStringValue(formattedDate);
+            }
+            else
+            {
+                writer.WriteStringValue(value);
+            }
             return;
         }
 

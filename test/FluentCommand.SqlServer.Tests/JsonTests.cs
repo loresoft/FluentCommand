@@ -128,4 +128,58 @@ public class JsonTests : DatabaseTestBase
 
         json.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task QueryDataTypeSelectAsync()
+    {
+        var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var item = new DataType()
+        {
+            Id = DateTime.Now.Ticks,
+            Name = "Test1",
+            Boolean = false,
+            Short = 2,
+            Long = 200,
+            Float = 200.20F,
+            Double = 300.35,
+            Decimal = 456.12M,
+            DateTime = new DateTime(2024, 5, 1, 8, 0, 0),
+            DateTimeOffset = new DateTimeOffset(2024, 5, 1, 8, 0, 0, TimeSpan.FromHours(-6)),
+            Guid = Guid.Empty,
+            TimeSpan = TimeSpan.FromHours(1),
+            DateOnly = new DateOnly(2022, 12, 1),
+            TimeOnly = new TimeOnly(1, 30, 0),
+            BooleanNull = false,
+            ShortNull = 2,
+            LongNull = 200,
+            FloatNull = 200.20F,
+            DoubleNull = 300.35,
+            DecimalNull = 456.12M,
+            DateTimeNull = new DateTime(2024, 4, 1, 8, 0, 0),
+            DateTimeOffsetNull = new DateTimeOffset(2024, 4, 1, 8, 0, 0, TimeSpan.FromHours(-6)),
+            GuidNull = Guid.Empty,
+            TimeSpanNull = TimeSpan.FromHours(1),
+            DateOnlyNull = new DateOnly(2022, 12, 1),
+            TimeOnlyNull = new TimeOnly(1, 30, 0),
+        };
+
+        await session
+            .Sql(builder => builder
+                .Insert<DataType>()
+                .Values(item)
+            )
+            .ExecuteAsync();
+
+        var json = await session
+            .Sql(builder => builder
+                .Select<DataType>()
+                .OrderBy(p => p.Id)
+                .Limit(0, 1000)
+            )
+            .QueryJsonAsync();
+
+        json.Should().NotBeNull();
+    }
 }
