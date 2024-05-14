@@ -255,7 +255,7 @@ public static class JsonCommandExtensions
             var value = reader.GetValue<TimeOnly>(index);
             string formatted = value.Second == 0 && value.Millisecond == 0
                 ? value.ToString("HH':'mm", CultureInfo.InvariantCulture)
-                : value.ToString("HH':'mm':'ss.FFFFFFF", CultureInfo.InvariantCulture);
+                : value.ToString(CultureInfo.InvariantCulture);
 
             writer.WriteStringValue(formatted);
             return;
