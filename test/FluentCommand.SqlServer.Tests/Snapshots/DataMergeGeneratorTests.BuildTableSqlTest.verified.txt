@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [#MergeTable]
 (
-    [Id] int NULL,
+    [Id] bigint NULL,
     [Name] nvarchar(MAX) NULL,
     [Boolean] bit NULL,
     [Short] smallint NULL,
