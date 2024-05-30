@@ -29,11 +29,11 @@
     <PackageReference Include="dbup-sqlite" Version="5.0.40" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.0">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="xunit" Version="2.8.0" />
+    <PackageReference Include="xunit" Version="2.8.1" />
   </ItemGroup>
 
   <ItemGroup>
