@@ -58,8 +58,7 @@ public class CsvTests : DatabaseTestBase
 
         string sql = "select TOP 1000 * from [User]";
 
-        session.Sql(sql)
-            .QueryCsv(exportStream);
+        session.Sql(sql).QueryCsv(exportStream);
 
         exportStream.Flush();
     }

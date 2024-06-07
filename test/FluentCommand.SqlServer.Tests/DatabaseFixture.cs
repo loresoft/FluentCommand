@@ -12,6 +12,8 @@ using Testcontainers.Redis;
 
 using XUnit.Hosting;
 
+using static Azure.Storage.Blobs.BlobClientOptions;
+
 namespace FluentCommand.SqlServer.Tests;
 
 public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
@@ -72,7 +74,7 @@ public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
         );
 
         // azurite tesing
-        services.AddSingleton(sp => new BlobContainerClient(azuriteConnection, "fluent-command-testing"));
+        services.AddSingleton(sp => new BlobContainerClient(azuriteConnection, "fluent-command-testing", new BlobClientOptions(ServiceVersion.V2023_11_03)));
 
         // readonly intent connection
         connectionBuilder.ApplicationIntent = ApplicationIntent.ReadOnly;
