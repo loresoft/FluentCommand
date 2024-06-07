@@ -22,7 +22,20 @@ public static class DataMergeExtensions
     }
 
     /// <summary>
-    /// Starts a data merge operation with the specified destination table name.
+    /// Starts a data merge operation with the specified <typeparamref name="TEntity"/>
+    /// </summary>
+    /// <param name="session">The session to use for the merge.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+    /// </returns>
+    public static IDataMerge MergeData<TEntity>(this IDataSession session)
+    {
+        var definition = DataMergeDefinition.Create<TEntity>();
+        return MergeData(session, definition);
+    }
+
+    /// <summary>
+    /// Starts a data merge operation with the specified <paramref name="mergeDefinition"/>.
     /// </summary>
     /// <param name="session">The session to use for the merge.</param>
     /// <param name="mergeDefinition">The data merge definition.</param>
@@ -31,8 +44,6 @@ public static class DataMergeExtensions
     /// </returns>
     public static IDataMerge MergeData(this IDataSession session, DataMergeDefinition mergeDefinition)
     {
-        var dataMerge = new DataMerge(session, mergeDefinition);
-        return dataMerge;
+        return new DataMerge(session, mergeDefinition);
     }
-
 }
