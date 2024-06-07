@@ -4,8 +4,6 @@
   href: sql.md
 - name: Parameters
   href: parameter.md
-- name: Execute
-  href: execute.md
 - name: Queries
   href: query.md
 - name: Caching

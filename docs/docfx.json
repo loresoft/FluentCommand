@@ -4,9 +4,9 @@
       "src": [
         {
           "files": [
-            "src/FluentCommand/bin/Release/net7.0/FluentCommand.dll",
-            "src/FluentCommand.SqlServer/bin/Release/net7.0/FluentCommand.SqlServer.dll",
-            "src/FluentCommand.Json/bin/Release/net7.0/FluentCommand.Json.dll"
+            "src/FluentCommand/bin/Release/net8.0/FluentCommand.dll",
+            "src/FluentCommand.SqlServer/bin/Release/net8.0/FluentCommand.SqlServer.dll",
+            "src/FluentCommand.Json/bin/Release/net8.0/FluentCommand.Json.dll"
           ],
           "src": "../"
         }
@@ -44,7 +44,7 @@
     "globalMetadata": {
       "_appTitle": "FluentCommand",
       "_appName": "FluentCommand",
-      "_appFooter": "Copyright &copy; 2023 LoreSoft",
+      "_appFooter": "Copyright &copy; 2024 LoreSoft",
       "_appLogoPath": "assets/logo.png",
       "_appFaviconPath": "assets/logo.png",
       "_enableSearch": true

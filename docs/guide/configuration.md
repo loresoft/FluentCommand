@@ -1,6 +1,6 @@
 # Configuration
 
-Configuration for SQL Server
+## Configuration for SQL Server
 
 ```csharp
 var dataConfiguration  = new DataConfiguration(
@@ -9,7 +9,7 @@ var dataConfiguration  = new DataConfiguration(
 );
 ```
 
-Configure data logger
+## Configure data logger
 
 ```csharp
 var dataLogger = new DataQueryLogger(Output.WriteLine);
@@ -20,7 +20,7 @@ var dataConfiguration  = new DataConfiguration(
 );
 ```
 
-Register with dependency injection
+## Register with dependency injection
 
 ```csharp
 services.AddFluentCommand(builder => builder
@@ -29,7 +29,7 @@ services.AddFluentCommand(builder => builder
 );
 ```
 
-Register using a connection name from the appsettings.json
+## Register using a connection name from the appsettings.json
 
 ```csharp
 services.AddFluentCommand(builder => builder
@@ -46,7 +46,7 @@ services.AddFluentCommand(builder => builder
 }
 ```
 
-Register for PostgreSQL
+## Register for PostgreSQL
 
 ```csharp
 services.AddFluentCommand(builder => builder
