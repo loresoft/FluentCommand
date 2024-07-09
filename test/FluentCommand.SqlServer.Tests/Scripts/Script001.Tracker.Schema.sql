@@ -115,6 +115,16 @@ CREATE TABLE [dbo].[User] (
     CONSTRAINT [PK_User] PRIMARY KEY ([Id])
 );
 
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[member_user]') AND type in (N'U'))
+CREATE TABLE [dbo].[member_user] (
+    [Id] uniqueidentifier NOT NULL DEFAULT (NEWSEQUENTIALID()),
+    [email_address] nvarchar(256) NOT NULL,
+    [display_name] nvarchar(256) NOT NULL,
+    [first_name] nvarchar(256) NULL,
+    [last_name] nvarchar(256) NULL,
+    CONSTRAINT [PK_member_user] PRIMARY KEY ([Id])
+);
+
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UserLogin]') AND type in (N'U'))
 CREATE TABLE [dbo].[UserLogin] (
     [Id] uniqueidentifier NOT NULL DEFAULT (NEWSEQUENTIALID()),

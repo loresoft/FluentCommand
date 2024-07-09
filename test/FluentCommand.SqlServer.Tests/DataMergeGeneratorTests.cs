@@ -61,7 +61,7 @@ public class DataMergeGeneratorTests
     }
 
     [Fact]
-    public void BuildMergeTests()
+    public async System.Threading.Tasks.Task BuildMergeTests()
     {
         var definition = new DataMergeDefinition();
 
@@ -79,13 +79,15 @@ public class DataMergeGeneratorTests
         var sql = DataMergeGenerator.BuildMerge(definition);
         sql.Should().NotBeNullOrEmpty();
 
-        Output.WriteLine("MergeStatement:");
-        Output.WriteLine(sql);
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots")
+            .AddScrubber(scrubber => scrubber.Replace(definition.TemporaryTable, "#MergeTable"));
     }
 
 
     [Fact]
-    public void BuildMergeDataTests()
+    public async System.Threading.Tasks.Task BuildMergeDataTests()
     {
         var definition = new DataMergeDefinition();
 
@@ -123,8 +125,9 @@ public class DataMergeGeneratorTests
         var sql = DataMergeGenerator.BuildMerge(definition, listDataReader);
         sql.Should().NotBeNullOrEmpty();
 
-        Output.WriteLine("MergeStatement:");
-        Output.WriteLine(sql);
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots");
     }
 
     [Fact]
@@ -248,7 +251,7 @@ public class DataMergeGeneratorTests
     }
 
     [Fact]
-    public void BuildMergeDataOutputTests()
+    public async System.Threading.Tasks.Task BuildMergeDataOutputTests()
     {
         var definition = new DataMergeDefinition();
 
@@ -282,7 +285,7 @@ public class DataMergeGeneratorTests
             },
             new UserImport
             {
-                EmailAddress = $"random.{DateTime.Now.Ticks}@email.com",
+                EmailAddress = $"random@email.com",
                 DisplayName = "Random User",
                 FirstName = "Random",
                 LastName = "User"
@@ -294,8 +297,57 @@ public class DataMergeGeneratorTests
         var sql = DataMergeGenerator.BuildMerge(definition, dataTable);
         sql.Should().NotBeNullOrEmpty();
 
-        Output.WriteLine("MergeStatement:");
-        Output.WriteLine(sql);
+        await Verifier
+            .Verify(sql)
+            .UseDirectory("Snapshots");
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task BuildMergeDataMismatchTests()
+    {
+        var definition = new DataMergeDefinition();
+
+        DataMergeDefinition.AutoMap<Member>(definition);
+        definition.Columns.Should().NotBeNullOrEmpty();
+
+        var column = definition.Columns.Find(c => c.SourceColumn == "email_address");
+        column.Should().NotBeNull();
+
+        column.IsKey = true;
+        column.CanUpdate = false;
+
+        var users = new List<Member>
+        {
+            new Member
+            {
+                EmailAddress = "test@email.com",
+                DisplayName = "Test User",
+                FirstName = "Test",
+                LastName = "User"
+            },
+            new Member
+            {
+                EmailAddress = "blah@email.com",
+                DisplayName = "Blah User",
+                FirstName = "Blah",
+                LastName = "User"
+            },
+            new Member
+            {
+                EmailAddress = $"random@email.com",
+                DisplayName = "Random User",
+                FirstName = "Random",
+                LastName = "User"
+            }
+        };
+
+        var dataTable = new ListDataReader<Member>(users);
+
+        var mergeDataStatement = DataMergeGenerator.BuildMerge(definition, dataTable);
+        mergeDataStatement.Should().NotBeNullOrEmpty();
+
+        await Verifier
+            .Verify(mergeDataStatement)
+            .UseDirectory("Snapshots");
+    }
 }

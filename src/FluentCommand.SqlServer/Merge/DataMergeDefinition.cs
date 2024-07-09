@@ -121,7 +121,7 @@ public class DataMergeDefinition
 
         foreach (var property in typeAccessor.GetProperties())
         {
-            string sourceColumn = property.Name;
+            string sourceColumn = property.Column;
             string targetColumn = property.Column;
             string nativeType = property.ColumnType ?? SqlTypeMapping.NativeType(property.MemberType);
 

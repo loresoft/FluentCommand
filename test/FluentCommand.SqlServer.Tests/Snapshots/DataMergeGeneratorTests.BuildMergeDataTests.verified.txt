@@ -1,0 +1,42 @@
+﻿MERGE INTO [dbo].[User] AS t
+USING
+(
+    VALUES
+    ('test@email.com', 'Test User', 'Test', 'User', NULL, NULL), 
+    ('blah@email.com', 'Blah User', 'Blah', 'User', NULL, NULL)
+)
+AS s
+(
+    [EmailAddress], [DisplayName], [FirstName], [LastName], [LockoutEnd], [LastLogin]
+)
+ON
+(
+    t.[EmailAddress] = s.[EmailAddress]
+)
+WHEN NOT MATCHED BY TARGET THEN 
+    INSERT
+    (
+        [EmailAddress],
+        [DisplayName],
+        [FirstName],
+        [LastName],
+        [LockoutEnd],
+        [LastLogin]
+    )
+    VALUES
+    (
+        s.[EmailAddress],
+        s.[DisplayName],
+        s.[FirstName],
+        s.[LastName],
+        s.[LockoutEnd],
+        s.[LastLogin]
+    )
+WHEN MATCHED THEN 
+    UPDATE SET
+        t.[DisplayName] = s.[DisplayName],
+        t.[FirstName] = s.[FirstName],
+        t.[LastName] = s.[LastName],
+        t.[LockoutEnd] = s.[LockoutEnd],
+        t.[LastLogin] = s.[LastLogin]
+;

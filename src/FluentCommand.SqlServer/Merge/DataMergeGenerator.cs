@@ -178,7 +178,7 @@ public static class DataMergeGenerator
             builder
                 .AppendLineIf(", ", s => wroteRow)
                 .Append(' ', TabSize)
-            .Append("(");
+                .Append("(");
 
             for (int i = 0; i < reader.FieldCount; i++)
             {
