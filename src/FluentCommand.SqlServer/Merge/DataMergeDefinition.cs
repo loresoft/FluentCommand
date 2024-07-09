@@ -135,7 +135,7 @@ public class DataMergeDefinition
             mergeColumn.IsKey = property.IsKey;
             mergeColumn.CanUpdate = !property.IsKey && !property.IsDatabaseGenerated && !property.IsConcurrencyCheck;
             mergeColumn.CanInsert = !property.IsDatabaseGenerated && !property.IsConcurrencyCheck;
-            mergeColumn.IsIgnored = property.IsNotMapped;
+            mergeColumn.IsIgnored = property.IsNotMapped || string.Equals(nativeType, "sql_variant", StringComparison.OrdinalIgnoreCase);
         }
     }
 
