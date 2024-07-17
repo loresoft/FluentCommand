@@ -80,6 +80,12 @@ public interface IDataMerge
     /// </returns>
     IDataMerge Mode(DataMergeMode mergeMode);
 
+    /// <summary>
+    /// Sets the wait time before terminating the attempt to execute a command and generating an error.
+    /// </summary>
+    /// <param name="timeout">TThe time in seconds to wait for the command to execute.</param>
+    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+    IDataMerge CommandTimeout(int timeout);
 
     /// <summary>
     /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/>.

@@ -16,6 +16,8 @@ public class DataMerge : DisposableBase, IDataMerge
     private readonly IDataSession _dataSession;
     private readonly DataMergeDefinition _mergeDefinition;
 
+    private int _commandTimeout = 0;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DataMerge"/> class.
     /// </summary>
@@ -137,6 +139,16 @@ public class DataMerge : DisposableBase, IDataMerge
         return this;
     }
 
+    /// <summary>
+    /// Sets the wait time before terminating the attempt to execute a command and generating an error.
+    /// </summary>
+    /// <param name="timeout">TThe time in seconds to wait for the command to execute.</param>
+    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+    public IDataMerge CommandTimeout(int timeout)
+    {
+        _commandTimeout = timeout;
+        return this;
+    }
 
     /// <summary>
     /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/>.
@@ -531,15 +543,17 @@ public class DataMerge : DisposableBase, IDataMerge
             }
 
             // run merge statement
-            using (var mergeCommand = _dataSession.Connection.CreateCommand())
-            {
-                mergeCommand.CommandText = mergeSql;
-                mergeCommand.CommandType = CommandType.Text;
-                mergeCommand.Transaction = sqlTransaction;
+            using var mergeCommand = _dataSession.Connection.CreateCommand();
 
-                // run merge with factory
-                executeFactory(mergeCommand);
-            }
+            mergeCommand.CommandText = mergeSql;
+            mergeCommand.CommandType = CommandType.Text;
+            mergeCommand.Transaction = sqlTransaction;
+
+            if (_commandTimeout > 0)
+                mergeCommand.CommandTimeout = _commandTimeout;
+
+            // run merge with factory
+            executeFactory(mergeCommand);
         }
         finally
         {
@@ -613,6 +627,9 @@ public class DataMerge : DisposableBase, IDataMerge
             mergeCommand.CommandText = mergeSql;
             mergeCommand.CommandType = CommandType.Text;
             mergeCommand.Transaction = sqlTransaction;
+
+            if (_commandTimeout > 0)
+                mergeCommand.CommandTimeout = _commandTimeout;
 
             // run merge with factory
             await executeFactory(mergeCommand, cancellationToken)
