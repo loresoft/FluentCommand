@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <IsTestProject>false</IsTestProject>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
     <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[7.0.20]" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +22,10 @@
     <ProjectReference Include="..\..\src\FluentCommand.SqlServer\FluentCommand.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand\FluentCommand.csproj" />
     <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="XUnit.Hosting" Version="1.7.1" />
   </ItemGroup>
 
 </Project>
