@@ -1,5 +1,7 @@
 using Azure.Storage.Blobs;
 
+using DotNet.Testcontainers.Builders;
+
 using FluentCommand.Caching;
 
 using Microsoft.Data.SqlClient;
@@ -20,7 +22,8 @@ public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
 {
     private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-        .WithPassword("!P@ss0rd")
+        .WithPassword("Bn87bBYhLjYRj%9zRgUc")
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(1433))
         .Build();
 
     private readonly RedisContainer _redisContainer = new RedisBuilder()
