@@ -102,3 +102,21 @@ WHEN NOT MATCHED BY TARGET THEN
     VALUES (s.[UserId], s.[RoleId])
 OUTPUT $action as [Action];
 
+/* Table [dbo].[DataType] data */
+
+MERGE INTO [dbo].[DataType] AS t
+USING
+(
+    VALUES
+    (1, N'Testing', 1, 123, 132123, 123.12, 123.12, 123.1000, '2024-01-30 00:00:00.000', '2024-01-30 00:00:00.000000-06:00', '744f7775-5369-4809-994b-62abfae17724', '11:30:15', '2024-01-30 00:00:00.000', '13:30:15', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (2, N'Full', 0, 222, 2353, 563.23, 456.56, 2552.1000, '2024-02-15 00:00:00.000', '2024-02-15 00:00:00.000000-06:00', 'cca7e4a4-446f-4f24-9c3a-9d2a5b547877', '15:15:30', '2024-02-06 00:00:00.000', '01:23:11', 0, 333, 454, 563.23, 456.56, 2552.0130, '2024-02-15 00:00:00.000', '2024-02-15 00:00:00.000000-06:00', 'cca7e4a4-446f-4f24-9c3a-9d2a5b547877', '15:15:30', '2024-02-06 00:00:00.000', '01:23:11')
+)
+AS s
+([Id], [Name], [Boolean], [Short], [Long], [Float], [Double], [Decimal], [DateTime], [DateTimeOffset], [Guid], [TimeSpan], [DateOnly], [TimeOnly], [BooleanNull], [ShortNull], [LongNull], [FloatNull], [DoubleNull], [DecimalNull], [DateTimeNull], [DateTimeOffsetNull], [GuidNull], [TimeSpanNull], [DateOnlyNull], [TimeOnlyNull])
+ON (t.[Id] = s.[Id])
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT ([Id], [Name], [Boolean], [Short], [Long], [Float], [Double], [Decimal], [DateTime], [DateTimeOffset], [Guid], [TimeSpan], [DateOnly], [TimeOnly], [BooleanNull], [ShortNull], [LongNull], [FloatNull], [DoubleNull], [DecimalNull], [DateTimeNull], [DateTimeOffsetNull], [GuidNull], [TimeSpanNull], [DateOnlyNull], [TimeOnlyNull])
+    VALUES (s.[Id], s.[Name], s.[Boolean], s.[Short], s.[Long], s.[Float], s.[Double], s.[Decimal], s.[DateTime], s.[DateTimeOffset], s.[Guid], s.[TimeSpan], s.[DateOnly], s.[TimeOnly], s.[BooleanNull], s.[ShortNull], s.[LongNull], s.[FloatNull], s.[DoubleNull], s.[DecimalNull], s.[DateTimeNull], s.[DateTimeOffsetNull], s.[GuidNull], s.[TimeSpanNull], s.[DateOnlyNull], s.[TimeOnlyNull])
+WHEN MATCHED THEN
+    UPDATE SET t.[Name] = s.[Name], t.[Boolean] = s.[Boolean], t.[Short] = s.[Short], t.[Long] = s.[Long], t.[Float] = s.[Float], t.[Double] = s.[Double], t.[Decimal] = s.[Decimal], t.[DateTime] = s.[DateTime], t.[DateTimeOffset] = s.[DateTimeOffset], t.[Guid] = s.[Guid], t.[TimeSpan] = s.[TimeSpan], t.[DateOnly] = s.[DateOnly], t.[TimeOnly] = s.[TimeOnly], t.[BooleanNull] = s.[BooleanNull], t.[ShortNull] = s.[ShortNull], t.[LongNull] = s.[LongNull], t.[FloatNull] = s.[FloatNull], t.[DoubleNull] = s.[DoubleNull], t.[DecimalNull] = s.[DecimalNull], t.[DateTimeNull] = s.[DateTimeNull], t.[DateTimeOffsetNull] = s.[DateTimeOffsetNull], t.[GuidNull] = s.[GuidNull], t.[TimeSpanNull] = s.[TimeSpanNull], t.[DateOnlyNull] = s.[DateOnlyNull], t.[TimeOnlyNull] = s.[TimeOnlyNull]
+OUTPUT $action as MergeAction;

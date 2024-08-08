@@ -388,7 +388,7 @@ public class DataQueryTests : DatabaseTestBase
 
         await using var transaction = await session.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
-        var id = Guid.NewGuid();    
+        var id = Guid.NewGuid();
         var user = new User
         {
             Id = id,
@@ -437,5 +437,21 @@ public class DataQueryTests : DatabaseTestBase
         await transaction.RollbackAsync();
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task SqlQueryDataTypeAsync()
+    {
+        await using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var results = await session
+            .Sql(builder => builder
+                .Select<DataType>()
+                .OrderBy(p => p.Id)
+                .Limit(0, 10)
+            )
+            .QueryAsync<DataType>();
+
+        results.Should().NotBeNull();
+    }
 
 }

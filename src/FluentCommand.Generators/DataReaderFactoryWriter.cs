@@ -551,7 +551,7 @@ public static class DataReaderFactoryWriter
             "long" => "GetInt64",
             "string" => "GetString",
             "FluentCommand.ConcurrencyToken" => "GetBytes",
-            _ => $"GetValue<{propertyType}>"
+            _ => $"GetValue<{type}>"
         };
     }
 
