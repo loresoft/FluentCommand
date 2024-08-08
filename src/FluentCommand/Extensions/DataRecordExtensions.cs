@@ -450,6 +450,9 @@ public static class DataRecordExtensions
     public static T GetValue<T>(this IDataRecord dataRecord, string name)
     {
         int ordinal = dataRecord.GetOrdinal(name);
+        if (dataRecord.IsDBNull(ordinal))
+            return default;
+
         if (dataRecord is DbDataReader dataReader)
             return dataReader.GetFieldValue<T>(ordinal);
 
@@ -467,6 +470,9 @@ public static class DataRecordExtensions
     /// </returns>
     public static T GetValue<T>(this IDataRecord dataRecord, int index)
     {
+        if (dataRecord.IsDBNull(index))
+            return default;
+
         if (dataRecord is DbDataReader dataReader)
             return dataReader.GetFieldValue<T>(index);
 
