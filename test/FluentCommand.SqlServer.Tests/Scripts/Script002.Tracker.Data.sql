@@ -120,3 +120,22 @@ WHEN NOT MATCHED BY TARGET THEN
 WHEN MATCHED THEN
     UPDATE SET t.[Name] = s.[Name], t.[Boolean] = s.[Boolean], t.[Short] = s.[Short], t.[Long] = s.[Long], t.[Float] = s.[Float], t.[Double] = s.[Double], t.[Decimal] = s.[Decimal], t.[DateTime] = s.[DateTime], t.[DateTimeOffset] = s.[DateTimeOffset], t.[Guid] = s.[Guid], t.[TimeSpan] = s.[TimeSpan], t.[DateOnly] = s.[DateOnly], t.[TimeOnly] = s.[TimeOnly], t.[BooleanNull] = s.[BooleanNull], t.[ShortNull] = s.[ShortNull], t.[LongNull] = s.[LongNull], t.[FloatNull] = s.[FloatNull], t.[DoubleNull] = s.[DoubleNull], t.[DecimalNull] = s.[DecimalNull], t.[DateTimeNull] = s.[DateTimeNull], t.[DateTimeOffsetNull] = s.[DateTimeOffsetNull], t.[GuidNull] = s.[GuidNull], t.[TimeSpanNull] = s.[TimeSpanNull], t.[DateOnlyNull] = s.[DateOnlyNull], t.[TimeOnlyNull] = s.[TimeOnlyNull]
 OUTPUT $action as MergeAction;
+
+/* Table [dbo].[Table1 $ Test] data */
+
+MERGE INTO [dbo].[Table1 $ Test] AS t
+USING
+(
+    VALUES
+    (N'testing   ', N'value     ', 123, 456, N'123 Main', N'City, MN', N'55555')
+)
+AS s
+([Test$], [Blah #], [Table Example ID], [TableExampleObject], [1stNumber], [123Street], [123 Test 123])
+ON (t.[Test$] = s.[Test$])
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT ([Test$], [Blah #], [Table Example ID], [TableExampleObject], [1stNumber], [123Street], [123 Test 123])
+    VALUES (s.[Test$], s.[Blah #], s.[Table Example ID], s.[TableExampleObject], s.[1stNumber], s.[123Street], s.[123 Test 123])
+WHEN MATCHED THEN
+    UPDATE SET t.[Blah #] = s.[Blah #], t.[Table Example ID] = s.[Table Example ID], t.[TableExampleObject] = s.[TableExampleObject], t.[1stNumber] = s.[1stNumber], t.[123Street] = s.[123Street], t.[123 Test 123] = s.[123 Test 123]
+OUTPUT $action as MergeAction;
+

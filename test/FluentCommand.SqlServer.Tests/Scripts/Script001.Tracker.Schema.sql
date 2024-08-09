@@ -185,6 +185,18 @@ CREATE TABLE [dbo].[DataType] (
     CONSTRAINT [PK_DataType] PRIMARY KEY ([Id])
 );
 
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Table1 $ Test]') AND type in (N'U'))
+CREATE TABLE [dbo].[Table1 $ Test] (
+    [Test$] char(10) NOT NULL,
+    [Blah #] char(10) NULL,
+    [Table Example ID] int NULL,
+    [TableExampleObject] int NULL,
+    [1stNumber] nvarchar(50) NULL,
+    [123Street] nvarchar(50) NULL,
+    [123 Test 123] nvarchar(50) NULL,
+    CONSTRAINT [PK_Table1 $ Test] PRIMARY KEY ([Test$])
+);
+
 -- Types
 CREATE TYPE [dbo].[UserImportType] AS TABLE
 (

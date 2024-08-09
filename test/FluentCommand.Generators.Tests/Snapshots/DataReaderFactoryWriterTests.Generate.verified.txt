@@ -112,19 +112,19 @@ namespace FluentCommand.Entities
                 var __name = dataRecord.GetName(__index);
                 switch (__name)
                 {
-                    case nameof(FluentCommand.Entities.Status.Id):
+                    case "Id":
                         v_id = dataRecord.GetInt32(__index);
                         break;
-                    case nameof(FluentCommand.Entities.Status.Name):
+                    case "Name":
                         v_name = dataRecord.GetString(__index);
                         break;
-                    case nameof(FluentCommand.Entities.Status.IsActive):
+                    case "IsActive":
                         v_isActive = dataRecord.GetBoolean(__index);
                         break;
-                    case nameof(FluentCommand.Entities.Status.Updated):
+                    case "Updated":
                         v_updated = dataRecord.GetDateTimeOffset(__index);
                         break;
-                    case nameof(FluentCommand.Entities.Status.RowVersion):
+                    case "RowVersion":
                         v_rowVersion = dataRecord.GetBytes(__index);
                         break;
                 }

@@ -454,4 +454,18 @@ public class DataQueryTests : DatabaseTestBase
         results.Should().NotBeNull();
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task SqlQueryTableTestAsync()
+    {
+        await using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var results = await session
+            .Sql(builder => builder
+                .Select<TableTest>()
+            )
+            .QueryAsync<TableTest>();
+
+        results.Should().NotBeNull();
+    }
 }

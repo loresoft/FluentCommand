@@ -364,13 +364,9 @@ public static class DataReaderFactoryWriter
             var fieldName = CamelCase(entityProperty.PropertyName);
 
             codeBuilder
-                .Append("case nameof(")
-                .Append(entity.EntityNamespace)
-                .Append(".")
-                .Append(entity.EntityName)
-                .Append(".")
-                .Append(entityProperty.PropertyName)
-                .AppendLine("):");
+                .Append("case \"")
+                .Append(entityProperty.ColumnName)
+                .AppendLine("\":");
 
             if (string.IsNullOrEmpty(entityProperty.ConverterName))
             {

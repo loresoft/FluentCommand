@@ -6,17 +6,21 @@ public sealed class EntityProperty : IEquatable<EntityProperty>
 {
     public EntityProperty(
         string propertyName,
+        string columnName,
         string propertyType,
         string parameterName = null,
         string converterName = null)
     {
         PropertyName = propertyName;
+        ColumnName = columnName;
         PropertyType = propertyType;
         ParameterName = parameterName;
         ConverterName = converterName;
     }
 
     public string PropertyName { get; }
+
+    public string ColumnName { get; }
 
     public string PropertyType { get; }
 

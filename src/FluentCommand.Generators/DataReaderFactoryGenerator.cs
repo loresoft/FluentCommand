@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Reflection;
+using System.Xml.Linq;
 
 using FluentCommand.Generators.Internal;
 using FluentCommand.Generators.Models;
@@ -171,7 +172,15 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         // look for custom field converter
         var attributes = propertySymbol.GetAttributes();
         if (attributes == null || attributes.Length == 0)
-            return new EntityProperty(propertyName, propertyType, parameterName);
+        {
+            return new EntityProperty(
+                propertyName,
+                propertyName,
+                propertyType,
+                parameterName);
+        }
+
+        var columnName = GetColumnName(attributes) ?? propertyName;
 
         var converter = attributes
             .FirstOrDefault(a => a.AttributeClass is
@@ -181,7 +190,13 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             });
 
         if (converter == null)
-            return new EntityProperty(propertyName, propertyType, parameterName);
+        {
+            return new EntityProperty(
+                propertyName,
+                columnName,
+                propertyType,
+                parameterName);
+        }
 
         // attribute contructor
         var converterType = converter.ConstructorArguments.FirstOrDefault();
@@ -189,6 +204,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         {
             return new EntityProperty(
                 propertyName,
+                columnName,
                 propertyType,
                 parameterName,
                 converterSymbol.ToDisplayString());
@@ -205,6 +221,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
 
             return new EntityProperty(
                 propertyName,
+                columnName,
                 propertyType,
                 parameterName,
                 converterString);
@@ -212,6 +229,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
 
         return new EntityProperty(
             propertyName,
+            columnName,
             propertyType,
             parameterName);
     }
@@ -242,5 +260,37 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         }
 
         return !propertySymbol.IsIndexer && !propertySymbol.IsAbstract && propertySymbol.DeclaredAccessibility == Accessibility.Public;
+    }
+
+    private static string GetColumnName(ImmutableArray<AttributeData> attributes)
+    {
+        var columnAttribute = attributes
+           .FirstOrDefault(a => a.AttributeClass is
+           {
+               Name: "ColumnAttribute",
+               ContainingNamespace:
+               {
+                   Name: "Schema",
+                   ContainingNamespace:
+                   {
+                       Name: "DataAnnotations",
+                       ContainingNamespace:
+                       {
+                           Name: "ComponentModel",
+                           ContainingNamespace.Name: "System"
+                       }
+                   }
+               }
+           });
+
+        if (columnAttribute == null)
+            return null;
+
+        // attribute contructor [Column("Name")]
+        var converterType = columnAttribute.ConstructorArguments.FirstOrDefault();
+        if (converterType.Value is string stringValue)
+            return stringValue;
+
+        return null;
     }
 }

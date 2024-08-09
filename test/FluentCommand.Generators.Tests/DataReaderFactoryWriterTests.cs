@@ -15,11 +15,11 @@ public class DataReaderFactoryWriterTests
             "Status",
             new EntityProperty[]
             {
-                new("Id", typeof(int).FullName),
-                new("Name", typeof(string).FullName),
-                new("IsActive", typeof(bool).FullName),
-                new("Updated", typeof(DateTimeOffset).FullName),
-                new("RowVersion", typeof(byte[]).FullName),
+                new("Id", "Id", typeof(int).FullName),
+                new("Name", "Name", typeof(string).FullName),
+                new("IsActive", "IsActive", typeof(bool).FullName),
+                new("Updated", "Updated", typeof(DateTimeOffset).FullName),
+                new("RowVersion", "RowVersion", typeof(byte[]).FullName),
             }.ToImmutableArray()
         );
 
