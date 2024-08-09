@@ -49,7 +49,6 @@ public static class DataMapping
             {DbType.Boolean, typeof(bool)},
             {DbType.Byte, typeof(byte)},
             {DbType.Currency, typeof(decimal)},
-            {DbType.Date, typeof(DateTime)},
             {DbType.DateTime, typeof(DateTime)},
             {DbType.Decimal, typeof(decimal)},
             {DbType.Double, typeof(double)},
@@ -62,13 +61,20 @@ public static class DataMapping
             {DbType.Single, typeof(float)},
             {DbType.String, typeof(string)},
             {DbType.StringFixedLength, typeof(string)},
-            {DbType.Time, typeof(TimeSpan)},
             {DbType.UInt16, typeof(ushort)},
             {DbType.UInt32, typeof(uint)},
             {DbType.UInt64, typeof(ulong)},
             {DbType.VarNumeric, typeof(decimal)},
             {DbType.DateTime2, typeof(DateTime)},
             {DbType.DateTimeOffset, typeof(DateTimeOffset)},
+            #if NET6_0_OR_GREATER
+            {DbType.Date, typeof(DateOnly)},
+            {DbType.Time, typeof(TimeOnly)},
+            #else
+            {DbType.Date, typeof(DateTime)},
+            {DbType.Time, typeof(TimeSpan)},
+            #endif
+
         };
     }
 

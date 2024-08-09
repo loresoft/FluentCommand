@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using System.Data.Common;
 
@@ -427,6 +428,76 @@ public static class DataRecordExtensions
         int ordinal = dataRecord.GetOrdinal(name);
         return dataRecord.IsDBNull(ordinal) ? null : dataRecord.GetString(ordinal);
     }
+
+#if NET6_0_OR_GREATER
+    /// <summary>Gets the <see cref="DateOnly"/> value of the specified field.</summary>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+    /// <returns>The <see cref="DateOnly"/> value of the specified field.</returns>
+    public static DateOnly GetDateOnly(this IDataRecord dataRecord, string name)
+    {
+        int ordinal = dataRecord.GetOrdinal(name);
+        if (dataRecord.IsDBNull(ordinal))
+            return default;
+
+        if (dataRecord is DbDataReader dataReader)
+            return dataReader.GetFieldValue<DateOnly>(ordinal);
+
+        var dateTime = dataRecord.GetDateTime(ordinal);
+        return DateOnly.FromDateTime(dateTime);
+    }
+
+    /// <summary>Gets the <see cref="DateOnly"/> value of the specified field.</summary>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+    /// <returns>The <see cref="DateOnly"/> value of the specified field.</returns>
+    public static DateOnly? GetDateOnlyNull(this IDataRecord dataRecord, string name)
+    {
+        int ordinal = dataRecord.GetOrdinal(name);
+        if (dataRecord.IsDBNull(ordinal))
+            return null;
+
+        if (dataRecord is DbDataReader dataReader)
+            return dataReader.GetFieldValue<DateOnly>(ordinal);
+
+        var dateTime = dataRecord.GetDateTime(ordinal);
+        return DateOnly.FromDateTime(dateTime);
+    }
+
+    /// <summary>Gets the <see cref="TimeOnly"/> value of the specified field.</summary>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+    /// <returns>The <see cref="TimeOnly"/> value of the specified field.</returns>
+    public static TimeOnly GetTimeOnly(this IDataRecord dataRecord, string name)
+    {
+        int ordinal = dataRecord.GetOrdinal(name);
+        if (dataRecord.IsDBNull(ordinal))
+            return default;
+
+        if (dataRecord is DbDataReader dataReader)
+            return dataReader.GetFieldValue<TimeOnly>(ordinal);
+
+        var dateTime = dataRecord.GetDateTime(ordinal);
+        return TimeOnly.FromDateTime(dateTime);
+    }
+
+    /// <summary>Gets the <see cref="TimeOnly"/> value of the specified field.</summary>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+    /// <returns>The <see cref="TimeOnly"/> value of the specified field.</returns>
+    public static TimeOnly? GetTimeOnlyNull(this IDataRecord dataRecord, string name)
+    {
+        int ordinal = dataRecord.GetOrdinal(name);
+        if (dataRecord.IsDBNull(ordinal))
+            return null;
+
+        if (dataRecord is DbDataReader dataReader)
+            return dataReader.GetFieldValue<TimeOnly>(ordinal);
+
+        var dateTime = dataRecord.GetDateTime(ordinal);
+        return TimeOnly.FromDateTime(dateTime);
+    }
+#endif
 
     /// <summary>Gets the value of the specified field.</summary>
     /// <param name="dataRecord">The data record.</param>
