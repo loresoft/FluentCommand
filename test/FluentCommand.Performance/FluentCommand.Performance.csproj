@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="MicroSoft.Data.SqlClient" Version="5.2.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
   </ItemGroup>
 
