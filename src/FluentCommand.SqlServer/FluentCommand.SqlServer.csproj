@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="MicroSoft.Data.SqlClient" Version="5.2.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
 
 </Project>
