@@ -19,3 +19,17 @@ public record StatusRecord(
     [DataFieldConverter(typeof(ConcurrencyTokenHandler))]
     ConcurrencyToken RowVersion
 );
+
+public record StatusRecordList(
+    int Id,
+    string Name,
+    string Description,
+    int DisplayOrder,
+    bool IsActive,
+    DateTimeOffset Created,
+    string CreatedBy,
+    DateTimeOffset Updated,
+    string UpdatedBy,
+    ConcurrencyToken RowVersion,
+    List<string> Versions
+);

@@ -43,7 +43,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
         var hashCode = value is null ? 0 : EqualityComparer<TValue>.Default.GetHashCode(value);
         unchecked
         {
-            hashCode = _hashCode * Multiplier + hashCode;
+            hashCode = (_hashCode * Multiplier) + hashCode;
         }
 
         return new HashCode(hashCode);
@@ -233,5 +233,28 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
         }
 
         return hash;
+    }
+}
+
+
+public class MyClass
+{
+    public string Name { get; set; }
+
+    public Type Type { get; set; }
+
+    public override bool Equals(object obj)
+    {
+        return obj is MyClass @class &&
+               Name == @class.Name &&
+               EqualityComparer<Type>.Default.Equals(Type, @class.Type);
+    }
+
+    public override int GetHashCode()
+    {
+        int hashCode = -243844509;
+        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+        hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(Type);
+        return hashCode;
     }
 }

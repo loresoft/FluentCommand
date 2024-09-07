@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
+# 17
 VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand", "src\FluentCommand\FluentCommand.csproj", "{4D5F125D-8DD5-496B-959E-78F55D8BE946}"
@@ -22,6 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{38D98603
 		.github\dependabot.yml = .github\dependabot.yml
 		src\Directory.Build.props = src\Directory.Build.props
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		.github\workflows\merge.yml = .github\workflows\merge.yml
 		README.md = README.md
 	EndProjectSection
 EndProject

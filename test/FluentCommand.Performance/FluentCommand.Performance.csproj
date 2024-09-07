@@ -26,8 +26,4 @@
     <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Update="XUnit.Hosting" Version="1.7.1" />
-  </ItemGroup>
-
 </Project>
