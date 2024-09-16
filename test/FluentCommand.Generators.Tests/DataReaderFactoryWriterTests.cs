@@ -11,6 +11,7 @@ public class DataReaderFactoryWriterTests
     {
         var entityClass = new EntityClass(
             InitializationMode.ObjectInitializer,
+            "global::FluentCommand.Entities.Status",
             "FluentCommand.Entities",
             "Status",
             new EntityProperty[]
@@ -20,7 +21,7 @@ public class DataReaderFactoryWriterTests
                 new("IsActive", "IsActive", typeof(bool).FullName),
                 new("Updated", "Updated", typeof(DateTimeOffset).FullName),
                 new("RowVersion", "RowVersion", typeof(byte[]).FullName),
-            }.ToImmutableArray()
+            }
         );
 
         var source = DataReaderFactoryWriter.Generate(entityClass);

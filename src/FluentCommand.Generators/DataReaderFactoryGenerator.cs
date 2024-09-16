@@ -1,50 +1,20 @@
-using System;
 using System.Collections.Immutable;
-using System.Reflection;
-using System.Xml.Linq;
 
-using FluentCommand.Generators.Internal;
 using FluentCommand.Generators.Models;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FluentCommand.Generators;
 
-[Generator(LanguageNames.CSharp)]
-public class DataReaderFactoryGenerator : IIncrementalGenerator
+public abstract class DataReaderFactoryGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
-    {
-        var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
-            fullyQualifiedMetadataName: "System.ComponentModel.DataAnnotations.Schema.TableAttribute",
-            predicate: SyntacticPredicate,
-            transform: SemanticTransform
-        )
-        .Where(static context => context is not null);
-
-        // Emit the diagnostics, if needed
-        var diagnostics = provider
-            .Select(static (item, _) => item.Diagnostics)
-            .Where(static item => item.Count > 0);
-
-        context.RegisterSourceOutput(diagnostics, ReportDiagnostic);
-
-        var entityClasses = provider
-            .Select(static (item, _) => item.EntityClass)
-            .Where(static item => item is not null);
-
-        context.RegisterSourceOutput(entityClasses, Execute);
-    }
-
-    private static void ReportDiagnostic(SourceProductionContext context, EquatableArray<Diagnostic> diagnostics)
+    protected static void ReportDiagnostic(SourceProductionContext context, EquatableArray<Diagnostic> diagnostics)
     {
         foreach (var diagnostic in diagnostics)
             context.ReportDiagnostic(diagnostic);
     }
 
-    private static void Execute(SourceProductionContext context, EntityClass entityClass)
+    protected static void WriteSource(SourceProductionContext context, EntityClass entityClass)
     {
         var qualifiedName = entityClass.EntityNamespace is null
             ? entityClass.EntityName
@@ -55,23 +25,12 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         context.AddSource($"{qualifiedName}DataReaderExtensions.g.cs", source);
     }
 
-    private static bool SyntacticPredicate(SyntaxNode syntaxNode, CancellationToken cancellationToken)
+    protected static EntityContext CreateContext(Location location, INamedTypeSymbol targetSymbol)
     {
-        return syntaxNode is ClassDeclarationSyntax
-        { AttributeLists.Count: > 0 } classDeclaration
-               && !classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
-               && !classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
-            || syntaxNode is RecordDeclarationSyntax
-            { AttributeLists.Count: > 0 } recordDeclaration
-               && !recordDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
-               && !recordDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword);
-    }
-
-    private static EntityContext SemanticTransform(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
-    {
-        if (context.TargetSymbol is not INamedTypeSymbol targetSymbol)
+        if (targetSymbol == null)
             return null;
 
+        var fullyQualified = targetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var classNamespace = targetSymbol.ContainingNamespace.ToDisplayString();
         var className = targetSymbol.Name;
 
@@ -84,10 +43,11 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         if (mode == InitializationMode.ObjectInitializer)
         {
             var propertyArray = propertySymbols
-                .Select(p => CreateProperty(p));
+                .Select(p => CreateProperty(p))
+                .ToArray();
 
-            var entity = new EntityClass(mode, classNamespace, className, propertyArray);
-            return new EntityContext(entity, Enumerable.Empty<Diagnostic>());
+            var entity = new EntityClass(mode, fullyQualified, classNamespace, className, propertyArray);
+            return new EntityContext(entity, []);
         }
 
         // constructor initialization
@@ -99,7 +59,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         {
             var constructorDiagnostic = Diagnostic.Create(
                 DiagnosticDescriptors.InvalidConstructor,
-                context.TargetNode.GetLocation(),
+                location,
                 propertySymbols.Count,
                 className
             );
@@ -121,7 +81,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             {
                 var constructorDiagnostic = Diagnostic.Create(
                     DiagnosticDescriptors.InvalidConstructorParameter,
-                    context.TargetNode.GetLocation(),
+                    location,
                     propertySymbol.Name,
                     className
                 );
@@ -135,11 +95,11 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             properties.Add(property);
         }
 
-        var entityClass = new EntityClass(mode, classNamespace, className, properties);
+        var entityClass = new EntityClass(mode, fullyQualified, classNamespace, className, properties);
         return new EntityContext(entityClass, diagnostics);
     }
 
-    private static List<IPropertySymbol> GetProperties(INamedTypeSymbol targetSymbol)
+    protected static List<IPropertySymbol> GetProperties(INamedTypeSymbol targetSymbol)
     {
         var properties = new Dictionary<string, IPropertySymbol>();
 
@@ -164,7 +124,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
         return properties.Values.ToList();
     }
 
-    private static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string parameterName = null)
+    protected static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string parameterName = null)
     {
         var propertyType = propertySymbol.Type.ToDisplayString();
         var propertyName = propertySymbol.Name;
@@ -234,35 +194,7 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             parameterName);
     }
 
-    private static bool IsIncluded(IPropertySymbol propertySymbol)
-    {
-        var attributes = propertySymbol.GetAttributes();
-        if (attributes.Length > 0 && attributes.Any(
-                a => a.AttributeClass is
-                {
-                    Name: "NotMappedAttribute",
-                    ContainingNamespace:
-                    {
-                        Name: "Schema",
-                        ContainingNamespace:
-                        {
-                            Name: "DataAnnotations",
-                            ContainingNamespace:
-                            {
-                                Name: "ComponentModel",
-                                ContainingNamespace.Name: "System"
-                            }
-                        }
-                    }
-                }))
-        {
-            return false;
-        }
-
-        return !propertySymbol.IsIndexer && !propertySymbol.IsAbstract && propertySymbol.DeclaredAccessibility == Accessibility.Public;
-    }
-
-    private static string GetColumnName(ImmutableArray<AttributeData> attributes)
+    protected static string GetColumnName(ImmutableArray<AttributeData> attributes)
     {
         var columnAttribute = attributes
            .FirstOrDefault(a => a.AttributeClass is
@@ -292,5 +224,33 @@ public class DataReaderFactoryGenerator : IIncrementalGenerator
             return stringValue;
 
         return null;
+    }
+
+    protected static bool IsIncluded(IPropertySymbol propertySymbol)
+    {
+        var attributes = propertySymbol.GetAttributes();
+        if (attributes.Length > 0 && attributes.Any(
+                a => a.AttributeClass is
+                {
+                    Name: "NotMappedAttribute",
+                    ContainingNamespace:
+                    {
+                        Name: "Schema",
+                        ContainingNamespace:
+                        {
+                            Name: "DataAnnotations",
+                            ContainingNamespace:
+                            {
+                                Name: "ComponentModel",
+                                ContainingNamespace.Name: "System"
+                            }
+                        }
+                    }
+                }))
+        {
+            return false;
+        }
+
+        return !propertySymbol.IsIndexer && !propertySymbol.IsAbstract && propertySymbol.DeclaredAccessibility == Accessibility.Public;
     }
 }
