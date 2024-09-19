@@ -46,4 +46,23 @@ public static class DataMergeExtensions
     {
         return new DataMerge(session, mergeDefinition);
     }
+
+
+    /// <summary>
+    /// Sets the wait time before terminating the attempt to execute a command and generating an error.
+    /// </summary>
+    /// <param name="dataMerge">The <see cref="IDataMerge"/> for this extension method.</param>
+    /// <param name="timeSpan">The <see cref="TimeSpan"/> to wait for the command to execute.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the data command.
+    /// </returns>
+    public static IDataMerge CommandTimeout(
+        this IDataMerge dataMerge,
+        TimeSpan timeSpan)
+    {
+        var timeout = Convert.ToInt32(timeSpan.TotalSeconds);
+        dataMerge.CommandTimeout(timeout);
+        return dataMerge;
+    }
+
 }

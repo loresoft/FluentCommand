@@ -140,9 +140,9 @@ public class DataMerge : DisposableBase, IDataMerge
     }
 
     /// <summary>
-    /// Sets the wait time before terminating the attempt to execute a command and generating an error.
+    /// Sets the wait time (in seconds) before terminating the attempt to execute the command and generating an error.
     /// </summary>
-    /// <param name="timeout">TThe time in seconds to wait for the command to execute.</param>
+    /// <param name="timeout">The time in seconds to wait for the command to execute.</param>
     /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
     public IDataMerge CommandTimeout(int timeout)
     {
