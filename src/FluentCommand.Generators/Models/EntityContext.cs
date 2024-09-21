@@ -3,6 +3,6 @@ using Microsoft.CodeAnalysis;
 namespace FluentCommand.Generators.Models;
 
 public record EntityContext(
-    EntityClass EntityClass,
+    EquatableArray<EntityClass> EntityClasses,
     EquatableArray<Diagnostic> Diagnostics
 );

@@ -25,7 +25,7 @@ public abstract class DataReaderFactoryGenerator
         context.AddSource($"{qualifiedName}DataReaderExtensions.g.cs", source);
     }
 
-    protected static EntityContext CreateContext(Location location, INamedTypeSymbol targetSymbol)
+    protected static EntityClass CreateClass(Location location, INamedTypeSymbol targetSymbol, List<Diagnostic> diagnostics)
     {
         if (targetSymbol == null)
             return null;
@@ -47,11 +47,10 @@ public abstract class DataReaderFactoryGenerator
                 .ToArray();
 
             var entity = new EntityClass(mode, fullyQualified, classNamespace, className, propertyArray);
-            return new EntityContext(entity, []);
+            return entity;
         }
 
         // constructor initialization
-        var diagnostics = new List<Diagnostic>();
 
         // constructor with same number of parameters as properties
         var constructor = targetSymbol.Constructors.FirstOrDefault(c => c.Parameters.Length == propertySymbols.Count);
@@ -66,7 +65,7 @@ public abstract class DataReaderFactoryGenerator
 
             diagnostics.Add(constructorDiagnostic);
 
-            return new EntityContext(null, diagnostics);
+            return null;
         }
 
         var properties = new List<EntityProperty>();
@@ -95,8 +94,7 @@ public abstract class DataReaderFactoryGenerator
             properties.Add(property);
         }
 
-        var entityClass = new EntityClass(mode, fullyQualified, classNamespace, className, properties);
-        return new EntityContext(entityClass, diagnostics);
+        return new EntityClass(mode, fullyQualified, classNamespace, className, properties);
     }
 
     protected static List<IPropertySymbol> GetProperties(INamedTypeSymbol targetSymbol)

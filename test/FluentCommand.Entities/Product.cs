@@ -1,6 +1,6 @@
-namespace FluentCommand.Entities;
+﻿namespace FluentCommand.Entities;
 
-public class Brand
+public class Product
 {
     public int Id { get; set; }
     public string Name { get; set; }

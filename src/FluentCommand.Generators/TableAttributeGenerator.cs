@@ -26,7 +26,7 @@ public class TableAttributeGenerator : DataReaderFactoryGenerator, IIncrementalG
         context.RegisterSourceOutput(diagnostics, ReportDiagnostic);
 
         var entityClasses = provider
-            .Select(static (item, _) => item.EntityClass)
+            .SelectMany(static (item, _) => item.EntityClasses)
             .Where(static item => item is not null);
 
         context.RegisterSourceOutput(entityClasses, WriteSource);
@@ -49,6 +49,12 @@ public class TableAttributeGenerator : DataReaderFactoryGenerator, IIncrementalG
         if (context.TargetSymbol is not INamedTypeSymbol targetSymbol)
             return null;
 
-        return CreateContext(context.TargetNode.GetLocation(), targetSymbol);
+        var classes = new List<EntityClass>();
+        var diagnostics = new List<Diagnostic>();
+
+        var entityClass = CreateClass(context.TargetNode.GetLocation(), targetSymbol, diagnostics);
+        classes.Add(entityClass);
+
+        return new EntityContext(classes, diagnostics);
     }
 }

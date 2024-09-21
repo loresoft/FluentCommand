@@ -24,7 +24,7 @@ public class GenerateAttributeGenerator : DataReaderFactoryGenerator, IIncrement
         context.RegisterSourceOutput(diagnostics, ReportDiagnostic);
 
         var entityClasses = provider
-            .Select(static (item, _) => item.EntityClass)
+            .SelectMany(static (item, _) => item.EntityClasses)
             .Where(static item => item is not null);
 
         context.RegisterSourceOutput(entityClasses, WriteSource);
@@ -40,17 +40,26 @@ public class GenerateAttributeGenerator : DataReaderFactoryGenerator, IIncrement
         if (context.Attributes.Length == 0)
             return null;
 
-        var attribute = context.Attributes[0];
-        if (attribute == null)
-            return null;
+        var classes = new List<EntityClass>();
+        var diagnostics = new List<Diagnostic>();
 
-        if (attribute.ConstructorArguments.Length != 1)
-            return null;
+        foreach (var attribute in context.Attributes)
+        {
+            if (attribute == null)
+                return null;
 
-        var comparerArgument = attribute.ConstructorArguments[0];
-        if (comparerArgument.Value is not INamedTypeSymbol targetSymbol)
-            return null;
+            if (attribute.ConstructorArguments.Length != 1)
+                return null;
 
-        return CreateContext(context.TargetNode.GetLocation(), targetSymbol);
+            var comparerArgument = attribute.ConstructorArguments[0];
+            if (comparerArgument.Value is not INamedTypeSymbol targetSymbol)
+                return null;
+
+            var entityClass = CreateClass(context.TargetNode.GetLocation(), targetSymbol, diagnostics);
+            if (entityClass != null)
+                classes.Add(entityClass);
+        }
+
+        return new EntityContext(classes, diagnostics);
     }
 }
