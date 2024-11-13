@@ -31,8 +31,8 @@
 
   <ItemGroup>
     <PackageReference Include="Bogus" Version="35.6.1" />
-    <PackageReference Include="FluentAssertions" Version="6.12.1" />
-    <PackageReference Include="XUnit.Hosting" Version="1.7.1" />
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="XUnit.Hosting" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
