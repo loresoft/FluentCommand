@@ -26,7 +26,7 @@ public class DatabaseInitializer : IHostedService, IUpgradeLog
         var connectionString = _configuration.GetConnectionString("Tracker");
 
         var upgradeEngine = DeployChanges.To
-                .SQLiteDatabase(connectionString)
+                .SqliteDatabase(connectionString)
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
                 .LogTo(this)
                 .Build();

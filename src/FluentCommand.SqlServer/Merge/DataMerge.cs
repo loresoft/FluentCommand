@@ -637,10 +637,10 @@ public class DataMerge : DisposableBase, IDataMerge
         }
         finally
         {
-#if NETSTANDARD2_0
-            _dataSession.ReleaseConnection();
-#else
+#if NETCOREAPP3_0_OR_GREATER
             await _dataSession.ReleaseConnectionAsync();
+#else
+            _dataSession.ReleaseConnection();
 #endif
         }
     }

@@ -475,7 +475,9 @@ public static class DataMergeGenerator
 
     private static string ToHex(byte[] bytes)
     {
-#if NETSTANDARD2_0
+#if NET5_0_OR_GREATER
+        return Convert.ToHexString(bytes);
+#else
         var s = StringBuilderCache.Acquire();
         s.Append("0x");
 
@@ -483,8 +485,6 @@ public static class DataMergeGenerator
             s.Append(b.ToString("x2").ToUpperInvariant());
 
         return StringBuilderCache.ToString(s);
-#else
-        return Convert.ToHexString(bytes);
 #endif
     }
 }
