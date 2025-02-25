@@ -35,9 +35,9 @@
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageReference Include="Testcontainers.Azurite" Version="4.2.0" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.2.0" />
-    <PackageReference Include="Testcontainers.Redis" Version="4.2.0" />
+    <PackageReference Include="Testcontainers.Azurite" Version="4.3.0" />
+    <PackageReference Include="Testcontainers.MsSql" Version="4.3.0" />
+    <PackageReference Include="Testcontainers.Redis" Version="4.3.0" />
     <PackageReference Include="Verify.Xunit" Version="28.12.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
       <PrivateAssets>all</PrivateAssets>
