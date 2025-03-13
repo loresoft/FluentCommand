@@ -38,7 +38,7 @@
     <PackageReference Include="Testcontainers.Azurite" Version="4.3.0" />
     <PackageReference Include="Testcontainers.MsSql" Version="4.3.0" />
     <PackageReference Include="Testcontainers.Redis" Version="4.3.0" />
-    <PackageReference Include="Verify.Xunit" Version="28.14.1" />
+    <PackageReference Include="Verify.Xunit" Version="28.15.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
