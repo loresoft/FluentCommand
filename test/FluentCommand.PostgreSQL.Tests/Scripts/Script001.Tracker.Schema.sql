@@ -135,6 +135,40 @@ CREATE TABLE IF NOT EXISTS "UserRole" (
     CONSTRAINT "PK_UserRole" PRIMARY KEY ("UserId", "RoleId")
 );
 
+CREATE TABLE IF NOT EXISTS "DataType" (
+    "Id" BIGINT NOT NULL,
+    "Name" VARCHAR(100) NOT NULL,
+    "Boolean" BOOLEAN NOT NULL,
+    "Short" SMALLINT NOT NULL,
+    "Integer" INTEGER NOT NULL,
+    "Long" BIGINT NOT NULL,
+    "Float" REAL NOT NULL,
+    "Double" DOUBLE PRECISION NOT NULL,
+    "Decimal" NUMERIC(19, 4) NOT NULL,
+    "DateTime" TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    "DateTimeOffset" TIMESTAMPTZ NOT NULL,
+    "Guid" UUID NOT NULL,
+    "TimeSpan" TIME NOT NULL,
+    "DateOnly" DATE NOT NULL,
+    "TimeOnly" TIME NOT NULL,
+    "BooleanNull" BOOLEAN,
+    "ShortNull" SMALLINT,
+    "LongNull" BIGINT,
+    "FloatNull" REAL,
+    "DoubleNull" DOUBLE PRECISION,
+    "DecimalNull" NUMERIC(19, 4),
+    "DateTimeNull" TIMESTAMP WITHOUT TIME ZONE,
+    "DateTimeOffsetNull" TIMESTAMPTZ,
+    "GuidNull" UUID,
+    "TimeSpanNull" TIME,
+    "DateOnlyNull" DATE,
+    "TimeOnlyNull" TIME,
+    "IntegerArray" INTEGER[],
+    "RealArray" REAL[],
+    "TextArray" TEXT[],
+
+    CONSTRAINT "PK_DataType" PRIMARY KEY ("Id")
+);
 
 -- Foreign Keys
 ALTER TABLE "Task"
