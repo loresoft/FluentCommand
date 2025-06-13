@@ -30,14 +30,7 @@ public static class StringExtensions
     /// </returns>
     public static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? item)
     {
-        if (item == null)
-            return true;
-
-        for (int i = 0; i < item.Length; i++)
-            if (!char.IsWhiteSpace(item[i]))
-                return false;
-
-        return true;
+        return string.IsNullOrWhiteSpace(item);
     }
 
     /// <summary>

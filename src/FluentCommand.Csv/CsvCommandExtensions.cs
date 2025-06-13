@@ -4,35 +4,36 @@ using System.Data.Common;
 using System.Globalization;
 using System.Text;
 
-using CsvHelper;
-using CsvHelper.Configuration;
-
 using FluentCommand.Extensions;
 
 using Microsoft.IO;
 
 namespace FluentCommand;
 
+/// <summary>
+/// Provides extension methods for <see cref="IDataCommand"/> to export query results as CSV data.
+/// </summary>
 public static class CsvCommandExtensions
 {
     private static readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
+    private static readonly SearchValues<char> SpecialChars = SearchValues.Create(",\"\n\r");
 
     /// <summary>
-    /// Executes the query and returns a CSV string from data set returned by the query.
+    /// Executes the query and returns a CSV string from the data set returned by the query.
     /// </summary>
-    /// <param name="dataCommand">The data command.</param>
-    /// <param name="csvConfiguration">The configuration used for the CSV writer</param>
+    /// <param name="dataCommand">The data command to execute.</param>
     /// <returns>
-    /// A CSV string representing the <see cref="IDataReader" /> result of the command.
+    /// A CSV string representing the <see cref="IDataReader"/> result of the command.
     /// </returns>
-    public static string QueryCsv(this IDataCommand dataCommand, CsvConfiguration csvConfiguration = default)
+    /// <exception cref="ArgumentNullException"><paramref name="dataCommand"/> is <c>null</c>.</exception>
+    public static string QueryCsv(this IDataCommand dataCommand)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
 
         using var stream = _memoryStreamManager.GetStream();
 
-        QueryCsv(dataCommand, stream, csvConfiguration);
+        QueryCsv(dataCommand, stream);
 
         var bytes = stream.GetReadOnlySequence();
 
@@ -46,46 +47,44 @@ public static class CsvCommandExtensions
     /// <summary>
     /// Executes the query and writes the CSV data to the specified <paramref name="stream"/>.
     /// </summary>
-    /// <param name="dataCommand">The data command.</param>
-    /// <param name="stream">The stream writer.</param>
-    /// <param name="csvConfiguration">The configuration used for the CSV writer</param>
-    public static void QueryCsv(this IDataCommand dataCommand, Stream stream, CsvConfiguration csvConfiguration = default)
+    /// <param name="dataCommand">The data command to execute.</param>
+    /// <param name="stream">The stream to which the CSV data will be written.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="dataCommand"/> or <paramref name="stream"/> is <c>null</c>.
+    /// </exception>
+    public static void QueryCsv(this IDataCommand dataCommand, Stream stream)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
         if (stream is null)
             throw new ArgumentNullException(nameof(stream));
 
-        if (csvConfiguration == null)
-            csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };
-
         using var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true);
-        using var csvWriter = new CsvWriter(streamWriter, csvConfiguration, true);
 
-        dataCommand.Read(reader => WriteData(reader, csvWriter), CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
+        dataCommand.Read(
+            readAction: reader => WriteData(streamWriter, reader),
+            commandBehavior: CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
 
-        csvWriter.Flush();
         streamWriter.Flush();
     }
 
-
     /// <summary>
-    /// Executes the query and returns a CSV string from data set returned by the query asynchronously.
+    /// Executes the query and returns a CSV string from the data set returned by the query asynchronously.
     /// </summary>
-    /// <param name="dataCommand">The data command.</param>
-    /// <param name="csvConfiguration">The configuration used for the CSV writer</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="dataCommand">The data command to execute.</param>
+    /// <param name="cancellationToken">The cancellation token to observe.</param>
     /// <returns>
-    /// A CSV string representing the <see cref="IDataReader" /> result of the command.
+    /// A task representing the asynchronous operation. The result contains a CSV string representing the <see cref="IDataReader"/> result of the command.
     /// </returns>
-    public static async Task<string> QueryCsvAsync(this IDataCommand dataCommand, CsvConfiguration csvConfiguration = default, CancellationToken cancellationToken = default)
+    /// <exception cref="ArgumentNullException"><paramref name="dataCommand"/> is <c>null</c>.</exception>
+    public static async Task<string> QueryCsvAsync(this IDataCommand dataCommand, CancellationToken cancellationToken = default)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
 
         using var stream = _memoryStreamManager.GetStream();
 
-        await QueryCsvAsync(dataCommand, stream, csvConfiguration, cancellationToken);
+        await QueryCsvAsync(dataCommand, stream, cancellationToken);
 
         var bytes = stream.GetReadOnlySequence();
 
@@ -97,165 +96,197 @@ public static class CsvCommandExtensions
     }
 
     /// <summary>
-    /// Executes the query and writes the CSV data to the specified <paramref name="stream"/>.
+    /// Executes the query and writes the CSV data to the specified <paramref name="stream"/> asynchronously.
     /// </summary>
-    /// <param name="dataCommand">The data command.</param>
-    /// <param name="stream">The stream writer.</param>
-    /// <param name="csvConfiguration">The configuration used for the CSV writer</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="dataCommand">The data command to execute.</param>
+    /// <param name="stream">The stream to which the CSV data will be written.</param>
+    /// <param name="cancellationToken">The cancellation token to observe.</param>
     /// <returns>
-    /// A CSV string representing the <see cref="IDataReader" /> result of the command.
+    /// A task representing the asynchronous operation.
     /// </returns>
-    public static async Task QueryCsvAsync(this IDataCommand dataCommand, Stream stream, CsvConfiguration csvConfiguration = default, CancellationToken cancellationToken = default)
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="dataCommand"/> or <paramref name="stream"/> is <c>null</c>.
+    /// </exception>
+    public static async Task QueryCsvAsync(this IDataCommand dataCommand, Stream stream, CancellationToken cancellationToken = default)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
         if (stream is null)
             throw new ArgumentNullException(nameof(stream));
 
-        if (csvConfiguration == null)
-            csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture) { HasHeaderRecord = true };
-
         using var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true);
-        await using var csvWriter = new CsvWriter(streamWriter, csvConfiguration, true);
 
-        await dataCommand.ReadAsync(async (reader, token) =>
-        {
-            if (reader is DbDataReader dataReader)
-                await WriteDataAsync(dataReader, csvWriter, token);
-            else
-                WriteData(reader, csvWriter);
+        await dataCommand.ReadAsync(
+            readAction: async (reader, token) =>
+            {
+                if (reader is DbDataReader dataReader)
+                    await WriteDataAsync(streamWriter, dataReader, token);
+                else
+                    WriteData(streamWriter, reader);
+            },
+            commandBehavior: CommandBehavior.SequentialAccess | CommandBehavior.SingleResult,
+            cancellationToken: cancellationToken);
 
-        }, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult, cancellationToken);
-
-        await csvWriter.FlushAsync();
         await streamWriter.FlushAsync();
     }
 
 
-    private static void WriteData(IDataReader reader, CsvWriter writer)
+    private static void WriteData(TextWriter writer, IDataReader reader)
     {
-        // if config says to include header, default false
-        var wroteHeader = !writer.Configuration.HasHeaderRecord;
+        var wroteHeader = false;
+        Type[] rowTypes = null;
 
         while (reader.Read())
         {
             if (!wroteHeader)
             {
-                WriteHeader(reader, writer);
+                WriteHeader(writer, reader);
                 wroteHeader = true;
             }
 
-            WriteRow(reader, writer);
+            if (rowTypes is null)
+            {
+                rowTypes = new Type[reader.FieldCount];
+                for (int i = 0; i < reader.FieldCount; i++)
+                    rowTypes[i] = reader.GetFieldType(i);
+            }
+
+            WriteRow(writer, reader, rowTypes);
         }
     }
 
-    private static async Task WriteDataAsync(DbDataReader reader, CsvWriter writer, CancellationToken cancellationToken = default)
+    private static async Task WriteDataAsync(TextWriter writer, DbDataReader reader, CancellationToken cancellationToken = default)
     {
-        // if config says to include header, default false
-        var wroteHeader = !writer.Configuration.HasHeaderRecord;
+        var wroteHeader = false;
+        Type[] rowTypes = null;
 
         while (await reader.ReadAsync(cancellationToken))
         {
             if (!wroteHeader)
             {
-                WriteHeader(reader, writer);
+                WriteHeader(writer, reader);
                 wroteHeader = true;
             }
 
-            WriteRow(reader, writer);
+            if (rowTypes is null)
+            {
+                rowTypes = new Type[reader.FieldCount];
+                for (int i = 0; i < reader.FieldCount; i++)
+                    rowTypes[i] = reader.GetFieldType(i);
+            }
+
+            WriteRow(writer, reader, rowTypes);
         }
     }
 
-    private static void WriteHeader(IDataReader reader, CsvWriter writer)
+    private static void WriteHeader(TextWriter writer, IDataReader reader)
     {
         for (int index = 0; index < reader.FieldCount; index++)
         {
+            if (index > 0)
+                writer.Write(',');
+
             var name = reader.GetName(index);
-            writer.WriteField(name);
+            WriteValue(writer, name);
         }
-        writer.NextRecord();
+
+        writer.WriteLine();
     }
 
-    private static void WriteRow(IDataReader reader, CsvWriter writer)
+    private static void WriteRow(TextWriter writer, IDataReader reader, Type[] rowTypes)
     {
         for (int index = 0; index < reader.FieldCount; index++)
         {
-            WriteValue(reader, writer, index);
+            if (index > 0)
+                writer.Write(',');
+
+            WriteValue(writer, reader, index, rowTypes);
         }
-        writer.NextRecord();
+        writer.WriteLine();
     }
 
-    private static void WriteValue(IDataReader reader, CsvWriter writer, int index)
+    private static void WriteValue(TextWriter writer, IDataReader reader, int index, Type[] rowTypes)
     {
         if (reader.IsDBNull(index))
         {
-            writer.WriteField(string.Empty);
+            writer.Write(string.Empty);
             return;
         }
 
-        var type = reader.GetFieldType(index);
-
+        var type = rowTypes[index];
         if (type == typeof(string))
         {
             var value = reader.GetString(index);
-            writer.WriteField(value);
+            WriteValue(writer, value);
+            return;
+        }
+        if (type == typeof(char))
+        {
+            var value = reader.GetChar(index);
+            writer.Write(value);
+            return;
+        }
+
+        if (type == typeof(char[]))
+        {
+            var value = reader.GetString(index);
+            WriteValue(writer, value);
             return;
         }
 
         if (type == typeof(bool))
         {
             var value = reader.GetBoolean(index);
-            writer.WriteField(value);
+            writer.Write(value);
             return;
         }
 
         if (type == typeof(byte))
         {
             var value = reader.GetByte(index);
-            writer.WriteField(value);
+            writer.Write(value);
             return;
         }
 
         if (type == typeof(short))
         {
             var value = reader.GetInt16(index);
-            writer.WriteField(value);
+            writer.Write(value);
             return;
         }
 
         if (type == typeof(int))
         {
             var value = reader.GetInt32(index);
-            writer.WriteField(value);
+            writer.Write(value);
             return;
         }
 
         if (type == typeof(long))
         {
             var value = reader.GetInt64(index);
-            writer.WriteField(value);
+            writer.Write(value);
             return;
         }
 
         if (type == typeof(float))
         {
             var value = reader.GetFloat(index);
-            writer.WriteField(value);
+            writer.Write(value);
             return;
         }
 
         if (type == typeof(double))
         {
             var value = reader.GetDouble(index);
-            writer.WriteField(value);
+            writer.Write(value);
             return;
         }
 
         if (type == typeof(decimal))
         {
             var value = reader.GetDecimal(index);
-            writer.WriteField(value);
+            writer.Write(value);
             return;
         }
 
@@ -263,20 +294,20 @@ public static class CsvCommandExtensions
         if (type == typeof(DateOnly))
         {
             var value = reader.GetValue<DateOnly>(index);
-            var formatted = value.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
+            var formatted = value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
-            writer.WriteField(formatted);
+            writer.Write(formatted);
             return;
         }
 
         if (type == typeof(TimeOnly))
         {
             var value = reader.GetValue<TimeOnly>(index);
-            string formatted = value.Second == 0 && value.Millisecond == 0
-                ? value.ToString("HH':'mm", CultureInfo.InvariantCulture)
-                : value.ToString(CultureInfo.InvariantCulture);
+            var formatted = value.Second == 0 && value.Millisecond == 0
+                ? value.ToString("HH:mm", CultureInfo.InvariantCulture)
+                : value.ToString("HH:mm:ss.fffffff", CultureInfo.InvariantCulture);
 
-            writer.WriteField(formatted);
+            writer.Write(formatted);
             return;
         }
 #endif
@@ -284,59 +315,84 @@ public static class CsvCommandExtensions
         if (type == typeof(TimeSpan))
         {
             var value = reader.GetValue<TimeSpan>(index);
-            string formatted = value.Seconds == 0 && value.Milliseconds == 0
+            var formatted = value.Seconds == 0 && value.Milliseconds == 0
                 ? value.ToString(@"hh\:mm", CultureInfo.InvariantCulture)
-                : value.ToString();
+                : value.ToString(@"hh\:mm\:ss\.fffffff", CultureInfo.InvariantCulture);
 
-            writer.WriteField(formatted);
+            writer.Write(formatted);
             return;
         }
 
         if (type == typeof(DateTime))
         {
             var value = reader.GetDateTime(index);
-            var dataType = reader.GetDataTypeName(index).ToLowerInvariant();
+            var formatted = value.TimeOfDay == TimeSpan.Zero
+                ? value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                : value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff", CultureInfo.InvariantCulture);
 
-            if (string.Equals(dataType, "date", StringComparison.OrdinalIgnoreCase))
-            {
-                var formattedDate = value.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
-                writer.WriteField(formattedDate);
-            }
-            else
-            {
-                writer.WriteField(value);
-            }
+            writer.Write(formatted);
             return;
         }
 
         if (type == typeof(DateTimeOffset))
         {
-            var value = reader.GetValue(index);
-            if (value is DateTimeOffset offset)
-            {
-                writer.WriteField(offset);
-                return;
-            }
+            var value = reader.GetValue<DateTimeOffset>(index);
+            var formatted = value.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffffK", CultureInfo.InvariantCulture);
 
-            var date = reader.GetDateTime(index);
-            date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
-
-            offset = new DateTimeOffset(date, TimeSpan.Zero);
-
-            writer.WriteField(offset);
+            writer.Write(formatted);
             return;
         }
 
         if (type == typeof(Guid))
         {
             var value = reader.GetGuid(index);
-            writer.WriteField(value);
+            var formatted = value.ToString("D", CultureInfo.InvariantCulture);
+
+            writer.Write(formatted);
+            return;
+        }
+
+        if (type == typeof(byte[]))
+        {
+            var value = reader.GetBytes(index);
+            var hex = Convert.ToHexString(value);
+
+            writer.Write(hex);
             return;
         }
 
         // fallback
-        var v = reader.GetValue(index);
-        writer.WriteField(v.ToString());
+        var fieldValue = reader.GetValue(index);
+        var formattedValue = Convert.ToString(fieldValue, CultureInfo.InvariantCulture);
+        WriteValue(writer, formattedValue);
     }
 
+    private static void WriteValue(TextWriter writer, string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return;
+
+        var span = value.AsSpan();
+        var needsQuotes = span.ContainsAny(SpecialChars);
+
+        if (!needsQuotes)
+        {
+            // Fast path: no special chars, write directly
+            writer.Write(value);
+            return;
+        }
+
+        // write with quotes and escape any quotes within the value
+        writer.Write('"');
+        for (var i = 0; i < value.Length; i++)
+        {
+            var ch = value[i];
+
+            if (ch == '"')
+                writer.Write("\"\"");
+            else
+                writer.Write(ch);
+        }
+        writer.Write('"');
+    }
 }

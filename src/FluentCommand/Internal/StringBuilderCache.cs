@@ -2,20 +2,42 @@ using System.Text;
 
 namespace FluentCommand.Internal;
 
-/// <summary>Provide a cached reusable instance of StringBuilder per thread.</summary>
+/// <summary>
+/// Provides a cached, reusable instance of <see cref="StringBuilder"/> per thread to reduce memory allocations.
+/// </summary>
+/// <remarks>
+/// This class is intended to optimize performance by reusing <see cref="StringBuilder"/> instances for short-lived operations.
+/// The cache is thread-static, so each thread has its own cached instance.
+/// </remarks>
 public static class StringBuilderCache
 {
-    // The value 360 was chosen in discussion with performance experts as a compromise between using
-    // as little memory per thread as possible and still covering a large part of short-lived
-    // StringBuilder creations on the startup path of VS designers.
+    /// <summary>
+    /// The maximum size, in characters, for a <see cref="StringBuilder"/> instance to be cached.
+    /// </summary>
+    /// <remarks>
+    /// The value 360 was chosen as a compromise between minimizing memory usage per thread and covering
+    /// a large portion of short-lived <see cref="StringBuilder"/> creations, especially during application startup.
+    /// </remarks>
     internal const int MaxBuilderSize = 360;
+
     private const int DefaultCapacity = 16; // == StringBuilder.DefaultCapacity
 
     [ThreadStatic]
     private static StringBuilder t_cachedInstance;
 
-    /// <summary>Get a StringBuilder for the specified capacity.</summary>
-    /// <remarks>If a StringBuilder of an appropriate size is cached, it will be returned and the cache emptied.</remarks>
+    /// <summary>
+    /// Retrieves a <see cref="StringBuilder"/> instance with the specified capacity.
+    /// </summary>
+    /// <param name="capacity">
+    /// The minimum capacity of the returned <see cref="StringBuilder"/>. Defaults to 16 if not specified.
+    /// </param>
+    /// <returns>
+    /// A <see cref="StringBuilder"/> instance with at least the specified capacity. If a suitable cached instance is available,
+    /// it is returned; otherwise, a new instance is created.
+    /// </returns>
+    /// <remarks>
+    /// If the requested capacity exceeds <see cref="MaxBuilderSize"/>, a new <see cref="StringBuilder"/> is always created.
+    /// </remarks>
     public static StringBuilder Acquire(int capacity = DefaultCapacity)
     {
         if (capacity > MaxBuilderSize)
@@ -34,20 +56,26 @@ public static class StringBuilderCache
         sb.Clear();
 
         return sb;
-
     }
 
-    /// <summary>Place the specified builder in the cache if it is not too big.</summary>
+    /// <summary>
+    /// Places the specified <see cref="StringBuilder"/> instance in the cache if its capacity does not exceed <see cref="MaxBuilderSize"/>.
+    /// </summary>
+    /// <param name="sb">The <see cref="StringBuilder"/> instance to cache.</param>
     public static void Release(StringBuilder sb)
     {
         if (sb.Capacity <= MaxBuilderSize)
             t_cachedInstance = sb;
     }
 
-    /// <summary>Release StringBuilder to the cache, and return the resulting string.</summary>
+    /// <summary>
+    /// Converts the specified <see cref="StringBuilder"/> to a string and releases it to the cache.
+    /// </summary>
+    /// <param name="sb">The <see cref="StringBuilder"/> instance to convert and release.</param>
+    /// <returns>The string representation of the <see cref="StringBuilder"/> content.</returns>
     public static string ToString(StringBuilder sb)
     {
-        string result = sb.ToString();
+        var result = sb.ToString();
         Release(sb);
         return result;
     }

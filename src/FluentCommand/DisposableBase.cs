@@ -1,7 +1,7 @@
 namespace FluentCommand;
 
 /// <summary>
-/// A base class that implements <see cref="IDisposable"/>
+/// Provides a base implementation of the <see cref="IDisposable"/> pattern, including support for asynchronous disposal on supported platforms.
 /// </summary>
 public abstract class DisposableBase
     : IDisposable
@@ -12,7 +12,7 @@ public abstract class DisposableBase
     private int _disposeState;
 
     /// <summary>
-    /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// Releases all resources used by the current instance of the <see cref="DisposableBase"/> class.
     /// </summary>
     public void Dispose()
     {
@@ -21,9 +21,11 @@ public abstract class DisposableBase
     }
 
     /// <summary>
-    /// Releases unmanaged and - optionally - managed resources
+    /// Releases the unmanaged resources used by the object and, optionally, releases the managed resources.
     /// </summary>
-    /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+    /// <param name="disposing">
+    /// <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.
+    /// </param>
     protected void Dispose(bool disposing)
     {
         // set state to disposing
@@ -40,7 +42,7 @@ public abstract class DisposableBase
     }
 
     /// <summary>
-    /// Throws <see cref="ObjectDisposedException"/> if this instance is disposed.
+    /// Throws an <see cref="ObjectDisposedException"/> if this instance has already been disposed.
     /// </summary>
     protected void AssertDisposed()
     {
@@ -49,27 +51,27 @@ public abstract class DisposableBase
     }
 
     /// <summary>
-    /// Get the disposed state of the object.
+    /// Gets a value indicating whether this instance has been disposed.
     /// </summary>
     protected bool IsDisposed => _disposeState != 0;
 
     /// <summary>
-    /// Disposes the managed resources.
+    /// Releases managed resources. Override this method to dispose managed resources in derived classes.
     /// </summary>
     protected virtual void DisposeManagedResources()
     { }
 
     /// <summary>
-    /// Disposes the unmanaged resources.
+    /// Releases unmanaged resources. Override this method to dispose unmanaged resources in derived classes.
     /// </summary>
     protected virtual void DisposeUnmanagedResources()
     { }
 
 #if NETCOREAPP3_0_OR_GREATER
     /// <summary>
-    /// Disposes the asynchronous.
+    /// Asynchronously releases all resources used by the current instance of the <see cref="DisposableBase"/> class.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous dispose operation.</returns>
     public async ValueTask DisposeAsync()
     {
         // set state to disposing
@@ -80,11 +82,14 @@ public abstract class DisposableBase
 
         // set state to disposed
         Interlocked.Exchange(ref _disposeState, 2);
+
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
-    /// Disposes the managed resources.
+    /// Asynchronously releases managed resources. Override this method to asynchronously dispose managed resources in derived classes.
     /// </summary>
+    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous dispose operation.</returns>
     protected virtual ValueTask DisposeResourcesAsync()
     {
         return ValueTask.CompletedTask;
@@ -92,8 +97,8 @@ public abstract class DisposableBase
 #endif
 
     /// <summary>
-    /// Releases unmanaged resources and performs other cleanup operations before the
-    /// <see cref="DisposableBase"/> is reclaimed by garbage collection.
+    /// Finalizes an instance of the <see cref="DisposableBase"/> class.
+    /// Releases unmanaged resources and performs other cleanup operations before the object is reclaimed by garbage collection.
     /// </summary>
     ~DisposableBase()
     {

@@ -16,6 +16,8 @@ public class ListDataReader<T> : IDataReader where T : class
 
     private readonly IEnumerator<T> _iterator;
     private readonly List<IMemberAccessor> _activeColumns;
+    private readonly Dictionary<string, int> _columnOrdinals;
+    private bool _disposed;
 
     static ListDataReader()
     {
@@ -40,25 +42,39 @@ public class ListDataReader<T> : IDataReader where T : class
             .GetProperties()
             .Where(c => !ignored.Contains(c.Name))
             .ToList();
+
+        _columnOrdinals = _activeColumns
+            .Select((col, idx) => new { col.Column, idx })
+            .ToDictionary(x => x.Column, x => x.idx, StringComparer.OrdinalIgnoreCase);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets a value indicating the depth of nesting for the current row. Always returns 0.
+    /// </summary>
     public int Depth => 0;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets a value indicating whether the data reader is closed.
+    /// </summary>
     public bool IsClosed { get; private set; }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the number of rows affected. Always returns 0.
+    /// </summary>
     public int RecordsAffected => 0;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Closes the data reader and releases resources.
+    /// </summary>
     public void Close()
     {
-        _iterator.Dispose();
-        IsClosed = true;
+        Dispose(true);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Returns a <see cref="DataTable"/> that describes the column metadata of the data reader.
+    /// </summary>
+    /// <returns>A <see cref="DataTable"/> describing the column metadata.</returns>
     public DataTable GetSchemaTable()
     {
         // these are the columns used by DataTable load
@@ -74,9 +90,9 @@ public class ListDataReader<T> : IDataReader where T : class
             }
         };
 
-        var rowData = new object[5];
         for (int i = 0; i < _activeColumns.Count; i++)
         {
+            var rowData = new object[5];
             rowData[0] = i;
             rowData[1] = _activeColumns[i].Column;
             rowData[2] = _activeColumns[i].MemberType.GetUnderlyingType();
@@ -89,14 +105,47 @@ public class ListDataReader<T> : IDataReader where T : class
         return table;
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Advances the data reader to the next result. Always returns false.
+    /// </summary>
+    /// <returns>false, as multiple result sets are not supported.</returns>
     public bool NextResult() => false;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Advances the data reader to the next record.
+    /// </summary>
+    /// <returns>true if there are more rows; otherwise, false.</returns>
     public bool Read() => _iterator.MoveNext();
 
-    /// <inheritdoc/>
-    public void Dispose() => Close();
+    /// <summary>
+    /// Releases all resources used by the <see cref="ListDataReader{T}"/>.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Releases the unmanaged resources used by the ListDataReader and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            if (!IsClosed)
+            {
+                _iterator.Dispose();
+                IsClosed = true;
+            }
+        }
+
+        _disposed = true;
+    }
 
     /// <inheritdoc/>
     public string GetName(int i) => _activeColumns[i].Column;
@@ -113,16 +162,20 @@ public class ListDataReader<T> : IDataReader where T : class
     /// <inheritdoc/>
     public int GetValues(object[] values)
     {
-        int count = Math.Max(_activeColumns.Count, values.Length);
-
+        int count = Math.Min(_activeColumns.Count, values.Length);
         for (int i = 0; i < count; i++)
             values[i] = GetValue(i);
-
         return count;
     }
 
     /// <inheritdoc/>
-    public int GetOrdinal(string name) => _activeColumns.FindIndex(p => p.Column == name);
+    public int GetOrdinal(string name)
+    {
+        if (_columnOrdinals.TryGetValue(name, out int ordinal))
+            return ordinal;
+
+        return -1;
+    }
 
     /// <inheritdoc/>
     public bool GetBoolean(int i) => (bool)GetValue(i);
@@ -131,7 +184,7 @@ public class ListDataReader<T> : IDataReader where T : class
     public byte GetByte(int i) => (byte)GetValue(i);
 
     /// <inheritdoc/>
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length)
     {
         byte[] value = (byte[])GetValue(i);
 
@@ -141,7 +194,7 @@ public class ListDataReader<T> : IDataReader where T : class
 
         int count = Math.Min(length, available);
 
-        Buffer.BlockCopy(value, (int)fieldOffset, buffer, bufferoffset, count);
+        Buffer.BlockCopy(value, (int)fieldOffset, buffer, bufferOffset, count);
 
         return count;
     }
@@ -150,20 +203,20 @@ public class ListDataReader<T> : IDataReader where T : class
     public char GetChar(int i) => (char)GetValue(i);
 
     /// <inheritdoc/>
-    public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
+    public long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
     {
         if (buffer == null)
             throw new ArgumentNullException(nameof(buffer));
 
         string value = (string)GetValue(i);
 
-        int available = value.Length - (int)fieldoffset;
+        int available = value.Length - (int)fieldOffset;
         if (available <= 0)
             return 0;
 
         int count = Math.Min(length, available);
 
-        value.CopyTo((int)fieldoffset, buffer, bufferoffset, count);
+        value.CopyTo((int)fieldOffset, buffer, bufferOffset, count);
 
         return count;
     }
@@ -199,7 +252,11 @@ public class ListDataReader<T> : IDataReader where T : class
     public IDataReader GetData(int i) => throw new NotImplementedException();
 
     /// <inheritdoc/>
-    public bool IsDBNull(int i) => GetValue(i) == DBNull.Value;
+    public bool IsDBNull(int i)
+    {
+        var value = GetValue(i);
+        return value == null || value == DBNull.Value;
+    }
 
     /// <inheritdoc/>
     public int FieldCount => _activeColumns.Count;

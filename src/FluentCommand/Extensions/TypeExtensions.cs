@@ -15,8 +15,7 @@ public static class TypeExtensions
         if (type == null)
             throw new ArgumentNullException(nameof(type));
 
-        var isNullable = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-        return isNullable ? Nullable.GetUnderlyingType(type) : type;
+        return Nullable.GetUnderlyingType(type) ?? type;
     }
 
     /// <summary>

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace FluentCommand.Extensions;
 
 /// <summary>
@@ -10,7 +6,7 @@ namespace FluentCommand.Extensions;
 public static class CollectionExtensions
 {
     /// <summary>
-    /// Gets the first element from the <paramref name="source"/> that passes the test specified by <paramref name="predicate" />; 
+    /// Gets the first element from the <paramref name="source"/> that passes the test specified by <paramref name="predicate" />;
     /// otherwise the <paramref name="valueFactory"/> is called and the result is added to the source.
     /// </summary>
     /// <typeparam name="T">The type of the elements of <paramref name="source" />.</typeparam>
@@ -18,7 +14,7 @@ public static class CollectionExtensions
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="valueFactory">The function used to generate a value when not found in the collection.</param>
     /// <returns>
-    /// The value from <paramref name="valueFactory"/> if <paramref name="source" /> is empty or if no element passes the test specified by <paramref name="predicate" />; 
+    /// The value from <paramref name="valueFactory"/> if <paramref name="source" /> is empty or if no element passes the test specified by <paramref name="predicate" />;
     /// otherwise, the first element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     public static T FirstOrAdd<T>(this ICollection<T> source, Func<T, bool> predicate, Func<T> valueFactory)

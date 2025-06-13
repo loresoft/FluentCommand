@@ -1,10 +1,11 @@
 namespace FluentCommand.Internal;
 
 /// <summary>
-/// An immutable hash code structure
+/// Represents an immutable structure for combining and generating hash codes.
 /// </summary>
 /// <remarks>
-/// Implements the Jon Skeet suggested implementation of GetHashCode().
+/// Implements the Jon Skeet recommended pattern for <see cref="object.GetHashCode()"/>.
+/// Provides deterministic and composable hash code generation for complex objects.
 /// </remarks>
 public readonly struct HashCode : IFormattable, IEquatable<HashCode>
 {
@@ -13,31 +14,38 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// </summary>
     public const int Multiplier = 31;
 
+    /// <summary>
+    /// The default seed value used for initializing random number generators or hash functions.
+    /// </summary>
+    public const int DefaultSeed = 17;
+
     private readonly int _hashCode;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="HashCode"/> struct.
+    /// Initializes a new instance of the <see cref="HashCode"/> struct with the specified hash code value.
     /// </summary>
-    /// <param name="hashCode">The hash code.</param>
+    /// <param name="hashCode">The initial hash code value.</param>
     public HashCode(int hashCode)
     {
         _hashCode = hashCode;
     }
 
     /// <summary>
-    /// Gets a hash code seed value for combine hash codes values.
+    /// Gets the initial seed value for combining hash codes.
     /// </summary>
     /// <value>
-    /// The hash code seed value.
+    /// The initial hash code seed value.
     /// </value>
-    public static HashCode Seed => new(17);
+    public static HashCode Seed => new(DefaultSeed);
 
     /// <summary>
-    /// Combines this hash code with the hash code of specified <paramref name="value" />.
+    /// Combines this hash code with the hash code of the specified value.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="value">The value to combine hash codes with.</param>
-    /// <returns>A new hash code combined with this and the values hash codes.</returns>
+    /// <typeparam name="TValue">The type of the value to combine.</typeparam>
+    /// <param name="value">The value whose hash code will be combined.</param>
+    /// <returns>
+    /// A new <see cref="HashCode"/> instance representing the combined hash code.
+    /// </returns>
     public HashCode Combine<TValue>(TValue value)
     {
         var hashCode = value is null ? 0 : EqualityComparer<TValue>.Default.GetHashCode(value);
@@ -50,10 +58,12 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     }
 
     /// <summary>
-    /// Combines this hash code with the hash code of specified <paramref name="value" />.
+    /// Combines this hash code with the deterministic hash code of the specified string value.
     /// </summary>
-    /// <param name="value">The value to combine hash codes with.</param>
-    /// <returns>A new hash code combined with this and the values hash codes.</returns>
+    /// <param name="value">The string value whose hash code will be combined.</param>
+    /// <returns>
+    /// A new <see cref="HashCode"/> instance representing the combined hash code.
+    /// </returns>
     public HashCode Combine(string value)
     {
         // need to handle string values deterministically
@@ -67,10 +77,13 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     }
 
     /// <summary>
-    /// Combines this hash code with the hash code of specified <paramref name="value" />.
+    /// Combines this hash code with the hash code of the specified object.
+    /// If the object is a string, uses a deterministic string hash; otherwise, uses the object's hash code.
     /// </summary>
-    /// <param name="value">The value to combine hash codes with.</param>
-    /// <returns>A new hash code combined with this and the values hash codes.</returns>
+    /// <param name="value">The object whose hash code will be combined.</param>
+    /// <returns>
+    /// A new <see cref="HashCode"/> instance representing the combined hash code.
+    /// </returns>
     public HashCode Combine(object value)
     {
         // need to handle string values deterministically
@@ -82,11 +95,13 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     }
 
     /// <summary>
-    /// Combines this hash code with the hash code of each item specified <paramref name="values" />.
+    /// Combines this hash code with the hash codes of all items in the specified sequence.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="values">The values to combine hash codes with.</param>
-    /// <returns>A new hash code combined with this and the values hash codes.</returns>
+    /// <typeparam name="TValue">The type of the values to combine.</typeparam>
+    /// <param name="values">The sequence of values whose hash codes will be combined.</param>
+    /// <returns>
+    /// A new <see cref="HashCode"/> instance representing the combined hash code.
+    /// </returns>
     public HashCode CombineAll<TValue>(IEnumerable<TValue> values)
     {
         if (values == null)
@@ -115,21 +130,19 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
         return new HashCode(current);
     }
 
-
     /// <summary>
-    /// Returns a hash code for this instance.
+    /// Returns the hash code value for this instance.
     /// </summary>
     /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+    /// The hash code value for this instance.
     /// </returns>
     public override int GetHashCode() => _hashCode;
-
 
     /// <summary>
     /// Converts the numeric value of this instance to its equivalent string representation.
     /// </summary>
     /// <returns>
-    /// The string representation of the value of this instance.
+    /// The string representation of the hash code value.
     /// </returns>
     public override string ToString() => _hashCode.ToString();
 
@@ -138,7 +151,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// </summary>
     /// <param name="provider">An object that supplies culture-specific formatting information.</param>
     /// <returns>
-    /// The string representation of the value of this instance as specified by provider.
+    /// The string representation of the hash code value as specified by <paramref name="provider"/>.
     /// </returns>
     public string ToString(IFormatProvider provider) => _hashCode.ToString(provider);
 
@@ -147,7 +160,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// </summary>
     /// <param name="format">A standard or custom numeric format string.</param>
     /// <returns>
-    /// The string representation of the value of this instance as specified by format.
+    /// The string representation of the hash code value as specified by <paramref name="format"/>.
     /// </returns>
     public string ToString(string format) => _hashCode.ToString(format);
 
@@ -157,71 +170,70 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <param name="format">A standard or custom numeric format string.</param>
     /// <param name="provider">An object that supplies culture-specific formatting information.</param>
     /// <returns>
-    /// The string representation of the value of this instance as specified by format and provider.
+    /// The string representation of the hash code value as specified by <paramref name="format"/> and <paramref name="provider"/>.
     /// </returns>
     public string ToString(string format, IFormatProvider provider) => _hashCode.ToString(format, provider);
 
-
     /// <summary>
-    /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+    /// Determines whether the specified object is equal to this instance.
     /// </summary>
-    /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+    /// <param name="obj">The object to compare with this instance.</param>
     /// <returns>
-    ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified object is a <see cref="HashCode"/> and is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
     public override bool Equals(object obj) => obj is HashCode code && Equals(code);
 
     /// <summary>
-    /// Indicates whether the current object is equal to another object of the same type.
+    /// Indicates whether the current object is equal to another <see cref="HashCode"/> instance.
     /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
+    /// <param name="other">A <see cref="HashCode"/> instance to compare with this instance.</param>
     /// <returns>
-    /// true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.
+    /// <c>true</c> if the current object is equal to the <paramref name="other"/> parameter; otherwise, <c>false</c>.
     /// </returns>
     public bool Equals(HashCode other) => _hashCode == other._hashCode;
-
 
     /// <summary>
     /// Performs an implicit conversion from <see cref="HashCode"/> to <see cref="int"/>.
     /// </summary>
-    /// <param name="hashCode">The hash code.</param>
+    /// <param name="hashCode">The <see cref="HashCode"/> instance to convert.</param>
     /// <returns>
-    /// The result of the conversion.
+    /// The integer value of the hash code.
     /// </returns>
     public static implicit operator int(HashCode hashCode) => hashCode._hashCode;
 
     /// <summary>
-    /// Compares two values to determine equality.
+    /// Determines whether two <see cref="HashCode"/> instances are equal.
     /// </summary>
-    /// <param name="left">The value to compare with right.</param>
-    /// <param name="right">The value to compare with left.</param>
+    /// <param name="left">The first <see cref="HashCode"/> to compare.</param>
+    /// <param name="right">The second <see cref="HashCode"/> to compare.</param>
     /// <returns>
-    /// true if left is equal to right; otherwise, false.
+    /// <c>true</c> if <paramref name="left"/> is equal to <paramref name="right"/>; otherwise, <c>false</c>.
     /// </returns>
     public static bool operator ==(HashCode left, HashCode right) => left.Equals(right);
 
     /// <summary>
-    /// Compares two values to determine inequality.
+    /// Determines whether two <see cref="HashCode"/> instances are not equal.
     /// </summary>
-    /// <param name="left">The value to compare with right.</param>
-    /// <param name="right">The value to compare with left.</param>
+    /// <param name="left">The first <see cref="HashCode"/> to compare.</param>
+    /// <param name="right">The second <see cref="HashCode"/> to compare.</param>
     /// <returns>
-    /// true if left is not equal to right; otherwise, false.
+    /// <c>true</c> if <paramref name="left"/> is not equal to <paramref name="right"/>; otherwise, <c>false</c>.
     /// </returns>
     public static bool operator !=(HashCode left, HashCode right) => !(left == right);
 
-
     /// <summary>
-    /// Deterministic string hash function
+    /// Computes a deterministic hash code for the specified string.
     /// </summary>
-    /// <param name="text">The text to hash.</param>
-    /// <returns>A 32-bit signed integer hash code.</returns>
+    /// <param name="text">The string to hash.</param>
+    /// <returns>
+    /// A 32-bit signed integer hash code for the string, or 0 if the string is null or empty.
+    /// </returns>
     public static int HashString(string text)
     {
         if (string.IsNullOrEmpty(text))
             return 0;
 
-        int hash = Seed;
+        int hash = DefaultSeed;
 
         unchecked
         {
@@ -233,28 +245,5 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
         }
 
         return hash;
-    }
-}
-
-
-public class MyClass
-{
-    public string Name { get; set; }
-
-    public Type Type { get; set; }
-
-    public override bool Equals(object obj)
-    {
-        return obj is MyClass @class &&
-               Name == @class.Name &&
-               EqualityComparer<Type>.Default.Equals(Type, @class.Type);
-    }
-
-    public override int GetHashCode()
-    {
-        int hashCode = -243844509;
-        hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
-        hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(Type);
-        return hashCode;
     }
 }
