@@ -1,17 +1,17 @@
 namespace FluentCommand.Merge;
 
 /// <summary>
-/// <see cref="IDataSession"/> extension methods
+/// Provides extension methods for <see cref="IDataSession"/> to configure and execute data merge operations.
 /// </summary>
 public static class DataMergeExtensions
 {
     /// <summary>
-    /// Starts a data merge operation with the specified destination table name.
+    /// Starts a data merge operation using the specified destination table name.
     /// </summary>
-    /// <param name="session">The session to use for the merge.</param>
-    /// <param name="destinationTable">Name of the destination table on the server.</param>
+    /// <param name="session">The <see cref="IDataSession"/> to use for the merge operation.</param>
+    /// <param name="destinationTable">The name of the destination table on the server.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+    /// An <see cref="IDataMerge"/> instance for configuring and executing the merge operation.
     /// </returns>
     public static IDataMerge MergeData(this IDataSession session, string destinationTable)
     {
@@ -22,11 +22,13 @@ public static class DataMergeExtensions
     }
 
     /// <summary>
-    /// Starts a data merge operation with the specified <typeparamref name="TEntity"/>
+    /// Starts a data merge operation using the specified entity type <typeparamref name="TEntity"/>.
+    /// The target table and columns are automatically mapped from the entity type.
     /// </summary>
-    /// <param name="session">The session to use for the merge.</param>
+    /// <typeparam name="TEntity">The type of the entity to merge.</typeparam>
+    /// <param name="session">The <see cref="IDataSession"/> to use for the merge operation.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+    /// An <see cref="IDataMerge"/> instance for configuring and executing the merge operation.
     /// </returns>
     public static IDataMerge MergeData<TEntity>(this IDataSession session)
     {
@@ -35,26 +37,25 @@ public static class DataMergeExtensions
     }
 
     /// <summary>
-    /// Starts a data merge operation with the specified <paramref name="mergeDefinition"/>.
+    /// Starts a data merge operation using the specified <see cref="DataMergeDefinition"/>.
     /// </summary>
-    /// <param name="session">The session to use for the merge.</param>
-    /// <param name="mergeDefinition">The data merge definition.</param>
+    /// <param name="session">The <see cref="IDataSession"/> to use for the merge operation.</param>
+    /// <param name="mergeDefinition">The <see cref="DataMergeDefinition"/> that defines the merge configuration.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+    /// An <see cref="IDataMerge"/> instance for configuring and executing the merge operation.
     /// </returns>
     public static IDataMerge MergeData(this IDataSession session, DataMergeDefinition mergeDefinition)
     {
         return new DataMerge(session, mergeDefinition);
     }
 
-
     /// <summary>
     /// Sets the wait time before terminating the attempt to execute a command and generating an error.
     /// </summary>
-    /// <param name="dataMerge">The <see cref="IDataMerge"/> for this extension method.</param>
-    /// <param name="timeSpan">The <see cref="TimeSpan"/> to wait for the command to execute.</param>
+    /// <param name="dataMerge">The <see cref="IDataMerge"/> instance to configure.</param>
+    /// <param name="timeSpan">The <see cref="TimeSpan"/> to wait for the command to execute before timing out.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> to the data command.
+    /// The same <see cref="IDataMerge"/> instance for fluent chaining.
     /// </returns>
     public static IDataMerge CommandTimeout(
         this IDataMerge dataMerge,

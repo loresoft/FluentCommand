@@ -3,40 +3,41 @@ using System.Linq.Expressions;
 namespace FluentCommand.Merge;
 
 /// <summary>
-/// A fluent <see langword="interface" /> for a data merge mapping.
+/// Provides a fluent interface for configuring data merge column mappings.
 /// </summary>
 public interface IDataMergeMapping
 {
     /// <summary>
-    /// Start column mapping for the specified source column name.
+    /// Begins configuration of a column mapping for the specified source column name.
     /// </summary>
-    /// <param name="sourceColumn">The source column name.</param>
+    /// <param name="sourceColumn">The name of the source column to map.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data merge mapping.
+    /// An <see cref="IDataColumnMapping"/> interface for further column mapping configuration.
     /// </returns>
     IDataColumnMapping Column(string sourceColumn);
 }
 
 /// <summary>
-/// A fluent <see langword="interface" /> for a strongly typed data merge mapping.
+/// Provides a strongly typed, fluent interface for configuring data merge column mappings for a specific entity type.
 /// </summary>
-/// <typeparam name="TEntity">The type of entity being mapped</typeparam>
+/// <typeparam name="TEntity">The type of the entity being mapped.</typeparam>
 public interface IDataMergeMapping<TEntity> : IDataMergeMapping
 {
     /// <summary>
-    /// Automatically maps all properties in <typeparamref name="TEntity"/> as columns.
+    /// Automatically maps all public properties of <typeparamref name="TEntity"/> as columns.
     /// </summary>
     /// <returns>
+    /// The current <see cref="IDataMergeMapping{TEntity}"/> instance for chaining.
     /// </returns>
     IDataMergeMapping<TEntity> AutoMap();
 
     /// <summary>
-    /// Start column mapping for the specified source column name.
+    /// Begins configuration of a column mapping for the specified entity property.
     /// </summary>
-    /// <typeparam name="TValue">The property value type.</typeparam>
-    /// <param name="sourceProperty">The source property.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="sourceProperty">An expression selecting the source property to map.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data merge mapping.
+    /// An <see cref="IDataColumnMapping"/> interface for further column mapping configuration.
     /// </returns>
     IDataColumnMapping Column<TValue>(Expression<Func<TEntity, TValue>> sourceProperty);
 }

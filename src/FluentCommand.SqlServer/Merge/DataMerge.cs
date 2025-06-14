@@ -9,7 +9,7 @@ using Microsoft.Data.SqlClient;
 namespace FluentCommand.Merge;
 
 /// <summary>
-/// Fluent class for a data merge operation.
+/// Provides a fluent API for configuring and executing SQL Server data merge operations, supporting insert, update, delete, and output of changes.
 /// </summary>
 public class DataMerge : DisposableBase, IDataMerge
 {
@@ -21,86 +21,50 @@ public class DataMerge : DisposableBase, IDataMerge
     /// <summary>
     /// Initializes a new instance of the <see cref="DataMerge"/> class.
     /// </summary>
-    /// <param name="dataSession">The data session.</param>
-    /// <param name="mergeDefinition">The data merge definition.</param>
+    /// <param name="dataSession">The data session used for the merge operation.</param>
+    /// <param name="mergeDefinition">The data merge definition containing mapping and configuration.</param>
     public DataMerge(IDataSession dataSession, DataMergeDefinition mergeDefinition)
     {
         _dataSession = dataSession;
         _mergeDefinition = mergeDefinition;
     }
 
-    /// <summary>
-    /// Sets a value indicating whether to insert data not found in <see cref="TargetTable" />.
-    /// </summary>
-    /// <param name="value"><c>true</c> to insert data not found; otherwise, <c>false</c>.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataMerge IncludeInsert(bool value = true)
     {
         _mergeDefinition.IncludeInsert = value;
         return this;
     }
 
-    /// <summary>
-    /// Sets a value indicating whether to update data found in <see cref="TargetTable" />.
-    /// </summary>
-    /// <param name="value"><c>true</c> to update data found; otherwise, <c>false</c>.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataMerge IncludeUpdate(bool value = true)
     {
         _mergeDefinition.IncludeUpdate = value;
         return this;
     }
 
-    /// <summary>
-    /// Sets a value indicating whether to delete data from <see cref="TargetTable" /> not found in source data.
-    /// </summary>
-    /// <param name="value"><c>true</c> to delete target data not in source data; otherwise, <c>false</c>.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataMerge IncludeDelete(bool value = true)
     {
         _mergeDefinition.IncludeDelete = value;
         return this;
     }
 
-    /// <summary>
-    /// Sets a value indicating whether to allow identity insert on the <see cref="TargetTable" />.
-    /// </summary>
-    /// <param name="value"><c>true</c> to allow identity insert; otherwise, <c>false</c>.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataMerge IdentityInsert(bool value = true)
     {
         _mergeDefinition.IdentityInsert = value;
         return this;
     }
 
-    /// <summary>
-    /// The name of target table to merge data into.
-    /// </summary>
-    /// <param name="value">The name of the target table.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataMerge TargetTable(string value)
     {
         _mergeDefinition.TargetTable = value;
         return this;
     }
 
-    /// <summary>
-    /// Start mapping the columns to merge using the fluent <paramref name="builder" />.
-    /// </summary>
-    /// <param name="builder">The fluent data mapping builder.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataMerge Map(Action<DataMergeMapping> builder)
     {
         var dataMapping = new DataMergeMapping(_mergeDefinition);
@@ -109,14 +73,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return this;
     }
 
-    /// <summary>
-    /// Start mapping the columns to merge using the strongly typed fluent <paramref name="builder" />.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <param name="builder">The fluent data mapping builder.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataMerge Map<TEntity>(Action<DataMergeMapping<TEntity>> builder)
         where TEntity : class
     {
@@ -126,36 +83,21 @@ public class DataMerge : DisposableBase, IDataMerge
         return this;
     }
 
-    /// <summary>
-    /// Sets the mode for how the merge will be processed.
-    /// </summary>
-    /// <param name="mergeMode">The merge mode.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataMerge Mode(DataMergeMode mergeMode)
     {
         _mergeDefinition.Mode = mergeMode;
         return this;
     }
 
-    /// <summary>
-    /// Sets the wait time (in seconds) before terminating the attempt to execute the command and generating an error.
-    /// </summary>
-    /// <param name="timeout">The time in seconds to wait for the command to execute.</param>
-    /// A fluent <see langword="interface" /> to a <see cref="DataMerge " /> operation.
+    /// <inheritdoc/>
     public IDataMerge CommandTimeout(int timeout)
     {
         _commandTimeout = timeout;
         return this;
     }
 
-    /// <summary>
-    /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/>.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <param name="data">The data to be merged.</param>
-    /// <returns>The number of rows processed.</returns>
+    /// <inheritdoc/>
     public int Execute<TEntity>(IEnumerable<TEntity> data)
         where TEntity : class
     {
@@ -175,23 +117,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return result;
     }
 
-    /// <summary>
-    /// Merges the specified <paramref name="tableData"/> into the <see cref="TargetTable"/>.
-    /// </summary>
-    /// <param name="tableData">The table data to be merged.</param>
-    /// <returns>The number of rows processed.</returns>
-    /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
-    /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
-    /// TargetTable is require for the merge definition.
-    /// or
-    /// At least one column is required for the merge definition.
-    /// or
-    /// At least one column is required to be marked as a key for the merge definition.
-    /// or
-    /// SourceColumn is require for column merge definition
-    /// or
-    /// NativeType is require for column merge definition
-    /// </exception>
+    /// <inheritdoc/>
     public int Execute(DataTable tableData)
     {
         if (tableData == null)
@@ -206,14 +132,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return result;
     }
 
-
-    /// <summary>
-    /// Merges the specified <paramref name="data"/> into the <see cref="TargetTable"/> asynchronously.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <param name="data">The data to be merged.</param>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <returns>The number of rows processed.</returns>
+    /// <inheritdoc/>
     public async Task<int> ExecuteAsync<TEntity>(IEnumerable<TEntity> data, CancellationToken cancellationToken = default)
         where TEntity : class
     {
@@ -236,24 +155,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return result;
     }
 
-    /// <summary>
-    /// Merges the specified <paramref name="tableData"/> into the <see cref="TargetTable"/> asynchronously.
-    /// </summary>
-    /// <param name="tableData">The table data to be merged.</param>
-    /// <param name="cancellationToken">The cancellation instruction.</param>
-    /// <returns>The number of rows processed.</returns>
-    /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
-    /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
-    /// TargetTable is require for the merge definition.
-    /// or
-    /// At least one column is required for the merge definition.
-    /// or
-    /// At least one column is required to be marked as a key for the merge definition.
-    /// or
-    /// SourceColumn is require for column merge definition
-    /// or
-    /// NativeType is require for column merge definition
-    /// </exception>
+    /// <inheritdoc/>
     public async Task<int> ExecuteAsync(DataTable tableData, CancellationToken cancellationToken = default)
     {
         var rows = tableData.Rows.Count;
@@ -271,15 +173,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return result;
     }
 
-
-    /// <summary>
-    /// Merges the specified <paramref name="data" /> into the <see cref="TargetTable" /> capturing the changes in the result.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <param name="data">The data to be merged.</param>
-    /// <returns>
-    /// A collection of <see cref="T:DataMergeOutput`1" /> instances.
-    /// </returns>
+    /// <inheritdoc/>
     public IEnumerable<DataMergeOutputRow> ExecuteOutput<TEntity>(IEnumerable<TEntity> data)
         where TEntity : class
     {
@@ -309,21 +203,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return results;
     }
 
-    /// <summary>
-    /// Merges the specified <paramref name="table" /> into the <see cref="TargetTable" /> capturing the changes in the result.
-    /// </summary>
-    /// <param name="table">The table data to be merged.</param>
-    /// <returns>A collection of the merge output in a dictionary.</returns>
-    /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
-    /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">TargetTable is require for the merge definition.
-    /// or
-    /// At least one column is required for the merge definition.
-    /// or
-    /// At least one column is required to be marked as a key for the merge definition.
-    /// or
-    /// SourceColumn is require for column merge definition
-    /// or
-    /// NativeType is require for column merge definition</exception>
+    /// <inheritdoc/>
     public IEnumerable<DataMergeOutputRow> ExecuteOutput(DataTable table)
     {
         // update definition to include output
@@ -347,16 +227,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return results;
     }
 
-
-    /// <summary>
-    /// Merges the specified <paramref name="data" /> into the <see cref="TargetTable" /> capturing the changes in the result asynchronously.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <param name="data">The data to be merged.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    /// A collection of <see cref="T:DataMergeOutput`1" /> instances.
-    /// </returns>
+    /// <inheritdoc/>
     public async Task<IEnumerable<DataMergeOutputRow>> ExecuteOutputAsync<TEntity>(IEnumerable<TEntity> data, CancellationToken cancellationToken = default)
         where TEntity : class
     {
@@ -386,24 +257,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return results;
     }
 
-    /// <summary>
-    /// Merges the specified <paramref name="table" /> into the <see cref="TargetTable" /> capturing the changes in the result asynchronously.
-    /// </summary>
-    /// <param name="table">The table data to be merged.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    /// A collection of the merge output in a dictionary.
-    /// </returns>
-    /// <exception cref="System.InvalidOperationException">Bulk-Copy only supported by SQL Server.  Make sure DataSession was create with a valid SqlConnection.</exception>
-    /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">TargetTable is require for the merge definition.
-    /// or
-    /// At least one column is required for the merge definition.
-    /// or
-    /// At least one column is required to be marked as a key for the merge definition.
-    /// or
-    /// SourceColumn is require for column merge definition
-    /// or
-    /// NativeType is require for column merge definition</exception>
+    /// <inheritdoc/>
     public async Task<IEnumerable<DataMergeOutputRow>> ExecuteOutputAsync(DataTable table, CancellationToken cancellationToken = default)
     {
         // update definition to include output
@@ -427,23 +281,14 @@ public class DataMerge : DisposableBase, IDataMerge
         return results;
     }
 
-
     /// <summary>
-    /// Validates the specified merge definition.
+    /// Validates the specified merge definition for correctness and required configuration.
     /// </summary>
-    /// <param name="mergeDefinition">The merge definition.</param>
-    /// <param name="isBulk"><c>true</c> if date merge mode is bulk copy; otherwise <c>false</c>.</param>
-    /// <returns></returns>
-    /// <exception cref="System.ComponentModel.DataAnnotations.ValidationException">
-    /// TargetTable is require for the merge definition.
-    /// or
-    /// At least one column is required for the merge definition.
-    /// or
-    /// At least one column is required to be marked as a key for the merge definition.
-    /// or
-    /// SourceColumn is require for column merge definition.
-    /// or
-    /// NativeType is require for column merge definition.
+    /// <param name="mergeDefinition">The merge definition to validate.</param>
+    /// <param name="isBulk"><c>true</c> if the merge mode is bulk copy; otherwise, <c>false</c>.</param>
+    /// <returns><c>true</c> if the definition is valid; otherwise, an exception is thrown.</returns>
+    /// <exception cref="ValidationException">
+    /// Thrown if required properties are missing or invalid in the merge definition.
     /// </exception>
     public static bool Validate(DataMergeDefinition mergeDefinition, bool isBulk)
     {
@@ -487,7 +332,7 @@ public class DataMerge : DisposableBase, IDataMerge
         return true;
     }
 
-
+    // Private helpers (not part of public API, so no XML docs needed)
     private void Merge(IDataReader reader, int rows, Action<DbCommand> executeFactory)
     {
         var isBulk = _mergeDefinition.Mode == DataMergeMode.BulkCopy
@@ -645,7 +490,6 @@ public class DataMerge : DisposableBase, IDataMerge
         }
     }
 
-
     private static IEnumerable<DataMergeOutputRow> CaptureOutput(IDataReader reader, List<DataMergeColumn> columns)
     {
         List<DataMergeOutputRow> results = new();
@@ -711,5 +555,4 @@ public class DataMerge : DisposableBase, IDataMerge
 
         return results;
     }
-
 }

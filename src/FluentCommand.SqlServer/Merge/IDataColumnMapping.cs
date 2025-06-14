@@ -1,79 +1,79 @@
 namespace FluentCommand.Merge;
 
 /// <summary>
-/// A fluent <see langword="interface" /> for a data column mapping.
+/// Provides a fluent interface for configuring data column mappings in a merge operation.
 /// </summary>
 public interface IDataColumnMapping
 {
     /// <summary>
-    /// Sets the source column name used to read from source data.
+    /// Specifies the source column name to read from the source data.
     /// </summary>
-    /// <param name="value">The source column name.</param>
+    /// <param name="value">The name of the source column.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data column mapping.
+    /// The current <see cref="IDataColumnMapping"/> instance for chaining.
     /// </returns>
     IDataColumnMapping SourceColumn(string value);
 
     /// <summary>
-    /// Sets the target column name.
+    /// Specifies the target column name in the destination table.
     /// </summary>
-    /// <param name="value">The target column name.</param>
+    /// <param name="value">The name of the target column.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data column mapping.
+    /// The current <see cref="IDataColumnMapping"/> instance for chaining.
     /// </returns>
     IDataColumnMapping TargetColumn(string value);
 
     /// <summary>
-    /// Sets the SQL Server native type for the <see cref="SourceColumn"/>.
+    /// Sets the SQL Server native data type for the source column.
     /// </summary>
-    /// <param name="value">The  SQL Server native type.</param>
+    /// <param name="value">The SQL Server native type (e.g., <c>nvarchar</c>, <c>int</c>).</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data column mapping.
+    /// The current <see cref="IDataColumnMapping"/> instance for chaining.
     /// </returns>
     IDataColumnMapping NativeType(string value);
 
     /// <summary>
-    /// Sets a value indicating whether the column is include in the bulk copy operation
+    /// Indicates whether the column should be included in the bulk copy operation.
     /// </summary>
-    /// <param name="value"><c>true</c> if column is included in bulk copy; otherwise, <c>false</c>.</param>
+    /// <param name="value"><c>true</c> to include the column in bulk copy; otherwise, <c>false</c>. Default is <c>true</c>.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data column mapping.
+    /// The current <see cref="IDataColumnMapping"/> instance for chaining.
     /// </returns>
     IDataColumnMapping BulkCopy(bool value = true);
 
     /// <summary>
-    /// Sets a value indicating whether the column can be inserted.
+    /// Indicates whether the column can be inserted during the merge operation.
     /// </summary>
-    /// <param name="value"><c>true</c> if the column can be inserted; otherwise, <c>false</c>.</param>
+    /// <param name="value"><c>true</c> to allow insertion; otherwise, <c>false</c>. Default is <c>true</c>.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data column mapping.
+    /// The current <see cref="IDataColumnMapping"/> instance for chaining.
     /// </returns>
     IDataColumnMapping Insert(bool value = true);
 
     /// <summary>
-    /// Sets a value indicating whether the column can be updated.
+    /// Indicates whether the column can be updated during the merge operation.
     /// </summary>
-    /// <param name="value"><c>true</c> if the column can be updated; otherwise, <c>false</c>.</param>
+    /// <param name="value"><c>true</c> to allow updates; otherwise, <c>false</c>. Default is <c>true</c>.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data column mapping.
+    /// The current <see cref="IDataColumnMapping"/> instance for chaining.
     /// </returns>
     IDataColumnMapping Update(bool value = true);
 
     /// <summary>
-    /// Sets a value indicating whether the column is used as part of the key to merge on.
+    /// Indicates whether the column is used as part of the key for the merge operation.
     /// </summary>
-    /// <param name="value"><c>true</c> if the column is part of the key; otherwise, <c>false</c>.</param>
+    /// <param name="value"><c>true</c> if the column is part of the merge key; otherwise, <c>false</c>. Default is <c>true</c>.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data column mapping.
+    /// The current <see cref="IDataColumnMapping"/> instance for chaining.
     /// </returns>
     IDataColumnMapping Key(bool value = true);
 
     /// <summary>
-    /// sets a value indicating whether the column is ignored, not used in anyway.
+    /// Indicates whether the column should be ignored and not used in the merge operation.
     /// </summary>
-    /// <param name="value"><c>true</c> if the column is ignored; otherwise, <c>false</c>.</param>
+    /// <param name="value"><c>true</c> to ignore the column; otherwise, <c>false</c>. Default is <c>true</c>.</param>
     /// <returns>
-    /// A fluent <see langword="interface" /> for a data column mapping.
+    /// The current <see cref="IDataColumnMapping"/> instance for chaining.
     /// </returns>
     IDataColumnMapping Ignore(bool value = true);
 

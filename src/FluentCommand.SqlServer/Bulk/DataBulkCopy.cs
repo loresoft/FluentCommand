@@ -1,5 +1,4 @@
 using System.Data;
-using System.Data.Common;
 
 using FluentCommand.Extensions;
 
@@ -8,7 +7,7 @@ using Microsoft.Data.SqlClient;
 namespace FluentCommand.Bulk;
 
 /// <summary>
-/// A fluent <see langword="class" /> to a <see cref="SqlBulkCopy "/> operation.
+/// Provides a fluent API for performing <see cref="SqlBulkCopy"/> operations to efficiently copy large amounts of data into a SQL Server table.
 /// </summary>
 public class DataBulkCopy : DisposableBase, IDataBulkCopy
 {
@@ -27,10 +26,10 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
     private bool? _autoMap;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataBulkCopy" /> class.
+    /// Initializes a new instance of the <see cref="DataBulkCopy"/> class for the specified data session and destination table.
     /// </summary>
-    /// <param name="dataSession">The data session.</param>
-    /// <param name="destinationTable">The destination table.</param>
+    /// <param name="dataSession">The data session used for the bulk copy operation.</param>
+    /// <param name="destinationTable">The name of the destination table in SQL Server.</param>
     public DataBulkCopy(IDataSession dataSession, string destinationTable)
     {
         _mapping = new List<SqlBulkCopyColumnMapping>();
@@ -41,77 +40,42 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         _destinationTable = destinationTable;
     }
 
-    /// <summary>
-    /// Creates a new column mapping, using column names both source and destination.
-    /// </summary>
-    /// <param name="value"><c>true</c> to automatically mapping columns; otherwise false.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy AutoMap(bool value = true)
     {
         _autoMap = value;
         return this;
     }
 
-    /// <summary>
-    /// Number of rows in each batch. At the end of each batch, the rows in the batch are sent to the server.
-    /// </summary>
-    /// <param name="value">Number of rows in each batch.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy BatchSize(int value)
     {
         _batchSize = value;
         return this;
     }
 
-    /// <summary>
-    /// Number of seconds for the operation to complete before it times out.
-    /// </summary>
-    /// <param name="value">Number of seconds for the operation to complete before it times out.</param>
-    /// <returns></returns>
+    /// <inheritdoc/>
     public IDataBulkCopy BulkCopyTimeout(int value)
     {
         _bulkCopyTimeout = value;
         return this;
     }
 
-    /// <summary>
-    /// Enables or disables a SqlBulkCopy object to stream data from an IDataReader object
-    /// </summary>
-    /// <param name="value">true if a SqlBulkCopy object can stream data from an IDataReader object; otherwise, false.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy EnableStreaming(bool value = true)
     {
         _enableStreaming = value;
         return this;
     }
 
-    /// <summary>
-    /// Defines the number of rows to be processed before generating a notification event.
-    /// </summary>
-    /// <param name="value">The number of rows to be processed before generating a notification event.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy NotifyAfter(int value)
     {
         _notifyAfter = value;
         return this;
     }
 
-
-    /// <summary>
-    /// Preserve source identity values. When not specified, identity values are assigned by the destination.
-    /// </summary>
-    /// <param name="value">true to preserve source identity values; otherwise, false.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy KeepIdentity(bool value = true)
     {
         _options = value
@@ -121,13 +85,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Check constraints while data is being inserted. By default, constraints are not checked.
-    /// </summary>
-    /// <param name="value">true to check constraints; otherwise, false.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy CheckConstraints(bool value = true)
     {
         _options = value
@@ -137,13 +95,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Obtain a bulk update lock for the duration of the bulk copy operation. When not specified, row locks are used.
-    /// </summary>
-    /// <param name="value">true to obtain a bulk update lock; otherwise, false.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy TableLock(bool value = true)
     {
         _options = value
@@ -153,13 +105,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Preserve null values in the destination table regardless of the settings for default values. When not specified, null values are replaced by default values where applicable.
-    /// </summary>
-    /// <param name="value">true to preserve null values; otherwise, false.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy KeepNulls(bool value = true)
     {
         _options = value
@@ -169,13 +115,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// When specified, cause the server to fire the insert triggers for the rows being inserted into the database.
-    /// </summary>
-    /// <param name="value">true to cause the server to fire the insert triggers; otherwise, false.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy FireTriggers(bool value = true)
     {
         _options = value
@@ -185,13 +125,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// When specified, each batch of the bulk-copy operation will occur within a transaction.
-    /// </summary>
-    /// <param name="value">true to have bulk-copy operation occur within a transaction; otherwise, false.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy UseInternalTransaction(bool value = true)
     {
         _options = value
@@ -201,15 +135,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-
-    /// <summary>
-    /// Creates a new column mapping, using column names to refer to source and destination columns.
-    /// </summary>
-    /// <param name="sourceColumn">The name of the source column within the data source.</param>
-    /// <param name="destinationColumn">The name of the destination column within the destination table.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy Mapping(string sourceColumn, string destinationColumn)
     {
         var map = new SqlBulkCopyColumnMapping(sourceColumn, destinationColumn);
@@ -217,14 +143,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Creates a new column mapping, using a column ordinal to refer to the source column and a column name for the target column.
-    /// </summary>
-    /// <param name="sourceColumnOrdinal">The ordinal position of the source column within the data source.</param>
-    /// <param name="destinationColumn">The name of the destination column within the destination table.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy Mapping(int sourceColumnOrdinal, string destinationColumn)
     {
         var map = new SqlBulkCopyColumnMapping(sourceColumnOrdinal, destinationColumn);
@@ -232,14 +151,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Creates a new column mapping, using a column name to refer to the source column and a column ordinal for the target column.
-    /// </summary>
-    /// <param name="sourceColumn">The name of the source column within the data source.</param>
-    /// <param name="destinationOrdinal">The ordinal position of the destination column within the destination table.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy Mapping(string sourceColumn, int destinationOrdinal)
     {
         var map = new SqlBulkCopyColumnMapping(sourceColumn, destinationOrdinal);
@@ -247,14 +159,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Creates a new column mapping, using column ordinals to refer to source and destination columns.
-    /// </summary>
-    /// <param name="sourceColumnOrdinal">The ordinal position of the source column within the data source.</param>
-    /// <param name="destinationOrdinal">The ordinal position of the destination column within the destination table.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy Mapping(int sourceColumnOrdinal, int destinationOrdinal)
     {
         var map = new SqlBulkCopyColumnMapping(sourceColumnOrdinal, destinationOrdinal);
@@ -262,15 +167,7 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Creates a new column mapping using a strongly typed builder.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <param name="builder">The entity mapping builder.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null"/></exception>
+    /// <inheritdoc/>
     public IDataBulkCopy Mapping<TEntity>(Action<DataBulkCopyMapping<TEntity>> builder)
         where TEntity : class
     {
@@ -283,38 +180,25 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Ignores the specified source column by removing it from the mapped columns collection.
-    /// </summary>
-    /// <param name="sourceColumn">The source column to remove from mapping.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy Ignore(string sourceColumn)
     {
         _ignoreColumns.Add(sourceColumn);
         return this;
     }
 
-    /// <summary>
-    /// Ignores the specified source column by removing it from the mapped columns collection.
-    /// </summary>
-    /// <param name="sourceColumnOrdinal">The ordinal position of the source column within the data source.</param>
-    /// <returns>
-    /// A fluent <see langword="interface" /> to a <see cref="SqlBulkCopy " /> operation.
-    /// </returns>
+    /// <inheritdoc/>
     public IDataBulkCopy Ignore(int sourceColumnOrdinal)
     {
         _ignoreOrdinal.Add(sourceColumnOrdinal);
         return this;
     }
 
-
     /// <summary>
-    /// Copies all items in the supplied <see cref="T:System.Collections.Generic.IEnumerable`1" /> to a destination table.
+    /// Copies all items in the supplied <see cref="IEnumerable{TEntity}"/> to the destination table using bulk copy.
     /// </summary>
     /// <typeparam name="TEntity">The type of the data elements.</typeparam>
-    /// <param name="data">An IEnumerable that will be copied to the destination table.</param>
+    /// <param name="data">An enumerable collection of entities to be copied to the destination table.</param>
     public void WriteToServer<TEntity>(IEnumerable<TEntity> data)
         where TEntity : class
     {
@@ -323,9 +207,9 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
     }
 
     /// <summary>
-    /// Copies all rows from the supplied <see cref="DataRow" /> array to a destination table.
+    /// Copies all rows from the supplied <see cref="DataRow"/> array to the destination table using bulk copy.
     /// </summary>
-    /// <param name="rows">An array of DataRow objects that will be copied to the destination table.</param>
+    /// <param name="rows">An array of <see cref="DataRow"/> objects to be copied to the destination table.</param>
     public void WriteToServer(DataRow[] rows)
     {
         AssertDisposed();
@@ -347,19 +231,19 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
     }
 
     /// <summary>
-    /// Copies all rows in the supplied <see cref="DataTable" /> to a destination table.
+    /// Copies all rows in the supplied <see cref="DataTable"/> to the destination table using bulk copy.
     /// </summary>
-    /// <param name="table">A DataTable whose rows will be copied to the destination table.</param>
+    /// <param name="table">A <see cref="DataTable"/> whose rows will be copied to the destination table.</param>
     public void WriteToServer(DataTable table)
     {
         WriteToServer(table, 0);
     }
 
     /// <summary>
-    /// Copies only rows that match the supplied row state in the supplied <see cref="DataTable" /> to a destination table.
+    /// Copies only rows that match the supplied row state in the supplied <see cref="DataTable"/> to the destination table using bulk copy.
     /// </summary>
-    /// <param name="table">A DataTable whose rows will be copied to the destination table.</param>
-    /// <param name="rowState">A value from the DataRowState enumeration. Only rows matching the row state are copied to the destination.</param>
+    /// <param name="table">A <see cref="DataTable"/> whose rows will be copied to the destination table.</param>
+    /// <param name="rowState">A value from the <see cref="DataRowState"/> enumeration. Only rows matching the row state are copied to the destination.</param>
     public void WriteToServer(DataTable table, DataRowState rowState)
     {
         AssertDisposed();
@@ -388,9 +272,9 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
     }
 
     /// <summary>
-    /// Copies all rows in the supplied <see cref="IDataReader" /> to a destination table.
+    /// Copies all rows in the supplied <see cref="IDataReader"/> to the destination table using bulk copy.
     /// </summary>
-    /// <param name="reader">A IDataReader whose rows will be copied to the destination table.</param>
+    /// <param name="reader">An <see cref="IDataReader"/> whose rows will be copied to the destination table.</param>
     public void WriteToServer(IDataReader reader)
     {
         AssertDisposed();
@@ -421,7 +305,13 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         }
     }
 
-
+    /// <summary>
+    /// Creates and configures a <see cref="SqlBulkCopy"/> instance based on the current settings and mappings.
+    /// </summary>
+    /// <returns>A configured <see cref="SqlBulkCopy"/> instance.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the underlying connection is not a <see cref="SqlConnection"/>.
+    /// </exception>
     private SqlBulkCopy Create()
     {
         var sqlConnection = _dataSession.Connection as SqlConnection;

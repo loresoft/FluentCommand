@@ -6,7 +6,7 @@ using FluentCommand.Extensions;
 namespace FluentCommand.Merge;
 
 /// <summary>
-/// Fluent class for building strongly typed data merge mapping
+/// Provides a fluent class for building strongly typed data merge mappings for a specific entity type.
 /// </summary>
 /// <typeparam name="TEntity">The type of the entity used in the mapping.</typeparam>
 public class DataMergeMapping<TEntity> : DataMergeMapping, IDataMergeMapping<TEntity>
@@ -14,16 +14,18 @@ public class DataMergeMapping<TEntity> : DataMergeMapping, IDataMergeMapping<TEn
     /// <summary>
     /// Initializes a new instance of the <see cref="DataMergeMapping{TEntity}"/> class.
     /// </summary>
-    /// <param name="mergeDefinition">The data merge definition.</param>
+    /// <param name="mergeDefinition">The <see cref="DataMergeDefinition"/> that defines the merge operation.</param>
     public DataMergeMapping(DataMergeDefinition mergeDefinition)
         : base(mergeDefinition)
     {
     }
 
     /// <summary>
-    /// Automatically maps all properties in <typeparamref name="TEntity"/> as columns.
+    /// Automatically maps all public properties of <typeparamref name="TEntity"/> as columns in the merge definition.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>
+    /// The current <see cref="IDataMergeMapping{TEntity}"/> instance for chaining.
+    /// </returns>
     public IDataMergeMapping<TEntity> AutoMap()
     {
         DataMergeDefinition.AutoMap<TEntity>(MergeDefinition);
@@ -32,12 +34,12 @@ public class DataMergeMapping<TEntity> : DataMergeMapping, IDataMergeMapping<TEn
     }
 
     /// <summary>
-    /// Start column mapping for the specified source column name.
+    /// Begins configuration of a column mapping for the specified entity property.
     /// </summary>
-    /// <typeparam name="TValue">The property value type.</typeparam>
-    /// <param name="sourceProperty">The source property.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="sourceProperty">An expression selecting the source property to map.</param>
     /// <returns>
-    /// a fluent <c>interface</c> for mapping a data merge column.
+    /// An <see cref="IDataColumnMapping"/> interface for further column mapping configuration.
     /// </returns>
     public IDataColumnMapping Column<TValue>(Expression<Func<TEntity, TValue>> sourceProperty)
     {
@@ -48,6 +50,13 @@ public class DataMergeMapping<TEntity> : DataMergeMapping, IDataMergeMapping<TEn
         return Column(sourceColumn);
     }
 
+    /// <summary>
+    /// Extracts the column name from the given property expression, using attributes if available.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="propertyExpression">The property expression.</param>
+    /// <returns>The resolved column name.</returns>
+    /// <exception cref="ArgumentException">Thrown if the expression does not represent a property access.</exception>
     private string ExtractName<TValue>(Expression<Func<TEntity, TValue>> propertyExpression)
     {
         var memberExpression = propertyExpression.Body as MemberExpression;
@@ -71,14 +80,14 @@ public class DataMergeMapping<TEntity> : DataMergeMapping, IDataMergeMapping<TEn
 }
 
 /// <summary>
-/// Fluent class for building data merge mapping
+/// Provides a fluent class for building data merge mappings.
 /// </summary>
 public class DataMergeMapping : IDataMergeMapping
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DataMergeMapping"/> class.
     /// </summary>
-    /// <param name="mergeDefinition">The data merge definition.</param>
+    /// <param name="mergeDefinition">The <see cref="DataMergeDefinition"/> that defines the merge operation.</param>
     public DataMergeMapping(DataMergeDefinition mergeDefinition)
     {
         MergeDefinition = mergeDefinition;
@@ -93,10 +102,12 @@ public class DataMergeMapping : IDataMergeMapping
     public DataMergeDefinition MergeDefinition { get; }
 
     /// <summary>
-    /// Start column mapping for the specified source column name.
+    /// Begins configuration of a column mapping for the specified source column name.
     /// </summary>
-    /// <param name="sourceColumn">The source column name.</param>
-    /// <returns>a fluent <c>interface</c> for mapping a data merge column.</returns>
+    /// <param name="sourceColumn">The name of the source column to map.</param>
+    /// <returns>
+    /// An <see cref="IDataColumnMapping"/> interface for further column mapping configuration.
+    /// </returns>
     public IDataColumnMapping Column(string sourceColumn)
     {
         var mergeColumn = MergeDefinition.Columns.FirstOrAdd(

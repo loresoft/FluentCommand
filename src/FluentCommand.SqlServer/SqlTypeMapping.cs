@@ -1,7 +1,7 @@
 namespace FluentCommand;
 
 /// <summary>
-/// Sql Server type mapping
+/// Provides mapping between .NET types and their corresponding SQL Server native types.
 /// </summary>
 public static class SqlTypeMapping
 {
@@ -28,20 +28,26 @@ public static class SqlTypeMapping
     };
 
     /// <summary>
-    /// Converts the .NET Type into sql server native type
+    /// Gets the SQL Server native type name for the specified generic .NET type <typeparamref name="T"/>.
     /// </summary>
-    /// <typeparam name="T">The type to convert</typeparam>
-    /// <returns>The SQL Server native type</returns>
+    /// <typeparam name="T">The .NET type to map to a SQL Server native type.</typeparam>
+    /// <returns>
+    /// The SQL Server native type name as a <see cref="string"/>.
+    /// Returns <c>sql_variant</c> if the type is not explicitly mapped.
+    /// </returns>
     public static string NativeType<T>()
     {
         return NativeType(typeof(T));
     }
 
     /// <summary>
-    /// Converts the .NET Type into sql server native type
+    /// Gets the SQL Server native type name for the specified <see cref="Type"/>.
     /// </summary>
-    /// <param name="type">The type to convert</param>
-    /// <returns>The SQL Server native type</returns>
+    /// <param name="type">The .NET <see cref="Type"/> to map to a SQL Server native type.</param>
+    /// <returns>
+    /// The SQL Server native type name as a <see cref="string"/>.
+    /// Returns <c>sql_variant</c> if the type is not explicitly mapped.
+    /// </returns>
     public static string NativeType(Type type)
     {
         var dataType = Nullable.GetUnderlyingType(type) ?? type;

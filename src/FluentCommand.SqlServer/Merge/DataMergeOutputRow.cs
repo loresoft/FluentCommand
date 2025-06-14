@@ -1,7 +1,7 @@
 namespace FluentCommand.Merge;
 
 /// <summary>
-/// A data merge output row.
+/// Represents a row in the output of a data merge operation, including the merge action and the columns that changed.
 /// </summary>
 public class DataMergeOutputRow
 {
@@ -14,7 +14,7 @@ public class DataMergeOutputRow
     }
 
     /// <summary>
-    /// Gets or sets the merge action.
+    /// Gets or sets the merge action performed on this row (e.g., "INSERT", "UPDATE", "DELETE").
     /// </summary>
     /// <value>
     /// The merge action for this row.
@@ -22,21 +22,20 @@ public class DataMergeOutputRow
     public string Action { get; set; }
 
     /// <summary>
-    /// Gets or sets the columns that changed.
+    /// Gets or sets the collection of columns that were affected by the merge operation.
     /// </summary>
     /// <value>
-    /// The list of columns.
+    /// The list of <see cref="DataMergeOutputColumn"/> objects representing the changed columns.
     /// </value>
     public List<DataMergeOutputColumn> Columns { get; set; }
 
     /// <summary>
-    /// Gets the <see cref="DataMergeOutputColumn"/> with the specified column name.
+    /// Gets the <see cref="DataMergeOutputColumn"/> with the specified column name, or <c>null</c> if not found.
     /// </summary>
-    /// <value>
-    /// The <see cref="DataMergeOutputColumn"/>.
-    /// </value>
-    /// <param name="columnName">Name of the column.</param>
-    /// <returns></returns>
+    /// <param name="columnName">The name of the column to retrieve.</param>
+    /// <returns>
+    /// The <see cref="DataMergeOutputColumn"/> with the specified name, or <c>null</c> if no such column exists.
+    /// </returns>
     public DataMergeOutputColumn this[string columnName]
     {
         get

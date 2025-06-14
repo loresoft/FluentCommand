@@ -1,20 +1,23 @@
 namespace FluentCommand.Merge;
 
 /// <summary>
-/// How the data should be merged into the table
+/// Specifies the strategy for merging data into a target table.
 /// </summary>
 public enum DataMergeMode
 {
     /// <summary>
-    /// Automatic determine the best mode.  If source over 1000 row, <see cref="BulkCopy"/> will be used.
+    /// Automatically determines the best merge mode based on the source data size.
+    /// If the source contains more than 1000 rows, <see cref="BulkCopy"/> will be used; otherwise, <see cref="SqlStatement"/> is used.
     /// </summary>
     Auto,
     /// <summary>
-    /// Use SqlServer bulk copy to insert rows into a temporary table, then merge to target table
+    /// Uses SQL Server bulk copy to insert rows into a temporary table, then merges the data into the target table.
+    /// This mode is optimized for large data sets.
     /// </summary>
     BulkCopy,
     /// <summary>
-    /// Generate a SqlServer merge statement to execute.
+    /// Generates and executes a SQL Server MERGE statement to merge the source data directly into the target table.
+    /// This mode is suitable for smaller data sets or when bulk copy is not desired.
     /// </summary>
     SqlStatement
 }
