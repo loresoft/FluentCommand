@@ -56,7 +56,7 @@ public class WhereEntityBuilder<TEntity>
     public WhereEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias)
+        string tableAlias = null)
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 

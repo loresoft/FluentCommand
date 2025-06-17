@@ -55,7 +55,7 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
     TBuilder WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias);
+        string tableAlias = null);
 
     /// <summary>
     /// Conditionally create a where in clause with the specified property and values
