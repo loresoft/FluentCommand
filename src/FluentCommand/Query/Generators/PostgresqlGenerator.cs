@@ -3,8 +3,19 @@ using FluentCommand.Internal;
 
 namespace FluentCommand.Query.Generators;
 
+/// <summary>
+/// Provides a SQL generator for PostgreSQL, implementing SQL statement and expression generation
+/// with PostgreSQL-specific syntax and conventions.
+/// </summary>
 public class PostgreSqlGenerator : SqlServerGenerator
 {
+    /// <summary>
+    /// Builds a SQL INSERT statement for PostgreSQL, including support for RETURNING and comments.
+    /// </summary>
+    /// <param name="insertStatement">The <see cref="InsertStatement"/> containing the INSERT statement configuration.</param>
+    /// <returns>A SQL INSERT statement string for PostgreSQL.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="insertStatement"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the table or values are not specified.</exception>
     public override string BuildInsert(InsertStatement insertStatement)
     {
         if (insertStatement is null)
@@ -58,6 +69,12 @@ public class PostgreSqlGenerator : SqlServerGenerator
         return StringBuilderCache.ToString(insertBuilder);
     }
 
+    /// <summary>
+    /// Builds a SQL UPDATE statement for PostgreSQL, including support for FROM, JOIN, WHERE, RETURNING, and comments.
+    /// </summary>
+    /// <param name="updateStatement">The <see cref="UpdateStatement"/> containing the UPDATE statement configuration.</param>
+    /// <returns>A SQL UPDATE statement string for PostgreSQL.</returns>
+    /// <exception cref="ArgumentException">Thrown if the table or update values are not specified.</exception>
     public override string BuildUpdate(UpdateStatement updateStatement)
     {
         if (updateStatement.TableExpression == null)
@@ -125,6 +142,12 @@ public class PostgreSqlGenerator : SqlServerGenerator
         return StringBuilderCache.ToString(updateBuilder);
     }
 
+    /// <summary>
+    /// Builds a SQL DELETE statement for PostgreSQL, including support for FROM, JOIN, WHERE, RETURNING, and comments.
+    /// </summary>
+    /// <param name="deleteStatement">The <see cref="DeleteStatement"/> containing the DELETE statement configuration.</param>
+    /// <returns>A SQL DELETE statement string for PostgreSQL.</returns>
+    /// <exception cref="ArgumentException">Thrown if the table is not specified.</exception>
     public override string BuildDelete(DeleteStatement deleteStatement)
     {
         if (deleteStatement.TableExpression == null)
@@ -186,7 +209,12 @@ public class PostgreSqlGenerator : SqlServerGenerator
         return StringBuilderCache.ToString(deleteBuilder);
     }
 
-
+    /// <summary>
+    /// Builds a SQL table expression for PostgreSQL, omitting schema (PostgreSQL does not support schema in the same way as SQL Server).
+    /// </summary>
+    /// <param name="tableExpression">The <see cref="TableExpression"/> representing the table.</param>
+    /// <returns>A SQL table expression string for PostgreSQL.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="tableExpression"/> is <c>null</c>.</exception>
     public override string TableExpression(TableExpression tableExpression)
     {
         if (tableExpression is null)
@@ -198,6 +226,13 @@ public class PostgreSqlGenerator : SqlServerGenerator
         return base.TableExpression(tableExpression);
     }
 
+    /// <summary>
+    /// Builds a SQL WHERE expression for PostgreSQL, handling various filter operators and parameterization.
+    /// </summary>
+    /// <param name="whereExpression">The <see cref="WhereExpression"/> representing the condition.</param>
+    /// <returns>A SQL WHERE expression string for PostgreSQL.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="whereExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
     public override string WhereExpression(WhereExpression whereExpression)
     {
         if (whereExpression is null)
@@ -233,6 +268,11 @@ public class PostgreSqlGenerator : SqlServerGenerator
         };
     }
 
+    /// <summary>
+    /// Builds a SQL LIMIT/OFFSET expression for PostgreSQL.
+    /// </summary>
+    /// <param name="limitExpression">The <see cref="LimitExpression"/> representing the limit and offset.</param>
+    /// <returns>A SQL LIMIT/OFFSET expression string for PostgreSQL, or an empty string if not applicable.</returns>
     public override string LimitExpression(LimitExpression limitExpression)
     {
         if (limitExpression is null || limitExpression.Size == 0)
@@ -241,7 +281,11 @@ public class PostgreSqlGenerator : SqlServerGenerator
         return $"LIMIT {limitExpression.Size} OFFSET {limitExpression.Offset}";
     }
 
-
+    /// <summary>
+    /// Quotes an identifier (such as a table or column name) for PostgreSQL, using double quotes.
+    /// </summary>
+    /// <param name="name">The identifier to quote.</param>
+    /// <returns>The quoted identifier, or the original name if quoting is not required.</returns>
     public override string QuoteIdentifier(string name)
     {
         if (name.IsNullOrWhiteSpace())
@@ -256,6 +300,11 @@ public class PostgreSqlGenerator : SqlServerGenerator
         return "\"" + name.Replace("\"", "\"\"") + "\"";
     }
 
+    /// <summary>
+    /// Parses a quoted identifier and returns the unquoted name for PostgreSQL.
+    /// </summary>
+    /// <param name="name">The quoted identifier.</param>
+    /// <returns>The unquoted identifier name.</returns>
     public override string ParseIdentifier(string name)
     {
         if (name.StartsWith("\"") && name.EndsWith("\""))

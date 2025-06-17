@@ -4,15 +4,15 @@ using FluentCommand.Query.Generators;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Query order by builder
+/// Provides a builder for constructing SQL ORDER BY clauses with fluent, chainable methods.
 /// </summary>
 public class OrderBuilder : OrderBuilder<OrderBuilder>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="OrderBuilder"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
     public OrderBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
@@ -20,38 +20,37 @@ public class OrderBuilder : OrderBuilder<OrderBuilder>
 }
 
 /// <summary>
-/// Query order by builder
+/// Provides a generic base class for building SQL ORDER BY clauses with fluent, chainable methods.
 /// </summary>
-/// <typeparam name="TBuilder">The type of the builder.</typeparam>
+/// <typeparam name="TBuilder">The type of the builder for fluent chaining.</typeparam>
 public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     where TBuilder : OrderBuilder<TBuilder>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="OrderBuilder{TBuilder}"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
     protected OrderBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
     }
 
     /// <summary>
-    /// Gets the sort expressions.
+    /// Gets the collection of sort expressions for the ORDER BY clause.
     /// </summary>
     /// <value>
-    /// The sort expressions.
+    /// A <see cref="HashSet{SortExpression}"/> containing the sort expressions.
     /// </value>
     protected HashSet<SortExpression> SortExpressions { get; } = new();
 
-
     /// <summary>
-    /// Add an order by clause with the specified column name and sort direction.
+    /// Adds an ORDER BY clause with the specified column name and sort direction.
     /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="sortDirection">The sort direction.</param>
+    /// <param name="columnName">The name of the column to sort by.</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder OrderBy(
         string columnName,
@@ -61,13 +60,13 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Add an order by clause with the specified column name, sort direction and table alias.
+    /// Adds an ORDER BY clause with the specified column name, sort direction, and table alias.
     /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="sortDirection">The sort direction.</param>
+    /// <param name="columnName">The name of the column to sort by.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder OrderBy(
         string columnName,
@@ -82,14 +81,14 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally add an order by clause with the specified column name, sort direction and table alias.
+    /// Conditionally adds an ORDER BY clause with the specified column name, sort direction, and table alias.
     /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="sortDirection">The sort direction.</param>
-    /// <param name="condition">The condition.</param>
+    /// <param name="columnName">The name of the column to sort by.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
+    /// <param name="condition">A function that determines whether to add the ORDER BY clause, based on the column name. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder OrderByIf(
         string columnName,
@@ -104,11 +103,11 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Add a raw order by clause to the query.
+    /// Adds a raw ORDER BY clause to the query.
     /// </summary>
-    /// <param name="sortExpression">The order by clause.</param>
+    /// <param name="sortExpression">The raw SQL ORDER BY clause.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder OrderByRaw(string sortExpression)
     {
@@ -119,12 +118,12 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally add a raw order by clause to the query.
+    /// Conditionally adds a raw ORDER BY clause to the query.
     /// </summary>
-    /// <param name="sortExpression">The order by clause.</param>
-    /// <param name="condition">The condition.</param>
+    /// <param name="sortExpression">The raw SQL ORDER BY clause.</param>
+    /// <param name="condition">A function that determines whether to add the ORDER BY clause, based on the expression. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder OrderByRawIf(string sortExpression, Func<string, bool> condition = null)
     {
@@ -135,12 +134,13 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Add multiple raw order by clauses to the query.
+    /// Adds multiple raw ORDER BY clauses to the query.
     /// </summary>
-    /// <param name="sortExpressions">The order by clauses.</param>
+    /// <param name="sortExpressions">A collection of raw SQL ORDER BY clauses.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="sortExpressions"/> is <c>null</c>.</exception>
     public TBuilder OrderByRaw(IEnumerable<string> sortExpressions)
     {
         if (sortExpressions is null)
@@ -152,7 +152,13 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Builds the SQL ORDER BY statement using the current sort expressions.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="QueryStatement"/> containing the SQL ORDER BY clause and its parameters,
+    /// or <c>null</c> if no sort expressions are present.
+    /// </returns>
     public override QueryStatement BuildStatement()
     {
         if (SortExpressions == null || SortExpressions.Count == 0)

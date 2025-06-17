@@ -6,7 +6,7 @@ using FluentCommand.Reflection;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Insert query statement builder
+/// Provides a builder for constructing SQL INSERT statements for a specific entity type with fluent, chainable methods.
 /// </summary>
 /// <typeparam name="TEntity">The type of the entity.</typeparam>
 public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TEntity>>
@@ -17,8 +17,8 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// <summary>
     /// Initializes a new instance of the <see cref="InsertEntityBuilder{TEntity}"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
     public InsertEntityBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters)
@@ -27,13 +27,13 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     }
 
     /// <summary>
-    /// Adds a value with specified property and value.
+    /// Adds a value for the specified entity property and value.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValue">The parameter value.</param>
+    /// <param name="property">An expression selecting the property to insert.</param>
+    /// <param name="parameterValue">The value to insert for the property.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public InsertEntityBuilder<TEntity> Value<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -44,14 +44,14 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     }
 
     /// <summary>
-    /// Conditionally adds a value with specified property and value.
+    /// Conditionally adds a value for the specified entity property and value if the condition is met.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="condition">The condition.</param>
+    /// <param name="property">An expression selecting the property to insert.</param>
+    /// <param name="parameterValue">The value to insert for the property.</param>
+    /// <param name="condition">A function that determines whether to add the value, based on the property name and value. If <c>null</c>, the value is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public InsertEntityBuilder<TEntity> ValueIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -63,14 +63,15 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     }
 
     /// <summary>
-    /// Adds a values from the specified entity. If column names are passed in,
+    /// Adds values from the specified entity. If column names are provided,
     /// only those that match an entity property name will be included.
     /// </summary>
     /// <param name="entity">The entity to insert.</param>
-    /// <param name="columnNames">The column names to include.</param>
+    /// <param name="columnNames">The column names to include (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="entity"/> is <c>null</c>.</exception>
     public InsertEntityBuilder<TEntity> Values(
         TEntity entity,
         IEnumerable<string> columnNames = null)
@@ -97,14 +98,14 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     }
 
     /// <summary>
-    /// Add an output clause for the specified property.
+    /// Adds an OUTPUT clause for the specified entity property.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to output.</param>
+    /// <param name="tableAlias">The alias for the table (optional).</param>
+    /// <param name="columnAlias">The alias for the output column (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public InsertEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -116,15 +117,15 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     }
 
     /// <summary>
-    /// Conditionally add an output clause for the specified property.
+    /// Conditionally adds an OUTPUT clause for the specified entity property if the condition is met.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to output.</param>
+    /// <param name="tableAlias">The alias for the table (optional).</param>
+    /// <param name="columnAlias">The alias for the output column (optional).</param>
+    /// <param name="condition">A function that determines whether to add the OUTPUT clause. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public InsertEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -136,7 +137,12 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
         return OutputIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Builds the SQL INSERT statement using the current configuration.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="QueryStatement"/> containing the SQL INSERT statement and its parameters.
+    /// </returns>
     public override QueryStatement BuildStatement()
     {
         // add table and schema from attribute if not set

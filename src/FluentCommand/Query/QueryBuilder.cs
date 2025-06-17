@@ -5,7 +5,7 @@ using FluentCommand.Query.Generators;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// High level query builder
+/// Provides a high-level builder for constructing and composing multiple SQL query statements.
 /// </summary>
 /// <seealso cref="FluentCommand.Query.IStatementBuilder" />
 public class QueryBuilder : IStatementBuilder
@@ -15,9 +15,11 @@ public class QueryBuilder : IStatementBuilder
     /// <summary>
     /// Initializes a new instance of the <see cref="QueryBuilder"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The parameters.</param>
-    /// <exception cref="System.ArgumentNullException">queryGenerator or parameters</exception>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions and statements.</param>
+    /// <param name="parameters">The initial list of <see cref="QueryParameter"/> objects for the query.</param>
+    /// <exception cref="System.ArgumentNullException">
+    /// Thrown if <paramref name="queryGenerator"/> or <paramref name="parameters"/> is <c>null</c>.
+    /// </exception>
     public QueryBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
     {
         QueryGenerator = queryGenerator ?? throw new ArgumentNullException(nameof(queryGenerator));
@@ -25,26 +27,28 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Gets the query generator.
+    /// Gets the <see cref="IQueryGenerator"/> used to generate SQL expressions and statements.
     /// </summary>
     /// <value>
-    /// The query generator.
+    /// The <see cref="IQueryGenerator"/> instance.
     /// </value>
     protected IQueryGenerator QueryGenerator { get; }
 
     /// <summary>
-    /// Gets the query parameters.
+    /// Gets the list of <see cref="QueryParameter"/> objects used in the query.
     /// </summary>
     /// <value>
-    /// The query parameters.
+    /// The list of query parameters.
     /// </value>
     protected List<QueryParameter> Parameters { get; }
 
 
     /// <summary>
-    /// Starts a statement builder
+    /// Starts a new raw SQL statement builder and adds it to the query.
     /// </summary>
-    /// <returns>A new statement builder</returns>
+    /// <returns>
+    /// A new <see cref="StatementBuilder"/> instance for building a raw SQL statement.
+    /// </returns>
     public StatementBuilder Statement()
     {
         var builder = new StatementBuilder(QueryGenerator, Parameters);
@@ -55,10 +59,12 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Starts a select statement builder
+    /// Starts a new SELECT statement builder for a specific entity type and adds it to the query.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <returns>A new select statement builder</returns>
+    /// <typeparam name="TEntity">The type of the entity to select.</typeparam>
+    /// <returns>
+    /// A new <see cref="SelectEntityBuilder{TEntity}"/> instance for building a SELECT statement.
+    /// </returns>
     public SelectEntityBuilder<TEntity> Select<TEntity>()
         where TEntity : class
     {
@@ -70,9 +76,11 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Starts a select statement builder
+    /// Starts a new SELECT statement builder and adds it to the query.
     /// </summary>
-    /// <returns>A new select statement builder</returns>
+    /// <returns>
+    /// A new <see cref="SelectBuilder"/> instance for building a SELECT statement.
+    /// </returns>
     public SelectBuilder Select()
     {
         var builder = new SelectBuilder(QueryGenerator, Parameters);
@@ -84,10 +92,12 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Starts an insert statement builder
+    /// Starts a new INSERT statement builder for a specific entity type and adds it to the query.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <returns>A new insert statement builder</returns>
+    /// <typeparam name="TEntity">The type of the entity to insert.</typeparam>
+    /// <returns>
+    /// A new <see cref="InsertEntityBuilder{TEntity}"/> instance for building an INSERT statement.
+    /// </returns>
     public InsertEntityBuilder<TEntity> Insert<TEntity>()
         where TEntity : class
     {
@@ -99,9 +109,11 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Starts an insert statement builder
+    /// Starts a new INSERT statement builder and adds it to the query.
     /// </summary>
-    /// <returns>A new insert statement builder</returns>
+    /// <returns>
+    /// A new <see cref="InsertBuilder"/> instance for building an INSERT statement.
+    /// </returns>
     public InsertBuilder Insert()
     {
         var builder = new InsertBuilder(QueryGenerator, Parameters);
@@ -113,10 +125,12 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Starts an update statement builder
+    /// Starts a new UPDATE statement builder for a specific entity type and adds it to the query.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <returns>A new update statement builder</returns>
+    /// <typeparam name="TEntity">The type of the entity to update.</typeparam>
+    /// <returns>
+    /// A new <see cref="UpdateEntityBuilder{TEntity}"/> instance for building an UPDATE statement.
+    /// </returns>
     public UpdateEntityBuilder<TEntity> Update<TEntity>()
         where TEntity : class
     {
@@ -129,9 +143,11 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Starts an update statement builder
+    /// Starts a new UPDATE statement builder and adds it to the query.
     /// </summary>
-    /// <returns>A new update statement builder</returns>
+    /// <returns>
+    /// A new <see cref="UpdateBuilder"/> instance for building an UPDATE statement.
+    /// </returns>
     public UpdateBuilder Update()
     {
         var builder = new UpdateBuilder(QueryGenerator, Parameters);
@@ -142,10 +158,12 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Starts a delete statement builder
+    /// Starts a new DELETE statement builder for a specific entity type and adds it to the query.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <returns>A new delete statement builder</returns>
+    /// <typeparam name="TEntity">The type of the entity to delete.</typeparam>
+    /// <returns>
+    /// A new <see cref="DeleteEntityBuilder{TEntity}"/> instance for building a DELETE statement.
+    /// </returns>
     public DeleteEntityBuilder<TEntity> Delete<TEntity>()
         where TEntity : class
     {
@@ -158,9 +176,11 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
-    /// Starts a delete statement builder
+    /// Starts a new DELETE statement builder and adds it to the query.
     /// </summary>
-    /// <returns>A new insert statement builder</returns>
+    /// <returns>
+    /// A new <see cref="DeleteBuilder"/> instance for building a DELETE statement.
+    /// </returns>
     public DeleteBuilder Delete()
     {
         var builder = new DeleteBuilder(QueryGenerator, Parameters);
@@ -170,7 +190,12 @@ public class QueryBuilder : IStatementBuilder
         return builder;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Builds and returns a <see cref="QueryStatement"/> representing the composed SQL query and its parameters.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="QueryStatement"/> containing the SQL statement and associated <see cref="QueryParameter"/> values.
+    /// </returns>
     public QueryStatement BuildStatement()
     {
         // optimize for when only 1 builder

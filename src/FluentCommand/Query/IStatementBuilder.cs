@@ -1,13 +1,15 @@
 namespace FluentCommand.Query;
 
 /// <summary>
-/// interface defining sql statement builder
+/// Defines a builder for constructing SQL query statements.
 /// </summary>
 public interface IStatementBuilder
 {
     /// <summary>
-    /// Builds the sql statement from this builder.
+    /// Builds and returns a <see cref="QueryStatement"/> representing the SQL query and its parameters.
     /// </summary>
-    /// <returns>The sql query statement</returns>
+    /// <returns>
+    /// A <see cref="QueryStatement"/> containing the SQL statement and associated <see cref="QueryParameter"/> values.
+    /// </returns>
     QueryStatement BuildStatement();
 }

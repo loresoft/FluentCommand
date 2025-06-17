@@ -4,16 +4,16 @@ using FluentCommand.Query.Generators;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Where clause builder
+/// Provides a builder for constructing SQL WHERE clauses with fluent, chainable methods.
 /// </summary>
 public class WhereBuilder : WhereBuilder<WhereBuilder>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="WhereBuilder"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="logicalOperator">The logical operator.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
+    /// <param name="logicalOperator">The logical operator (<see cref="LogicalOperators"/>) to combine WHERE expressions. Defaults to <see cref="LogicalOperators.And"/>.</param>
     public WhereBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -34,19 +34,18 @@ public class WhereBuilder : WhereBuilder<WhereBuilder>
 }
 
 /// <summary>
-/// Where clause builder
+/// Provides a generic base class for building SQL WHERE clauses with fluent, chainable methods.
 /// </summary>
-/// <typeparam name="TBuilder">The type of the builder.</typeparam>
+/// <typeparam name="TBuilder">The type of the builder for fluent chaining.</typeparam>
 public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     where TBuilder : WhereBuilder<TBuilder>
-
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="WhereBuilder{TBuilder}"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
-    /// <param name="logicalOperator">The logical operator.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
+    /// <param name="logicalOperator">The logical operator (<see cref="LogicalOperators"/>) to combine WHERE expressions. Defaults to <see cref="LogicalOperators.And"/>.</param>
     protected WhereBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters)
     {
@@ -54,30 +53,30 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Gets the where expressions.
+    /// Gets the collection of WHERE expressions for the query.
     /// </summary>
     /// <value>
-    /// The where expressions.
+    /// A <see cref="HashSet{WhereExpression}"/> containing the WHERE expressions.
     /// </value>
     protected HashSet<WhereExpression> WhereExpressions { get; } = new();
 
     /// <summary>
-    /// Gets the logical operator.
+    /// Gets the logical operator used to combine WHERE expressions.
     /// </summary>
     /// <value>
-    /// The logical operator.
+    /// The <see cref="LogicalOperators"/> value.
     /// </value>
     protected LogicalOperators LogicalOperator { get; }
 
     /// <summary>
-    /// Create a where clause with the specified column, value and operator
+    /// Adds a WHERE clause for the specified column, value, and operator.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="filterOperator">The filter operator.</param>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValue">The value to compare.</param>
+    /// <param name="filterOperator">The filter operator (<see cref="FilterOperators"/>). Defaults to <see cref="FilterOperators.Equal"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Where<TValue>(
        string columnName,
@@ -88,15 +87,15 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Create a where clause with the specified column, value, operator and table alias
+    /// Adds a WHERE clause for the specified column, value, operator, and table alias.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="filterOperator">The filter operator.</param>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValue">The value to compare.</param>
+    /// <param name="tableAlias">The table alias, or <c>null</c> if not applicable.</param>
+    /// <param name="filterOperator">The filter operator (<see cref="FilterOperators"/>). Defaults to <see cref="FilterOperators.Equal"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Where<TValue>(
         string columnName,
@@ -112,16 +111,15 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-
     /// <summary>
-    /// Create a where in clause with the specified column, values and table alias
+    /// Adds a WHERE IN clause for the specified column, values, and optional table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValues">The parameter values.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <typeparam name="TValue">The type of the values.</typeparam>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValues">The collection of values for the IN clause.</param>
+    /// <param name="tableAlias">The table alias, or <c>null</c> if not applicable.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder WhereIn<TValue>(
         string columnName,
@@ -146,14 +144,14 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally create a where in clause with the specified column and values
+    /// Conditionally adds a WHERE IN clause for the specified column and values if the condition is met.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValues">The parameter values.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the values.</typeparam>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValues">The collection of values for the IN clause.</param>
+    /// <param name="condition">A function that determines whether to add the clause. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder WhereInIf<TValue>(
         string columnName,
@@ -167,15 +165,15 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally create a where in clause with the specified column, values and table alias
+    /// Conditionally adds a WHERE IN clause for the specified column, values, and table alias if the condition is met.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValues">The parameter values.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the values.</typeparam>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValues">The collection of values for the IN clause.</param>
+    /// <param name="tableAlias">The table alias, or <c>null</c> if not applicable.</param>
+    /// <param name="condition">A function that determines whether to add the clause. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder WhereInIf<TValue>(
         string columnName,
@@ -190,15 +188,15 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally create a where clause with the specified column, value and operator
+    /// Conditionally adds a WHERE clause for the specified column, value, and operator if the condition is met.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="filterOperator">The filter operator.</param>
-    /// <param name="condition">The condition.</param>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValue">The value to compare.</param>
+    /// <param name="filterOperator">The filter operator (<see cref="FilterOperators"/>). Defaults to <see cref="FilterOperators.Equal"/>.</param>
+    /// <param name="condition">A function that determines whether to add the clause. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder WhereIf<TValue>(
         string columnName,
@@ -210,16 +208,16 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally create a where clause with the specified property, value, operator and table alias
+    /// Conditionally adds a WHERE clause for the specified column, value, operator, and table alias if the condition is met.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="filterOperator">The filter operator.</param>
-    /// <param name="condition">The condition.</param>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValue">The value to compare.</param>
+    /// <param name="tableAlias">The table alias, or <c>null</c> if not applicable.</param>
+    /// <param name="filterOperator">The filter operator (<see cref="FilterOperators"/>). Defaults to <see cref="FilterOperators.Equal"/>.</param>
+    /// <param name="condition">A function that determines whether to add the clause. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder WhereIf<TValue>(
         string columnName,
@@ -235,11 +233,14 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Create a where clause with the specified raw query
+    /// Adds a raw WHERE clause to the query.
     /// </summary>
-    /// <param name="whereClause">The where clause.</param>
-    /// <param name="parameters">The parameters.</param>
-    /// <returns></returns>
+    /// <param name="whereClause">The raw SQL WHERE clause.</param>
+    /// <param name="parameters">The collection of <see cref="QueryParameter"/> objects for the clause, or <c>null</c> if none.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="whereClause"/> is null or empty.</exception>
     public TBuilder WhereRaw(
         string whereClause,
         IEnumerable<QueryParameter> parameters = null)
@@ -256,12 +257,14 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally create a where clause with the specified raw query
+    /// Conditionally adds a raw WHERE clause to the query if the condition is met.
     /// </summary>
-    /// <param name="whereClause">The where clause.</param>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="condition">The condition.</param>
-    /// <returns></returns>
+    /// <param name="whereClause">The raw SQL WHERE clause.</param>
+    /// <param name="parameters">The collection of <see cref="QueryParameter"/> objects for the clause, or <c>null</c> if none.</param>
+    /// <param name="condition">A function that determines whether to add the clause. If <c>null</c>, the clause is always added.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
     public TBuilder WhereRawIf(
         string whereClause,
         IEnumerable<QueryParameter> parameters = null,
@@ -274,11 +277,11 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Create a logical AND where clause group
+    /// Adds a logical OR group of WHERE clauses using the specified builder action.
     /// </summary>
-    /// <param name="builder">The logical AND where clause builder.</param>
+    /// <param name="builder">An action that configures the logical OR group using a <see cref="LogicalBuilder"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder WhereOr(Action<LogicalBuilder> builder)
     {
@@ -294,11 +297,11 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Create a logical OR where clause group
+    /// Adds a logical AND group of WHERE clauses using the specified builder action.
     /// </summary>
-    /// <param name="builder">The logical OR where clause builder.</param>
+    /// <param name="builder">An action that configures the logical AND group using a <see cref="LogicalBuilder"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder WhereAnd(Action<LogicalBuilder> builder)
     {

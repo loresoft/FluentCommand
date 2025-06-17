@@ -3,23 +3,23 @@ using FluentCommand.Query.Generators;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Interface for query building
+/// Defines a builder interface for constructing SQL queries, including access to the query generator and parameters.
 /// </summary>
 public interface IQueryBuilder
 {
     /// <summary>
-    /// Gets the query generator.
+    /// Gets the <see cref="IQueryGenerator"/> used to generate SQL statements for the query.
     /// </summary>
     /// <value>
-    /// The query generator.
+    /// An instance of <see cref="IQueryGenerator"/> responsible for building SQL expressions and statements.
     /// </value>
     IQueryGenerator QueryGenerator { get; }
 
     /// <summary>
-    /// Gets the query parameters.
+    /// Gets the collection of <see cref="QueryParameter"/> objects used in the query.
     /// </summary>
     /// <value>
-    /// The query parameters.
+    /// A list of <see cref="QueryParameter"/> representing the parameters and their values for the SQL query.
     /// </value>
     List<QueryParameter> Parameters { get; }
 }

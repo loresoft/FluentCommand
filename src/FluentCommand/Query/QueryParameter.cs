@@ -3,16 +3,16 @@ using System;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// A query parameter
+/// Represents a parameter used in a SQL query, including its name, value, and type information.
 /// </summary>
 public class QueryParameter
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="QueryParameter"/> class.
+    /// Initializes a new instance of the <see cref="QueryParameter"/> class with the specified name, value, and type.
     /// </summary>
-    /// <param name="name">The parameter name.</param>
-    /// <param name="value">The parameter value.</param>
-    /// <param name="type">The parameter type.</param>
+    /// <param name="name">The name of the parameter as it appears in the SQL statement (e.g., <c>@Id</c>).</param>
+    /// <param name="value">The value to be assigned to the parameter.</param>
+    /// <param name="type">The <see cref="Type"/> of the parameter value.</param>
     public QueryParameter(string name, object value, Type type)
     {
         Name = name;
@@ -21,26 +21,26 @@ public class QueryParameter
     }
 
     /// <summary>
-    /// Gets the parameter name.
+    /// Gets the name of the parameter as it appears in the SQL statement.
     /// </summary>
     /// <value>
-    /// The parameter name.
+    /// A <see cref="string"/> representing the parameter name (e.g., <c>@Id</c>).
     /// </value>
     public string Name { get; }
 
     /// <summary>
-    /// Gets the parameter value.
+    /// Gets the value assigned to the parameter.
     /// </summary>
     /// <value>
-    /// The parameter value.
+    /// An <see cref="object"/> containing the parameter value.
     /// </value>
     public object Value { get; }
 
     /// <summary>
-    /// Gets the parameter type.
+    /// Gets the <see cref="Type"/> of the parameter value.
     /// </summary>
     /// <value>
-    /// The parameter type.
+    /// A <see cref="Type"/> representing the data type of the parameter.
     /// </value>
     public Type Type { get; }
 }

@@ -1,18 +1,37 @@
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Query aggregate functions 
+/// Specifies the available aggregate functions for use in SQL queries.
 /// </summary>
 public enum AggregateFunctions
 {
-    /// <summary>Average aggregate function</summary>
+    /// <summary>
+    /// Calculates the average value of a numeric column.
+    /// Corresponds to the SQL <c>AVG</c> function.
+    /// </summary>
     Average,
-    /// <summary>Count aggregate function</summary>
+
+    /// <summary>
+    /// Counts the number of rows or non-null values in a column.
+    /// Corresponds to the SQL <c>COUNT</c> function.
+    /// </summary>
     Count,
-    /// <summary>Max aggregate function</summary>
+
+    /// <summary>
+    /// Returns the maximum value from a column.
+    /// Corresponds to the SQL <c>MAX</c> function.
+    /// </summary>
     Max,
-    /// <summary>Min aggregate function</summary>
+
+    /// <summary>
+    /// Returns the minimum value from a column.
+    /// Corresponds to the SQL <c>MIN</c> function.
+    /// </summary>
     Min,
-    /// <summary>Sum aggregate function</summary>
+
+    /// <summary>
+    /// Calculates the sum of all values in a numeric column.
+    /// Corresponds to the SQL <c>SUM</c> function.
+    /// </summary>
     Sum,
 }

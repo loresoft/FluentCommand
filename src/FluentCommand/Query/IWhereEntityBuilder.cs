@@ -3,22 +3,22 @@ using System.Linq.Expressions;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// interface for where clause builder
+/// Defines methods for building SQL WHERE clauses for a specific entity type with fluent, chainable methods.
 /// </summary>
 /// <typeparam name="TEntity">The type of the entity.</typeparam>
-/// <typeparam name="TBuilder">The type of the builder.</typeparam>
+/// <typeparam name="TBuilder">The type of the builder returned for chaining.</typeparam>
 public interface IWhereEntityBuilder<TEntity, out TBuilder>
     where TEntity : class
 {
     /// <summary>
-    /// Create a where clause with the specified property, value and operator
+    /// Adds a WHERE clause for the specified property, value, and filter operator.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="filterOperator">The filter operator.</param>
+    /// <typeparam name="TValue">The type of the value to compare.</typeparam>
+    /// <param name="property">An expression selecting the property to filter on.</param>
+    /// <param name="parameterValue">The value to compare the property against.</param>
+    /// <param name="filterOperator">The filter operator to use (default is <see cref="FilterOperators.Equal"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -26,15 +26,15 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
         FilterOperators filterOperator = FilterOperators.Equal);
 
     /// <summary>
-    /// Create a where clause with the specified property, value, operator and table alias
+    /// Adds a WHERE clause for the specified property, value, filter operator, and table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="filterOperator">The filter operator.</param>
+    /// <typeparam name="TValue">The type of the value to compare.</typeparam>
+    /// <param name="property">An expression selecting the property to filter on.</param>
+    /// <param name="parameterValue">The value to compare the property against.</param>
+    /// <param name="tableAlias">The table alias to use in the query.</param>
+    /// <param name="filterOperator">The filter operator to use (default is <see cref="FilterOperators.Equal"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -43,14 +43,14 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
         FilterOperators filterOperator = FilterOperators.Equal);
 
     /// <summary>
-    /// Create a where in clause with the specified property, values and table alias
+    /// Adds a WHERE IN clause for the specified property and collection of values, with an optional table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValues">The parameter values.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <typeparam name="TValue">The type of the values to compare.</typeparam>
+    /// <param name="property">An expression selecting the property to filter on.</param>
+    /// <param name="parameterValues">The collection of values for the IN clause.</param>
+    /// <param name="tableAlias">The table alias to use in the query (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -58,14 +58,17 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
         string tableAlias = null);
 
     /// <summary>
-    /// Conditionally create a where in clause with the specified property and values
+    /// Conditionally adds a WHERE IN clause for the specified property and collection of values.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValues">The parameter values.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the values to compare.</typeparam>
+    /// <param name="property">An expression selecting the property to filter on.</param>
+    /// <param name="parameterValues">The collection of values for the IN clause.</param>
+    /// <param name="condition">
+    /// A function that determines whether to add the clause, based on the property name and values.
+    /// If <c>null</c>, the clause is always added.
+    /// </param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -73,15 +76,18 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
         Func<string, IEnumerable<TValue>, bool> condition = null);
 
     /// <summary>
-    /// Conditionally create a where in clause with the specified property, values and table alias
+    /// Conditionally adds a WHERE IN clause for the specified property, collection of values, and table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValues">The parameter values.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the values to compare.</typeparam>
+    /// <param name="property">An expression selecting the property to filter on.</param>
+    /// <param name="parameterValues">The collection of values for the IN clause.</param>
+    /// <param name="tableAlias">The table alias to use in the query.</param>
+    /// <param name="condition">
+    /// A function that determines whether to add the clause, based on the table alias and values.
+    /// If <c>null</c>, the clause is always added.
+    /// </param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -90,15 +96,18 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
         Func<string, IEnumerable<TValue>, bool> condition = null);
 
     /// <summary>
-    /// Conditionally create a where clause with the specified property, value and operator
+    /// Conditionally adds a WHERE clause for the specified property, value, and filter operator.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="filterOperator">The filter operator.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the value to compare.</typeparam>
+    /// <param name="property">An expression selecting the property to filter on.</param>
+    /// <param name="parameterValue">The value to compare the property against.</param>
+    /// <param name="filterOperator">The filter operator to use (default is <see cref="FilterOperators.Equal"/>).</param>
+    /// <param name="condition">
+    /// A function that determines whether to add the clause, based on the property name and value.
+    /// If <c>null</c>, the clause is always added.
+    /// </param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -107,16 +116,19 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
         Func<string, TValue, bool> condition = null);
 
     /// <summary>
-    /// Conditionally create a where clause with the specified property, value, operator and table alias
+    /// Conditionally adds a WHERE clause for the specified property, value, filter operator, and table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="filterOperator">The filter operator.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the value to compare.</typeparam>
+    /// <param name="property">An expression selecting the property to filter on.</param>
+    /// <param name="parameterValue">The value to compare the property against.</param>
+    /// <param name="tableAlias">The table alias to use in the query.</param>
+    /// <param name="filterOperator">The filter operator to use (default is <see cref="FilterOperators.Equal"/>).</param>
+    /// <param name="condition">
+    /// A function that determines whether to add the clause, based on the table alias and value.
+    /// If <c>null</c>, the clause is always added.
+    /// </param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -126,20 +138,20 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
         Func<string, TValue, bool> condition = null);
 
     /// <summary>
-    /// Create a logical AND where clause group
+    /// Adds a logical AND group to the WHERE clause using the specified builder action.
     /// </summary>
-    /// <param name="builder">The logical AND where clause builder.</param>
+    /// <param name="builder">An action that configures the logical AND group using a <see cref="LogicalEntityBuilder{TEntity}"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder WhereAnd(Action<LogicalEntityBuilder<TEntity>> builder);
 
     /// <summary>
-    /// Create a logical OR where clause group
+    /// Adds a logical OR group to the WHERE clause using the specified builder action.
     /// </summary>
-    /// <param name="builder">The logical OR where clause builder.</param>
+    /// <param name="builder">An action that configures the logical OR group using a <see cref="LogicalEntityBuilder{TEntity}"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The builder instance for chaining further calls.
     /// </returns>
     TBuilder WhereOr(Action<LogicalEntityBuilder<TEntity>> builder);
 }

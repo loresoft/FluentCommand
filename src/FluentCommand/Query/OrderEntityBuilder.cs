@@ -6,7 +6,7 @@ using FluentCommand.Reflection;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Query order by builder
+/// Provides a builder for constructing SQL ORDER BY clauses for a specific entity type with fluent, chainable methods.
 /// </summary>
 /// <typeparam name="TEntity">The type of the entity.</typeparam>
 public class OrderEntityBuilder<TEntity> : OrderBuilder<OrderEntityBuilder<TEntity>>
@@ -17,21 +17,21 @@ public class OrderEntityBuilder<TEntity> : OrderBuilder<OrderEntityBuilder<TEnti
     /// <summary>
     /// Initializes a new instance of the <see cref="OrderEntityBuilder{TEntity}"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
     public OrderEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
     }
 
     /// <summary>
-    /// Add an order by clause with the specified property and sort direction.
+    /// Adds an ORDER BY clause with the specified entity property and sort direction.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="sortDirection">The sort direction.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to sort by.</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public OrderEntityBuilder<TEntity> OrderBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -43,14 +43,14 @@ public class OrderEntityBuilder<TEntity> : OrderBuilder<OrderEntityBuilder<TEnti
     }
 
     /// <summary>
-    /// Add an order by clause with the specified property, sort direction and table alias.
+    /// Adds an ORDER BY clause with the specified entity property, sort direction, and table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="sortDirection">The sort direction.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to sort by.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public OrderEntityBuilder<TEntity> OrderBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -63,15 +63,15 @@ public class OrderEntityBuilder<TEntity> : OrderBuilder<OrderEntityBuilder<TEnti
     }
 
     /// <summary>
-    /// Conditionally add an order by clause with the specified property, sort direction and table alias.
+    /// Conditionally adds an ORDER BY clause with the specified entity property, sort direction, and table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="sortDirection">The sort direction.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to sort by.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
+    /// <param name="condition">A function that determines whether to add the ORDER BY clause, based on the property name. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public OrderEntityBuilder<TEntity> OrderByIf<TValue>(
         Expression<Func<TEntity, TValue>> property,

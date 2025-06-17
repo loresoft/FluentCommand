@@ -6,7 +6,7 @@ using FluentCommand.Reflection;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Join clause builder
+/// Provides a builder for constructing SQL JOIN clauses between two entity types with fluent, chainable methods.
 /// </summary>
 /// <typeparam name="TLeft">The entity type of the left join.</typeparam>
 /// <typeparam name="TRight">The entity type of the right join.</typeparam>
@@ -20,21 +20,21 @@ public class JoinEntityBuilder<TLeft, TRight> : JoinBuilder<JoinEntityBuilder<TL
     /// <summary>
     /// Initializes a new instance of the <see cref="JoinEntityBuilder{TLeft, TRight}"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
     public JoinEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
     }
 
     /// <summary>
-    /// The left property to join on.
+    /// Specifies the left property to join on using a strongly-typed property expression.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property on the left entity to join on.</param>
+    /// <param name="tableAlias">The alias of the left table.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public JoinEntityBuilder<TLeft, TRight> Left<TValue>(
         Expression<Func<TLeft, TValue>> property,
@@ -42,18 +42,18 @@ public class JoinEntityBuilder<TLeft, TRight> : JoinBuilder<JoinEntityBuilder<TL
     {
         var propertyAccessor = _leftAccessor.FindProperty(property);
 
-
         return Left(propertyAccessor.Column, tableAlias);
     }
 
     /// <summary>
-    /// The right property to join on.
+    /// Specifies the right property to join on using a strongly-typed property expression.
+    /// The table name and schema are inferred from the right entity type.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property on the right entity to join on.</param>
+    /// <param name="tableAlias">The alias of the right table.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public JoinEntityBuilder<TLeft, TRight> Right<TValue>(
         Expression<Func<TRight, TValue>> property,
@@ -67,15 +67,15 @@ public class JoinEntityBuilder<TLeft, TRight> : JoinBuilder<JoinEntityBuilder<TL
     }
 
     /// <summary>
-    /// The right property to join on.
+    /// Specifies the right property to join on using a strongly-typed property expression and explicit table information.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableName">Name of the table.</param>
-    /// <param name="tableSchema">The table schema.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property on the right entity to join on.</param>
+    /// <param name="tableName">The name of the right table. If <c>null</c>, the entity mapping is used.</param>
+    /// <param name="tableSchema">The schema of the right table. If <c>null</c>, the entity mapping is used.</param>
+    /// <param name="tableAlias">The alias of the right table. If <c>null</c>, the table name is used as the alias.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public JoinEntityBuilder<TLeft, TRight> Right<TValue>(
         Expression<Func<TRight, TValue>> property,
@@ -84,7 +84,6 @@ public class JoinEntityBuilder<TLeft, TRight> : JoinBuilder<JoinEntityBuilder<TL
         string tableAlias)
     {
         var propertyAccessor = _rightAccessor.FindProperty(property);
-
 
         return Right(
             propertyAccessor.Column,

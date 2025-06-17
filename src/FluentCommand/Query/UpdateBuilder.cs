@@ -4,16 +4,16 @@ using FluentCommand.Query.Generators;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Update query statement builder
+/// Provides a builder for constructing SQL UPDATE statements with fluent, chainable methods.
 /// </summary>
 public class UpdateBuilder : UpdateBuilder<UpdateBuilder>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="UpdateBuilder"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="logicalOperator">The logical operator.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
+    /// <param name="logicalOperator">The logical operator (<see cref="LogicalOperators"/>) to combine WHERE expressions. Defaults to <see cref="LogicalOperators.And"/>.</param>
     public UpdateBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -24,17 +24,18 @@ public class UpdateBuilder : UpdateBuilder<UpdateBuilder>
 }
 
 /// <summary>
-/// Insert query statement builder
+/// Provides a generic base class for building SQL UPDATE statements with fluent, chainable methods.
 /// </summary>
+/// <typeparam name="TBuilder">The type of the builder for fluent chaining.</typeparam>
 public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     where TBuilder : UpdateBuilder<TBuilder>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="UpdateBuilder{TBuilder}"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The parameters.</param>
-    /// <param name="logicalOperator">The logical operator.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
+    /// <param name="logicalOperator">The logical operator (<see cref="LogicalOperators"/>) to combine WHERE expressions. Defaults to <see cref="LogicalOperators.And"/>.</param>
     protected UpdateBuilder(
         IQueryGenerator queryGenerator,
         List<QueryParameter> parameters,
@@ -43,56 +44,54 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     {
     }
 
-
     /// <summary>
-    /// Gets the update expressions.
+    /// Gets the collection of update expressions for the UPDATE statement.
     /// </summary>
     /// <value>
-    /// The update expressions.
+    /// A <see cref="HashSet{UpdateExpression}"/> containing the update expressions.
     /// </value>
     protected HashSet<UpdateExpression> UpdateExpressions { get; } = new();
 
     /// <summary>
-    /// Gets the output expressions.
+    /// Gets the collection of output column expressions for the UPDATE statement.
     /// </summary>
     /// <value>
-    /// The output expressions.
+    /// A <see cref="HashSet{ColumnExpression}"/> containing the output column expressions.
     /// </value>
     protected HashSet<ColumnExpression> OutputExpressions { get; } = new();
 
     /// <summary>
-    /// Gets from expressions.
+    /// Gets the collection of FROM table expressions for the UPDATE statement.
     /// </summary>
     /// <value>
-    /// From expressions.
+    /// A <see cref="HashSet{TableExpression}"/> containing the FROM table expressions.
     /// </value>
     protected HashSet<TableExpression> FromExpressions { get; } = new();
 
     /// <summary>
-    /// Gets the join expressions.
+    /// Gets the collection of JOIN expressions for the UPDATE statement.
     /// </summary>
     /// <value>
-    /// The join expressions.
+    /// A <see cref="HashSet{JoinExpression}"/> containing the JOIN expressions.
     /// </value>
     protected HashSet<JoinExpression> JoinExpressions { get; } = new();
 
     /// <summary>
-    /// Gets the table expression.
+    /// Gets the target table expression for the UPDATE statement.
     /// </summary>
     /// <value>
-    /// The table expression.
+    /// The <see cref="TableExpression"/> representing the target table.
     /// </value>
     protected TableExpression TableExpression { get; private set; }
 
-
     /// <summary>
-    /// Set the target table to update.
+    /// Sets the target table to update.
     /// </summary>
-    /// <param name="tableName">Name of the table.</param>
-    /// <param name="tableSchema">The table schema.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="tableSchema">The schema of the table (optional).</param>
+    /// <param name="tableAlias">The alias for the table (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Table(
         string tableName,
@@ -104,15 +103,14 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-
     /// <summary>
-    /// Adds a value with specified column name and value.
+    /// Adds a value for the specified column name and value.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValue">The parameter value.</param>
+    /// <param name="columnName">The name of the column to update.</param>
+    /// <param name="parameterValue">The value to set for the column.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Value<TValue>(
         string columnName,
@@ -122,14 +120,15 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Adds a value with specified column name and value.
+    /// Adds a value for the specified column name, value, and type.
     /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="parameterType">Type of the parameter.</param>
+    /// <param name="columnName">The name of the column to update.</param>
+    /// <param name="parameterValue">The value to set for the column.</param>
+    /// <param name="parameterType">The type of the parameter value.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="columnName"/> is null or empty.</exception>
     public TBuilder Value(
         string columnName,
         object parameterValue,
@@ -148,14 +147,14 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally adds a value with specified column name and value.
+    /// Conditionally adds a value for the specified column name and value if the condition is met.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="condition">The condition.</param>
+    /// <param name="columnName">The name of the column to update.</param>
+    /// <param name="parameterValue">The value to set for the column.</param>
+    /// <param name="condition">A function that determines whether to add the value, based on the column name and value. If <c>null</c>, the value is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder ValueIf<TValue>(
         string columnName,
@@ -168,15 +167,15 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return Value(columnName, parameterValue);
     }
 
-
     /// <summary>
-    /// Add an output clause for the specified column names.
+    /// Adds an OUTPUT clause for the specified column names.
     /// </summary>
-    /// <param name="columnNames">The column names.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnNames">The collection of column names to include in the OUTPUT clause.</param>
+    /// <param name="tableAlias">The alias for the table (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="columnNames"/> is <c>null</c>.</exception>
     public TBuilder Output(
         IEnumerable<string> columnNames,
         string tableAlias = null)
@@ -191,13 +190,13 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Add an output clause for the specified column name.
+    /// Adds an OUTPUT clause for the specified column name.
     /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
+    /// <param name="columnName">The name of the column to include in the OUTPUT clause.</param>
+    /// <param name="tableAlias">The alias for the table (optional).</param>
+    /// <param name="columnAlias">The alias for the output column (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Output(
         string columnName,
@@ -212,14 +211,14 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Conditionally add an output clause for the specified column name.
+    /// Conditionally adds an OUTPUT clause for the specified column name if the condition is met.
     /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
-    /// <param name="condition">The condition.</param>
+    /// <param name="columnName">The name of the column to include in the OUTPUT clause.</param>
+    /// <param name="tableAlias">The alias for the table (optional).</param>
+    /// <param name="columnAlias">The alias for the output column (optional).</param>
+    /// <param name="condition">A function that determines whether to add the OUTPUT clause. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder OutputIf(
         string columnName,
@@ -233,15 +232,14 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return Output(columnName, tableAlias, columnAlias);
     }
 
-
     /// <summary>
-    /// Add a from clause to the query.
+    /// Adds a FROM clause to the UPDATE statement.
     /// </summary>
-    /// <param name="tableName">Name of the table.</param>
-    /// <param name="tableSchema">The table schema.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="tableName">The name of the table to include in the FROM clause.</param>
+    /// <param name="tableSchema">The schema of the table (optional).</param>
+    /// <param name="tableAlias">The alias for the table (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public virtual TBuilder From(
         string tableName,
@@ -256,11 +254,11 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Add a raw from clause to the query.
+    /// Adds a raw FROM clause to the UPDATE statement.
     /// </summary>
-    /// <param name="fromClause">From clause.</param>
+    /// <param name="fromClause">The raw SQL FROM clause.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder FromRaw(string fromClause)
     {
@@ -271,11 +269,11 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Add a join clause using the specified builder action
+    /// Adds a JOIN clause to the UPDATE statement using the specified builder action.
     /// </summary>
-    /// <param name="builder">The builder.</param>
+    /// <param name="builder">An action that configures the join using a <see cref="JoinBuilder"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Join(Action<JoinBuilder> builder)
     {
@@ -287,7 +285,12 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         return (TBuilder)this;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Builds the SQL UPDATE statement using the current configuration.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="QueryStatement"/> containing the SQL UPDATE statement and its parameters.
+    /// </returns>
     public override QueryStatement BuildStatement()
     {
         var updateStatement = new UpdateStatement(
@@ -303,5 +306,4 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
 
         return new QueryStatement(statement, Parameters);
     }
-
 }

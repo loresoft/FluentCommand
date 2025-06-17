@@ -3,15 +3,15 @@ using FluentCommand.Query.Generators;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Join clause builder
+/// Provides a builder for constructing SQL JOIN clauses with fluent, chainable methods.
 /// </summary>
 public class JoinBuilder : JoinBuilder<JoinBuilder>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="JoinBuilder"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
     public JoinBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
@@ -19,37 +19,37 @@ public class JoinBuilder : JoinBuilder<JoinBuilder>
 }
 
 /// <summary>
-/// 
+/// Provides a generic base class for building SQL JOIN clauses with fluent, chainable methods.
 /// </summary>
-/// <typeparam name="TBuilder">The type of the builder.</typeparam>
+/// <typeparam name="TBuilder">The type of the builder for fluent chaining.</typeparam>
 public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     where TBuilder : JoinBuilder<TBuilder>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="JoinBuilder{TBuilder}"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
     public JoinBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters)
         : base(queryGenerator, parameters)
     {
     }
 
     /// <summary>
-    /// Gets or sets the join expression.
+    /// Gets or sets the join expression that defines the JOIN clause.
     /// </summary>
     /// <value>
-    /// The join expression.
+    /// The <see cref="JoinExpression"/> representing the JOIN clause.
     /// </value>
     protected JoinExpression JoinExpression { get; set; } = new();
 
     /// <summary>
-    /// The left column to join on.
+    /// Specifies the left column to join on.
     /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnName">The name of the column in the left table.</param>
+    /// <param name="tableAlias">The alias of the left table.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Left(
         string columnName,
@@ -65,14 +65,14 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// The right column to join on.
+    /// Specifies the right column and table to join on.
     /// </summary>
-    /// <param name="columnName">Name of the column.</param>
-    /// <param name="tableName">Name of the table.</param>
-    /// <param name="tableSchema">The table schema.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnName">The name of the column in the right table.</param>
+    /// <param name="tableName">The name of the right table.</param>
+    /// <param name="tableSchema">The schema of the right table.</param>
+    /// <param name="tableAlias">The alias of the right table. If <c>null</c>, the table name is used as the alias.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Right(
         string columnName,
@@ -92,11 +92,11 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Specify the join type.
+    /// Specifies the type of SQL JOIN operation to use.
     /// </summary>
-    /// <param name="joinType">Type of the join.</param>
+    /// <param name="joinType">The <see cref="JoinTypes"/> value indicating the type of join (e.g., Inner, Left, Right).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder Type(JoinTypes joinType)
     {
@@ -109,17 +109,22 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
-    /// Builds the join expression.
+    /// Builds and returns the <see cref="JoinExpression"/> representing the configured JOIN clause.
     /// </summary>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The <see cref="JoinExpression"/> for the JOIN clause.
     /// </returns>
     public virtual JoinExpression BuildExpression()
     {
         return JoinExpression;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Builds the SQL JOIN statement using the current configuration.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="QueryStatement"/> containing the SQL JOIN clause and its parameters.
+    /// </returns>
     public override QueryStatement BuildStatement()
     {
         var joinClause = QueryGenerator.JoinExpression(JoinExpression);

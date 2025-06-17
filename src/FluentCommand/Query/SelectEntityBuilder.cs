@@ -7,7 +7,7 @@ using FluentCommand.Reflection;
 namespace FluentCommand.Query;
 
 /// <summary>
-/// Select query builder
+/// Provides a builder for constructing SQL SELECT statements for a specific entity type with fluent, chainable methods.
 /// </summary>
 /// <typeparam name="TEntity">The type of the entity.</typeparam>
 public class SelectEntityBuilder<TEntity>
@@ -19,21 +19,23 @@ public class SelectEntityBuilder<TEntity>
     /// <summary>
     /// Initializes a new instance of the <see cref="SelectEntityBuilder{TEntity}"/> class.
     /// </summary>
-    /// <param name="queryGenerator">The query generator.</param>
-    /// <param name="parameters">The query parameters.</param>
-    /// <param name="logicalOperator">The logical operator.</param>
+    /// <param name="queryGenerator">The <see cref="IQueryGenerator"/> used to generate SQL expressions.</param>
+    /// <param name="parameters">The list of <see cref="QueryParameter"/> objects for the query.</param>
+    /// <param name="logicalOperator">The logical operator (<see cref="LogicalOperators"/>) to combine WHERE expressions. Defaults to <see cref="LogicalOperators.And"/>.</param>
     public SelectEntityBuilder(IQueryGenerator queryGenerator, List<QueryParameter> parameters, LogicalOperators logicalOperator = LogicalOperators.And)
         : base(queryGenerator, parameters, logicalOperator)
     {
     }
 
     /// <summary>
-    /// Adds a column expression with the specified property.
+    /// Adds a column expression for the specified entity property.
     /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
-    /// <returns></returns>
+    /// <param name="property">An expression selecting the property to include in the SELECT clause.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="columnAlias">The alias for the column (optional).</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
     public SelectEntityBuilder<TEntity> Column(
         Expression<Func<TEntity, object>> property,
         string tableAlias = null,
@@ -41,22 +43,23 @@ public class SelectEntityBuilder<TEntity>
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        // alais column as property name if don't match
+        // alias column as property name if they don't match
         if (propertyAccessor.Name == propertyAccessor.Column)
             return Column(propertyAccessor.Column, tableAlias, columnAlias);
         else
             return Column(propertyAccessor.Column, tableAlias, columnAlias ?? propertyAccessor.Name);
-
     }
 
     /// <summary>
-    /// Adds a column expression with the specified property.
+    /// Adds a column expression for the specified property of a model type.
     /// </summary>
     /// <typeparam name="TModel">The type of the model.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
-    /// <returns></returns>
+    /// <param name="property">An expression selecting the property to include in the SELECT clause.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="columnAlias">The alias for the column (optional).</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
     public SelectEntityBuilder<TEntity> Column<TModel>(
         Expression<Func<TModel, object>> property,
         string tableAlias = null,
@@ -65,23 +68,24 @@ public class SelectEntityBuilder<TEntity>
         var typeAccessor = TypeAccessor.GetAccessor<TModel>();
         var propertyAccessor = typeAccessor.FindProperty(property);
 
-        // alais column as property name if don't match
+        // alias column as property name if they don't match
         if (propertyAccessor.Name == propertyAccessor.Column)
             return Column(propertyAccessor.Column, tableAlias, columnAlias);
         else
             return Column(propertyAccessor.Column, tableAlias, columnAlias ?? propertyAccessor.Name);
-
     }
 
     /// <summary>
-    /// Conditionally adds a column expression with the specified property.
+    /// Conditionally adds a column expression for the specified entity property.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
-    /// <param name="condition">The condition.</param>
-    /// <returns></returns>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to include in the SELECT clause.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="columnAlias">The alias for the column (optional).</param>
+    /// <param name="condition">A function that determines whether to add the column, based on the column name. If <c>null</c>, the column is always added.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
     public SelectEntityBuilder<TEntity> ColumnIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         string tableAlias = null,
@@ -90,7 +94,7 @@ public class SelectEntityBuilder<TEntity>
     {
         var propertyAccessor = _typeAccessor.FindProperty(property);
 
-        // alais column as property name if don't match
+        // alias column as property name if they don't match
         if (propertyAccessor.Name == propertyAccessor.Column)
             return ColumnIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
         else
@@ -98,14 +102,14 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Adds a column expression for each of specified names.
+    /// Adds a column expression for each of the specified column names, using entity property mapping.
     /// </summary>
-    /// <param name="columnNames">The column names.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="columnNames">The collection of column names to include in the SELECT clause.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
-    /// <exception cref="System.ArgumentNullException">columnNames</exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="columnNames"/> is <c>null</c>.</exception>
     public override SelectEntityBuilder<TEntity> Columns(
         IEnumerable<string> columnNames,
         string tableAlias = null)
@@ -119,7 +123,7 @@ public class SelectEntityBuilder<TEntity>
             if (propertyAccessor is null)
                 continue;
 
-            // alias column as property name if don't match
+            // alias column as property name if they don't match
             if (propertyAccessor.Name == propertyAccessor.Column)
                 Column(propertyAccessor.Column, tableAlias);
             else
@@ -130,12 +134,12 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Adds a column expression for each property in <typeparamref name="TEntity" />.
+    /// Adds a column expression for each property in <typeparamref name="TEntity"/>.
     /// </summary>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
     /// <param name="filter">An optional filter to include properties.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Columns(
         string tableAlias = null,
@@ -151,7 +155,7 @@ public class SelectEntityBuilder<TEntity>
             if (filter != null && !filter(property))
                 continue;
 
-            // alias column as property name if don't match
+            // alias column as property name if they don't match
             if (property.Name == property.Column)
                 Column(property.Column, tableAlias);
             else
@@ -162,13 +166,13 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Adds a column expression for each property in <typeparamref name="TModel" />.
+    /// Adds a column expression for each property in <typeparamref name="TModel"/>.
     /// </summary>
     /// <typeparam name="TModel">The type of the model.</typeparam>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
     /// <param name="filter">An optional filter to include properties.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Columns<TModel>(
         string tableAlias = null,
@@ -185,7 +189,7 @@ public class SelectEntityBuilder<TEntity>
             if (filter != null && !filter(property))
                 continue;
 
-            // alias column as property name if don't match
+            // alias column as property name if they don't match
             if (property.Name == property.Column)
                 Column(property.Column, tableAlias);
             else
@@ -196,14 +200,14 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Adds a count expression using the specified property.
+    /// Adds a COUNT aggregate expression using the specified entity property.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to count.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="columnAlias">The alias for the column (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Count<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -216,15 +220,15 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Adds an aggregate expression using the specified function and property.
+    /// Adds an aggregate expression using the specified function and entity property.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="function">The aggregate function.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="columnAlias">The column alias.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to aggregate.</param>
+    /// <param name="function">The aggregate function to use (e.g., <see cref="AggregateFunctions.Sum"/>).</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="columnAlias">The alias for the column (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Aggregate<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -237,7 +241,15 @@ public class SelectEntityBuilder<TEntity>
         return Aggregate(function, propertyAccessor.Column, tableAlias, columnAlias);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Sets the target table for the SELECT statement using the entity's mapping information by default.
+    /// </summary>
+    /// <param name="tableName">The name of the table (optional, defaults to entity mapping).</param>
+    /// <param name="tableSchema">The schema of the table (optional, defaults to entity mapping).</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
     public override SelectEntityBuilder<TEntity> From(
         string tableName = null,
         string tableSchema = null,
@@ -250,12 +262,12 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Add a join clause using the specified builder action
+    /// Adds a JOIN clause to the SELECT statement using the specified builder action for the right entity.
     /// </summary>
-    /// <typeparam name="TRight">The right join entity</typeparam>
-    /// <param name="builder">The join builder.</param>
+    /// <typeparam name="TRight">The type of the right join entity.</typeparam>
+    /// <param name="builder">An action that configures the join using a <see cref="JoinEntityBuilder{TEntity, TRight}"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Join<TRight>(Action<JoinEntityBuilder<TEntity, TRight>> builder)
         where TRight : class
@@ -269,13 +281,13 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Add a join clause using the specified builder action
+    /// Adds a JOIN clause to the SELECT statement using the specified builder action for the left and right entities.
     /// </summary>
-    /// <typeparam name="TLeft">The left join entity</typeparam>
-    /// <typeparam name="TRight">The right join entity</typeparam>
-    /// <param name="builder">The join builder.</param>
+    /// <typeparam name="TLeft">The type of the left join entity.</typeparam>
+    /// <typeparam name="TRight">The type of the right join entity.</typeparam>
+    /// <param name="builder">An action that configures the join using a <see cref="JoinEntityBuilder{TLeft, TRight}"/>.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Join<TLeft, TRight>(Action<JoinEntityBuilder<TLeft, TRight>> builder)
         where TLeft : class
@@ -311,16 +323,16 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Create a where clause with the specified property, value, operator and table alias
+    /// Adds a WHERE clause for the specified model property, value, filter operator, and table alias.
     /// </summary>
-    /// <typeparam name="TModel">The type of the model</typeparam>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="parameterValue">The parameter value.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="filterOperator">The filter operator.</param>
+    /// <typeparam name="TModel">The type of the model.</typeparam>
+    /// <typeparam name="TValue">The type of the value to compare.</typeparam>
+    /// <param name="property">An expression selecting the property to filter on.</param>
+    /// <param name="parameterValue">The value to compare the property against.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="filterOperator">The filter operator to use (default is <see cref="FilterOperators.Equal"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Where<TModel, TValue>(
         Expression<Func<TModel, TValue>> property,
@@ -421,15 +433,14 @@ public class SelectEntityBuilder<TEntity>
         return this;
     }
 
-
     /// <summary>
-    /// Add an order by clause with the specified property and sort direction.
+    /// Adds an ORDER BY clause with the specified entity property and sort direction.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="sortDirection">The sort direction.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to sort by.</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> OrderBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -441,14 +452,14 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Add an order by clause with the specified property, sort direction and table alias.
+    /// Adds an ORDER BY clause with the specified entity property, sort direction, and table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="sortDirection">The sort direction.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to sort by.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> OrderBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -461,14 +472,14 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Conditionally add an order by clause with the specified property and sort direction.
+    /// Conditionally adds an ORDER BY clause with the specified entity property and sort direction.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="sortDirection">The sort direction.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to sort by.</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
+    /// <param name="condition">A function that determines whether to add the ORDER BY clause, based on the property name. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> OrderByIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -481,15 +492,15 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Conditionally add an order by clause with the specified property, sort direction and table alias.
+    /// Conditionally adds an ORDER BY clause with the specified entity property, sort direction, and table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
-    /// <param name="sortDirection">The sort direction.</param>
-    /// <param name="condition">The condition.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to sort by.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
+    /// <param name="sortDirection">The sort direction (default is <see cref="SortDirections.Ascending"/>).</param>
+    /// <param name="condition">A function that determines whether to add the ORDER BY clause, based on the property name. If <c>null</c>, the clause is always added.</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> OrderByIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -503,13 +514,13 @@ public class SelectEntityBuilder<TEntity>
     }
 
     /// <summary>
-    /// Add a group by clause with the specified property  and table alias.
+    /// Adds a GROUP BY clause with the specified entity property and table alias.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="property">The property.</param>
-    /// <param name="tableAlias">The table alias.</param>
+    /// <typeparam name="TValue">The type of the property value.</typeparam>
+    /// <param name="property">An expression selecting the property to group by.</param>
+    /// <param name="tableAlias">The alias of the table (optional).</param>
     /// <returns>
-    /// The same builder so that multiple calls can be chained.
+    /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> GroupBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
@@ -520,7 +531,12 @@ public class SelectEntityBuilder<TEntity>
         return GroupBy(propertyAccessor.Column, tableAlias);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Builds the SQL SELECT statement using the current configuration.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="QueryStatement"/> containing the SQL SELECT statement and its parameters.
+    /// </returns>
     public override QueryStatement BuildStatement()
     {
         // add table and schema from attribute if not set
@@ -529,7 +545,4 @@ public class SelectEntityBuilder<TEntity>
 
         return base.BuildStatement();
     }
-
-
-
 }

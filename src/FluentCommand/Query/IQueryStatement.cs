@@ -1,23 +1,23 @@
 namespace FluentCommand.Query;
 
 /// <summary>
-/// interface for defining a sql query
+/// Defines an interface for a SQL query statement, including the SQL text and its parameters.
 /// </summary>
 public interface IQueryStatement
 {
     /// <summary>
-    /// Gets the parameters for the query.
+    /// Gets the collection of <see cref="QueryParameter"/> objects used in the query.
     /// </summary>
     /// <value>
-    /// The parameters for the query.
+    /// An <see cref="IReadOnlyCollection{T}"/> of <see cref="QueryParameter"/> representing the parameters and their values for the SQL statement.
     /// </value>
     IReadOnlyCollection<QueryParameter> Parameters { get; }
 
     /// <summary>
-    /// Gets the sql statement.
+    /// Gets the SQL statement text to be executed.
     /// </summary>
     /// <value>
-    /// The sql statement.
+    /// A <see cref="string"/> containing the SQL query statement.
     /// </value>
     string Statement { get; }
 }

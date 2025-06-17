@@ -3,9 +3,18 @@ using FluentCommand.Internal;
 
 namespace FluentCommand.Query.Generators;
 
-
+/// <summary>
+/// Provides a SQL generator for SQL Server, implementing SQL statement and expression generation
+/// with SQL Server-specific syntax and conventions.
+/// </summary>
 public class SqlServerGenerator : IQueryGenerator
 {
+    /// <summary>
+    /// Builds a SQL SELECT statement for SQL Server, including support for JOIN, WHERE, GROUP BY, ORDER BY, LIMIT, and comments.
+    /// </summary>
+    /// <param name="selectStatement">The <see cref="SelectStatement"/> containing the SELECT statement configuration.</param>
+    /// <returns>A SQL SELECT statement string for SQL Server.</returns>
+    /// <exception cref="ArgumentException">Thrown if no table is specified in <paramref name="selectStatement"/>.</exception>
     public virtual string BuildSelect(SelectStatement selectStatement)
     {
         if (selectStatement.FromExpressions == null || selectStatement.FromExpressions.Count == 0)
@@ -81,6 +90,13 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(selectBuilder);
     }
 
+    /// <summary>
+    /// Builds a SQL INSERT statement for SQL Server, including support for OUTPUT and comments.
+    /// </summary>
+    /// <param name="insertStatement">The <see cref="InsertStatement"/> containing the INSERT statement configuration.</param>
+    /// <returns>A SQL INSERT statement string for SQL Server.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="insertStatement"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the table or values are not specified.</exception>
     public virtual string BuildInsert(InsertStatement insertStatement)
     {
         if (insertStatement is null)
@@ -133,6 +149,12 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(insertBuilder);
     }
 
+    /// <summary>
+    /// Builds a SQL UPDATE statement for SQL Server, including support for OUTPUT, FROM, JOIN, WHERE, and comments.
+    /// </summary>
+    /// <param name="updateStatement">The <see cref="UpdateStatement"/> containing the UPDATE statement configuration.</param>
+    /// <returns>A SQL UPDATE statement string for SQL Server.</returns>
+    /// <exception cref="ArgumentException">Thrown if the table or update values are not specified.</exception>
     public virtual string BuildUpdate(UpdateStatement updateStatement)
     {
         if (updateStatement.TableExpression == null)
@@ -200,6 +222,12 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(updateBuilder);
     }
 
+    /// <summary>
+    /// Builds a SQL DELETE statement for SQL Server, including support for OUTPUT, FROM, JOIN, WHERE, and comments.
+    /// </summary>
+    /// <param name="deleteStatement">The <see cref="DeleteStatement"/> containing the DELETE statement configuration.</param>
+    /// <returns>A SQL DELETE statement string for SQL Server.</returns>
+    /// <exception cref="ArgumentException">Thrown if the table is not specified.</exception>
     public virtual string BuildDelete(DeleteStatement deleteStatement)
     {
         if (deleteStatement.TableExpression == null)
@@ -261,6 +289,11 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(deleteBuilder);
     }
 
+    /// <summary>
+    /// Builds a SQL WHERE clause from the specified collection of <see cref="WhereExpression"/> objects.
+    /// </summary>
+    /// <param name="whereExpressions">A collection of <see cref="WhereExpression"/> objects representing WHERE conditions.</param>
+    /// <returns>A SQL WHERE clause string, or <c>null</c> if no expressions are provided.</returns>
     public virtual string BuildWhere(IReadOnlyCollection<WhereExpression> whereExpressions)
     {
         if (whereExpressions == null || whereExpressions.Count == 0)
@@ -279,6 +312,11 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(whereBuilder);
     }
 
+    /// <summary>
+    /// Builds a SQL ORDER BY clause from the specified collection of <see cref="SortExpression"/> objects.
+    /// </summary>
+    /// <param name="sortExpressions">A collection of <see cref="SortExpression"/> objects representing sort conditions.</param>
+    /// <returns>A SQL ORDER BY clause string, or <c>null</c> if no expressions are provided.</returns>
     public virtual string BuildOrder(IReadOnlyCollection<SortExpression> sortExpressions)
     {
         if (sortExpressions == null || sortExpressions.Count == 0)
@@ -295,12 +333,23 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(orderBuilder);
     }
 
-
+    /// <summary>
+    /// Builds a SQL comment expression.
+    /// </summary>
+    /// <param name="comment">The comment text.</param>
+    /// <returns>A SQL comment string.</returns>
     public virtual string CommentExpression(string comment)
     {
         return $"/* {comment} */";
     }
 
+    /// <summary>
+    /// Builds a SQL SELECT column or aggregate expression.
+    /// </summary>
+    /// <param name="columnExpression">
+    /// The <see cref="FluentCommand.Query.Generators.ColumnExpression"/> or
+    /// <see cref="FluentCommand.Query.Generators.AggregateExpression"/> to select.
+    /// </param>
     public virtual string SelectExpression(ColumnExpression columnExpression)
     {
         if (columnExpression is AggregateExpression aggregateExpression)
@@ -309,6 +358,13 @@ public class SqlServerGenerator : IQueryGenerator
         return ColumnExpression(columnExpression);
     }
 
+    /// <summary>
+    /// Builds a SQL column expression from the specified <see cref="FluentCommand.Query.Generators.ColumnExpression"/>.
+    /// </summary>
+    /// <param name="columnExpression">The <see cref="FluentCommand.Query.Generators.ColumnExpression"/> representing the column.</param>
+    /// <returns>A SQL column expression string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="columnExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the column name is not specified.</exception>
     public virtual string ColumnExpression(ColumnExpression columnExpression)
     {
         if (columnExpression is null)
@@ -332,6 +388,12 @@ public class SqlServerGenerator : IQueryGenerator
         return clause;
     }
 
+    /// <summary>
+    /// Builds a SQL aggregate expression (e.g., COUNT, SUM) from the specified <see cref="AggregateExpression"/>.
+    /// </summary>
+    /// <param name="aggregateExpression">The <see cref="AggregateExpression"/> representing the aggregate function.</param>
+    /// <returns>A SQL aggregate expression string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="aggregateExpression"/> is <c>null</c>.</exception>
     public virtual string AggregateExpression(AggregateExpression aggregateExpression)
     {
         if (aggregateExpression is null)
@@ -353,6 +415,13 @@ public class SqlServerGenerator : IQueryGenerator
         };
     }
 
+    /// <summary>
+    /// Builds a SQL table expression from the specified <see cref="TableExpression"/>.
+    /// </summary>
+    /// <param name="tableExpression">The <see cref="TableExpression"/> representing the table.</param>
+    /// <returns>A SQL table expression string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="tableExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the table name is not specified.</exception>
     public virtual string TableExpression(TableExpression tableExpression)
     {
         if (tableExpression is null)
@@ -376,6 +445,13 @@ public class SqlServerGenerator : IQueryGenerator
         return fromClause;
     }
 
+    /// <summary>
+    /// Builds a SQL sort expression from the specified <see cref="SortExpression"/>.
+    /// </summary>
+    /// <param name="sortExpression">The <see cref="SortExpression"/> representing the sort condition.</param>
+    /// <returns>A SQL sort expression string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="sortExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the column name is not specified.</exception>
     public virtual string SortExpression(SortExpression sortExpression)
     {
         if (sortExpression is null)
@@ -394,6 +470,12 @@ public class SqlServerGenerator : IQueryGenerator
             : $"{quotedName} DESC";
     }
 
+    /// <summary>
+    /// Builds a SQL GROUP BY expression from the specified <see cref="GroupExpression"/>.
+    /// </summary>
+    /// <param name="groupExpression">The <see cref="GroupExpression"/> representing the group by condition.</param>
+    /// <returns>A SQL GROUP BY expression string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="groupExpression"/> is <c>null</c>.</exception>
     public virtual string GroupExpression(GroupExpression groupExpression)
     {
         if (groupExpression is null)
@@ -402,6 +484,13 @@ public class SqlServerGenerator : IQueryGenerator
         return ColumnExpression(groupExpression);
     }
 
+    /// <summary>
+    /// Builds a SQL WHERE expression from the specified <see cref="WhereExpression"/>.
+    /// </summary>
+    /// <param name="whereExpression">The <see cref="WhereExpression"/> representing the condition.</param>
+    /// <returns>A SQL WHERE expression string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="whereExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
     public virtual string WhereExpression(WhereExpression whereExpression)
     {
         if (whereExpression is null)
@@ -437,6 +526,12 @@ public class SqlServerGenerator : IQueryGenerator
         };
     }
 
+    /// <summary>
+    /// Builds a logical SQL expression (e.g., AND/OR group) from the specified WHERE expressions and logical operator.
+    /// </summary>
+    /// <param name="whereExpressions">A collection of <see cref="WhereExpression"/> objects representing conditions.</param>
+    /// <param name="logicalOperator">The <see cref="LogicalOperators"/> value to combine the expressions.</param>
+    /// <returns>A logical SQL expression string, or an empty string if no expressions are provided.</returns>
     public virtual string LogicalExpression(IReadOnlyCollection<WhereExpression> whereExpressions, LogicalOperators logicalOperator)
     {
         if (whereExpressions == null || whereExpressions.Count == 0)
@@ -453,6 +548,11 @@ public class SqlServerGenerator : IQueryGenerator
         return StringBuilderCache.ToString(stringBuilder);
     }
 
+    /// <summary>
+    /// Builds a SQL LIMIT/OFFSET expression for SQL Server.
+    /// </summary>
+    /// <param name="limitExpression">The <see cref="LimitExpression"/> representing the limit and offset.</param>
+    /// <returns>A SQL LIMIT/OFFSET expression string for SQL Server, or an empty string if not applicable.</returns>
     public virtual string LimitExpression(LimitExpression limitExpression)
     {
         if (limitExpression is null || limitExpression.Size == 0)
@@ -461,6 +561,13 @@ public class SqlServerGenerator : IQueryGenerator
         return $"OFFSET {limitExpression.Offset} ROWS FETCH NEXT {limitExpression.Size} ROWS ONLY";
     }
 
+    /// <summary>
+    /// Builds a SQL update expression from the specified <see cref="UpdateExpression"/>.
+    /// </summary>
+    /// <param name="updateExpression">The <see cref="UpdateExpression"/> representing the update operation.</param>
+    /// <returns>A SQL update expression string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="updateExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
     public virtual string UpdateExpression(UpdateExpression updateExpression)
     {
         if (updateExpression is null)
@@ -480,6 +587,13 @@ public class SqlServerGenerator : IQueryGenerator
         return $"{quotedName} = {updateExpression.ParameterName}";
     }
 
+    /// <summary>
+    /// Builds a SQL JOIN expression from the specified <see cref="JoinExpression"/>.
+    /// </summary>
+    /// <param name="joinExpression">The <see cref="JoinExpression"/> representing the join operation.</param>
+    /// <returns>A SQL JOIN expression string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="joinExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
     public virtual string JoinExpression(JoinExpression joinExpression)
     {
         if (joinExpression is null)
@@ -516,7 +630,11 @@ public class SqlServerGenerator : IQueryGenerator
         return $"{joinType} {rightTable} ON {leftColumn} = {rightColumn}";
     }
 
-
+    /// <summary>
+    /// Quotes an identifier (such as a table or column name) for SQL Server, using square brackets.
+    /// </summary>
+    /// <param name="name">The identifier to quote.</param>
+    /// <returns>The quoted identifier, or the original name if quoting is not required.</returns>
     public virtual string QuoteIdentifier(string name)
     {
         if (name.IsNullOrWhiteSpace())
@@ -531,6 +649,11 @@ public class SqlServerGenerator : IQueryGenerator
         return "[" + name.Replace("]", "]]") + "]";
     }
 
+    /// <summary>
+    /// Parses a quoted identifier and returns the unquoted name for SQL Server.
+    /// </summary>
+    /// <param name="name">The quoted identifier.</param>
+    /// <returns>The unquoted identifier name.</returns>
     public virtual string ParseIdentifier(string name)
     {
         if (name.StartsWith("[") && name.EndsWith("]"))
@@ -539,7 +662,12 @@ public class SqlServerGenerator : IQueryGenerator
         return name;
     }
 
-
+    /// <summary>
+    /// Builds a SQL column expression with a specific table alias.
+    /// </summary>
+    /// <param name="columnExpression">The <see cref="Generators.ColumnExpression"/> representing the column.</param>
+    /// <param name="tableAlias">The table alias to use if not already set.</param>
+    /// <returns>A SQL column expression string with the specified table alias.</returns>
     private string ColumnExpression(ColumnExpression columnExpression, string tableAlias)
     {
         var column = columnExpression with
