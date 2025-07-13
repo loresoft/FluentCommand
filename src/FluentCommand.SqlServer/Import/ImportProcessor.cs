@@ -47,7 +47,7 @@ public class ImportProcessor : IImportProcessor
         await PopulateTable(context, dataTable);
 
         if (dataTable.Rows.Count == 0)
-            return new ImportResult { Processed = 0, Errors = context.Errors };
+            return new ImportResult { Processed = 0, Errors = context.Errors?.ConvertAll(e => e.Message)};
 
         var mergeDefinition = CreateMergeDefinition(context);
 
@@ -55,7 +55,7 @@ public class ImportProcessor : IImportProcessor
             .MergeData(mergeDefinition)
             .ExecuteAsync(dataTable, cancellationToken);
 
-        return new ImportResult { Processed = result, Errors = context.Errors };
+        return new ImportResult { Processed = result, Errors = context.Errors?.ConvertAll(e => e.Message)};
     }
 
 

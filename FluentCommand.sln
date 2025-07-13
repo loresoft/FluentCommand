@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 17
+# Visual Studio Version 17
 VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand", "src\FluentCommand\FluentCommand.csproj", "{4D5F125D-8DD5-496B-959E-78F55D8BE946}"
@@ -43,6 +43,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Caching", "src\FluentCommand.Caching\FluentCommand.Caching.csproj", "{4565EA0D-C7E4-4327-B78D-C5B19C76AC8A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentCommand.Csv", "src\FluentCommand.Csv\FluentCommand.Csv.csproj", "{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentCommand.Import", "src\FluentCommand.Import\FluentCommand.Import.csproj", "{76F06AA7-8F9E-4A8F-8569-579DC7855618}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +104,10 @@ Global
 		{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE8CBF1C-7231-4D26-A2DB-EDB0E7F29871}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76F06AA7-8F9E-4A8F-8569-579DC7855618}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76F06AA7-8F9E-4A8F-8569-579DC7855618}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76F06AA7-8F9E-4A8F-8569-579DC7855618}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76F06AA7-8F9E-4A8F-8569-579DC7855618}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

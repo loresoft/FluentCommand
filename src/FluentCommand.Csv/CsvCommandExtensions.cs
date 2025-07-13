@@ -127,7 +127,7 @@ public static class CsvCommandExtensions
             commandBehavior: CommandBehavior.SequentialAccess | CommandBehavior.SingleResult,
             cancellationToken: cancellationToken);
 
-        await streamWriter.FlushAsync();
+        await streamWriter.FlushAsync(cancellationToken);
     }
 
 

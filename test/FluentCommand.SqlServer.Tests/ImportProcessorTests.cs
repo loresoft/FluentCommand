@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentCommand.Import;
 
 namespace FluentCommand.SqlServer.Tests;
@@ -98,6 +100,52 @@ public class ImportProcessorTests : ImportProcessor
 
     }
 
+    [Fact]
+    public void ImportDataJson()
+    {
+        var importData = CreateImportData();
+
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+
+        var json = JsonSerializer.Serialize(importData, options);
+        json.Should().NotBeNullOrWhiteSpace();
+
+        var deserialized = JsonSerializer.Deserialize<ImportData>(json, options);
+        deserialized.Should().NotBeNull();
+        deserialized.FileName.Should().Be(importData.FileName);
+        deserialized.Mappings.Should().HaveCount(importData.Mappings.Count);
+        deserialized.Data.Should().HaveSameCount(importData.Data);
+        deserialized.Data[0].Should().BeEquivalentTo(importData.Data[0]);
+    }
+
+    [Fact]
+    public void ImportDefinitionJson()
+    {
+        var importDefinition = CreateDefinition();
+
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters = { new JsonStringEnumConverter() }
+        };
+
+        var json = JsonSerializer.Serialize(importDefinition, options);
+        json.Should().NotBeNullOrWhiteSpace();
+
+        var deserialized = JsonSerializer.Deserialize<ImportDefinition>(json, options);
+        deserialized.Should().NotBeNull();
+        deserialized.Name.Should().Be(importDefinition.Name);
+        deserialized.Fields.Should().HaveCount(importDefinition.Fields.Count);
+        deserialized.Fields[0].Name.Should().Be(importDefinition.Fields[0].Name);
+    }
+
     [Theory]
     [MemberData(nameof(ConvertData))]
     public async Task ConvertValueTest(string value, Type type, object expected)
@@ -196,5 +244,6 @@ public class ImportProcessorTests : ImportProcessor
 
         return userDefinition;
     }
+
 
 }
