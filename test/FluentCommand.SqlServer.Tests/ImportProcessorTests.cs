@@ -13,7 +13,7 @@ namespace FluentCommand.SqlServer.Tests;
 public class ImportProcessorTests : ImportProcessor
 {
     public ImportProcessorTests()
-        : base(null, new ServiceCollection().BuildServiceProvider())
+        : base(null, new ServiceCollection().BuildServiceProvider().CreateScope() as IServiceScopeFactory)
     {
     }
 
