@@ -6,7 +6,8 @@ using System.Reflection;
 namespace FluentCommand.Reflection;
 
 /// <summary>
-/// A class for accessing type reflection information.
+/// Provides efficient access to type reflection information, including dynamic creation, property, field, and method accessors,
+/// and metadata such as table mapping. Caches accessors for performance and supports late-bound operations on types.
 /// </summary>
 public class TypeAccessor
 {
@@ -19,9 +20,10 @@ public class TypeAccessor
     private readonly Lazy<TableAttribute> _tableAttribute;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TypeAccessor"/> class.
+    /// Initializes a new instance of the <see cref="TypeAccessor"/> class for the specified <see cref="Type"/>.
     /// </summary>
     /// <param name="type">The <see cref="Type"/> this accessor is for.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="type"/> is <c>null</c>.</exception>
     public TypeAccessor(Type type)
     {
         if (type == null)
@@ -39,33 +41,29 @@ public class TypeAccessor
     public Type Type { get; }
 
     /// <summary>
-    /// Gets the name of the Type.
+    /// Gets the name of the type.
     /// </summary>
-    /// <value>
-    /// The name of the Type.
-    /// </value>
+    /// <value>The name of the type.</value>
     public string Name => Type.Name;
 
     /// <summary>
-    /// Gets the name of the table the class is mapped to.
+    /// Gets the name of the table the class is mapped to, as specified by the <see cref="TableAttribute"/>.
+    /// If not specified, returns the type name.
     /// </summary>
-    /// <value>
-    /// The name of the table the class is mapped to.
-    /// </value>
+    /// <value>The name of the mapped table.</value>
     public string TableName => _tableAttribute.Value?.Name ?? Type.Name;
 
     /// <summary>
-    /// Gets the schema of the table the class is mapped to.
+    /// Gets the schema of the table the class is mapped to, as specified by the <see cref="TableAttribute"/>.
     /// </summary>
-    /// <value>
-    /// The schema of the table the class is mapped to.
-    /// </value>
+    /// <value>The schema of the mapped table, or <c>null</c> if not specified.</value>
     public string TableSchema => _tableAttribute.Value?.Schema;
 
     /// <summary>
-    /// Creates a new instance of accessors type.
+    /// Creates a new instance of the type represented by this accessor using the default constructor.
     /// </summary>
-    /// <returns>A new instance of accessors type.</returns>
+    /// <returns>A new instance of the type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if a parameterless constructor is not found.</exception>
     public object Create()
     {
         var constructor = _constructor.Value;
@@ -75,40 +73,36 @@ public class TypeAccessor
         return constructor.Invoke();
     }
 
-
     #region Method
+
     /// <summary>
-    /// Finds the method with the spcified <paramref name="name"/>.
+    /// Finds a method with the specified <paramref name="name"/> and no parameters.
     /// </summary>
     /// <param name="name">The name of the method.</param>
-    /// <returns>An <see cref="IMemberAccessor"/> for the method.</returns>
+    /// <returns>An <see cref="IMethodAccessor"/> for the method, or <c>null</c> if not found.</returns>
     public IMethodAccessor FindMethod(string name)
     {
         return FindMethod(name, Type.EmptyTypes);
     }
 
     /// <summary>
-    /// Finds the method with the spcified <paramref name="name" />.
+    /// Finds a method with the specified <paramref name="name"/> and parameter types.
     /// </summary>
     /// <param name="name">The name of the method.</param>
     /// <param name="parameterTypes">The method parameter types.</param>
-    /// <returns>
-    /// An <see cref="IMemberAccessor" /> for the method.
-    /// </returns>
+    /// <returns>An <see cref="IMethodAccessor"/> for the method, or <c>null</c> if not found.</returns>
     public IMethodAccessor FindMethod(string name, params Type[] parameterTypes)
     {
         return FindMethod(name, parameterTypes, BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
     }
 
     /// <summary>
-    /// Finds the method with the spcified <paramref name="name" />.
+    /// Finds a method with the specified <paramref name="name"/>, parameter types, and binding flags.
     /// </summary>
     /// <param name="name">The name of the method.</param>
     /// <param name="parameterTypes">The method parameter types.</param>
-    /// <param name="flags">The binding flags to search.</param>
-    /// <returns>
-    /// An <see cref="IMemberAccessor" /> for the method.
-    /// </returns>
+    /// <param name="flags">The binding flags to use for the search.</param>
+    /// <returns>An <see cref="IMethodAccessor"/> for the method, or <c>null</c> if not found.</returns>
     public IMethodAccessor FindMethod(string name, Type[] parameterTypes, BindingFlags flags)
     {
         int key = MethodAccessor.GetKey(name, parameterTypes);
@@ -192,24 +186,23 @@ public class TypeAccessor
     #endregion
 
     #region Find
+
     /// <summary>
     /// Searches for the public property or field with the specified name.
     /// </summary>
     /// <param name="name">The name of the property or field to find.</param>
-    /// <returns>An <see cref="IMemberAccessor"/> instance for the property or field if found; otherwise <c>null</c>.</returns>
+    /// <returns>An <see cref="IMemberAccessor"/> for the property or field if found; otherwise, <c>null</c>.</returns>
     public IMemberAccessor Find(string name)
     {
         return Find(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
     }
 
     /// <summary>
-    /// Searches for the specified property or field, using the specified binding constraints.
+    /// Searches for the specified property or field using the specified binding flags.
     /// </summary>
     /// <param name="name">The name of the property or field to find.</param>
     /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
-    /// <returns>
-    /// An <see cref="IMemberAccessor"/> instance for the property or field if found; otherwise <c>null</c>.
-    /// </returns>
+    /// <returns>An <see cref="IMemberAccessor"/> for the property or field if found; otherwise, <c>null</c>.</returns>
     public IMemberAccessor Find(string name, BindingFlags flags)
     {
         return _memberCache.GetOrAdd(name, n => CreateAccessor(n, flags));
@@ -243,13 +236,11 @@ public class TypeAccessor
     }
 
     /// <summary>
-    /// Searches for the specified property the specified column name and binding constraints.
+    /// Searches for the property with the specified column name and binding flags, using <see cref="ColumnAttribute"/> if present.
     /// </summary>
-    /// <param name="name">The name of the property to find.</param>
+    /// <param name="name">The name of the property or column to find.</param>
     /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
-    /// <returns>
-    /// An <see cref="IMemberAccessor"/> instance for the property if found; otherwise <c>null</c>.
-    /// </returns>
+    /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
     public IMemberAccessor FindColumn(string name, BindingFlags flags)
     {
         return _memberCache.GetOrAdd(name, n => CreateColumnAccessor(n, flags));
@@ -279,14 +270,10 @@ public class TypeAccessor
     /// Searches for the property using a property expression.
     /// </summary>
     /// <typeparam name="T">The object type containing the property specified in the expression.</typeparam>
-    /// <param name="propertyExpression">The property expression (e.g. p => p.PropertyName)</param>
-    /// <returns>An <see cref="IMemberAccessor"/> instance for the property if found; otherwise <c>null</c>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="propertyExpression"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when the expression is:<br/>
-    ///     Not a <see cref="MemberExpression"/><br/>
-    ///     The <see cref="MemberExpression"/> does not represent a property.<br/>
-    ///     Or, the property is static.
-    /// </exception>
+    /// <param name="propertyExpression">The property expression (e.g. <c>p =&gt; p.PropertyName</c>).</param>
+    /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
     public IMemberAccessor FindProperty<T>(Expression<Func<T>> propertyExpression)
     {
         if (propertyExpression == null)
@@ -303,17 +290,10 @@ public class TypeAccessor
     /// </summary>
     /// <typeparam name="TSource">The object type containing the property specified in the expression.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="propertyExpression">The property expression (e.g. p =&gt; p.PropertyName)</param>
-    /// <returns>
-    /// An <see cref="IMemberAccessor"/> instance for the property if found; otherwise <c>null</c>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="propertyExpression"/> is null.</exception>
-    ///   
-    /// <exception cref="ArgumentException">Thrown when the expression is:<br/>
-    /// Not a <see cref="MemberExpression"/><br/>
-    /// The <see cref="MemberExpression"/> does not represent a property.<br/>
-    /// Or, the property is static.
-    ///   </exception>
+    /// <param name="propertyExpression">The property expression (e.g. <c>p =&gt; p.PropertyName</c>).</param>
+    /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
     public IMemberAccessor FindProperty<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
     {
         if (propertyExpression == null)
@@ -326,45 +306,40 @@ public class TypeAccessor
     }
 
     /// <summary>
-    /// Searches for the <see langword="public"/> property with the specified <paramref name="name"/>.
+    /// Searches for the public property with the specified name.
     /// </summary>
     /// <param name="name">The name of the property to find.</param>
-    /// <returns>An <see cref="IMemberAccessor"/> instance for the property if found; otherwise <c>null</c>.</returns>
+    /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
     public IMemberAccessor FindProperty(string name)
     {
         return FindProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
     }
 
     /// <summary>
-    /// Searches for the specified property, using the specified binding constraints.
+    /// Searches for the property with the specified name and binding flags.
     /// </summary>
     /// <param name="name">The name of the property to find.</param>
     /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
-    /// <returns>
-    /// An <see cref="IMemberAccessor"/> instance for the property if found; otherwise <c>null</c>.
-    /// </returns>
+    /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
     public IMemberAccessor FindProperty(string name, BindingFlags flags)
     {
         return _memberCache.GetOrAdd(name, n => CreatePropertyAccessor(n, flags));
     }
 
     /// <summary>
-    /// Gets the property member accessors for the Type.
+    /// Gets the property member accessors for the type.
     /// </summary>
-    /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <see cref="IMemberAccessor"/> instances for the Type.
-    /// </returns>
+    /// <returns>An <see cref="IEnumerable{IMemberAccessor}"/> for the type's properties.</returns>
     public IEnumerable<IMemberAccessor> GetProperties()
     {
         return GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
     }
 
     /// <summary>
-    /// Gets the property member accessors for the Type using the specified flags.
+    /// Gets the property member accessors for the type using the specified binding flags.
     /// </summary>
-    /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <see cref="IMemberAccessor"/> instances for the Type.
-    /// </returns>
+    /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
+    /// <returns>An <see cref="IEnumerable{IMemberAccessor}"/> for the type's properties.</returns>
     public IEnumerable<IMemberAccessor> GetProperties(BindingFlags flags)
     {
         return _propertyCache.GetOrAdd((int)flags, k =>
@@ -445,13 +420,11 @@ public class TypeAccessor
     }
 
     /// <summary>
-    /// Searches for the specified field, using the specified binding constraints.
+    /// Searches for the field with the specified name and binding flags.
     /// </summary>
     /// <param name="name">The name of the field to find.</param>
     /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
-    /// <returns>
-    /// An <see cref="IMemberAccessor"/> instance for the field if found; otherwise <c>null</c>.
-    /// </returns>
+    /// <returns>An <see cref="IMemberAccessor"/> for the field if found; otherwise, <c>null</c>.</returns>
     public IMemberAccessor FindField(string name, BindingFlags flags)
     {
         return _memberCache.GetOrAdd(name, n => CreateFieldAccessor(n, flags));
@@ -501,10 +474,10 @@ public class TypeAccessor
     }
 
     /// <summary>
-    /// Gets the <see cref="TypeAccessor"/> for the specified Type.
+    /// Gets the <see cref="TypeAccessor"/> for the specified <see cref="Type"/>.
     /// </summary>
-    /// <param name="type">The Type to get the accessor for.</param>
-    /// <returns></returns>
+    /// <param name="type">The type to get the accessor for.</param>
+    /// <returns>The <see cref="TypeAccessor"/> for the specified type.</returns>
     public static TypeAccessor GetAccessor(Type type)
     {
         return _typeCache.GetOrAdd(type, t => new TypeAccessor(t));

@@ -3,7 +3,9 @@ using System.Reflection;
 namespace FluentCommand.Reflection;
 
 /// <summary>
-/// An accessor class for <see cref="PropertyInfo"/>.
+/// Provides an accessor for <see cref="PropertyInfo"/>, enabling efficient dynamic get and set operations
+/// on properties using compiled delegates. Inherits from <see cref="MemberAccessor"/> to provide
+/// reflection-based access and metadata retrieval for properties.
 /// </summary>
 public class PropertyAccessor : MemberAccessor
 {
@@ -11,9 +13,10 @@ public class PropertyAccessor : MemberAccessor
     private readonly Lazy<Action<object, object>> _setter;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PropertyAccessor"/> class.
+    /// Initializes a new instance of the <see cref="PropertyAccessor"/> class using the specified <see cref="PropertyInfo"/>.
     /// </summary>
     /// <param name="propertyInfo">The <see cref="PropertyInfo"/> instance to use for this accessor.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyInfo"/> is <c>null</c>.</exception>
     public PropertyAccessor(PropertyInfo propertyInfo) : base(propertyInfo)
     {
         if (propertyInfo == null)
@@ -30,37 +33,35 @@ public class PropertyAccessor : MemberAccessor
     }
 
     /// <summary>
-    /// Gets the type of the member.
+    /// Gets the <see cref="Type"/> of the property.
     /// </summary>
-    /// <value>The type of the member.</value>
+    /// <value>The <see cref="Type"/> representing the property's data type.</value>
     public override Type MemberType { get; }
 
     /// <summary>
-    /// Gets the name of the member.
+    /// Gets the name of the property.
     /// </summary>
-    /// <value>The name of the member.</value>
+    /// <value>The name of the property.</value>
     public override string Name { get; }
 
     /// <summary>
-    /// Gets a value indicating whether this member has getter.
+    /// Gets a value indicating whether this property has a getter.
     /// </summary>
-    /// <value><c>true</c> if this member has getter; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if this property has a getter; otherwise, <c>false</c>.</value>
     public override bool HasGetter { get; }
 
     /// <summary>
-    /// Gets a value indicating whether this member has setter.
+    /// Gets a value indicating whether this property has a setter.
     /// </summary>
-    /// <value><c>true</c> if this member has setter; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if this property has a setter; otherwise, <c>false</c>.</value>
     public override bool HasSetter { get; }
 
-
     /// <summary>
-    /// Returns the value of the member.
+    /// Gets the value of the property for the specified object instance.
     /// </summary>
-    /// <param name="instance">The object whose member value will be returned.</param>
-    /// <returns>
-    /// The member value for the instance parameter.
-    /// </returns>
+    /// <param name="instance">The object whose property value will be returned.</param>
+    /// <returns>The value of the property for the given <paramref name="instance"/>.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the property does not have a getter.</exception>
     public override object GetValue(object instance)
     {
         if (_getter == null || !HasGetter)
@@ -74,10 +75,11 @@ public class PropertyAccessor : MemberAccessor
     }
 
     /// <summary>
-    /// Sets the value of the member.
+    /// Sets the value of the property for the specified object instance.
     /// </summary>
-    /// <param name="instance">The object whose member value will be set.</param>
-    /// <param name="value">The new value for this member.</param>
+    /// <param name="instance">The object whose property value will be set.</param>
+    /// <param name="value">The new value for this property.</param>
+    /// <exception cref="InvalidOperationException">Thrown if the property does not have a setter.</exception>
     public override void SetValue(object instance, object value)
     {
         if (_setter == null || !HasSetter)

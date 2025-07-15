@@ -12,16 +12,7 @@ namespace FluentCommand.Import;
 /// </summary>
 public class ImportValidator : IImportValidator
 {
-    private readonly HashSet<int> _duplicateHash;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ImportValidator"/> class.
-    /// </summary>
-    public ImportValidator()
-    {
-        _duplicateHash = new HashSet<int>();
-    }
-
+    private readonly HashSet<int> _duplicateHash = [];
 
     /// <summary>
     /// Validates the specified <paramref name="targetRow" />.

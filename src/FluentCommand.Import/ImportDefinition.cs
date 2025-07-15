@@ -63,13 +63,26 @@ public class ImportDefinition
 
     /// <summary>
     /// Gets or sets the type of the validator used to validate data rows during import.
+    /// The type must implement <see cref="IImportValidator"/>.
     /// </summary>
     /// <value>
     /// The <see cref="Type"/> of the validator, which must implement <see cref="IImportValidator"/>.
     /// </value>
     [JsonPropertyName("validator")]
     [JsonConverter(typeof(Converters.TypeJsonConverter))]
+    [Obsolete("Use ValidatorKey instead. This property will be removed in a future version.")]
     public Type? Validator { get; set; }
+
+
+    /// <summary>
+    /// Gets or sets the service key used to resolve the <see cref="IImportValidator"/> service from the dependency injection container.
+    /// The service must be registered in the DI container with this key and implement <see cref="IImportValidator"/>.
+    /// </summary>
+    /// <value>
+    /// The service key used to resolve the validator service from the dependency injection container.
+    /// </value>
+    [JsonPropertyName("validatorKey")]
+    public string? ValidatorKey { get; set; }
 
     /// <summary>
     /// Builds an <see cref="ImportDefinition"/> using the specified builder action.

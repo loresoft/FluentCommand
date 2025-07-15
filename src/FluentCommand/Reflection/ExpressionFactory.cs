@@ -3,8 +3,20 @@ using System.Reflection;
 
 namespace FluentCommand.Reflection;
 
+/// <summary>
+/// Provides factory methods for creating delegates to dynamically invoke methods, constructors, properties, and fields using expression trees.
+/// </summary>
 internal static class ExpressionFactory
 {
+    /// <summary>
+    /// Creates a delegate that invokes the specified method with the given instance and parameters.
+    /// </summary>
+    /// <param name="methodInfo">The method to invoke.</param>
+    /// <returns>
+    /// A <see cref="Func{T, TResult}"/> that takes an instance and an array of parameters, and returns the result of the method invocation.
+    /// For void methods, returns <c>null</c>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="methodInfo"/> is <c>null</c>.</exception>
     public static Func<object, object[], object> CreateMethod(MethodInfo methodInfo)
     {
         if (methodInfo == null)
@@ -58,13 +70,19 @@ internal static class ExpressionFactory
         }
     }
 
+    /// <summary>
+    /// Creates a delegate that constructs an instance of the specified type using its parameterless constructor.
+    /// </summary>
+    /// <param name="type">The type to instantiate.</param>
+    /// <returns>A <see cref="Func{TResult}"/> that creates an instance of the specified type.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="type"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the type does not have a parameterless constructor.</exception>
     public static Func<object> CreateConstructor(Type type)
     {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
 
         var typeInfo = type.GetTypeInfo();
-
 
         var constructorInfo = typeInfo.GetConstructor(Type.EmptyTypes);
         if (constructorInfo == null)
@@ -81,6 +99,15 @@ internal static class ExpressionFactory
         return lambda.Compile();
     }
 
+    /// <summary>
+    /// Creates a delegate that gets the value of the specified property from an instance.
+    /// </summary>
+    /// <param name="propertyInfo">The property to get the value from.</param>
+    /// <returns>
+    /// A <see cref="Func{T, TResult}"/> that takes an instance and returns the property value as <c>object</c>,
+    /// or <c>null</c> if the property is not readable.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyInfo"/> is <c>null</c>.</exception>
     public static Func<object, object> CreateGet(PropertyInfo propertyInfo)
     {
         if (propertyInfo == null)
@@ -102,6 +129,14 @@ internal static class ExpressionFactory
         return lambda.Compile();
     }
 
+    /// <summary>
+    /// Creates a delegate that gets the value of the specified field from an instance.
+    /// </summary>
+    /// <param name="fieldInfo">The field to get the value from.</param>
+    /// <returns>
+    /// A <see cref="Func{T, TResult}"/> that takes an instance and returns the field value as <c>object</c>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="fieldInfo"/> is <c>null</c>.</exception>
     public static Func<object, object> CreateGet(FieldInfo fieldInfo)
     {
         if (fieldInfo == null)
@@ -119,6 +154,15 @@ internal static class ExpressionFactory
         return lambda.Compile();
     }
 
+    /// <summary>
+    /// Creates a delegate that sets the value of the specified property on an instance.
+    /// </summary>
+    /// <param name="propertyInfo">The property to set the value on.</param>
+    /// <returns>
+    /// An <see cref="Action{T1, T2}"/> that takes an instance and a value to set,
+    /// or <c>null</c> if the property is not writable.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyInfo"/> is <c>null</c>.</exception>
     public static Action<object, object> CreateSet(PropertyInfo propertyInfo)
     {
         if (propertyInfo == null)
@@ -144,6 +188,14 @@ internal static class ExpressionFactory
         return lambda.Compile();
     }
 
+    /// <summary>
+    /// Creates a delegate that sets the value of the specified field on an instance.
+    /// </summary>
+    /// <param name="fieldInfo">The field to set the value on.</param>
+    /// <returns>
+    /// An <see cref="Action{T1, T2}"/> that takes an instance and a value to set.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="fieldInfo"/> is <c>null</c>.</exception>
     public static Action<object, object> CreateSet(FieldInfo fieldInfo)
     {
         if (fieldInfo == null)
@@ -167,7 +219,15 @@ internal static class ExpressionFactory
         return lambda.Compile();
     }
 
-
+    /// <summary>
+    /// Creates a cast expression for the given parameter and type, handling static and value types appropriately.
+    /// </summary>
+    /// <param name="instance">The parameter expression representing the instance or value.</param>
+    /// <param name="declaringType">The type to cast to.</param>
+    /// <param name="isStatic">Indicates whether the member is static.</param>
+    /// <returns>
+    /// A <see cref="UnaryExpression"/> representing the cast, or <c>null</c> if the member is static.
+    /// </returns>
     private static UnaryExpression CreateCast(ParameterExpression instance, Type declaringType, bool isStatic)
     {
         if (isStatic)

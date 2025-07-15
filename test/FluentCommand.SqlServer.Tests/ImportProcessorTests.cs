@@ -1,13 +1,19 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using FluentCommand.Entities;
 using FluentCommand.Import;
+
+using Microsoft.Extensions.DependencyInjection;
+
+using Task = System.Threading.Tasks.Task;
 
 namespace FluentCommand.SqlServer.Tests;
 
 public class ImportProcessorTests : ImportProcessor
 {
     public ImportProcessorTests()
-        : base(null, Activator.CreateInstance)
+        : base(null, new ServiceCollection().BuildServiceProvider())
     {
     }
 
@@ -22,7 +28,7 @@ public class ImportProcessorTests : ImportProcessor
         var importData = CreateImportData();
         importData.Should().NotBeNull();
 
-        var importContext = new ImportProcessContext(userDefinition, importData, "test@email.com", Activator.CreateInstance);
+        var importContext = new ImportProcessContext(new ServiceCollection().BuildServiceProvider(), userDefinition, importData, "test@email.com");
         importContext.Should().NotBeNull();
         importContext.Definition.Should().NotBeNull();
         importContext.ImportData.Should().NotBeNull();
@@ -51,7 +57,7 @@ public class ImportProcessorTests : ImportProcessor
         var importData = CreateImportData();
         importData.Should().NotBeNull();
 
-        var importContext = new ImportProcessContext(userDefinition, importData, "test@email.com", Activator.CreateInstance);
+        var importContext = new ImportProcessContext(new ServiceCollection().BuildServiceProvider(), userDefinition, importData, "test@email.com");
         importContext.Should().NotBeNull();
         importContext.Definition.Should().NotBeNull();
         importContext.ImportData.Should().NotBeNull();
@@ -171,6 +177,31 @@ public class ImportProcessorTests : ImportProcessor
 
         var resultValue = GetDefault(fieldDefinition, "test@user.com");
         Assert.Equal(resultValue, expected);
+    }
+
+    [Fact]
+    public void ImportDefinitionBuilderAutoMapAndFieldTest()
+    {
+        // AutoMap test
+        var autoMappedDefinition = ImportDefinitionBuilder<User>.Build(b => b.AutoMap());
+
+        autoMappedDefinition.Should().NotBeNull();
+        autoMappedDefinition.Name.Should().Be(nameof(User));
+        autoMappedDefinition.Fields.Should().NotBeNullOrEmpty();
+        autoMappedDefinition.Fields.Any(f => f.Name == nameof(User.Id)).Should().BeTrue();
+        autoMappedDefinition.Fields.Any(f => f.Name == nameof(User.EmailAddress)).Should().BeTrue();
+
+        // Field<TValue> test
+        var customDefinition = ImportDefinitionBuilder<User>.Build(b => b
+            .Field(t => t.EmailAddress)
+            .DisplayName("User Email")
+            .Required()
+        );
+
+        customDefinition.Should().NotBeNull();
+        var emailField = customDefinition.Fields.FirstOrDefault(f => f.Name == nameof(User.EmailAddress));
+        emailField.Should().NotBeNull();
+        emailField.DisplayName.Should().Be("User Email");
     }
 
     public static TheoryData<string, Type, object> ConvertData =>

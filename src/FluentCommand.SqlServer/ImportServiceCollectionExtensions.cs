@@ -21,14 +21,14 @@ public static class ImportServiceCollectionExtensions
     /// This method registers the following services:
     /// <list type="bullet">
     /// <item><description><see cref="ImportValidator"/> as a transient service.</description></item>
-    /// <item><description><see cref="ImportFactory"/> as a transient service.</description></item>
     /// <item><description><see cref="IImportProcessor"/> as a transient service implemented by <see cref="ImportProcessor"/>.</description></item>
     /// </list>
     /// </remarks>
     public static IServiceCollection AddFluentImport(this IServiceCollection services)
     {
         services.TryAddTransient<ImportValidator>();
-        services.TryAddTransient<ImportFactory>(static p => p.GetService);
+        services.TryAddKeyedTransient<IImportValidator, ImportValidator>(nameof(ImportValidator));
+
         services.TryAddTransient<IImportProcessor, ImportProcessor>();
 
         return services;

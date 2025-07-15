@@ -3,7 +3,9 @@ using System.Reflection;
 namespace FluentCommand.Reflection;
 
 /// <summary>
-/// An accessor class for <see cref="FieldInfo"/>.
+/// Provides an accessor for <see cref="FieldInfo"/> members, enabling efficient get and set operations
+/// on fields using compiled delegates. Inherits from <see cref="MemberAccessor"/> to provide
+/// reflection-based access and metadata retrieval for fields.
 /// </summary>
 public class FieldAccessor : MemberAccessor
 {
@@ -11,9 +13,10 @@ public class FieldAccessor : MemberAccessor
     private readonly Lazy<Action<object, object>> _setter;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FieldAccessor"/> class.
+    /// Initializes a new instance of the <see cref="FieldAccessor"/> class using the specified <see cref="FieldInfo"/>.
     /// </summary>
     /// <param name="fieldInfo">The <see cref="FieldInfo"/> instance to use for this accessor.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="fieldInfo"/> is <c>null</c>.</exception>
     public FieldAccessor(FieldInfo fieldInfo) : base(fieldInfo)
     {
         if (fieldInfo == null)
@@ -33,37 +36,36 @@ public class FieldAccessor : MemberAccessor
     }
 
     /// <summary>
-    /// Gets the type of the member.
+    /// Gets the <see cref="Type"/> of the field.
     /// </summary>
-    /// <value>The type of the member.</value>
+    /// <value>The <see cref="Type"/> representing the field's data type.</value>
     public override Type MemberType { get; }
 
     /// <summary>
-    /// Gets the name of the member.
+    /// Gets the name of the field.
     /// </summary>
-    /// <value>The name of the member.</value>
+    /// <value>The name of the field.</value>
     public override string Name { get; }
 
     /// <summary>
-    /// Gets a value indicating whether this member has getter.
+    /// Gets a value indicating whether this field has a getter.
     /// </summary>
-    /// <value><c>true</c> if this member has getter; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if this field has a getter; otherwise, <c>false</c>.</value>
     public override bool HasGetter { get; }
 
     /// <summary>
-    /// Gets a value indicating whether this member has setter.
+    /// Gets a value indicating whether this field has a setter.
     /// </summary>
-    /// <value><c>true</c> if this member has setter; otherwise, <c>false</c>.</value>
+    /// <value><c>true</c> if this field has a setter; otherwise, <c>false</c>.</value>
     public override bool HasSetter { get; }
 
-
     /// <summary>
-    /// Returns the value of the member.
+    /// Returns the value of the field for the specified object instance.
     /// </summary>
-    /// <param name="instance">The object whose member value will be returned.</param>
-    /// <returns>
-    /// The member value for the instance parameter.
-    /// </returns>
+    /// <param name="instance">The object whose field value will be returned.</param>
+    /// <returns>The value of the field for the given <paramref name="instance"/>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="instance"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the field does not have a getter.</exception>
     public override object GetValue(object instance)
     {
         if (instance == null)
@@ -80,10 +82,12 @@ public class FieldAccessor : MemberAccessor
     }
 
     /// <summary>
-    /// Sets the value of the member.
+    /// Sets the value of the field for the specified object instance.
     /// </summary>
-    /// <param name="instance">The object whose member value will be set.</param>
-    /// <param name="value">The new value for this member.</param>
+    /// <param name="instance">The object whose field value will be set.</param>
+    /// <param name="value">The new value for this field.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="instance"/> is <c>null</c>.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the field does not have a setter.</exception>
     public override void SetValue(object instance, object value)
     {
         if (instance == null)

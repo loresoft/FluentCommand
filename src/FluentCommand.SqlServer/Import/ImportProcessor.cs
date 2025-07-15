@@ -1,39 +1,46 @@
+using System;
 using System.Data;
 
 using FluentCommand.Extensions;
 using FluentCommand.Merge;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace FluentCommand.Import;
 
 /// <summary>
-/// A data import processor
+/// Processes data imports by transforming, validating, and merging imported data into a target data store.
 /// </summary>
 public class ImportProcessor : IImportProcessor
 {
     private readonly IDataSession _dataSession;
-    private readonly ImportFactory _importFactory;
+    private readonly IServiceProvider _serviceProvider;
+
+    private IImportValidator _importValidator;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ImportProcessor" /> class.
+    /// Initializes a new instance of the <see cref="ImportProcessor"/> class.
     /// </summary>
-    /// <param name="dataSession">The data session.</param>
-    /// <param name="importFactory">The service provider factory.</param>
-    public ImportProcessor(IDataSession dataSession, ImportFactory importFactory)
+    /// <param name="dataSession">The data session used for database operations.</param>
+    /// <param name="serviceProvider">The service provider for resolving dependencies such as translators and validators.</param>
+    public ImportProcessor(IDataSession dataSession, IServiceProvider serviceProvider)
     {
         _dataSession = dataSession;
-        _importFactory = importFactory;
+        _serviceProvider = serviceProvider;
     }
 
-
     /// <summary>
-    /// Import data using the specified <paramref name="importDefinition" /> and <paramref name="importData" />.
+    /// Imports data using the specified import definition and import data.
+    /// Transforms, validates, and merges the data into the target table as defined by the import configuration.
     /// </summary>
-    /// <param name="importDefinition">The import definition.</param>
-    /// <param name="importData">The import data.</param>
-    /// <param name="username">The name of the user importing the data.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The results of the import</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="importData" /> or <paramref name="importDefinition" /> is null</exception>
+    /// <param name="importDefinition">The <see cref="ImportDefinition"/> describing the import configuration and rules.</param>
+    /// <param name="importData">The <see cref="ImportData"/> containing the data and field mappings to be imported.</param>
+    /// <param name="username">The name of the user performing the import operation.</param>
+    /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>
+    /// An <see cref="ImportResult"/> containing the number of processed rows and any errors encountered.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="importData"/> or <paramref name="importDefinition"/> is <c>null</c>.</exception>
     public virtual async Task<ImportResult> ImportAsync(ImportDefinition importDefinition, ImportData importData, string username, CancellationToken cancellationToken = default)
     {
         if (importData == null)
@@ -41,13 +48,16 @@ public class ImportProcessor : IImportProcessor
         if (importDefinition == null)
             throw new ArgumentNullException(nameof(importDefinition));
 
-        var context = new ImportProcessContext(importDefinition, importData, username, _importFactory);
+        // validator is shared for entire import process
+        _importValidator = GetValidator(importDefinition);
+
+        var context = new ImportProcessContext(_serviceProvider, importDefinition, importData, username);
 
         var dataTable = CreateTable(context);
         await PopulateTable(context, dataTable);
 
         if (dataTable.Rows.Count == 0)
-            return new ImportResult { Processed = 0, Errors = context.Errors?.ConvertAll(e => e.Message)};
+            return new ImportResult { Processed = 0, Errors = context.Errors?.ConvertAll(e => e.Message) };
 
         var mergeDefinition = CreateMergeDefinition(context);
 
@@ -55,18 +65,18 @@ public class ImportProcessor : IImportProcessor
             .MergeData(mergeDefinition)
             .ExecuteAsync(dataTable, cancellationToken);
 
-        return new ImportResult { Processed = result, Errors = context.Errors?.ConvertAll(e => e.Message)};
+        return new ImportResult { Processed = result, Errors = context.Errors?.ConvertAll(e => e.Message) };
     }
 
-
     /// <summary>
-    /// Create a <see cref="DataTable" /> instance using the specified <paramref name="importContext" />.
+    /// Creates a <see cref="DataTable"/> instance based on the mapped fields in the specified import context.
+    /// The table schema is generated according to the field definitions and their data types.
     /// </summary>
-    /// <param name="importContext">The import context to create DataTable from.</param>
+    /// <param name="importContext">The <see cref="ImportProcessContext"/> containing field mappings and definitions.</param>
     /// <returns>
-    /// An instance of <see cref="DataTable" />.
+    /// A <see cref="DataTable"/> with columns corresponding to the mapped fields.
     /// </returns>
-    /// <exception cref="ArgumentNullException">importContext is null</exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="importContext"/> is <c>null</c>.</exception>
     protected virtual DataTable CreateTable(ImportProcessContext importContext)
     {
         if (importContext == null)
@@ -92,16 +102,15 @@ public class ImportProcessor : IImportProcessor
     }
 
     /// <summary>
-    /// Populates the <see cref="DataTable" /> with the specified <paramref name="importContext" />.
+    /// Populates the specified <see cref="DataTable"/> with data from the import context.
+    /// Each row is transformed and validated according to the field definitions and mappings.
     /// </summary>
-    /// <param name="importContext">The import context.</param>
-    /// <param name="dataTable">The data table to populate.</param>
+    /// <param name="importContext">The <see cref="ImportProcessContext"/> containing the import data and mappings.</param>
+    /// <param name="dataTable">The <see cref="DataTable"/> to populate with imported data.</param>
     /// <returns>
-    /// The <see cref="DataTable" /> with the populated data.
+    /// The populated <see cref="DataTable"/> instance.
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// dataTable or importContext is null
-    /// </exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="dataTable"/> or <paramref name="importContext"/> is <c>null</c>.</exception>
     protected virtual async Task<DataTable> PopulateTable(ImportProcessContext importContext, DataTable dataTable)
     {
         if (dataTable == null)
@@ -136,13 +145,13 @@ public class ImportProcessor : IImportProcessor
     }
 
     /// <summary>
-    /// Populates the <see cref="DataRow" /> using the specified <paramref name="row" />.
+    /// Populates a <see cref="DataRow"/> with values from the specified source row, applying field transformations and validation as needed.
     /// </summary>
-    /// <param name="importContext">The import context.</param>
-    /// <param name="dataRow">The data row to populate.</param>
-    /// <param name="row">The imported source data row.</param>
+    /// <param name="importContext">The <see cref="ImportProcessContext"/> providing field mappings and validation logic.</param>
+    /// <param name="dataRow">The <see cref="DataRow"/> to populate.</param>
+    /// <param name="row">The source data row as an array of strings.</param>
     /// <returns>
-    /// The <see cref="DataRow" /> with the populated data.
+    /// <c>true</c> if the row is valid and should be included; otherwise, <c>false</c>.
     /// </returns>
     protected virtual async Task<bool> PopulateRow(ImportProcessContext importContext, DataRow dataRow, string[] row)
     {
@@ -167,14 +176,8 @@ public class ImportProcessor : IImportProcessor
                 dataRow[field.Definition.Name] = convertValue ?? DBNull.Value;
             }
 
-            if (importContext.Definition.Validator == null)
-                return true;
-
-            var validator = importContext.GetService(importContext.Definition.Validator) as IImportValidator;
-            if (validator == null)
-                throw new InvalidOperationException($"Failed to create data row validator '{importContext.Definition.Validator}'");
-
-            await validator.ValidateRow(importContext.Definition, dataRow);
+            if (_importValidator != null)
+                await _importValidator.ValidateRow(importContext.Definition, dataRow);
 
             return true;
         }
@@ -190,37 +193,48 @@ public class ImportProcessor : IImportProcessor
     }
 
     /// <summary>
-    /// Converts the source string value into the correct data type using specified <paramref name="field" /> definition.
+    /// Converts the source string value into the correct data type for the specified field definition.
+    /// If a translator is configured, it is used to transform the value; otherwise, a safe conversion is performed.
     /// </summary>
-    /// <param name="importContext">The import context.</param>
-    /// <param name="field">The field definition.</param>
-    /// <param name="value">The source value.</param>
+    /// <param name="importContext">The <see cref="ImportProcessContext"/> for resolving translators.</param>
+    /// <param name="field">The <see cref="FieldDefinition"/> describing the field and its transformation options.</param>
+    /// <param name="value">The source value as a string.</param>
     /// <returns>
-    /// The convert value.
+    /// The converted value, or the result of the translator if configured.
     /// </returns>
-    /// <exception cref="InvalidOperationException">Failed to create translator for field '{field.Name}'</exception>
+    /// <exception cref="InvalidOperationException">Thrown if a configured translator cannot be resolved.</exception>
     protected virtual async Task<object> ConvertValue(ImportProcessContext importContext, FieldDefinition field, string value)
     {
-        if (field.Translator == null)
+#pragma warning disable CS0618 // Type or member is obsolete
+        if (field.Translator != null)
         {
-            return ConvertExtensions.SafeConvert(field.DataType, value);
+            if (_serviceProvider.GetService(field.Translator) is not IFieldTranslator translator)
+                throw new InvalidOperationException($"Failed to create translator '{field.Translator}' for field '{field.Name}'");
+
+            return await translator.Translate(value);
+        }
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        if (field.TranslatorKey != null)
+        {
+            var translator = _serviceProvider.GetKeyedService<IFieldTranslator>(field.TranslatorKey);
+            if (translator == null)
+                throw new InvalidOperationException($"Failed to create translator with service key '{field.TranslatorKey}' for field '{field.Name}'");
+
+            return await translator.Translate(value);
         }
 
-        var translator = importContext.GetService(field.Translator) as IFieldTranslator;
-        if (translator == null)
-            throw new InvalidOperationException($"Failed to create translator for field '{field.Name}'");
-
-
-        var translatedValue = await translator.Translate(value);
-        return translatedValue;
+        return ConvertExtensions.SafeConvert(field.DataType, value);
     }
 
     /// <summary>
-    /// Gets the default value for the specified <paramref name="fieldDefinition"/>.
+    /// Gets the default value for the specified field definition, based on the configured <see cref="FieldDefault"/> option.
     /// </summary>
-    /// <param name="fieldDefinition">The field definition.</param>
-    /// <param name="username">The username.</param>
-    /// <returns></returns>
+    /// <param name="fieldDefinition">The <see cref="FieldDefinition"/> for which to get the default value.</param>
+    /// <param name="username">The username to use if the default is <see cref="FieldDefault.UserName"/>.</param>
+    /// <returns>
+    /// The default value for the field, or <c>null</c> if no default is configured.
+    /// </returns>
     protected virtual object GetDefault(FieldDefinition fieldDefinition, string username)
     {
         var fieldDefault = fieldDefinition?.Default;
@@ -240,13 +254,13 @@ public class ImportProcessor : IImportProcessor
     }
 
     /// <summary>
-    /// Creates a <see cref="DataMergeDefinition" /> from the specified <paramref name="importContext" />.
+    /// Creates a <see cref="DataMergeDefinition"/> for the import operation, mapping the import fields to the target table columns.
     /// </summary>
-    /// <param name="importContext">The import context.</param>
+    /// <param name="importContext">The <see cref="ImportProcessContext"/> containing the import definition and mapped fields.</param>
     /// <returns>
-    /// An instance of <see cref="DataMergeDefinition" />
+    /// A configured <see cref="DataMergeDefinition"/> instance for the merge operation.
     /// </returns>
-    /// <exception cref="InvalidOperationException">Could not find matching field definition for data column</exception>
+    /// <exception cref="InvalidOperationException">Thrown if a field definition cannot be mapped to a data column.</exception>
     protected virtual DataMergeDefinition CreateMergeDefinition(ImportProcessContext importContext)
     {
         var importDefinition = importContext.Definition;
@@ -274,5 +288,30 @@ public class ImportProcessor : IImportProcessor
         }
 
         return mergeDefinition;
+    }
+
+    protected virtual IImportValidator GetValidator(ImportDefinition importDefinition)
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        if (importDefinition.Validator != null)
+        {
+            var validator = _serviceProvider.GetService(importDefinition.Validator);
+            if (validator is not IImportValidator importValidator)
+                throw new InvalidOperationException($"Failed to create data row validator '{importDefinition.Validator}'");
+
+            return importValidator;
+        }
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        if (importDefinition.ValidatorKey != null)
+        {
+            var validator = _serviceProvider.GetKeyedService<IImportValidator>(importDefinition.ValidatorKey);
+            if (validator == null)
+                throw new InvalidOperationException($"Failed to create data row validator with service key '{importDefinition.ValidatorKey}'");
+
+            return validator;
+        }
+
+        return null;
     }
 }

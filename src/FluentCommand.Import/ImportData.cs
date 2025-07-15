@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace FluentCommand.Import;
 
 /// <summary>
-/// Represents the data and field mappings for an import operation.
+/// Represents the data and field mappings for an import operation, including the source file, tabular data, field mappings, and header configuration.
 /// </summary>
 public class ImportData
 {
@@ -11,7 +11,7 @@ public class ImportData
     /// Gets or sets the name of the import file.
     /// </summary>
     /// <value>
-    /// The name or path of the file being imported, or <c>null</c> if not specified.
+    /// The name of the file being imported, or <c>null</c> if not specified.
     /// </value>
     [JsonPropertyName("fileName")]
     public string? FileName { get; set; }
@@ -20,16 +20,16 @@ public class ImportData
     /// Gets or sets the tabular data to be imported.
     /// </summary>
     /// <value>
-    /// A two-dimensional array of strings, where each inner array represents a row of data.
+    /// A two-dimensional array of strings, where each inner array represents a row of data and each element represents a field value.
     /// </value>
     [JsonPropertyName("data")]
     public string[][] Data { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets the list of field mappings between the import source and target fields.
+    /// Gets or sets the list of field mappings between the import source and the target fields.
     /// </summary>
     /// <value>
-    /// A list of <see cref="FieldMap"/> objects describing how source fields map to target fields.
+    /// A list of <see cref="FieldMap"/> objects describing how each source field maps to a target field definition.
     /// </value>
     [JsonPropertyName("mappings")]
     public List<FieldMap> Mappings { get; set; } = [];

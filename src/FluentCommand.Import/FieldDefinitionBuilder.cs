@@ -1,123 +1,124 @@
 namespace FluentCommand.Import;
 
 /// <summary>
-/// Provides a fluent API to configure and build a <see cref="FieldDefinition"/> for import operations.
+/// Provides a fluent API for configuring and building a <see cref="Import.FieldDefinition"/> instance for import operations.
+/// Enables chaining of configuration methods for setting field metadata, data type, mapping, validation, and transformation options.
 /// </summary>
 public class FieldDefinitionBuilder
 {
-    private readonly FieldDefinition _fieldDefinition;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="FieldDefinitionBuilder"/> class.
     /// </summary>
-    /// <param name="fieldDefinition">The <see cref="FieldDefinition"/> to configure.</param>
+    /// <param name="fieldDefinition">The <see cref="Import.FieldDefinition"/> to configure.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="fieldDefinition"/> is <c>null</c>.</exception>
     public FieldDefinitionBuilder(FieldDefinition fieldDefinition)
     {
         if (fieldDefinition == null)
             throw new ArgumentNullException(nameof(fieldDefinition));
 
-        _fieldDefinition = fieldDefinition;
+        FieldDefinition = fieldDefinition;
     }
 
+    protected FieldDefinition FieldDefinition { get; }
+
     /// <summary>
-    /// Sets the unique field name for the <see cref="FieldDefinition"/>.
+    /// Sets the unique field name for the <see cref="Import.FieldDefinition"/>.
     /// </summary>
-    /// <param name="value">The field name value.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <param name="value">The unique name of the field.</param>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is <c>null</c>.</exception>
     public FieldDefinitionBuilder FieldName(string value)
     {
         if (value == null)
             throw new ArgumentNullException(nameof(value));
 
-        _fieldDefinition.Name = value;
+        FieldDefinition.Name = value;
 
         return this;
     }
 
     /// <summary>
-    /// Sets the display name for the <see cref="FieldDefinition"/>, used for UI or reporting purposes.
+    /// Sets the display name for the <see cref="Import.FieldDefinition"/>, typically used for user interfaces or reporting.
     /// </summary>
-    /// <param name="value">The display name value.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <param name="value">The display name of the field.</param>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is <c>null</c>.</exception>
     public FieldDefinitionBuilder DisplayName(string value)
     {
         if (value == null)
             throw new ArgumentNullException(nameof(value));
 
-        _fieldDefinition.DisplayName = value;
+        FieldDefinition.DisplayName = value;
 
         return this;
     }
 
     /// <summary>
-    /// Sets the data type for the <see cref="FieldDefinition"/>.
+    /// Sets the data type for the <see cref="Import.FieldDefinition"/>.
     /// </summary>
     /// <param name="value">The <see cref="Type"/> representing the field's data type.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is <c>null</c>.</exception>
     public FieldDefinitionBuilder DataType(Type value)
     {
         if (value == null)
             throw new ArgumentNullException(nameof(value));
 
-        _fieldDefinition.DataType = value;
+        FieldDefinition.DataType = value;
 
         return this;
     }
 
     /// <summary>
-    /// Sets the data type for the <see cref="FieldDefinition"/> using a generic type parameter.
+    /// Sets the data type for the <see cref="Import.FieldDefinition"/> using a generic type parameter.
     /// </summary>
     /// <typeparam name="T">The type to use as the field's data type.</typeparam>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     public FieldDefinitionBuilder DataType<T>()
     {
-        _fieldDefinition.DataType = typeof(T);
+        FieldDefinition.DataType = typeof(T);
         return this;
     }
 
     /// <summary>
-    /// Sets whether the field is a key field.
-    /// When set to <c>true</c>, the field is marked as required and cannot be updated.
+    /// Marks the field as a key field, which uniquely identifies records.
+    /// When set to <c>true</c>, the field is also marked as required and cannot be updated.
     /// </summary>
     /// <param name="value"><c>true</c> to mark the field as a key; otherwise, <c>false</c>. Default is <c>true</c>.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     public FieldDefinitionBuilder IsKey(bool value = true)
     {
-        _fieldDefinition.IsKey = value;
+        FieldDefinition.IsKey = value;
 
         if (!value)
             return this;
 
         // defaults for a key field
-        _fieldDefinition.IsRequired = true;
-        _fieldDefinition.CanUpdate = false;
+        FieldDefinition.IsRequired = true;
+        FieldDefinition.CanUpdate = false;
 
         return this;
     }
 
     /// <summary>
-    /// Sets whether the field can be inserted during import.
+    /// Sets whether the field can be inserted during import operations.
     /// </summary>
     /// <param name="value"><c>true</c> if the field can be inserted; otherwise, <c>false</c>. Default is <c>true</c>.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     public FieldDefinitionBuilder CanInsert(bool value = true)
     {
-        _fieldDefinition.CanInsert = value;
+        FieldDefinition.CanInsert = value;
         return this;
     }
 
     /// <summary>
-    /// Sets whether the field can be updated during import.
+    /// Sets whether the field can be updated during import operations.
     /// </summary>
     /// <param name="value"><c>true</c> if the field can be updated; otherwise, <c>false</c>. Default is <c>true</c>.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     public FieldDefinitionBuilder CanUpdate(bool value = true)
     {
-        _fieldDefinition.CanUpdate = value;
+        FieldDefinition.CanUpdate = value;
         return this;
     }
 
@@ -125,97 +126,111 @@ public class FieldDefinitionBuilder
     /// Sets whether the field can be mapped by users during import configuration.
     /// </summary>
     /// <param name="value"><c>true</c> if the field can be mapped; otherwise, <c>false</c>. Default is <c>true</c>.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     public FieldDefinitionBuilder CanMap(bool value = true)
     {
-        _fieldDefinition.CanMap = value;
+        FieldDefinition.CanMap = value;
         return this;
     }
 
     /// <summary>
-    /// Sets whether the field is required for import.
+    /// Sets whether the field is required for import. Required fields must be provided in the import data.
     /// </summary>
     /// <param name="value"><c>true</c> if the field is required; otherwise, <c>false</c>. Default is <c>true</c>.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     public FieldDefinitionBuilder Required(bool value = true)
     {
-        _fieldDefinition.IsRequired = value;
+        FieldDefinition.IsRequired = value;
         return this;
     }
 
     /// <summary>
-    /// Sets the default value behavior for this field.
+    /// Sets the default value behavior for this field, as specified by <see cref="FieldDefault"/>.
     /// </summary>
-    /// <param name="value">The <see cref="FieldDefault"/> option specifying how the default value is determined.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <param name="value">The <see cref="FieldDefault"/> option that determines how the default value is assigned.</param>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     public FieldDefinitionBuilder Default(FieldDefault? value)
     {
-        _fieldDefinition.Default = value;
+        FieldDefinition.Default = value;
 
         if (value.HasValue && value != FieldDefault.Static)
-            _fieldDefinition.CanMap = false;
+            FieldDefinition.CanMap = false;
 
         return this;
     }
 
     /// <summary>
-    /// Sets a static default value for this field.
+    /// Sets a static default value for this field, used when <see cref="FieldDefault.Static"/> is selected.
     /// </summary>
-    /// <param name="value">The static default value to use for the field.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <param name="value">The static default value to assign to the field if no value is provided during import.</param>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     public FieldDefinitionBuilder Default(object value)
     {
-        _fieldDefinition.DefaultValue = value;
-        _fieldDefinition.Default = FieldDefault.Static;
+        FieldDefinition.DefaultValue = value;
+        FieldDefinition.Default = FieldDefault.Static;
 
         if (!Equals(value, null))
-            _fieldDefinition.CanMap = false;
+            FieldDefinition.CanMap = false;
 
         return this;
     }
 
     /// <summary>
-    /// Adds a match regular expression to the <see cref="FieldDefinition"/> for mapping or validation.
+    /// Adds a match or validation regular expression to the <see cref="Import.FieldDefinition"/>.
+    /// These expressions can be used for mapping or validating field values during import.
     /// </summary>
     /// <param name="value">The regular expression pattern.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is <c>null</c>.</exception>
     public FieldDefinitionBuilder Expression(string value)
     {
         if (value == null)
             throw new ArgumentNullException(nameof(value));
 
-        _fieldDefinition.Expressions.Add(value);
+        FieldDefinition.Expressions.Add(value);
 
         return this;
     }
 
     /// <summary>
-    /// Adds multiple match regular expressions to the <see cref="FieldDefinition"/> for mapping or validation.
+    /// Adds multiple match or validation regular expressions to the <see cref="Import.FieldDefinition"/>.
+    /// These expressions can be used for mapping or validating field values during import.
     /// </summary>
     /// <param name="values">A collection of regular expression patterns.</param>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>
     public FieldDefinitionBuilder Expressions(IEnumerable<string> values)
     {
         if (values == null)
             throw new ArgumentNullException(nameof(values));
 
-        _fieldDefinition.Expressions.AddRange(values);
+        FieldDefinition.Expressions.AddRange(values);
 
         return this;
     }
 
     /// <summary>
-    /// Sets the field translator type for the <see cref="FieldDefinition"/>, used to transform or convert field values during import.
+    /// Sets the field translator type for the <see cref="Import.FieldDefinition"/>, used to transform or convert field values during import.
     /// </summary>
     /// <typeparam name="T">The type of translator implementing <see cref="IFieldTranslator"/>.</typeparam>
-    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for chaining.</returns>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
+    [Obsolete("Use TranslatorKey(string) instead. This will be removed in a future version.")]
     public FieldDefinitionBuilder Translator<T>()
         where T : IFieldTranslator
     {
-        _fieldDefinition.Translator = typeof(T);
+        FieldDefinition.Translator = typeof(T);
         return this;
     }
 
+    /// <summary>
+    /// Sets the dependency injection service key for accessing the field translator, which is used to transform or convert field values during import.
+    /// The service must be registered in the DI container with this key and implement <see cref="IFieldTranslator"/>.
+    /// </summary>
+    /// <param name="value">The service key for the field translator.</param>
+    /// <returns>The current <see cref="FieldDefinitionBuilder"/> instance for method chaining.</returns>
+    public FieldDefinitionBuilder TranslatorKey(string value)
+    {
+        FieldDefinition.TranslatorKey = value;
+        return this;
+    }
 }

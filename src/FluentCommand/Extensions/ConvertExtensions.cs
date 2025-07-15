@@ -4,18 +4,18 @@ using System.Globalization;
 
 namespace FluentCommand.Extensions;
 
-
 /// <summary>
-/// Converts a string data type to another base data type using a safe conversion method.
+/// Provides extension methods for safely converting string values to various base data types, supporting nullable types and culture-specific formatting.
 /// </summary>
 public static class ConvertExtensions
 {
     /// <summary>
     /// Converts the specified string representation of a logical value to its Boolean equivalent.
+    /// Accepts common true/false representations such as "true", "false", "yes", "no", "1", "0", "on", "off", "y", "n", "t", "f", and is case-insensitive.
     /// </summary>
-    /// <param name="value">A string that contains the value of either <see cref="F:System.Boolean.TrueString"/> or <see cref="F:System.Boolean.FalseString"/>.</param>
+    /// <param name="value">A string containing the logical value to convert.</param>
     /// <returns>
-    /// true if <paramref name="value"/> equals <see cref="F:System.Boolean.TrueString"/>, or false if <paramref name="value"/> equals <see cref="F:System.Boolean.FalseString"/> or null.
+    /// <c>true</c> if <paramref name="value"/> represents a true value; otherwise, <c>false</c>.
     /// </returns>
     public static bool ToBoolean(this string? value)
     {
@@ -42,9 +42,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 8-bit unsigned integer.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
+    /// <param name="value">A string containing the number to convert.</param>
     /// <returns>
-    /// An 8-bit unsigned integer that is equivalent to <paramref name="value"/>, or zero if <paramref name="value"/> is null.
+    /// An 8-bit unsigned integer equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static byte? ToByte(this string? value)
     {
@@ -58,12 +58,12 @@ public static class ConvertExtensions
     }
 
     /// <summary>
-    /// Converts the specified string representation of a number to an equivalent 8-bit unsigned integer, using specified culture-specific formatting information.
+    /// Converts the specified string representation of a number to an equivalent 8-bit unsigned integer, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// An 8-bit unsigned integer that is equivalent to <paramref name="value"/>, or zero if <paramref name="value"/> is null.
+    /// An 8-bit unsigned integer equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static byte? ToByte(this string? value, IFormatProvider provider)
     {
@@ -77,11 +77,12 @@ public static class ConvertExtensions
     }
 
     /// <summary>
-    /// Converts the specified string representation of a date and time to an equivalent date and time value.
+    /// Converts the specified string representation of a date and time to an equivalent <see cref="DateTime"/> value.
+    /// Attempts multiple common date formats.
     /// </summary>
     /// <param name="value">The string representation of a date and time.</param>
     /// <returns>
-    /// The date and time equivalent of the value of <paramref name="value"/>, or the date and time equivalent of <see cref="F:System.DateTime.MinValue"/> if <paramref name="value"/> is null.
+    /// The <see cref="DateTime"/> equivalent of <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static DateTime? ToDateTime(this string? value)
     {
@@ -101,12 +102,13 @@ public static class ConvertExtensions
     }
 
     /// <summary>
-    /// Converts the specified string representation of a number to an equivalent date and time, using the specified culture-specific formatting information.
+    /// Converts the specified string representation of a date and time to an equivalent <see cref="DateTime"/> value, using the specified culture-specific formatting information.
+    /// Attempts multiple common date formats.
     /// </summary>
-    /// <param name="value">A string that contains a date and time to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing a date and time to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// The date and time equivalent of the value of <paramref name="value"/>, or the date and time equivalent of <see cref="F:System.DateTime.MinValue"/> if <paramref name="value"/> is null.
+    /// The <see cref="DateTime"/> equivalent of <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static DateTime? ToDateTime(this string? value, IFormatProvider provider)
     {
@@ -128,9 +130,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent decimal number.
     /// </summary>
-    /// <param name="value">A string that contains a number to convert.</param>
+    /// <param name="value">A string containing a number to convert.</param>
     /// <returns>
-    /// A decimal number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="decimal"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static decimal? ToDecimal(this string? value)
     {
@@ -146,10 +148,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent decimal number, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains a number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing a number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A decimal number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="decimal"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static decimal? ToDecimal(this string? value, IFormatProvider provider)
     {
@@ -165,9 +167,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent double-precision floating-point number.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
+    /// <param name="value">A string containing the number to convert.</param>
     /// <returns>
-    /// A double-precision floating-point number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="double"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static double? ToDouble(this string? value)
     {
@@ -183,10 +185,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent double-precision floating-point number, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A double-precision floating-point number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="double"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static double? ToDouble(this string? value, IFormatProvider provider)
     {
@@ -202,9 +204,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 16-bit signed integer.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
+    /// <param name="value">A string containing the number to convert.</param>
     /// <returns>
-    /// A 16-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="short"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static short? ToInt16(this string? value)
     {
@@ -220,10 +222,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 16-bit signed integer, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A 16-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="short"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static short? ToInt16(this string? value, IFormatProvider provider)
     {
@@ -239,9 +241,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 32-bit signed integer.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
+    /// <param name="value">A string containing the number to convert.</param>
     /// <returns>
-    /// A 32-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// An <see cref="int"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static int? ToInt32(this string? value)
     {
@@ -257,10 +259,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 32-bit signed integer, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A 32-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// An <see cref="int"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static int? ToInt32(this string? value, IFormatProvider provider)
     {
@@ -276,9 +278,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 64-bit signed integer.
     /// </summary>
-    /// <param name="value">A string that contains a number to convert.</param>
+    /// <param name="value">A string containing a number to convert.</param>
     /// <returns>
-    /// A 64-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="long"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static long? ToInt64(this string? value)
     {
@@ -294,10 +296,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 64-bit signed integer, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A 64-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="long"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static long? ToInt64(this string? value, IFormatProvider provider)
     {
@@ -313,9 +315,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent single-precision floating-point number.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
+    /// <param name="value">A string containing the number to convert.</param>
     /// <returns>
-    /// A single-precision floating-point number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="float"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static float? ToSingle(this string? value)
     {
@@ -331,10 +333,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent single-precision floating-point number, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A single-precision floating-point number that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="float"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static float? ToSingle(this string? value, IFormatProvider provider)
     {
@@ -350,9 +352,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 16-bit unsigned integer.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
+    /// <param name="value">A string containing the number to convert.</param>
     /// <returns>
-    /// A 16-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="ushort"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static ushort? ToUInt16(this string? value)
     {
@@ -368,10 +370,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 16-bit unsigned integer, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A 16-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="ushort"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static ushort? ToUInt16(this string? value, IFormatProvider provider)
     {
@@ -387,9 +389,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 32-bit unsigned integer.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
+    /// <param name="value">A string containing the number to convert.</param>
     /// <returns>
-    /// A 32-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="uint"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static uint? ToUInt32(this string? value)
     {
@@ -405,10 +407,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 32-bit unsigned integer, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A 32-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="uint"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static uint? ToUInt32(this string? value, IFormatProvider provider)
     {
@@ -424,9 +426,9 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 64-bit unsigned integer.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
+    /// <param name="value">A string containing the number to convert.</param>
     /// <returns>
-    /// A 64-bit signed integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="ulong"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static ulong? ToUInt64(this string? value)
     {
@@ -442,10 +444,10 @@ public static class ConvertExtensions
     /// <summary>
     /// Converts the specified string representation of a number to an equivalent 64-bit unsigned integer, using the specified culture-specific formatting information.
     /// </summary>
-    /// <param name="value">A string that contains the number to convert.</param>
-    /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+    /// <param name="value">A string containing the number to convert.</param>
+    /// <param name="provider">An object supplying culture-specific formatting information.</param>
     /// <returns>
-    /// A 64-bit unsigned integer that is equivalent to the number in <paramref name="value"/>, or 0 (zero) if <paramref name="value"/> is null.
+    /// A <see cref="ulong"/> equivalent to <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static ulong? ToUInt64(this string? value, IFormatProvider provider)
     {
@@ -463,7 +465,7 @@ public static class ConvertExtensions
     /// </summary>
     /// <param name="value">The string representation of a <see cref="TimeSpan"/>.</param>
     /// <returns>
-    /// The <see cref="TimeSpan"/> equivalent of the <paramref name="value"/>, or <see cref="F:System.TimeSpan.Zero"/> if <paramref name="value"/> is null.
+    /// The <see cref="TimeSpan"/> equivalent of <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static TimeSpan? ToTimeSpan(this string? value)
     {
@@ -481,7 +483,7 @@ public static class ConvertExtensions
     /// </summary>
     /// <param name="value">The string representation of a <see cref="Guid"/>.</param>
     /// <returns>
-    /// The <see cref="Guid"/> equivalent of the <paramref name="value"/>, or <see cref="F:System.Guid.Empty"/> if <paramref name="value"/> is null.
+    /// The <see cref="Guid"/> equivalent of <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static Guid? ToGuid(this string? value)
     {
@@ -496,11 +498,12 @@ public static class ConvertExtensions
 
 #if NET6_0_OR_GREATER
     /// <summary>
-    /// Converts the specified string to an equivalent <see cref="TimeSpan"/> value.
+    /// Converts the specified string to an equivalent <see cref="DateOnly"/> value.
+    /// Attempts to parse as <see cref="DateOnly"/>, <see cref="DateTime"/>, or <see cref="DateTimeOffset"/>.
     /// </summary>
-    /// <param name="value">The string representation of a <see cref="TimeSpan"/>.</param>
+    /// <param name="value">The string representation of a <see cref="DateOnly"/>.</param>
     /// <returns>
-    /// The <see cref="TimeSpan"/> equivalent of the <paramref name="value"/>, or <see cref="F:System.TimeSpan.Zero"/> if <paramref name="value"/> is null.
+    /// The <see cref="DateOnly"/> equivalent of <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static DateOnly? ToDateOnly(this string? value)
     {
@@ -520,11 +523,12 @@ public static class ConvertExtensions
     }
 
     /// <summary>
-    /// Converts the specified string to an equivalent <see cref="TimeSpan"/> value.
+    /// Converts the specified string to an equivalent <see cref="TimeOnly"/> value.
+    /// Attempts to parse as <see cref="TimeOnly"/>, <see cref="TimeSpan"/>, <see cref="DateTime"/>, or <see cref="DateTimeOffset"/>.
     /// </summary>
-    /// <param name="value">The string representation of a <see cref="TimeSpan"/>.</param>
+    /// <param name="value">The string representation of a <see cref="TimeOnly"/>.</param>
     /// <returns>
-    /// The <see cref="TimeSpan"/> equivalent of the <paramref name="value"/>, or <see cref="F:System.TimeSpan.Zero"/> if <paramref name="value"/> is null.
+    /// The <see cref="TimeOnly"/> equivalent of <paramref name="value"/>, or <c>null</c> if conversion fails or <paramref name="value"/> is <c>null</c>.
     /// </returns>
     public static TimeOnly? ToTimeOnly(this string? value)
     {
@@ -547,13 +551,16 @@ public static class ConvertExtensions
     }
 #endif
 
-
     /// <summary>
-    /// Tries to convert the <paramref name="input"/> to the specified <paramref name="type"/>.
+    /// Safely converts the specified string input to the given <paramref name="type"/>.
+    /// Supports all common base types, including nullable types, and returns <c>null</c> for empty or invalid input if the type is nullable.
     /// </summary>
-    /// <param name="input">The input to convert.</param>
-    /// <param name="type">The type to convert to.</param>
-    /// <returns>The converted value.</returns>
+    /// <param name="type">The target type to convert to.</param>
+    /// <param name="input">The string input to convert.</param>
+    /// <returns>
+    /// The converted value as an object, or <c>null</c> if conversion fails and the type is nullable; otherwise, the default value for the type.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="type"/> is <c>null</c>.</exception>
     public static object? SafeConvert(Type type, string? input)
     {
         if (type is null)
@@ -582,91 +589,93 @@ public static class ConvertExtensions
         if (underlyingType == typeof(byte))
         {
             var value = input.ToByte();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(DateTime))
         {
             var value = input.ToDateTime();
-            return value.HasValue ? value.Value : isNullable ? null : DateTime.MinValue;
+            return value ?? (isNullable ? null : DateTime.MinValue);
         }
         if (underlyingType == typeof(decimal))
         {
             var value = input.ToDecimal();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(double))
         {
             var value = input.ToDouble();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(short))
         {
             var value = input.ToInt16();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(int))
         {
             var value = input.ToInt32();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(long))
         {
             var value = input.ToInt64();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(float))
         {
             var value = input.ToSingle();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(ushort))
         {
             var value = input.ToUInt16();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(uint))
         {
             var value = input.ToUInt32();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(ulong))
         {
             var value = input.ToUInt64();
-            return value.HasValue ? value.Value : isNullable ? null : 0;
+            return value ?? (isNullable ? null : 0);
         }
         if (underlyingType == typeof(TimeSpan))
         {
             var value = input.ToTimeSpan();
-            return value.HasValue ? value.Value : isNullable ? null : TimeSpan.Zero;
+            return value ?? (isNullable ? null : TimeSpan.Zero);
         }
         if (underlyingType == typeof(Guid))
         {
             var value = input.ToGuid();
-            return value.HasValue ? value.Value : isNullable ? null : Guid.Empty;
+            return value ?? (isNullable ? null : Guid.Empty);
         }
 #if NET6_0_OR_GREATER
         if (underlyingType == typeof(DateOnly))
         {
             var value = input.ToDateOnly();
-            return value.HasValue ? value.Value : isNullable ? null : DateOnly.MinValue;
+            return value ?? (isNullable ? null : DateOnly.MinValue);
         }
         if (underlyingType == typeof(TimeOnly))
         {
             var value = input.ToTimeOnly();
-            return value.HasValue ? value.Value : isNullable ? null : TimeOnly.MinValue;
+            return value ?? (isNullable ? null : TimeOnly.MinValue);
         }
 #endif
         return default;
     }
 
-
     /// <summary>
-    /// Converts the result to the TValue type.
+    /// Converts the specified result object to the given <typeparamref name="TValue"/> type.
+    /// Supports custom conversion functions and safe conversion from string or other types.
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="result">The result to convert.</param>
-    /// <param name="convert">The optional convert function.</param>
-    /// <returns>The converted value.</returns>
+    /// <typeparam name="TValue">The target type to convert to.</typeparam>
+    /// <param name="result">The result object to convert.</param>
+    /// <param name="convert">An optional custom conversion function.</param>
+    /// <returns>
+    /// The converted value as <typeparamref name="TValue"/>, or the default value if conversion fails.
+    /// </returns>
     public static TValue? ConvertValue<TValue>(object? result, Func<object?, TValue>? convert = null)
     {
         if (result is null || result == DBNull.Value)
@@ -681,6 +690,13 @@ public static class ConvertExtensions
         if (result is string stringValue)
             return (TValue?)SafeConvert(typeof(TValue), stringValue);
 
-        return (TValue)Convert.ChangeType(result, typeof(TValue));
+        try
+        {
+            return (TValue)Convert.ChangeType(result, typeof(TValue));
+        }
+        catch
+        {
+            return default;
+        }
     }
 }
