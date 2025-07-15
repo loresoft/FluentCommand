@@ -26,8 +26,9 @@ public static class ImportServiceCollectionExtensions
     /// </remarks>
     public static IServiceCollection AddFluentImport(this IServiceCollection services)
     {
-        services.TryAddTransient<ImportValidator>();
-        services.TryAddKeyedTransient<IImportValidator, ImportValidator>(nameof(ImportValidator));
+        // validator shared for import scope
+        services.TryAddScoped<ImportValidator>();
+        services.TryAddKeyedScoped<IImportValidator, ImportValidator>(nameof(ImportValidator));
 
         services.TryAddTransient<IImportProcessor, ImportProcessor>();
 

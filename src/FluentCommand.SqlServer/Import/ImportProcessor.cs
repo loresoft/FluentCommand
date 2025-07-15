@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Xml.Serialization;
 
 using FluentCommand.Extensions;
 using FluentCommand.Merge;
@@ -14,19 +15,17 @@ namespace FluentCommand.Import;
 public class ImportProcessor : IImportProcessor
 {
     private readonly IDataSession _dataSession;
-    private readonly IServiceProvider _serviceProvider;
-
-    private IImportValidator _importValidator;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ImportProcessor"/> class.
     /// </summary>
     /// <param name="dataSession">The data session used for database operations.</param>
-    /// <param name="serviceProvider">The service provider for resolving dependencies such as translators and validators.</param>
-    public ImportProcessor(IDataSession dataSession, IServiceProvider serviceProvider)
+    /// <param name="serviceScopeFactory">The service provider for resolving dependencies such as translators and validators.</param>
+    public ImportProcessor(IDataSession dataSession, IServiceScopeFactory serviceScopeFactory)
     {
         _dataSession = dataSession;
-        _serviceProvider = serviceProvider;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     /// <summary>
@@ -48,24 +47,29 @@ public class ImportProcessor : IImportProcessor
         if (importDefinition == null)
             throw new ArgumentNullException(nameof(importDefinition));
 
-        // validator is shared for entire import process
-        _importValidator = GetValidator(importDefinition);
+        var scopedServices = _serviceScopeFactory.CreateScope();
+        try
+        {
+            var context = new ImportProcessContext(scopedServices.ServiceProvider, importDefinition, importData, username);
 
-        var context = new ImportProcessContext(_serviceProvider, importDefinition, importData, username);
+            var dataTable = CreateTable(context);
+            await PopulateTable(context, dataTable);
 
-        var dataTable = CreateTable(context);
-        await PopulateTable(context, dataTable);
+            if (dataTable.Rows.Count == 0)
+                return new ImportResult { Processed = 0, Errors = context.Errors?.ConvertAll(e => e.Message) };
 
-        if (dataTable.Rows.Count == 0)
-            return new ImportResult { Processed = 0, Errors = context.Errors?.ConvertAll(e => e.Message) };
+            var mergeDefinition = CreateMergeDefinition(context);
 
-        var mergeDefinition = CreateMergeDefinition(context);
+            var result = await _dataSession
+                .MergeData(mergeDefinition)
+                .ExecuteAsync(dataTable, cancellationToken);
 
-        var result = await _dataSession
-            .MergeData(mergeDefinition)
-            .ExecuteAsync(dataTable, cancellationToken);
-
-        return new ImportResult { Processed = result, Errors = context.Errors?.ConvertAll(e => e.Message) };
+            return new ImportResult { Processed = result, Errors = context.Errors?.ConvertAll(e => e.Message) };
+        }
+        finally
+        {
+            scopedServices.Dispose();
+        }
     }
 
     /// <summary>
@@ -176,8 +180,9 @@ public class ImportProcessor : IImportProcessor
                 dataRow[field.Definition.Name] = convertValue ?? DBNull.Value;
             }
 
-            if (_importValidator != null)
-                await _importValidator.ValidateRow(importContext.Definition, dataRow);
+            var importValidator = GetValidator(importContext);
+            if (importValidator != null)
+                await importValidator.ValidateRow(importContext.Definition, dataRow);
 
             return true;
         }
@@ -208,7 +213,7 @@ public class ImportProcessor : IImportProcessor
 #pragma warning disable CS0618 // Type or member is obsolete
         if (field.Translator != null)
         {
-            if (_serviceProvider.GetService(field.Translator) is not IFieldTranslator translator)
+            if (importContext.Services.GetService(field.Translator) is not IFieldTranslator translator)
                 throw new InvalidOperationException($"Failed to create translator '{field.Translator}' for field '{field.Name}'");
 
             return await translator.Translate(value);
@@ -217,7 +222,7 @@ public class ImportProcessor : IImportProcessor
 
         if (field.TranslatorKey != null)
         {
-            var translator = _serviceProvider.GetKeyedService<IFieldTranslator>(field.TranslatorKey);
+            var translator = importContext.Services.GetKeyedService<IFieldTranslator>(field.TranslatorKey);
             if (translator == null)
                 throw new InvalidOperationException($"Failed to create translator with service key '{field.TranslatorKey}' for field '{field.Name}'");
 
@@ -290,24 +295,24 @@ public class ImportProcessor : IImportProcessor
         return mergeDefinition;
     }
 
-    protected virtual IImportValidator GetValidator(ImportDefinition importDefinition)
+    protected virtual IImportValidator GetValidator(ImportProcessContext importContext)
     {
 #pragma warning disable CS0618 // Type or member is obsolete
-        if (importDefinition.Validator != null)
+        if (importContext.Definition.Validator != null)
         {
-            var validator = _serviceProvider.GetService(importDefinition.Validator);
+            var validator = importContext.Services.GetService(importContext.Definition.Validator);
             if (validator is not IImportValidator importValidator)
-                throw new InvalidOperationException($"Failed to create data row validator '{importDefinition.Validator}'");
+                throw new InvalidOperationException($"Failed to create data row validator '{importContext.Definition.Validator}'");
 
             return importValidator;
         }
 #pragma warning restore CS0618 // Type or member is obsolete
 
-        if (importDefinition.ValidatorKey != null)
+        if (importContext.Definition.ValidatorKey != null)
         {
-            var validator = _serviceProvider.GetKeyedService<IImportValidator>(importDefinition.ValidatorKey);
+            var validator = importContext.Services.GetKeyedService<IImportValidator>(importContext.Definition.ValidatorKey);
             if (validator == null)
-                throw new InvalidOperationException($"Failed to create data row validator with service key '{importDefinition.ValidatorKey}'");
+                throw new InvalidOperationException($"Failed to create data row validator with service key '{importContext.Definition.ValidatorKey}'");
 
             return validator;
         }
