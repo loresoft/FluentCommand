@@ -85,6 +85,18 @@ public class ImportDefinition
     public string? ValidatorKey { get; set; }
 
     /// <summary>
+    /// Retrieves a field definition by its name, ignoring case.
+    /// </summary>
+    /// <param name="name">The name of the field to retrieve.</param>
+    /// <returns>
+    /// The <see cref="FieldDefinition"/> that matches the specified name, or <see langword="null"/> if no matching field is found.
+    /// </returns>
+    public FieldDefinition? GetField(string name)
+    {
+        return Fields.Find(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     /// Builds a mapping between import fields and source headers using regular expressions defined in <see cref="Fields"/>.
     /// </summary>
     /// <param name="headers">The list of source headers to match against field expressions.</param>
