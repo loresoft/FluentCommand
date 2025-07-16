@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace FluentCommand.Import;
 
@@ -73,7 +74,6 @@ public class ImportDefinition
     [Obsolete("Use ValidatorKey instead. This property will be removed in a future version.")]
     public Type? Validator { get; set; }
 
-
     /// <summary>
     /// Gets or sets the service key used to resolve the <see cref="IImportValidator"/> service from the dependency injection container.
     /// The service must be registered in the DI container with this key and implement <see cref="IImportValidator"/>.
@@ -83,6 +83,63 @@ public class ImportDefinition
     /// </value>
     [JsonPropertyName("validatorKey")]
     public string? ValidatorKey { get; set; }
+
+    /// <summary>
+    /// Builds a mapping between import fields and source headers using regular expressions defined in <see cref="Fields"/>.
+    /// </summary>
+    /// <param name="headers">The list of source headers to match against field expressions.</param>
+    /// <returns>
+    /// A list of <see cref="FieldMap"/> objects representing the mapping between import fields and source headers.
+    /// </returns>
+    public List<FieldMap> BuildMapping(IReadOnlyCollection<FieldMap>? headers)
+    {
+        var list = new List<FieldMap>();
+
+        // create a mapping for all fields
+        foreach (var field in Fields)
+        {
+            // Skip fields that cannot be mapped
+            if (!field.CanMap)
+                continue;
+
+            var map = new FieldMap { Name = field.Name };
+            list.Add(map);
+
+            // no expression, don't set mapped index
+            if (field.Expressions == null || field.Expressions.Count == 0
+                || headers == null || headers.Count == 0)
+            {
+                continue;
+            }
+
+            // for each expression, try to match against headers
+            foreach (var expression in field.Expressions)
+            {
+                foreach (var header in headers)
+                {
+                    try
+                    {
+                        if (Regex.IsMatch(header.Name, expression))
+                        {
+                            map.Index = header.Index;
+                            break; // Stop after the first match
+                        }
+                    }
+                    catch
+                    {
+                        // skip error
+                    }
+                }
+
+                // Stop checking expressions if we found a match
+                if (map.Index.HasValue)
+                    break;
+            }
+        }
+
+        return list;
+
+    }
 
     /// <summary>
     /// Builds an <see cref="ImportDefinition"/> using the specified builder action.
