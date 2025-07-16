@@ -103,8 +103,10 @@ public class ImportProcessContext
             }
 
             if (mapping.Index.Value >= columns)
+            {
                 throw new IndexOutOfRangeException(
                     $"The mapped index {mapping.Index.Value} for field '{name}' is out of range of {columns}");
+            }
 
             list.Add(new ImportFieldMapping(field, mapping));
         }
