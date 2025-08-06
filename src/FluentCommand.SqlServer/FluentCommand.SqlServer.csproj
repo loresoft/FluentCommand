@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="MicroSoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.8" />
   </ItemGroup>
 
 </Project>
