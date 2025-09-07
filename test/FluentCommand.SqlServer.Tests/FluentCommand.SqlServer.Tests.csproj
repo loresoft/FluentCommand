@@ -1,51 +1,45 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="TestResults\**" />
     <EmbeddedResource Remove="TestResults\**" />
     <None Remove="TestResults\**" />
   </ItemGroup>
-
   <ItemGroup>
     <None Remove="Scripts\Script001.Tracker.Schema.sql" />
     <None Remove="Scripts\Script002.Tracker.Data.sql" />
     <None Remove="Scripts\Script003.Tracker.StoredProcedure.sql" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Scripts\Script001.Tracker.Schema.sql" />
     <EmbeddedResource Include="Scripts\Script002.Tracker.Data.sql" />
     <EmbeddedResource Include="Scripts\Script003.Tracker.StoredProcedure.sql" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
-    <PackageReference Include="coverlet.collector" Version="6.0.4">
+    <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="coverlet.collector">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="CsvHelper" Version="33.1.0" />
-    <PackageReference Include="dbup-sqlserver" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="Testcontainers.Azurite" Version="4.7.0" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.7.0" />
-    <PackageReference Include="Testcontainers.Redis" Version="4.7.0" />
-    <PackageReference Include="Verify.Xunit" Version="30.4.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
+    <PackageReference Include="CsvHelper" />
+    <PackageReference Include="dbup-sqlserver" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Testcontainers.Azurite" />
+    <PackageReference Include="Testcontainers.MsSql" />
+    <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Verify.Xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\FluentCommand.Caching\FluentCommand.Caching.csproj" />
     <ProjectReference Include="..\..\src\FluentCommand.Csv\FluentCommand.Csv.csproj" />
@@ -54,7 +48,6 @@
     <ProjectReference Include="..\..\src\FluentCommand\FluentCommand.csproj" />
     <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="appsettings.linux.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -69,5 +62,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>

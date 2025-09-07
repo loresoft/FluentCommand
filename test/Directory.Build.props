@@ -1,44 +1,36 @@
 <Project>
-
   <PropertyGroup Label="Package">
     <Copyright>Copyright © $([System.DateTime]::Now.ToString(yyyy)) LoreSoft</Copyright>
     <Authors>LoreSoft</Authors>
     <NeutralLanguage>en-US</NeutralLanguage>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
   <PropertyGroup Label="Debug">
     <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
-
   <PropertyGroup Label="Options">
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
-
   <PropertyGroup>
     <MinVerTagPrefix>v</MinVerTagPrefix>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="TestResults\**" />
     <EmbeddedResource Remove="TestResults\**" />
     <None Remove="TestResults\**" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="35.6.3" />
-    <PackageReference Include="FluentAssertions" Version="[7.2.0]" />
-    <PackageReference Include="XUnit.Hosting" Version="2.0.1" />
+    <PackageReference Include="Bogus" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="XUnit.Hosting" />
   </ItemGroup>
-
   <ItemGroup>
     <Using Include="FluentAssertions" />
     <Using Include="Xunit" />
     <Using Include="Xunit.Abstractions" />
   </ItemGroup>
-
 </Project>

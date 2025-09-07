@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{38D98603
 		coverlet.runsettings = coverlet.runsettings
 		.github\dependabot.yml = .github\dependabot.yml
 		src\Directory.Build.props = src\Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		.github\workflows\merge.yml = .github\workflows\merge.yml
 		README.md = README.md
