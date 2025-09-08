@@ -21,12 +21,12 @@
     <PackageVersion Include="MicroSoft.Data.SqlClient" Version="6.0.2" />
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="9.0.7" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.7" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.7" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.7" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
     <PackageVersion Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="MinVer" Version="6.0.0" />
@@ -34,13 +34,13 @@
     <PackageVersion Include="PolySharp" Version="1.15.0" />
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageVersion Include="System.Text.Json" Version="9.0.7" />
-    <PackageVersion Include="Testcontainers.Azurite" Version="4.6.0" />
-    <PackageVersion Include="Testcontainers.MsSql" Version="4.6.0" />
-    <PackageVersion Include="Testcontainers.Postgresql" Version="4.6.0" />
-    <PackageVersion Include="Testcontainers.Redis" Version="4.6.0" />
+    <PackageVersion Include="Testcontainers.Azurite" Version="4.7.0" />
+    <PackageVersion Include="Testcontainers.MsSql" Version="4.7.0" />
+    <PackageVersion Include="Testcontainers.Postgresql" Version="4.7.0" />
+    <PackageVersion Include="Testcontainers.Redis" Version="4.7.0" />
     <PackageVersion Include="Verify.Xunit" Version="30.4.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="XUnit.Hosting" Version="2.0.1" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
 </Project>
