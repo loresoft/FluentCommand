@@ -12,8 +12,8 @@ namespace FluentCommand.SqlServer.Tests;
 
 public class CsvTests : DatabaseTestBase
 {
-    public CsvTests(ITestOutputHelper output, DatabaseFixture databaseFixture)
-        : base(output, databaseFixture)
+    public CsvTests(DatabaseFixture databaseFixture)
+        : base(databaseFixture)
     {
 
     }

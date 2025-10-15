@@ -1,3 +1,6 @@
+// support capturing console and trace output in xunit v3
+[assembly: CaptureConsole]
+[assembly: CaptureTrace]
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
 
 namespace FluentCommand.SQLite.Tests;

@@ -25,12 +25,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Bogus" />
-    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="XUnit.Hosting" />
   </ItemGroup>
   <ItemGroup>
-    <Using Include="FluentAssertions" />
-    <Using Include="Xunit" />
-    <Using Include="Xunit.Abstractions" />
+    <Using Include="AwesomeAssertions" />
   </ItemGroup>
 </Project>

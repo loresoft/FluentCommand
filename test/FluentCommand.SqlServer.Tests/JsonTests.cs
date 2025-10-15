@@ -14,8 +14,8 @@ namespace FluentCommand.SqlServer.Tests;
 
 public class JsonTests : DatabaseTestBase
 {
-    public JsonTests(ITestOutputHelper output, DatabaseFixture databaseFixture)
-        : base(output, databaseFixture)
+    public JsonTests(DatabaseFixture databaseFixture)
+        : base(databaseFixture)
     {
 
     }

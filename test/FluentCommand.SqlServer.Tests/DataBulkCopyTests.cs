@@ -9,7 +9,7 @@ namespace FluentCommand.SqlServer.Tests;
 
 public class DataBulkCopyTests : DatabaseTestBase
 {
-    public DataBulkCopyTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+    public DataBulkCopyTests(DatabaseFixture databaseFixture) : base(databaseFixture)
     {
     }
 

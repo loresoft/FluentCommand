@@ -9,8 +9,8 @@ namespace FluentCommand.SqlServer.Tests;
 
 public class DataMergeTests : DatabaseTestBase
 {
-    public DataMergeTests(ITestOutputHelper output, DatabaseFixture databaseFixture)
-        : base(output, databaseFixture)
+    public DataMergeTests(DatabaseFixture databaseFixture)
+        : base(databaseFixture)
     {
     }
 

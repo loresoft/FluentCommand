@@ -7,7 +7,7 @@ namespace FluentCommand.SQLite.Tests;
 
 public class DataCommandSqlAsyncTests : DatabaseTestBase
 {
-    public DataCommandSqlAsyncTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+    public DataCommandSqlAsyncTests(DatabaseFixture databaseFixture) : base(databaseFixture)
     {
     }
 

@@ -10,7 +10,7 @@ namespace FluentCommand.SqlServer.Tests;
 
 public class DataCommandProcedureTests : DatabaseTestBase
 {
-    public DataCommandProcedureTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+    public DataCommandProcedureTests(DatabaseFixture databaseFixture) : base(databaseFixture)
     {
     }
 

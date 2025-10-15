@@ -4,11 +4,13 @@ using FluentCommand.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 
+using XUnit.Hosting.Logging;
+
 namespace FluentCommand.SqlServer.Tests;
 
 public class DataCommandSqlAsyncTests : DatabaseTestBase
 {
-    public DataCommandSqlAsyncTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+    public DataCommandSqlAsyncTests(DatabaseFixture databaseFixture) : base(databaseFixture)
     {
     }
 
@@ -94,8 +96,10 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         cachedUser.Should().NotBeNull();
         cachedUser.EmailAddress.Should().Be(email);
 
+        var memoryLoggerProvider = Services.GetRequiredService<MemoryLoggerProvider>();
+
         // check logs for cache hit
-        var logs = GetLogEntries();
+        var logs = memoryLoggerProvider.Logs();
         var hasHit = logs.Any(l => l.Message.Contains("Cache Hit;"));
 
         hasHit.Should().BeTrue();
@@ -210,7 +214,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
     }
-       
+
 
     [Fact]
     public async System.Threading.Tasks.Task SqlQueryEntityFactoryAsync()

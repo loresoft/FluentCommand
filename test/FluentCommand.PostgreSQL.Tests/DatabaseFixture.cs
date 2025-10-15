@@ -15,12 +15,12 @@ public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
         .WithDatabase("TrackerDocker")
         .Build();
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _postgreSqlContainer.StartAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await _postgreSqlContainer.DisposeAsync();
     }

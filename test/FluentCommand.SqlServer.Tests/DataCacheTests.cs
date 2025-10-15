@@ -3,11 +3,13 @@ using FluentCommand.Query;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using XUnit.Hosting.Logging;
+
 namespace FluentCommand.SqlServer.Tests;
 
 public class DataCacheTests : DatabaseTestBase
 {
-    public DataCacheTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+    public DataCacheTests(DatabaseFixture databaseFixture) : base(databaseFixture)
     {
     }
 
@@ -41,7 +43,9 @@ public class DataCacheTests : DatabaseTestBase
             .QueryAsync<Status>();
 
         // check logs for cache hit
-        var logs = GetLogEntries();
+        var memoryLoggerProvider = Services.GetRequiredService<MemoryLoggerProvider>();
+
+        var logs = memoryLoggerProvider.Logs();
         var hasHit = logs.Any(l => l.Message.Contains("Cache Hit;"));
 
         hasHit.Should().BeTrue();

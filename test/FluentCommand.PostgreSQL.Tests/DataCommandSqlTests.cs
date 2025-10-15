@@ -7,7 +7,7 @@ namespace FluentCommand.PostgreSQL.Tests;
 
 public class DataCommandSqlTests : DatabaseTestBase
 {
-    public DataCommandSqlTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+    public DataCommandSqlTests(DatabaseFixture databaseFixture) : base(databaseFixture)
     {
     }
 

@@ -23,7 +23,7 @@ public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
     private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .WithPassword("Bn87bBYhLjYRj%9zRgUc")
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(1433))
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1433))
         .Build();
 
     private readonly RedisContainer _redisContainer = new RedisBuilder()
@@ -32,14 +32,14 @@ public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
     private readonly AzuriteContainer _azuriteContainer = new AzuriteBuilder()
         .Build();
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _msSqlContainer.StartAsync();
         await _redisContainer.StartAsync();
         await _azuriteContainer.StartAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await _msSqlContainer.DisposeAsync();
         await _redisContainer.DisposeAsync();

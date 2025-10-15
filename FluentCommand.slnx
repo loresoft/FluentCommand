@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/Build/">
+    <File Path=".github/dependabot.yml" />
+    <File Path=".github/workflows/dotnet.yml" />
+    <File Path=".github/workflows/merge.yml" />
+    <File Path="coverlet.runsettings" />
+    <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+    <File Path="src/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <File Path="test/Directory.Build.props" />
+    <Project Path="test/FluentCommand.Entities/FluentCommand.Entities.csproj" />
+    <Project Path="test/FluentCommand.Generators.Tests/FluentCommand.Generators.Tests.csproj" />
+    <Project Path="test/FluentCommand.Performance/FluentCommand.Performance.csproj" />
+    <Project Path="test/FluentCommand.PostgreSQL.Tests/FluentCommand.PostgreSQL.Tests.csproj" />
+    <Project Path="test/FluentCommand.SQLite.Tests/FluentCommand.SQLite.Tests.csproj" />
+    <Project Path="test/FluentCommand.SqlServer.Tests/FluentCommand.SqlServer.Tests.csproj" />
+    <Project Path="test/FluentCommand.Tests/FluentCommand.Tests.csproj" />
+  </Folder>
+  <Project Path="src/FluentCommand.Caching/FluentCommand.Caching.csproj" />
+  <Project Path="src/FluentCommand.Csv/FluentCommand.Csv.csproj" />
+  <Project Path="src/FluentCommand.Generators/FluentCommand.Generators.csproj" />
+  <Project Path="src/FluentCommand.Import/FluentCommand.Import.csproj" />
+  <Project Path="src/FluentCommand.Json/FluentCommand.Json.csproj" />
+  <Project Path="src/FluentCommand.SqlServer/FluentCommand.SqlServer.csproj" />
+  <Project Path="src/FluentCommand/FluentCommand.csproj" />
+</Solution>

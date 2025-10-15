@@ -7,7 +7,7 @@ namespace FluentCommand.PostgreSQL.Tests;
 
 public class DataCommandSqlAsyncTests : DatabaseTestBase
 {
-    public DataCommandSqlAsyncTests(ITestOutputHelper output, DatabaseFixture databaseFixture) : base(output, databaseFixture)
+    public DataCommandSqlAsyncTests(DatabaseFixture databaseFixture) : base(databaseFixture)
     {
     }
 
@@ -41,7 +41,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 Updated = r.GetDateTimeOffset("Updated"),
                 UpdatedBy = r.GetString("UpdatedBy"),
                 RowVersion = r.GetBytes("RowVersion"),
-            });
+            }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -58,7 +58,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleAsync<User>();
+            .QuerySingleAsync<User>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -76,7 +76,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         var user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleAsync<User>();
+            .QuerySingleAsync<User>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -84,7 +84,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         var cachedUser = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleAsync<User>();
+            .QuerySingleAsync<User>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         cachedUser.Should().NotBeNull();
         cachedUser.EmailAddress.Should().Be(email);
@@ -102,7 +102,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         dynamic user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleAsync();
+            .QuerySingleAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         Assert.NotNull(user);
         Assert.Equal(user.EmailAddress, email);
@@ -138,7 +138,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 Updated = r.GetDateTimeOffset("Updated"),
                 UpdatedBy = r.GetString("UpdatedBy"),
                 RowVersion = r.GetBytes("RowVersion"),
-            });
+            }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -155,7 +155,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         IEnumerable<dynamic> users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryAsync();
+            .QueryAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -174,7 +174,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync();
+            .QueryAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         var userList = users.ToList();
 
@@ -185,7 +185,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync();
+            .QueryAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         var cachedList = cachedUsers.ToList();
 
@@ -204,7 +204,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryAsync<User>();
+            .QueryAsync<User>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -221,7 +221,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryTableAsync();
+            .QueryTableAsync(Xunit.TestContext.Current.CancellationToken);
 
         users.Should().NotBeNull();
     }
@@ -237,7 +237,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var count = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryValueAsync<int>();
+            .QueryValueAsync<int>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         count.Should().BeGreaterThan(0);
     }
@@ -264,7 +264,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 }
 
                 return System.Threading.Tasks.Task.CompletedTask;
-            });
+            }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -293,7 +293,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                     user = await q.QuerySingleAsync<User>();
                     roles = (await q.QueryAsync<Role>()).ToList();
                     priorities = (await q.QueryAsync<Priority>()).ToList();
-                });
+                }, Xunit.TestContext.Current.CancellationToken);
         }
 
         user.Should().NotBeNull();

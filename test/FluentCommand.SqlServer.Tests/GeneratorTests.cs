@@ -9,8 +9,8 @@ namespace FluentCommand.SqlServer.Tests;
 
 public class GeneratorTests : DatabaseTestBase
 {
-    public GeneratorTests(ITestOutputHelper output, DatabaseFixture databaseFixture)
-        : base(output, databaseFixture)
+    public GeneratorTests(DatabaseFixture databaseFixture)
+        : base(databaseFixture)
     {
     }
 
