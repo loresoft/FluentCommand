@@ -94,7 +94,7 @@ public class DataMergeTests : DatabaseTestBase
                 .AutoMap()
                 .Column(p => p.EmailAddress).Key()
             )
-            .ExecuteAsync(users);
+            .ExecuteAsync(users, cancellationToken: TestCancellation);
 
         result.Should().Be(100);
     }
@@ -113,7 +113,7 @@ public class DataMergeTests : DatabaseTestBase
                 .AutoMap()
                 .Column(p => p.EmailAddress).Key()
             )
-            .ExecuteOutputAsync(users);
+            .ExecuteOutputAsync(users, cancellationToken: TestCancellation);
 
         var result = changes.ToList();
 
@@ -146,7 +146,7 @@ public class DataMergeTests : DatabaseTestBase
                     .NativeType("nvarchar(256)");
 
             })
-            .ExecuteAsync(users);
+            .ExecuteAsync(users, cancellationToken: TestCancellation);
 
         result.Should().Be(100);
     }
@@ -166,7 +166,7 @@ public class DataMergeTests : DatabaseTestBase
                 m.AutoMap();
                 m.Column(p => p.EmailAddress).Key();
             })
-            .ExecuteAsync(users);
+            .ExecuteAsync(users, cancellationToken: TestCancellation);
 
         result.Should().Be(100);
     }

@@ -48,7 +48,7 @@ public class DataQueryTests : DatabaseTestBase
                 Updated = r.GetDateTimeOffset("Updated"),
                 UpdatedBy = r.GetString("UpdatedBy"),
                 RowVersion = r.GetBytes("RowVersion"),
-            });
+            }, cancellationToken: TestCancellation);
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -73,7 +73,7 @@ public class DataQueryTests : DatabaseTestBase
                 .OrderBy(p => p.Updated)
                 .Limit(0, 10)
             )
-            .QueryAsync<User>();
+            .QueryAsync<User>(cancellationToken: TestCancellation);
 
         users.Should().NotBeNull();
     }
@@ -105,7 +105,7 @@ public class DataQueryTests : DatabaseTestBase
                 .OrderBy(p => p.Updated, "r")
                 .Limit(0, 10)
             )
-            .QueryAsync<User>();
+            .QueryAsync<User>(cancellationToken: TestCancellation);
 
         users.Should().NotBeNull();
     }
@@ -124,7 +124,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Count()
                 .Where(p => p.EmailAddress, email)
             )
-            .QueryValueAsync<int>();
+            .QueryValueAsync<int>(cancellationToken: TestCancellation);
 
         count.Should().Be(1);
     }
@@ -141,7 +141,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Aggregate(p => p.DisplayOrder, AggregateFunctions.Sum)
                 .GroupBy(p => p.IsActive)
             )
-            .QueryValueAsync<int>();
+            .QueryValueAsync<int>(cancellationToken: TestCancellation);
 
         count.Should().BeGreaterThan(1);
     }
@@ -157,7 +157,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Select<Status>()
                 .Column(p => p.Id)
             )
-            .QueryValuesAsync<int>();
+            .QueryValuesAsync<int>(cancellationToken: TestCancellation);
 
         ids.Should().NotBeEmpty();
     }
@@ -176,7 +176,7 @@ public class DataQueryTests : DatabaseTestBase
                 .WhereIn(p => p.Id, values)
                 .Tag()
             )
-            .QueryAsync<Status>();
+            .QueryAsync<Status>(cancellationToken: TestCancellation);
 
         results.Should().NotBeNull();
 
@@ -214,7 +214,7 @@ public class DataQueryTests : DatabaseTestBase
                         .Right("Id", "#identifiers", null, "i")
                     );
             })
-            .QueryAsync<Status>();
+            .QueryAsync<Status>(cancellationToken: TestCancellation);
 
         results.Should().NotBeNull();
 
@@ -242,7 +242,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Output(p => p.Id)
                 .Tag()
             )
-            .QueryValueAsync<Guid>();
+            .QueryValueAsync<Guid>(cancellationToken: TestCancellation);
 
         userId.Should().Be(id);
     }
@@ -272,7 +272,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Output(p => p.Id)
                 .Tag()
             )
-            .QueryValueAsync<Guid>();
+            .QueryValueAsync<Guid>(cancellationToken: TestCancellation);
 
         userId.Should().Be(id);
     }
@@ -303,7 +303,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Output(p => p.Id)
                 .Tag()
             )
-            .QueryValueAsync<Guid>();
+            .QueryValueAsync<Guid>(cancellationToken: TestCancellation);
 
         userId.Should().Be(id);
 
@@ -313,7 +313,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Where(p => p.Id, id)
                 .Tag()
             )
-            .QuerySingleAsync<User>();
+            .QuerySingleAsync<User>(cancellationToken: TestCancellation);
 
         selected.Should().NotBeNull();
         selected.Id.Should().Be(id);
@@ -326,7 +326,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Where(p => p.Id, id)
                 .Tag()
             )
-            .QueryValueAsync<Guid>();
+            .QueryValueAsync<Guid>(cancellationToken: TestCancellation);
 
         updateId.Should().Be(id);
 
@@ -337,7 +337,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Where(p => p.Id, id)
                 .Tag()
             )
-            .QueryValueAsync<Guid>();
+            .QueryValueAsync<Guid>(cancellationToken: TestCancellation);
 
         deleteId.Should().Be(id);
 
@@ -352,7 +352,7 @@ public class DataQueryTests : DatabaseTestBase
         long previousVersion = 0;
         long currentVersion = 0;
 
-        await using var transaction = await session.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+        await using var transaction = await session.BeginTransactionAsync(IsolationLevel.ReadCommitted, TestCancellation);
 
         var changes = session
             .Sql(builder =>
@@ -376,7 +376,7 @@ public class DataQueryTests : DatabaseTestBase
             .ParameterOut<long>("@currentVersion", value => currentVersion = value)
             .Query<User>();
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(TestCancellation);
     }
 
 
@@ -386,7 +386,7 @@ public class DataQueryTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        await using var transaction = await session.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+        await using var transaction = await session.BeginTransactionAsync(IsolationLevel.ReadCommitted, TestCancellation);
 
         var id = Guid.NewGuid();
         var user = new User
@@ -407,7 +407,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Output(p => p.Id)
                 .Tag()
             )
-            .QueryValueAsync<Guid>();
+            .QueryValueAsync<Guid>(cancellationToken: TestCancellation);
 
         userId.Should().Be(id);
 
@@ -417,7 +417,7 @@ public class DataQueryTests : DatabaseTestBase
                 .Where(p => p.Id, id)
                 .Tag()
             )
-            .QuerySingleAsync<User>();
+            .QuerySingleAsync<User>(cancellationToken: TestCancellation);
 
         selected.Should().NotBeNull();
         selected.Id.Should().Be(id);
@@ -430,11 +430,11 @@ public class DataQueryTests : DatabaseTestBase
                 .Where(p => p.Id, id)
                 .Tag()
             )
-            .QueryValueAsync<Guid>();
+            .QueryValueAsync<Guid>(cancellationToken: TestCancellation);
 
         updateId.Should().Be(id);
 
-        await transaction.RollbackAsync();
+        await transaction.RollbackAsync(TestCancellation);
     }
 
     [Fact]
@@ -449,7 +449,7 @@ public class DataQueryTests : DatabaseTestBase
                 .OrderBy(p => p.Id)
                 .Limit(0, 10)
             )
-            .QueryAsync<DataType>();
+            .QueryAsync<DataType>(cancellationToken: TestCancellation);
 
         results.Should().NotBeNull();
     }
@@ -464,7 +464,7 @@ public class DataQueryTests : DatabaseTestBase
             .Sql(builder => builder
                 .Select<TableTest>()
             )
-            .QueryAsync<TableTest>();
+            .QueryAsync<TableTest>(cancellationToken: TestCancellation);
 
         results.Should().NotBeNull();
     }

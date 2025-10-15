@@ -27,7 +27,7 @@ public class DataCacheTests : DatabaseTestBase
                 .WhereIn(p => p.Id, values)
             )
             .UseCache(TimeSpan.FromSeconds(5))
-            .QueryAsync<Status>();
+            .QueryAsync<Status>(cancellationToken: TestCancellation);
 
         results.Should().NotBeNull();
 
@@ -40,7 +40,7 @@ public class DataCacheTests : DatabaseTestBase
                 .WhereIn(p => p.Id, values)
             )
             .UseCache(TimeSpan.FromSeconds(5))
-            .QueryAsync<Status>();
+            .QueryAsync<Status>(cancellationToken: TestCancellation);
 
         // check logs for cache hit
         var memoryLoggerProvider = Services.GetRequiredService<MemoryLoggerProvider>();

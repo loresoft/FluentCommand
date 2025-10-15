@@ -43,7 +43,7 @@ public class JsonTests : DatabaseTestBase
         var blobContainer = Services.GetRequiredService<BlobContainerClient>();
         blobContainer.Should().NotBeNull();
 
-        blobContainer.CreateIfNotExists();
+        blobContainer.CreateIfNotExists(cancellationToken: TestCancellation);
 
         var exportFile = $"{nameof(QueryJsonSteamAzurite)}-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.json";
         var exportClient = blobContainer.GetBlobClient(exportFile);
@@ -56,7 +56,7 @@ public class JsonTests : DatabaseTestBase
             }
         };
 
-        using var exportStream = exportClient.OpenWrite(true, options);
+        using var exportStream = exportClient.OpenWrite(true, options, TestCancellation);
 
         string sql = "select TOP 1000 * from [User]";
 
@@ -75,7 +75,7 @@ public class JsonTests : DatabaseTestBase
         string sql = "select TOP 1000 * from [User]";
 
         var json = await session.Sql(sql)
-            .QueryJsonAsync();
+            .QueryJsonAsync(cancellationToken: TestCancellation);
 
         json.Should().NotBeNull();
     }
@@ -89,7 +89,7 @@ public class JsonTests : DatabaseTestBase
         var blobContainer = Services.GetRequiredService<BlobContainerClient>();
         blobContainer.Should().NotBeNull();
 
-        await blobContainer.CreateIfNotExistsAsync();
+        await blobContainer.CreateIfNotExistsAsync(cancellationToken: TestCancellation);
 
         var exportFile = $"{nameof(QueryJsonSteamAzuriteAsync)}-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.json";
         var exportClient = blobContainer.GetBlobClient(exportFile);
@@ -102,14 +102,14 @@ public class JsonTests : DatabaseTestBase
             }
         };
 
-        await using var exportStream = await exportClient.OpenWriteAsync(true, options);
+        await using var exportStream = await exportClient.OpenWriteAsync(true, options, TestCancellation);
 
         string sql = "select TOP 1000 * from [User]";
 
         await session.Sql(sql)
-            .QueryJsonAsync(exportStream);
+            .QueryJsonAsync(exportStream, cancellationToken: TestCancellation);
 
-        await exportStream.FlushAsync();
+        await exportStream.FlushAsync(TestCancellation);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class JsonTests : DatabaseTestBase
                 .OrderBy(p => p.DisplayOrder)
                 .Limit(0, 1000)
             )
-            .QueryJsonAsync();
+            .QueryJsonAsync(cancellationToken: TestCancellation);
 
         json.Should().NotBeNull();
     }
@@ -170,7 +170,7 @@ public class JsonTests : DatabaseTestBase
                 .Insert<DataType>()
                 .Values(item)
             )
-            .ExecuteAsync();
+            .ExecuteAsync(cancellationToken: TestCancellation);
 
         var json = await session
             .Sql(builder => builder
@@ -178,7 +178,7 @@ public class JsonTests : DatabaseTestBase
                 .OrderBy(p => p.Id)
                 .Limit(0, 1000)
             )
-            .QueryJsonAsync();
+            .QueryJsonAsync(cancellationToken: TestCancellation);
 
         json.Should().NotBeNull();
     }

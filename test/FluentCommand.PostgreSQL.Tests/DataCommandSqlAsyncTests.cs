@@ -41,7 +41,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 Updated = r.GetDateTimeOffset("Updated"),
                 UpdatedBy = r.GetString("UpdatedBy"),
                 RowVersion = r.GetBytes("RowVersion"),
-            }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            }, cancellationToken: TestCancellation);
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -58,7 +58,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleAsync<User>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QuerySingleAsync<User>(cancellationToken: TestCancellation);
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -76,7 +76,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         var user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleAsync<User>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QuerySingleAsync<User>(cancellationToken: TestCancellation);
 
         user.Should().NotBeNull();
         user.EmailAddress.Should().Be(email);
@@ -84,7 +84,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         var cachedUser = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QuerySingleAsync<User>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QuerySingleAsync<User>(cancellationToken: TestCancellation);
 
         cachedUser.Should().NotBeNull();
         cachedUser.EmailAddress.Should().Be(email);
@@ -102,7 +102,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         dynamic user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QuerySingleAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QuerySingleAsync(cancellationToken: TestCancellation);
 
         Assert.NotNull(user);
         Assert.Equal(user.EmailAddress, email);
@@ -138,7 +138,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 Updated = r.GetDateTimeOffset("Updated"),
                 UpdatedBy = r.GetString("UpdatedBy"),
                 RowVersion = r.GetBytes("RowVersion"),
-            }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            }, cancellationToken: TestCancellation);
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -155,7 +155,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         IEnumerable<dynamic> users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QueryAsync(cancellationToken: TestCancellation);
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -174,7 +174,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QueryAsync(cancellationToken: TestCancellation);
 
         var userList = users.ToList();
 
@@ -185,7 +185,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .Sql(sql)
             .Parameter("@EmailAddress", email)
             .UseCache(TimeSpan.FromMinutes(5))
-            .QueryAsync(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QueryAsync(cancellationToken: TestCancellation);
 
         var cachedList = cachedUsers.ToList();
 
@@ -204,7 +204,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryAsync<User>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QueryAsync<User>(cancellationToken: TestCancellation);
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -221,7 +221,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryTableAsync(Xunit.TestContext.Current.CancellationToken);
+            .QueryTableAsync(TestCancellation);
 
         users.Should().NotBeNull();
     }
@@ -237,7 +237,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
 
         var count = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
-            .QueryValueAsync<int>(cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            .QueryValueAsync<int>(cancellationToken: TestCancellation);
 
         count.Should().BeGreaterThan(0);
     }
@@ -264,7 +264,7 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 }
 
                 return System.Threading.Tasks.Task.CompletedTask;
-            }, cancellationToken: Xunit.TestContext.Current.CancellationToken);
+            }, cancellationToken: TestCancellation);
 
         users.Should().NotBeNull();
         users.Should().NotBeEmpty();
@@ -290,10 +290,10 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                 .Parameter("@EmailAddress", email)
                 .QueryMultipleAsync(async q =>
                 {
-                    user = await q.QuerySingleAsync<User>();
-                    roles = (await q.QueryAsync<Role>()).ToList();
-                    priorities = (await q.QueryAsync<Priority>()).ToList();
-                }, Xunit.TestContext.Current.CancellationToken);
+                    user = await q.QuerySingleAsync<User>(cancellationToken: TestCancellation);
+                    roles = (await q.QueryAsync<Role>(cancellationToken: TestCancellation)).ToList();
+                    priorities = (await q.QueryAsync<Priority>(cancellationToken: TestCancellation)).ToList();
+                }, TestCancellation);
         }
 
         user.Should().NotBeNull();

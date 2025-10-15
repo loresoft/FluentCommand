@@ -2,7 +2,6 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
 using FluentCommand.Entities;
-using FluentCommand.Query;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,7 +40,7 @@ public class CsvTests : DatabaseTestBase
         var blobContainer = Services.GetRequiredService<BlobContainerClient>();
         blobContainer.Should().NotBeNull();
 
-        blobContainer.CreateIfNotExists();
+        blobContainer.CreateIfNotExists(cancellationToken: TestCancellation);
 
         var exportFile = $"{nameof(QueryCsvSteamAzurite)}-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.csv";
         var exportClient = blobContainer.GetBlobClient(exportFile);
@@ -54,7 +53,7 @@ public class CsvTests : DatabaseTestBase
             }
         };
 
-        using var exportStream = exportClient.OpenWrite(true, options);
+        using var exportStream = exportClient.OpenWrite(true, options, TestCancellation);
 
         string sql = "select TOP 1000 * from [User]";
 
@@ -72,7 +71,7 @@ public class CsvTests : DatabaseTestBase
         string sql = "select TOP 1000 * from [User]";
 
         var data = await session.Sql(sql)
-            .QueryCsvAsync();
+            .QueryCsvAsync(cancellationToken: TestCancellation);
 
         data.Should().NotBeNull();
     }
@@ -86,7 +85,7 @@ public class CsvTests : DatabaseTestBase
         var blobContainer = Services.GetRequiredService<BlobContainerClient>();
         blobContainer.Should().NotBeNull();
 
-        await blobContainer.CreateIfNotExistsAsync();
+        await blobContainer.CreateIfNotExistsAsync(cancellationToken: TestCancellation);
 
         var exportFile = $"{nameof(QueryCsvSteamAzuriteAsync)}-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.csv";
         var exportClient = blobContainer.GetBlobClient(exportFile);
@@ -99,14 +98,14 @@ public class CsvTests : DatabaseTestBase
             }
         };
 
-        await using var exportStream = await exportClient.OpenWriteAsync(true, options);
+        await using var exportStream = await exportClient.OpenWriteAsync(true, options, TestCancellation);
 
         string sql = "select TOP 1000 * from [User]";
 
         await session.Sql(sql)
-            .QueryCsvAsync(exportStream);
+            .QueryCsvAsync(exportStream, cancellationToken: TestCancellation);
 
-        await exportStream.FlushAsync();
+        await exportStream.FlushAsync(TestCancellation);
     }
 
     [Fact]
@@ -121,7 +120,7 @@ public class CsvTests : DatabaseTestBase
                 .OrderBy(p => p.DisplayOrder)
                 .Limit(0, 1000)
             )
-            .QueryCsvAsync();
+            .QueryCsvAsync(cancellationToken: TestCancellation);
 
         data.Should().NotBeNull();
     }

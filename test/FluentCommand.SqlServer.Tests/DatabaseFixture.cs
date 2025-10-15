@@ -12,7 +12,7 @@ using Testcontainers.Azurite;
 using Testcontainers.MsSql;
 using Testcontainers.Redis;
 
-using XUnit.Hosting;
+using XUnit.Hosting.Logging;
 
 using static Azure.Storage.Blobs.BlobClientOptions;
 
@@ -49,6 +49,8 @@ public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
     protected override void ConfigureApplication(HostApplicationBuilder builder)
     {
         base.ConfigureApplication(builder);
+
+        builder.Logging.AddMemoryLogger();
 
         var services = builder.Services;
 
