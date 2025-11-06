@@ -14,7 +14,7 @@
     <PackageVersion Include="Dapper" Version="2.1.66" />
     <PackageVersion Include="dbup-postgresql" Version="6.1.5" />
     <PackageVersion Include="dbup-sqlite" Version="6.0.1" />
-    <PackageVersion Include="dbup-sqlserver" Version="6.0.0" />
+    <PackageVersion Include="dbup-sqlserver" Version="6.0.16" />
     <PackageVersion Include="MessagePack" Version="3.1.4" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.4.0]" />
     <PackageVersion Include="MicroSoft.Data.SqlClient" Version="6.1.2" />
