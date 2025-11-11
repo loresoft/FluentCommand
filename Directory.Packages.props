@@ -37,7 +37,7 @@
     <PackageVersion Include="Testcontainers.MsSql" Version="4.8.1" />
     <PackageVersion Include="Testcontainers.Postgresql" Version="4.8.1" />
     <PackageVersion Include="Testcontainers.Redis" Version="4.8.1" />
-    <PackageVersion Include="Verify.XunitV3" Version="31.5.1" />
+    <PackageVersion Include="Verify.XunitV3" Version="31.5.3" />
     <PackageVersion Include="XUnit.Hosting" Version="3.0.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="xunit.v3" Version="3.2.0" />
