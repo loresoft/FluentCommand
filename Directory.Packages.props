@@ -33,10 +33,10 @@
     <PackageVersion Include="PolySharp" Version="1.15.0" />
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageVersion Include="System.Text.Json" Version="10.0.0" />
-    <PackageVersion Include="Testcontainers.Azurite" Version="4.8.1" />
-    <PackageVersion Include="Testcontainers.MsSql" Version="4.8.1" />
-    <PackageVersion Include="Testcontainers.Postgresql" Version="4.8.1" />
-    <PackageVersion Include="Testcontainers.Redis" Version="4.8.1" />
+    <PackageVersion Include="Testcontainers.Azurite" Version="4.9.0" />
+    <PackageVersion Include="Testcontainers.MsSql" Version="4.9.0" />
+    <PackageVersion Include="Testcontainers.Postgresql" Version="4.9.0" />
+    <PackageVersion Include="Testcontainers.Redis" Version="4.9.0" />
     <PackageVersion Include="Verify.XunitV3" Version="31.7.1" />
     <PackageVersion Include="XUnit.Hosting" Version="4.0.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
