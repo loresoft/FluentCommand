@@ -3,8 +3,12 @@
     <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\FluentCommand.Generators\FluentCommand.Generators.csproj">
       <OutputItemType>Analyzer</OutputItemType>
