@@ -26,14 +26,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Install .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x
+          dotnet-version: 10.x
 
       - name: Restore Dependencies
         run: dotnet restore
@@ -57,7 +57,7 @@ jobs:
 
       - name: Upload Packages
         if: success() && github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: packages
           path: "${{env.BUILD_PATH}}"
@@ -84,7 +84,7 @@ jobs:
 
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: packages
 
