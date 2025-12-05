@@ -78,36 +78,4 @@ public static class StringBuilderExtensions
 
         return sb;
     }
-
-    /// <summary>
-    /// Concatenates and appends the members of a collection, using the specified separator between each member.
-    /// </summary>
-    /// <typeparam name="T">The type of the members of values.</typeparam>
-    /// <param name="sb">A reference to this instance after the append operation has completed.</param>
-    /// <param name="separator">The string to use as a separator. separator is included in the concatenated and appended strings only if values has more than one element.</param>
-    /// <param name="values">A collection that contains the objects to concatenate and append to the current instance of the string builder.</param>
-    /// <returns>A reference to this instance after the append operation has completed.</returns>
-    public static StringBuilder AppendJoin<T>(this StringBuilder sb, string separator, IEnumerable<T> values)
-    {
-        if (sb is null)
-            throw new ArgumentNullException(nameof(sb));
-        if (values is null)
-            throw new ArgumentNullException(nameof(values));
-
-        separator ??= string.Empty;
-
-        var wroteValue = false;
-
-        foreach (var value in values)
-        {
-            if (wroteValue)
-                sb.Append(separator);
-
-            sb.Append(value);
-            wroteValue = true;
-        }
-
-        return sb;
-    }
-
 }

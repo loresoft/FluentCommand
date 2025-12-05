@@ -1,8 +1,6 @@
 <Solution>
   <Folder Name="/Build/">
-    <File Path=".github/dependabot.yml" />
     <File Path=".github/workflows/dotnet.yml" />
-    <File Path=".github/workflows/merge.yml" />
     <File Path="coverlet.runsettings" />
     <File Path="Directory.Packages.props" />
     <File Path="README.md" />

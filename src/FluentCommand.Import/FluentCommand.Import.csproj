@@ -1,8 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Description>Fluent Wrapper for DbCommand with data import, field mapping, and merge capabilities</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Text.Json" />

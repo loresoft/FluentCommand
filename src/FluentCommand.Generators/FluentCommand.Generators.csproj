@@ -10,6 +10,7 @@
     <AnalyzerLanguage>cs</AnalyzerLanguage>
     <AnalyzerRoslynVersion>4.4</AnalyzerRoslynVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <Description>Source generators for FluentCommand that create DataReader factory methods and extension methods for entity classes</Description>
   </PropertyGroup>
   <ItemGroup>
     <!-- https://learn.microsoft.com/en-us/visualstudio/extensibility/roslyn-version-support -->

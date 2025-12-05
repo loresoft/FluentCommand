@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net462;net8.0;net9.0;net10.0</TargetFrameworks>
     <RootNamespace>FluentCommand</RootNamespace>
+    <Description>Fluent Wrapper for DbCommand with SQL Server support using Microsoft.Data.SqlClient</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\FluentCommand.Import\FluentCommand.Import.csproj" />
