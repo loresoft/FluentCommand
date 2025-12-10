@@ -1,3 +1,6 @@
+using FluentCommand.Extensions;
+using FluentCommand.Reflection;
+
 using Microsoft.Data.SqlClient;
 
 namespace FluentCommand.Bulk;
@@ -18,6 +21,27 @@ public static class DataBulkCopyExtensions
     public static IDataBulkCopy BulkCopy(this IDataSession session, string destinationTable)
     {
         var bulkCopy = new DataBulkCopy(session, destinationTable);
+        return bulkCopy;
+    }
+
+    /// <summary>
+    /// Starts a bulk copy operation using the specified data session and destination table name.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity to be copied.</typeparam>
+    /// <param name="session">The <see cref="IDataSession"/> to use for the bulk copy operation.</param>
+    /// <returns>
+    /// An <see cref="IDataBulkCopy"/> instance for configuring and executing the bulk copy operation.
+    /// </returns>
+    public static IDataBulkCopy BulkCopy<TEntity>(this IDataSession session)
+    {
+        var typeAccessor = TypeAccessor.GetAccessor<TEntity>();
+        var destinationTable = typeAccessor.TableSchema.HasValue()
+            ? $"{typeAccessor.TableSchema}.{typeAccessor.TableName}"
+            : typeAccessor.TableName;
+
+        var bulkCopy = new DataBulkCopy(session, destinationTable);
+        bulkCopy.AutoMap();
+
         return bulkCopy;
     }
 }

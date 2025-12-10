@@ -1,4 +1,5 @@
 using System.Data;
+using System.Linq.Expressions;
 
 using FluentCommand.Extensions;
 
@@ -194,11 +195,14 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         return this;
     }
 
-    /// <summary>
-    /// Copies all items in the supplied <see cref="IEnumerable{TEntity}"/> to the destination table using bulk copy.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the data elements.</typeparam>
-    /// <param name="data">An enumerable collection of entities to be copied to the destination table.</param>
+    /// <inheritdoc/>
+    public IDataBulkCopy Ignore<TEntity, TValue>(Expression<Func<TEntity, TValue>> sourceProperty)
+        where TEntity : class
+    {
+        return Mapping<TEntity>(b => b.Ignore(sourceProperty));
+    }
+
+    /// <inheritdoc/>
     public void WriteToServer<TEntity>(IEnumerable<TEntity> data)
         where TEntity : class
     {
@@ -206,10 +210,16 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         WriteToServer(dataReader);
     }
 
-    /// <summary>
-    /// Copies all rows from the supplied <see cref="DataRow"/> array to the destination table using bulk copy.
-    /// </summary>
-    /// <param name="rows">An array of <see cref="DataRow"/> objects to be copied to the destination table.</param>
+    /// <inheritdoc/>
+    public async Task WriteToServerAsync<TEntity>(IEnumerable<TEntity> data, CancellationToken cancellationToken = default)
+        where TEntity : class
+    {
+        using var dataReader = new ListDataReader<TEntity>(data);
+        await WriteToServerAsync(dataReader, cancellationToken);
+    }
+
+
+    /// <inheritdoc/>
     public void WriteToServer(DataRow[] rows)
     {
         AssertDisposed();
@@ -230,32 +240,43 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         }
     }
 
-    /// <summary>
-    /// Copies all rows in the supplied <see cref="DataTable"/> to the destination table using bulk copy.
-    /// </summary>
-    /// <param name="table">A <see cref="DataTable"/> whose rows will be copied to the destination table.</param>
+    /// <inheritdoc/>
+    public async Task WriteToServerAsync(DataRow[] rows, CancellationToken cancellationToken = default)
+    {
+        AssertDisposed();
+
+        try
+        {
+            await _dataSession.EnsureConnectionAsync(cancellationToken);
+
+            using var bulkCopy = Create();
+
+            await bulkCopy.WriteToServerAsync(rows, cancellationToken);
+
+            bulkCopy.Close();
+        }
+        finally
+        {
+            _dataSession.ReleaseConnection();
+            Dispose();
+        }
+    }
+
+
+    /// <inheritdoc/>
     public void WriteToServer(DataTable table)
     {
         WriteToServer(table, 0);
     }
 
-    /// <summary>
-    /// Copies only rows that match the supplied row state in the supplied <see cref="DataTable"/> to the destination table using bulk copy.
-    /// </summary>
-    /// <param name="table">A <see cref="DataTable"/> whose rows will be copied to the destination table.</param>
-    /// <param name="rowState">A value from the <see cref="DataRowState"/> enumeration. Only rows matching the row state are copied to the destination.</param>
+    /// <inheritdoc/>
     public void WriteToServer(DataTable table, DataRowState rowState)
     {
         AssertDisposed();
 
         try
         {
-            // resolve auto map
-            if (_autoMap == true)
-            {
-                foreach (DataColumn column in table.Columns)
-                    Mapping(column.ColumnName, column.ColumnName);
-            }
+            ApplyAutoMapping(table);
 
             _dataSession.EnsureConnection();
 
@@ -271,25 +292,39 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         }
     }
 
-    /// <summary>
-    /// Copies all rows in the supplied <see cref="IDataReader"/> to the destination table using bulk copy.
-    /// </summary>
-    /// <param name="reader">An <see cref="IDataReader"/> whose rows will be copied to the destination table.</param>
+    /// <inheritdoc/>
+    public async Task WriteToServerAsync(DataTable table, DataRowState rowState = 0, CancellationToken cancellationToken = default)
+    {
+        AssertDisposed();
+
+        try
+        {
+            ApplyAutoMapping(table);
+
+            await _dataSession.EnsureConnectionAsync(cancellationToken);
+
+            using var bulkCopy = Create();
+
+            await bulkCopy.WriteToServerAsync(table, rowState, cancellationToken);
+
+            bulkCopy.Close();
+        }
+        finally
+        {
+            _dataSession.ReleaseConnection();
+            Dispose();
+        }
+    }
+
+
+    /// <inheritdoc/>
     public void WriteToServer(IDataReader reader)
     {
         AssertDisposed();
 
         try
         {
-            // resolve auto map
-            if (_autoMap == true)
-            {
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    var name = reader.GetName(i);
-                    Mapping(name, name);
-                }
-            }
+            ApplyAutoMapping(reader);
 
             _dataSession.EnsureConnection();
 
@@ -305,10 +340,65 @@ public class DataBulkCopy : DisposableBase, IDataBulkCopy
         }
     }
 
+    /// <inheritdoc/>
+    public async Task WriteToServerAsync(IDataReader reader, CancellationToken cancellationToken = default)
+    {
+        AssertDisposed();
+
+        try
+        {
+            ApplyAutoMapping(reader);
+
+            await _dataSession.EnsureConnectionAsync(cancellationToken);
+
+            using var bulkCopy = Create();
+
+            await bulkCopy.WriteToServerAsync(reader, cancellationToken);
+
+            bulkCopy.Close();
+        }
+        finally
+        {
+            _dataSession.ReleaseConnection();
+            Dispose();
+        }
+    }
+
+
+    /// <summary>
+    /// Applies automatic column mappings based on the <see cref="IDataReader"/> field names.
+    /// </summary>
+    /// <param name="reader">The data reader containing the field schema.</param>
+    private void ApplyAutoMapping(IDataReader reader)
+    {
+        if (_autoMap != true)
+            return;
+
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            var name = reader.GetName(i);
+            Mapping(name, name);
+        }
+    }
+
+    /// <summary>
+    /// Applies automatic column mappings based on the <see cref="DataTable"/> column names.
+    /// </summary>
+    /// <param name="table">The data table containing the column schema.</param>
+    private void ApplyAutoMapping(DataTable table)
+    {
+        if (_autoMap != true)
+            return;
+
+        foreach (DataColumn column in table.Columns)
+            Mapping(column.ColumnName, column.ColumnName);
+    }
+
+
     /// <summary>
     /// Creates and configures a <see cref="SqlBulkCopy"/> instance based on the current settings and mappings.
     /// </summary>
-    /// <returns>A configured <see cref="SqlBulkCopy"/> instance.</returns>
+    /// <returns>A configured <see cref="SqlBulkCopy"/> instance ready for bulk copy operations.</returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the underlying connection is not a <see cref="SqlConnection"/>.
     /// </exception>

@@ -101,6 +101,28 @@ public class DataBulkCopyTests : DatabaseTestBase
             .WriteToServer(users);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task WriteServerAsync()
+    {
+        var generator = CreateGenerator();
+        var users = generator.Generate(100);
+
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        await session
+            .BulkCopy<User>()
+            .Mapping<User>(map =>
+            {
+                map.Ignore(u => u.Id);
+                map.Ignore(u => u.RowVersion);
+                map.Ignore(u => u.Audits);
+                map.Ignore(u => u.AssignedTasks);
+                map.Ignore(u => u.CreatedTasks);
+                map.Ignore(u => u.Roles);
+            })
+            .WriteToServerAsync(users, TestCancellation);
+    }
 
     private static Faker<User> CreateGenerator()
     {
