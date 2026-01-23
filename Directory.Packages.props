@@ -30,7 +30,7 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="MinVer" Version="7.0.0" />
     <PackageVersion Include="Npgsql" Version="10.0.1" />
-    <PackageVersion Include="Polyfill" Version="9.7.4" />
+    <PackageVersion Include="Polyfill" Version="9.7.5" />
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageVersion Include="System.Text.Json" Version="10.0.2" />
     <PackageVersion Include="Testcontainers.Azurite" Version="4.10.0" />
