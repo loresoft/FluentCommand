@@ -311,6 +311,53 @@ public class DataConfigurationBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds an interceptor instance to the configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the interceptor.</typeparam>
+    /// <param name="interceptor">The interceptor instance.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataInterceptor"/>
+    public DataConfigurationBuilder AddInterceptor<TService>(TService interceptor)
+        where TService : class, IDataInterceptor
+    {
+        _services.AddSingleton<IDataInterceptor>(interceptor);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an interceptor using a factory to the configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the interceptor.</typeparam>
+    /// <param name="implementationFactory">The factory that creates the interceptor.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataInterceptor"/>
+    public DataConfigurationBuilder AddInterceptor<TService>(Func<IServiceProvider, TService> implementationFactory)
+        where TService : class, IDataInterceptor
+    {
+        _services.AddSingleton<IDataInterceptor>(implementationFactory);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an interceptor by type to the configuration.
+    /// </summary>
+    /// <typeparam name="TService">The type of the interceptor.</typeparam>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    /// <seealso cref="IDataInterceptor"/>
+    public DataConfigurationBuilder AddInterceptor<TService>()
+        where TService : class, IDataInterceptor
+    {
+        _services.AddSingleton<IDataInterceptor, TService>();
+        return this;
+    }
+
 
     internal void AddConfiguration()
     {
@@ -331,7 +378,8 @@ public class DataConfigurationBuilder
                 connectionString,
                 sp.GetService(dataCache) as IDataCache,
                 sp.GetService(queryGenerator) as IQueryGenerator,
-                sp.GetService(queryLogger) as IDataQueryLogger
+                sp.GetService(queryLogger) as IDataQueryLogger,
+                sp.GetServices<IDataInterceptor>()
             );
         });
 
@@ -358,7 +406,8 @@ public class DataConfigurationBuilder
                 connectionString,
                 sp.GetService(dataCache) as IDataCache,
                 sp.GetService(queryGenerator) as IQueryGenerator,
-                sp.GetService(queryLogger) as IDataQueryLogger
+                sp.GetService(queryLogger) as IDataQueryLogger,
+                sp.GetServices<IDataInterceptor>()
             );
         });
 

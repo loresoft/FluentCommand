@@ -50,6 +50,14 @@ public interface IDataConfiguration : IDataSessionFactory
     IQueryGenerator QueryGenerator { get; }
 
     /// <summary>
+    /// Gets the registered interceptors for this configuration.
+    /// </summary>
+    /// <value>
+    /// The list of <see cref="IDataInterceptor"/> instances that will be applied to each session created from this configuration.
+    /// </value>
+    IEnumerable<IDataInterceptor> Interceptors { get; }
+
+    /// <summary>
     /// Creates a new <see cref="DbConnection" /> instance from this database configuration.
     /// </summary>
     /// <returns>

@@ -18,19 +18,22 @@ public class DataConfiguration : IDataConfiguration
     /// <param name="cache">The data cache manager.</param>
     /// <param name="queryGenerator">The query generator.</param>
     /// <param name="queryLogger">The query command logger.</param>
+    /// <param name="interceptors">The interceptors to apply to each session created from this configuration.</param>
     /// <exception cref="ArgumentNullException">The <paramref name="providerFactory"/> is null</exception>
     public DataConfiguration(
         DbProviderFactory providerFactory,
         string connectionString,
         IDataCache cache = null,
         IQueryGenerator queryGenerator = null,
-        IDataQueryLogger queryLogger = null)
+        IDataQueryLogger queryLogger = null,
+        IEnumerable<IDataInterceptor> interceptors = null)
     {
         ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
         ConnectionString = connectionString;
         QueryLogger = queryLogger;
         DataCache = cache;
         QueryGenerator = queryGenerator ?? new SqlServerGenerator();
+        Interceptors = interceptors ?? [];
     }
 
     /// <summary>
@@ -74,6 +77,14 @@ public class DataConfiguration : IDataConfiguration
     public IQueryGenerator QueryGenerator { get; }
 
     /// <summary>
+    /// Gets the registered interceptors for this configuration.
+    /// </summary>
+    /// <value>
+    /// The list of <see cref="IDataInterceptor"/> instances applied to each session created from this configuration.
+    /// </value>
+    public IEnumerable<IDataInterceptor> Interceptors { get; }
+
+    /// <summary>
     /// Creates a new data session from this database configuration
     /// </summary>
     /// <param name="connectionString">The connection string to use for the session.  If <paramref name="connectionString" /> is <c>null</c>, <see cref="ConnectionString" /> will be used.</param>
@@ -83,7 +94,7 @@ public class DataConfiguration : IDataConfiguration
     public virtual IDataSession CreateSession(string connectionString = null)
     {
         var connection = CreateConnection(connectionString);
-        return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger);
+        return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger, Interceptors);
     }
 
     /// <summary>
@@ -103,7 +114,7 @@ public class DataConfiguration : IDataConfiguration
         if (transaction.Connection == null)
             throw new ArgumentException("The specified transaction doesn't have a vaild connection", nameof(transaction));
 
-        return new DataSession(transaction, false, DataCache, QueryGenerator, QueryLogger);
+        return new DataSession(transaction, false, DataCache, QueryGenerator, QueryLogger, Interceptors);
     }
 
     /// <summary>
@@ -146,13 +157,15 @@ public class DataConfiguration<TDiscriminator> : DataConfiguration, IDataConfigu
     /// <param name="cache">The data cache manager.</param>
     /// <param name="queryGenerator">The query generator.</param>
     /// <param name="queryLogger">The query command logger.</param>
+    /// <param name="interceptors">The interceptors to apply during this configuration's lifetime.</param>
     public DataConfiguration(
         DbProviderFactory providerFactory,
         string connectionString,
         IDataCache cache = null,
         IQueryGenerator queryGenerator = null,
-        IDataQueryLogger queryLogger = null)
-        : base(providerFactory, connectionString, cache, queryGenerator, queryLogger)
+        IDataQueryLogger queryLogger = null,
+        IEnumerable<IDataInterceptor> interceptors = null)
+        : base(providerFactory, connectionString, cache, queryGenerator, queryLogger, interceptors)
     {
     }
 }

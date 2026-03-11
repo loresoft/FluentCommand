@@ -16,6 +16,7 @@ public class DataCommand : DisposableBase, IDataCommand
 {
     private readonly Queue<DataCallback> _callbacks;
     private readonly IDataSession _dataSession;
+    private readonly IDataCommandInterceptor[] _commandInterceptors;
 
     private TimeSpan? _slidingExpiration;
     private DateTimeOffset? _absoluteExpiration;
@@ -26,12 +27,19 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </summary>
     /// <param name="dataSession">The data session.</param>
     /// <param name="transaction">The DbTransaction for this DataCommand.</param>
-    public DataCommand(IDataSession dataSession, DbTransaction transaction)
+    /// <param name="commandInterceptors">Pre-filtered command interceptors from the owning session.</param>
+    public DataCommand(
+        IDataSession dataSession,
+        DbTransaction transaction,
+        IDataCommandInterceptor[] commandInterceptors = null)
     {
         _callbacks = new Queue<DataCallback>();
         _dataSession = dataSession ?? throw new ArgumentNullException(nameof(dataSession));
+
         Command = dataSession.Connection.CreateCommand();
         Command.Transaction = transaction;
+
+        _commandInterceptors = commandInterceptors ?? [];
     }
 
     /// <summary>
@@ -565,6 +573,12 @@ public class DataCommand : DisposableBase, IDataCommand
 
             _dataSession.EnsureConnection();
 
+            if (_commandInterceptors.Length > 0)
+            {
+                foreach (var ci in _commandInterceptors)
+                    ci.CommandExecuting(Command, _dataSession);
+            }
+
             var results = query();
 
             TriggerCallbacks();
@@ -610,6 +624,12 @@ public class DataCommand : DisposableBase, IDataCommand
                 return cacheValue;
 
             await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+            if (_commandInterceptors.Length > 0)
+            {
+                foreach (var ci in _commandInterceptors)
+                    await ci.CommandExecutingAsync(Command, _dataSession, cancellationToken).ConfigureAwait(false);
+            }
 
             var results = await query(cancellationToken).ConfigureAwait(false);
 

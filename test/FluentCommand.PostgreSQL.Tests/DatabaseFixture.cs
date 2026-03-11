@@ -11,7 +11,7 @@ namespace FluentCommand.PostgreSQL.Tests;
 
 public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
+    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder("postgres:latest")
         .WithDatabase("TrackerDocker")
         .Build();
 

@@ -14,6 +14,10 @@ public class DataSession : DisposableBase, IDataSession
 {
     private readonly bool _disposeConnection;
 
+    private readonly IDataInterceptor[] _interceptors;
+    private readonly IDataConnectionInterceptor[] _connectionInterceptors;
+    private readonly IDataCommandInterceptor[] _commandInterceptors;
+
     private bool _openedConnection;
     private int _connectionRequestCount;
 
@@ -48,6 +52,14 @@ public class DataSession : DisposableBase, IDataSession
     /// </value>
     public IDataQueryLogger QueryLogger { get; }
 
+    /// <summary>
+    /// Gets the interceptors registered for this session.
+    /// </summary>
+    /// <value>
+    /// The list of <see cref="IDataInterceptor"/> instances active for this session.
+    /// </value>
+    public IReadOnlyList<IDataInterceptor> Interceptors => _interceptors;
+
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataSession" /> class.
@@ -57,9 +69,16 @@ public class DataSession : DisposableBase, IDataSession
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="connection" /> instance.</exception>
-    public DataSession(DbConnection connection, bool disposeConnection = true, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
+    public DataSession(
+        DbConnection connection,
+        bool disposeConnection = true,
+        IDataCache cache = null,
+        IQueryGenerator queryGenerator = null,
+        IDataQueryLogger logger = null,
+        IEnumerable<IDataInterceptor> interceptors = null)
     {
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
@@ -72,6 +91,10 @@ public class DataSession : DisposableBase, IDataSession
         QueryGenerator = queryGenerator ?? new SqlServerGenerator();
         QueryLogger = logger;
 
+        _interceptors = interceptors is null ? [] : [.. interceptors];
+        _connectionInterceptors = [.. _interceptors.OfType<IDataConnectionInterceptor>()];
+        _commandInterceptors = [.. _interceptors.OfType<IDataCommandInterceptor>()];
+
         _disposeConnection = disposeConnection;
     }
 
@@ -83,10 +106,17 @@ public class DataSession : DisposableBase, IDataSession
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
     /// <exception cref="ArgumentNullException"><paramref name="transaction" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="transaction" /> instance.</exception>
-    public DataSession(DbTransaction transaction, bool disposeConnection = false, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
-        : this(transaction?.Connection, disposeConnection, cache, queryGenerator, logger)
+    public DataSession(
+        DbTransaction transaction,
+        bool disposeConnection = false,
+        IDataCache cache = null,
+        IQueryGenerator queryGenerator = null,
+        IDataQueryLogger logger = null,
+        IEnumerable<IDataInterceptor> interceptors = null)
+        : this(transaction?.Connection, disposeConnection, cache, queryGenerator, logger, interceptors)
     {
         Transaction = transaction ?? throw new ArgumentNullException(nameof(transaction));
     }
@@ -101,11 +131,15 @@ public class DataSession : DisposableBase, IDataSession
         if (dataConfiguration == null)
             throw new ArgumentNullException(nameof(dataConfiguration));
 
-
         Connection = dataConfiguration.CreateConnection();
         Cache = dataConfiguration.DataCache;
         QueryGenerator = dataConfiguration.QueryGenerator;
         QueryLogger = dataConfiguration.QueryLogger;
+
+        _interceptors = dataConfiguration.Interceptors is null ? [] : [.. dataConfiguration.Interceptors];
+        _connectionInterceptors = [.. _interceptors.OfType<IDataConnectionInterceptor>()];
+        _commandInterceptors = [.. _interceptors.OfType<IDataCommandInterceptor>()];
+
         _disposeConnection = true;
     }
 
@@ -152,7 +186,7 @@ public class DataSession : DisposableBase, IDataSession
     /// </returns>
     public IDataCommand Sql(string sql)
     {
-        var dataCommand = new DataCommand(this, Transaction);
+        var dataCommand = new DataCommand(this, Transaction, _commandInterceptors);
         return dataCommand.Sql(sql);
     }
 
@@ -165,7 +199,7 @@ public class DataSession : DisposableBase, IDataSession
     /// </returns>
     public IDataCommand StoredProcedure(string storedProcedureName)
     {
-        var dataCommand = new DataCommand(this, Transaction);
+        var dataCommand = new DataCommand(this, Transaction, _commandInterceptors);
         return dataCommand.StoredProcedure(storedProcedureName);
     }
 
@@ -178,10 +212,12 @@ public class DataSession : DisposableBase, IDataSession
     {
         AssertDisposed();
 
+        bool justOpened = false;
         if (ConnectionState.Closed == Connection.State)
         {
             Connection.Open();
             _openedConnection = true;
+            justOpened = true;
         }
 
         if (_openedConnection)
@@ -190,6 +226,13 @@ public class DataSession : DisposableBase, IDataSession
         // Check the connection was opened correctly
         if (Connection.State is ConnectionState.Closed or ConnectionState.Broken)
             throw new InvalidOperationException($"Execution of the command requires an open and available connection. The connection's current state is {Connection.State}.");
+
+        // run connection opened interceptors only when the connection was just opened by this context
+        if (justOpened)
+        {
+            foreach (var interceptor in _connectionInterceptors)
+                interceptor.ConnectionOpened(Connection, this);
+        }
     }
 
     /// <summary>
@@ -202,10 +245,12 @@ public class DataSession : DisposableBase, IDataSession
     {
         AssertDisposed();
 
+        bool justOpened = false;
         if (ConnectionState.Closed == Connection.State)
         {
             await Connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             _openedConnection = true;
+            justOpened = true;
         }
 
         if (_openedConnection)
@@ -214,6 +259,13 @@ public class DataSession : DisposableBase, IDataSession
         // Check the connection was opened correctly
         if (Connection.State is ConnectionState.Closed or ConnectionState.Broken)
             throw new InvalidOperationException($"Execution of the command requires an open and available connection. The connection's current state is {Connection.State}.");
+
+        // run connection opened interceptors only when the connection was just opened by this context
+        if (justOpened)
+        {
+            foreach (var interceptor in _connectionInterceptors)
+                await interceptor.ConnectionOpenedAsync(Connection, this, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     /// <summary>
@@ -305,10 +357,17 @@ public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscrimina
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="connection" /> instance.</exception>
-    public DataSession(DbConnection connection, bool disposeConnection = true, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
-        : base(connection, disposeConnection, cache, queryGenerator, logger)
+    public DataSession(
+        DbConnection connection,
+        bool disposeConnection = true,
+        IDataCache cache = null,
+        IQueryGenerator queryGenerator = null,
+        IDataQueryLogger logger = null,
+        IEnumerable<IDataInterceptor> interceptors = null)
+        : base(connection, disposeConnection, cache, queryGenerator, logger, interceptors)
     {
     }
 
@@ -320,10 +379,17 @@ public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscrimina
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
     /// <exception cref="ArgumentNullException"><paramref name="transaction" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="transaction" /> instance.</exception>
-    public DataSession(DbTransaction transaction, bool disposeConnection = false, IDataCache cache = null, IQueryGenerator queryGenerator = null, IDataQueryLogger logger = null)
-        : base(transaction, disposeConnection, cache, queryGenerator, logger)
+    public DataSession(
+        DbTransaction transaction,
+        bool disposeConnection = false,
+        IDataCache cache = null,
+        IQueryGenerator queryGenerator = null,
+        IDataQueryLogger logger = null,
+        IEnumerable<IDataInterceptor> interceptors = null)
+        : base(transaction, disposeConnection, cache, queryGenerator, logger, interceptors)
     {
     }
 

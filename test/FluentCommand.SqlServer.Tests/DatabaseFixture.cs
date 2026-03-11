@@ -20,16 +20,15 @@ namespace FluentCommand.SqlServer.Tests;
 
 public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
 {
-    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
         .WithPassword("Bn87bBYhLjYRj%9zRgUc")
         .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1433))
         .Build();
 
-    private readonly RedisContainer _redisContainer = new RedisBuilder()
+    private readonly RedisContainer _redisContainer = new RedisBuilder("redis:latest")
         .Build();
 
-    private readonly AzuriteContainer _azuriteContainer = new AzuriteBuilder()
+    private readonly AzuriteContainer _azuriteContainer = new AzuriteBuilder("mcr.microsoft.com/azure-storage/azurite:latest")
         .Build();
 
     public async ValueTask InitializeAsync()

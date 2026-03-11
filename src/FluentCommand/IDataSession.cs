@@ -46,6 +46,14 @@ public interface IDataSession
     IDataQueryLogger QueryLogger { get; }
 
     /// <summary>
+    /// Gets the interceptors registered for this session.
+    /// </summary>
+    /// <value>
+    /// The list of <see cref="IDataInterceptor"/> instances active for this session.
+    /// </value>
+    IReadOnlyList<IDataInterceptor> Interceptors { get; }
+
+    /// <summary>
     /// Starts a database transaction with the specified isolation level.
     /// </summary>
     /// <param name="isolationLevel">Specifies the isolation level for the transaction.</param>
@@ -113,5 +121,5 @@ public interface IDataSession
 /// <typeparam name="TDiscriminator">The type of the discriminator.</typeparam>
 public interface IDataSession<TDiscriminator> : IDataSession
 {
-    
+
 }
