@@ -1,10 +1,10 @@
-using System;
 using System.Buffers;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 using FluentCommand.Extensions;
 
@@ -20,6 +20,49 @@ public static class JsonCommandExtensions
     private static readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
 
     /// <summary>
+    /// Adds a new parameter with the specified <paramref name="name" /> with the <paramref name="value" /> serialized as JSON using the specified <paramref name="options" />.
+    /// </summary>
+    /// <typeparam name="TParameter">The type of the parameter value.</typeparam>
+    /// <param name="dataCommand">The <see cref="IDataCommand"/> for this extension method.</param>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="value">The value to be serialized as JSON and added as a string parameter.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use when serializing.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the data command.
+    /// </returns>
+    public static IDataCommand ParameterJson<TParameter>(
+        this IDataCommand dataCommand,
+        string name,
+        TParameter value,
+        JsonSerializerOptions? options = null)
+    {
+        var json = JsonSerializer.Serialize(value, options);
+        return dataCommand.Parameter(name, json);
+    }
+
+    /// <summary>
+    /// Adds a new parameter with the specified <paramref name="name" /> with the <paramref name="value" /> serialized as JSON using the specified <paramref name="jsonTypeInfo" />.
+    /// </summary>
+    /// <typeparam name="TParameter">The type of the parameter value.</typeparam>
+    /// <param name="dataCommand">The <see cref="IDataCommand"/> for this extension method.</param>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="value">The value to be serialized as JSON and added as a string parameter.</param>
+    /// <param name="jsonTypeInfo">The <see cref="JsonTypeInfo{T}"/> to use when serializing.</param>
+    /// <returns>
+    /// A fluent <see langword="interface" /> to the data command.
+    /// </returns>
+    public static IDataCommand ParameterJson<TParameter>(
+        this IDataCommand dataCommand,
+        string name,
+        TParameter value,
+        JsonTypeInfo<TParameter> jsonTypeInfo)
+    {
+        var json = JsonSerializer.Serialize(value, jsonTypeInfo);
+        return dataCommand.Parameter(name, json);
+    }
+
+
+    /// <summary>
     /// Executes the query and returns a JSON string from data set returned by the query.
     /// </summary>
     /// <param name="dataCommand">The data command.</param>
@@ -27,7 +70,9 @@ public static class JsonCommandExtensions
     /// <returns>
     /// A JSON string representing the <see cref="IDataReader" /> result of the command.
     /// </returns>
-    public static string QueryJson(this IDataCommand dataCommand, JsonWriterOptions options = default)
+    public static string QueryJson(
+        this IDataCommand dataCommand,
+        JsonWriterOptions options = default)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
@@ -54,7 +99,10 @@ public static class JsonCommandExtensions
     /// <returns>
     /// A JSON string representing the <see cref="IDataReader" /> result of the command.
     /// </returns>
-    public static void QueryJson(this IDataCommand dataCommand, Stream stream, JsonWriterOptions options = default)
+    public static void QueryJson(
+        this IDataCommand dataCommand,
+        Stream stream,
+        JsonWriterOptions options = default)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
@@ -82,7 +130,10 @@ public static class JsonCommandExtensions
     /// <returns>
     /// A JSON string representing the <see cref="IDataReader" /> result of the command.
     /// </returns>
-    public static async Task<string> QueryJsonAsync(this IDataCommand dataCommand, JsonWriterOptions options = default, CancellationToken cancellationToken = default)
+    public static async Task<string> QueryJsonAsync(
+        this IDataCommand dataCommand,
+        JsonWriterOptions options = default,
+        CancellationToken cancellationToken = default)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
@@ -111,7 +162,11 @@ public static class JsonCommandExtensions
     /// <returns>
     /// A JSON string representing the <see cref="IDataReader" /> result of the command.
     /// </returns>
-    public static async Task QueryJsonAsync(this IDataCommand dataCommand, Stream stream, JsonWriterOptions options = default, CancellationToken cancellationToken = default)
+    public static async Task QueryJsonAsync(
+        this IDataCommand dataCommand,
+        Stream stream,
+        JsonWriterOptions options = default,
+        CancellationToken cancellationToken = default)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
@@ -137,7 +192,9 @@ public static class JsonCommandExtensions
     }
 
 
-    private static void WriteData(IDataReader reader, Utf8JsonWriter writer)
+    private static void WriteData(
+        IDataReader reader,
+        Utf8JsonWriter writer)
     {
         while (reader.Read())
         {
@@ -145,7 +202,10 @@ public static class JsonCommandExtensions
         }
     }
 
-    private static async Task WriteDataAsync(DbDataReader reader, Utf8JsonWriter writer, CancellationToken cancellationToken = default)
+    private static async Task WriteDataAsync(
+        DbDataReader reader,
+        Utf8JsonWriter writer,
+        CancellationToken cancellationToken = default)
     {
         while (await reader.ReadAsync(cancellationToken))
         {
@@ -153,7 +213,9 @@ public static class JsonCommandExtensions
         }
     }
 
-    private static void WriteObject(IDataReader reader, Utf8JsonWriter writer)
+    private static void WriteObject(
+        IDataReader reader,
+        Utf8JsonWriter writer)
     {
         writer.WriteStartObject();
 
@@ -168,7 +230,10 @@ public static class JsonCommandExtensions
         writer.WriteEndObject();
     }
 
-    private static void WriteValue(IDataReader reader, Utf8JsonWriter writer, int index)
+    private static void WriteValue(
+        IDataReader reader,
+        Utf8JsonWriter writer,
+        int index)
     {
         if (reader.IsDBNull(index))
         {
