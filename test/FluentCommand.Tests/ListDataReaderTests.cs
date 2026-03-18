@@ -196,7 +196,7 @@ public class ListDataReaderTests
     }
 
     [Fact]
-    public void GetData_ShouldThrowNotImplementedException()
+    public void GetData_ShouldThrowNotSupportedException()
     {
         // Arrange
         var item = new TestItem { Id = 1, Name = "Test", Created = DateTime.UtcNow };
@@ -206,7 +206,7 @@ public class ListDataReaderTests
         Action act = () => reader.GetData(0);
 
         // Assert
-        act.Should().Throw<NotImplementedException>();
+        act.Should().Throw<NotSupportedException>();
     }
 
     [Fact]

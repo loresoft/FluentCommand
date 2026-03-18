@@ -132,8 +132,8 @@ public class DataCommandProcedureTests : DatabaseTestBase
 
         user.Should().NotBeNull();
         user.Id.Should().Be(userId);
-        user.Created.Should().NotBe(default(DateTimeOffset));
-        user.Updated.Should().NotBe(default(DateTimeOffset));
+        user.Created.Should().NotBe(default);
+        user.Updated.Should().NotBe(default);
 
         transaction.Commit();
     }
@@ -154,7 +154,7 @@ public class DataCommandProcedureTests : DatabaseTestBase
 
         var result = session
             .StoredProcedure("[dbo].[ImportUsers]")
-            .SqlParameter("@userTable", users)
+            .ParameterStructured("@userTable", users)
             .Execute();
 
         result.Should().Be(-1);

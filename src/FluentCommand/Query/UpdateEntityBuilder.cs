@@ -84,7 +84,7 @@ public class UpdateEntityBuilder<TEntity>
             throw new ArgumentNullException(nameof(entity));
 
         var properties = _typeAccessor.GetProperties();
-        var columnSet = new HashSet<string>(columnNames ?? Enumerable.Empty<string>());
+        var columnSet = new HashSet<string>(columnNames ?? []);
 
         foreach (var property in properties)
         {

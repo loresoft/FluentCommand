@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Data;
+using System.Data.Common;
 
 using FluentCommand.Extensions;
 using FluentCommand.Reflection;
@@ -6,10 +8,10 @@ using FluentCommand.Reflection;
 namespace FluentCommand;
 
 /// <summary>
-/// Read a list of items using an <see cref="IDataReader"/>
+/// Read a list of items using a <see cref="DbDataReader"/>
 /// </summary>
 /// <typeparam name="T">The type of items being read</typeparam>
-public class ListDataReader<T> : IDataReader where T : class
+public class ListDataReader<T> : DbDataReader where T : class
 {
     // ReSharper disable once StaticMemberInGenericType
     private static readonly TypeAccessor _typeAccessor;
@@ -17,6 +19,7 @@ public class ListDataReader<T> : IDataReader where T : class
     private readonly IEnumerator<T> _iterator;
     private readonly List<IMemberAccessor> _activeColumns;
     private readonly Dictionary<string, int> _columnOrdinals;
+    private bool _closed;
     private bool _disposed;
 
     static ListDataReader()
@@ -36,7 +39,7 @@ public class ListDataReader<T> : IDataReader where T : class
 
         _iterator = list.GetEnumerator();
 
-        var ignored = new HashSet<string>(ignoreNames ?? Enumerable.Empty<string>());
+        var ignored = new HashSet<string>(ignoreNames ?? []);
 
         _activeColumns = _typeAccessor
             .GetProperties()
@@ -51,31 +54,28 @@ public class ListDataReader<T> : IDataReader where T : class
     /// <summary>
     /// Gets a value indicating the depth of nesting for the current row. Always returns 0.
     /// </summary>
-    public int Depth => 0;
+    public override int Depth => 0;
 
     /// <summary>
     /// Gets a value indicating whether the data reader is closed.
     /// </summary>
-    public bool IsClosed { get; private set; }
+    public override bool IsClosed => _closed;
 
     /// <summary>
     /// Gets the number of rows affected. Always returns 0.
     /// </summary>
-    public int RecordsAffected => 0;
+    public override int RecordsAffected => 0;
 
     /// <summary>
-    /// Closes the data reader and releases resources.
+    /// Gets a value indicating whether the reader has rows. Always returns false.
     /// </summary>
-    public void Close()
-    {
-        Dispose(true);
-    }
+    public override bool HasRows => false;
 
     /// <summary>
     /// Returns a <see cref="DataTable"/> that describes the column metadata of the data reader.
     /// </summary>
     /// <returns>A <see cref="DataTable"/> describing the column metadata.</returns>
-    public DataTable GetSchemaTable()
+    public override DataTable GetSchemaTable()
     {
         // these are the columns used by DataTable load
         var table = new DataTable
@@ -109,58 +109,61 @@ public class ListDataReader<T> : IDataReader where T : class
     /// Advances the data reader to the next result. Always returns false.
     /// </summary>
     /// <returns>false, as multiple result sets are not supported.</returns>
-    public bool NextResult() => false;
+    public override bool NextResult() => false;
 
     /// <summary>
     /// Advances the data reader to the next record.
     /// </summary>
     /// <returns>true if there are more rows; otherwise, false.</returns>
-    public bool Read() => _iterator.MoveNext();
+    public override bool Read() => _iterator.MoveNext();
 
     /// <summary>
-    /// Releases all resources used by the <see cref="ListDataReader{T}"/>.
+    /// Returns an enumerator that iterates through the rows of the data reader.
     /// </summary>
-    public void Dispose()
+    /// <returns>An <see cref="IEnumerator"/> for the data reader.</returns>
+    public override IEnumerator GetEnumerator() => new DbEnumerator(this);
+
+    /// <summary>
+    /// Closes the data reader and releases resources.
+    /// </summary>
+    public override void Close()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
     /// <summary>
     /// Releases the unmanaged resources used by the ListDataReader and optionally releases the managed resources.
     /// </summary>
     /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
-    protected virtual void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
         if (_disposed)
             return;
 
         if (disposing)
         {
-            if (!IsClosed)
-            {
-                _iterator.Dispose();
-                IsClosed = true;
-            }
+            _iterator.Dispose();
+            _closed = true;
         }
 
         _disposed = true;
+        base.Dispose(disposing);
     }
 
     /// <inheritdoc/>
-    public string GetName(int i) => _activeColumns[i].Column;
+    public override string GetName(int i) => _activeColumns[i].Column;
 
     /// <inheritdoc/>
-    public string GetDataTypeName(int i) => _activeColumns[i].MemberType.Name;
+    public override string GetDataTypeName(int i) => _activeColumns[i].MemberType.Name;
 
     /// <inheritdoc/>
-    public Type GetFieldType(int i) => _activeColumns[i].MemberType;
+    public override Type GetFieldType(int i) => _activeColumns[i].MemberType;
 
     /// <inheritdoc/>
-    public object GetValue(int i) => _activeColumns[i].GetValue(_iterator.Current);
+    public override object GetValue(int i) => _activeColumns[i].GetValue(_iterator.Current);
 
     /// <inheritdoc/>
-    public int GetValues(object[] values)
+    public override int GetValues(object[] values)
     {
         int count = Math.Min(_activeColumns.Count, values.Length);
         for (int i = 0; i < count; i++)
@@ -169,7 +172,7 @@ public class ListDataReader<T> : IDataReader where T : class
     }
 
     /// <inheritdoc/>
-    public int GetOrdinal(string name)
+    public override int GetOrdinal(string name)
     {
         if (_columnOrdinals.TryGetValue(name, out int ordinal))
             return ordinal;
@@ -178,13 +181,13 @@ public class ListDataReader<T> : IDataReader where T : class
     }
 
     /// <inheritdoc/>
-    public bool GetBoolean(int i) => (bool)GetValue(i);
+    public override bool GetBoolean(int i) => (bool)GetValue(i);
 
     /// <inheritdoc/>
-    public byte GetByte(int i) => (byte)GetValue(i);
+    public override byte GetByte(int i) => (byte)GetValue(i);
 
     /// <inheritdoc/>
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length)
+    public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length)
     {
         byte[] value = (byte[])GetValue(i);
 
@@ -200,10 +203,10 @@ public class ListDataReader<T> : IDataReader where T : class
     }
 
     /// <inheritdoc/>
-    public char GetChar(int i) => (char)GetValue(i);
+    public override char GetChar(int i) => (char)GetValue(i);
 
     /// <inheritdoc/>
-    public long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
+    public override long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
     {
         if (buffer == null)
             throw new ArgumentNullException(nameof(buffer));
@@ -222,48 +225,45 @@ public class ListDataReader<T> : IDataReader where T : class
     }
 
     /// <inheritdoc/>
-    public Guid GetGuid(int i) => (Guid)GetValue(i);
+    public override Guid GetGuid(int i) => (Guid)GetValue(i);
 
     /// <inheritdoc/>
-    public short GetInt16(int i) => (short)GetValue(i);
+    public override short GetInt16(int i) => (short)GetValue(i);
 
     /// <inheritdoc/>
-    public int GetInt32(int i) => (int)GetValue(i);
+    public override int GetInt32(int i) => (int)GetValue(i);
 
     /// <inheritdoc/>
-    public long GetInt64(int i) => (long)GetValue(i);
+    public override long GetInt64(int i) => (long)GetValue(i);
 
     /// <inheritdoc/>
-    public float GetFloat(int i) => (float)GetValue(i);
+    public override float GetFloat(int i) => (float)GetValue(i);
 
     /// <inheritdoc/>
-    public double GetDouble(int i) => (double)GetValue(i);
+    public override double GetDouble(int i) => (double)GetValue(i);
 
     /// <inheritdoc/>
-    public string GetString(int i) => (string)GetValue(i);
+    public override string GetString(int i) => (string)GetValue(i);
 
     /// <inheritdoc/>
-    public decimal GetDecimal(int i) => (decimal)GetValue(i);
+    public override decimal GetDecimal(int i) => (decimal)GetValue(i);
 
     /// <inheritdoc/>
-    public DateTime GetDateTime(int i) => (DateTime)GetValue(i);
+    public override DateTime GetDateTime(int i) => (DateTime)GetValue(i);
 
     /// <inheritdoc/>
-    public IDataReader GetData(int i) => throw new NotImplementedException();
-
-    /// <inheritdoc/>
-    public bool IsDBNull(int i)
+    public override bool IsDBNull(int i)
     {
         var value = GetValue(i);
         return value == null || value == DBNull.Value;
     }
 
     /// <inheritdoc/>
-    public int FieldCount => _activeColumns.Count;
+    public override int FieldCount => _activeColumns.Count;
 
     /// <inheritdoc/>
-    public object this[int i] => GetValue(i);
+    public override object this[int i] => GetValue(i);
 
     /// <inheritdoc/>
-    public object this[string name] => GetValue(GetOrdinal(name));
+    public override object this[string name] => GetValue(GetOrdinal(name));
 }

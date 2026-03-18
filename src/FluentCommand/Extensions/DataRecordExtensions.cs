@@ -62,7 +62,7 @@ public static class DataRecordExtensions
     {
         int ordinal = dataRecord.GetOrdinal(name);
         if (dataRecord.IsDBNull(ordinal))
-            return Array.Empty<byte>();
+            return [];
 
         return GetBytes(dataRecord, ordinal);
     }

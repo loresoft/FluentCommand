@@ -1,4 +1,6 @@
 using System.Net.Mime;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -181,5 +183,100 @@ public class JsonTests : DatabaseTestBase
             .QueryJsonAsync(cancellationToken: TestCancellation);
 
         json.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void ParameterJsonInsertsSerializedValue()
+    {
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var input = new UserImport
+        {
+            EmailAddress = "json.param@test.com",
+            DisplayName = "Json Param",
+            FirstName = "Json",
+            LastName = "Param",
+        };
+
+        session.Sql("INSERT INTO [JsonLog] ([Data]) VALUES (@Data)")
+            .ParameterJson("@Data", input)
+            .Execute();
+
+        var json = session.Sql("SELECT TOP 1 [Data] FROM [JsonLog] ORDER BY [Id] DESC")
+            .QueryValue<string>();
+
+        json.Should().NotBeNullOrEmpty();
+
+        var result = JsonSerializer.Deserialize<UserImport>(json);
+        result.Should().NotBeNull();
+        result.EmailAddress.Should().Be(input.EmailAddress);
+        result.DisplayName.Should().Be(input.DisplayName);
+        result.FirstName.Should().Be(input.FirstName);
+        result.LastName.Should().Be(input.LastName);
+    }
+
+    [Fact]
+    public void ParameterJsonWithOptionsInsertsSerializedValue()
+    {
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+        var input = new UserImport
+        {
+            EmailAddress = "json.options@test.com",
+            DisplayName = "Json Options",
+            FirstName = "Json",
+            LastName = "Options",
+        };
+
+        session.Sql("INSERT INTO [JsonLog] ([Data]) VALUES (@Data)")
+            .ParameterJson("@Data", input, options)
+            .Execute();
+
+        var json = session.Sql("SELECT TOP 1 [Data] FROM [JsonLog] ORDER BY [Id] DESC")
+            .QueryValue<string>();
+
+        json.Should().NotBeNullOrEmpty();
+        json.Should().Contain("\"emailAddress\"");
+
+        var result = JsonSerializer.Deserialize<UserImport>(json, options);
+        result.Should().NotBeNull();
+        result.EmailAddress.Should().Be(input.EmailAddress);
+        result.DisplayName.Should().Be(input.DisplayName);
+    }
+
+    [Fact]
+    public void ParameterJsonWithTypeInfoInsertsSerializedValue()
+    {
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var options = JsonSerializerOptions.Default;
+        var typeInfo = (JsonTypeInfo<UserImport>)options.GetTypeInfo(typeof(UserImport));
+
+        var input = new UserImport
+        {
+            EmailAddress = "json.typeinfo@test.com",
+            DisplayName = "Json TypeInfo",
+            FirstName = "Json",
+            LastName = "TypeInfo",
+        };
+
+        session.Sql("INSERT INTO [JsonLog] ([Data]) VALUES (@Data)")
+            .ParameterJson("@Data", input, typeInfo)
+            .Execute();
+
+        var json = session.Sql("SELECT TOP 1 [Data] FROM [JsonLog] ORDER BY [Id] DESC")
+            .QueryValue<string>();
+
+        json.Should().NotBeNullOrEmpty();
+
+        var result = JsonSerializer.Deserialize(json, typeInfo);
+        result.Should().NotBeNull();
+        result.EmailAddress.Should().Be(input.EmailAddress);
+        result.DisplayName.Should().Be(input.DisplayName);
     }
 }
