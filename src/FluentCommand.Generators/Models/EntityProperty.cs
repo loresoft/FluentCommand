@@ -4,6 +4,7 @@ public record EntityProperty(
     string PropertyName,
     string ColumnName,
     string PropertyType,
+    string MemberTypeName,
     string? ParameterName = null,
     string? ConverterName = null,
     bool IsKey = false,

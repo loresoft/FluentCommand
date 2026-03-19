@@ -189,7 +189,7 @@ public static class TypeAccessorWriter
         // MemberType
         codeBuilder
             .Append("public global::System.Type MemberType => typeof(")
-            .Append(prop.PropertyType)
+            .Append(prop.MemberTypeName)
             .AppendLine(");");
 
         // Name

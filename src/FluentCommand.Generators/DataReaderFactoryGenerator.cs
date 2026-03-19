@@ -139,6 +139,7 @@ public abstract class DataReaderFactoryGenerator
     protected static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string? parameterName = null)
     {
         var propertyType = propertySymbol.Type.ToDisplayString();
+        var memberTypeName = propertySymbol.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString();
         var propertyName = propertySymbol.Name;
         var hasGetter = propertySymbol.GetMethod != null;
         var hasSetter = propertySymbol.SetMethod != null && !propertySymbol.SetMethod.IsInitOnly;
@@ -150,6 +151,7 @@ public abstract class DataReaderFactoryGenerator
                 PropertyName: propertyName,
                 ColumnName: propertyName,
                 PropertyType: propertyType,
+                MemberTypeName: memberTypeName,
                 ParameterName: parameterName,
                 HasGetter: hasGetter,
                 HasSetter: hasSetter
@@ -174,6 +176,7 @@ public abstract class DataReaderFactoryGenerator
             PropertyName: propertyName,
             ColumnName: columnName,
             PropertyType: propertyType,
+            MemberTypeName: memberTypeName,
             ParameterName: parameterName,
             ConverterName: converterName,
             IsKey: isKey,

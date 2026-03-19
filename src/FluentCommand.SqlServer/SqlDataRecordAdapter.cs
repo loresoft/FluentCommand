@@ -58,7 +58,11 @@ public class SqlDataRecordAdapter<T> : IEnumerable<SqlDataRecord> where T : clas
 
     private static (SqlMetaData[] MetaData, IMemberAccessor[] Columns) GetCachedMetaData()
     {
-        return _metaDataCache.GetOrAdd(typeof(T), _ => BuildMetaData());
+        // short-circuit to avoid the overhead of GetOrAdd and BuildMetaData
+        if (_metaDataCache.TryGetValue(typeof(T), out var cached))
+            return cached;
+
+        return _metaDataCache.GetOrAdd(typeof(T), static _ => BuildMetaData());
     }
 
     private static (SqlMetaData[] MetaData, IMemberAccessor[] Columns) BuildMetaData()
