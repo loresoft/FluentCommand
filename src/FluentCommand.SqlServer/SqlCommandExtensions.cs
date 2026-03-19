@@ -19,11 +19,11 @@ public static class SqlCommandExtensions
     /// <typeparam name="TEntity">The type of the data entities.</typeparam>
     /// <param name="dataCommand">The <see cref="IDataCommand"/> to extend.</param>
     /// <param name="name">The name of the parameter.</param>
-    /// <param name="data">The enumerable data to be added as a table-valued parameter.</param>
+    /// <param name="data">The enumerable data to be added as a table-valued parameter. Can be <c>null</c> or empty.</param>
     /// <returns>
     /// The same <see cref="IDataCommand"/> instance for fluent chaining.
     /// </returns>
-    public static IDataCommand ParameterStructured<TEntity>(this IDataCommand dataCommand, string name, IEnumerable<TEntity> data)
+    public static IDataCommand ParameterStructured<TEntity>(this IDataCommand dataCommand, string name, IEnumerable<TEntity>? data)
         where TEntity : class
     {
         if (dataCommand is null)
@@ -32,10 +32,7 @@ public static class SqlCommandExtensions
         if (string.IsNullOrEmpty(name))
             throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
 
-        if (data is null)
-            throw new ArgumentNullException(nameof(data));
-
-        var records = new SqlDataRecordAdapter<TEntity>(data);
+        var records = data is null ? null : new SqlDataRecordAdapter<TEntity>(data);
         return ParameterStructured(dataCommand, name, records);
     }
 
@@ -45,14 +42,14 @@ public static class SqlCommandExtensions
     /// </summary>
     /// <param name="dataCommand">The <see cref="IDataCommand"/> to extend.</param>
     /// <param name="name">The name of the parameter.</param>
-    /// <param name="records">The <see cref="IEnumerable{SqlDataRecord}"/> to be added as a table-valued parameter.</param>
+    /// <param name="records">The <see cref="IEnumerable{SqlDataRecord}"/> to be added as a table-valued parameter. Can be <c>null</c> or empty.</param>
     /// <returns>
     /// The same <see cref="IDataCommand"/> instance for fluent chaining.
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the underlying command is not a SQL Server command.
     /// </exception>
-    public static IDataCommand ParameterStructured(this IDataCommand dataCommand, string name, IEnumerable<SqlDataRecord> records)
+    public static IDataCommand ParameterStructured(this IDataCommand dataCommand, string name, IEnumerable<SqlDataRecord>? records)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
@@ -60,15 +57,14 @@ public static class SqlCommandExtensions
         if (string.IsNullOrEmpty(name))
             throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
 
-        if (records is null)
-            throw new ArgumentNullException(nameof(records));
-
         var sqlParameter = CreateSqlParameter(dataCommand);
 
         sqlParameter.ParameterName = name;
-        sqlParameter.Value = records;
-        sqlParameter.Direction = ParameterDirection.Input;
         sqlParameter.SqlDbType = SqlDbType.Structured;
+        sqlParameter.Direction = ParameterDirection.Input;
+
+        // SQL Server requires null (not an empty enumerable) when a TVP has no rows
+        sqlParameter.Value = records?.Any() == true ? records : null;
 
         return dataCommand.Parameter(sqlParameter);
     }
@@ -79,14 +75,14 @@ public static class SqlCommandExtensions
     /// </summary>
     /// <param name="dataCommand">The <see cref="IDataCommand"/> to extend.</param>
     /// <param name="name">The name of the parameter.</param>
-    /// <param name="dataReader">The <see cref="DbDataReader"/> to be added as a table-valued parameter.</param>
+    /// <param name="dataReader">The <see cref="DbDataReader"/> to be added as a table-valued parameter. Can be <c>null</c>.</param>
     /// <returns>
     /// The same <see cref="IDataCommand"/> instance for fluent chaining.
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the underlying command is not a SQL Server command.
     /// </exception>
-    public static IDataCommand ParameterStructured(this IDataCommand dataCommand, string name, DbDataReader dataReader)
+    public static IDataCommand ParameterStructured(this IDataCommand dataCommand, string name, DbDataReader? dataReader)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
@@ -94,15 +90,14 @@ public static class SqlCommandExtensions
         if (string.IsNullOrEmpty(name))
             throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
 
-        if (dataReader is null)
-            throw new ArgumentNullException(nameof(dataReader));
-
         var sqlParameter = CreateSqlParameter(dataCommand);
 
         sqlParameter.ParameterName = name;
-        sqlParameter.Value = dataReader;
-        sqlParameter.Direction = ParameterDirection.Input;
         sqlParameter.SqlDbType = SqlDbType.Structured;
+        sqlParameter.Direction = ParameterDirection.Input;
+
+        // SQL Server requires null (not an empty reader) when a TVP has no rows
+        sqlParameter.Value = dataReader?.HasRows == true ? dataReader : null;
 
         return dataCommand.Parameter(sqlParameter);
     }
@@ -112,14 +107,14 @@ public static class SqlCommandExtensions
     /// </summary>
     /// <param name="dataCommand">The <see cref="IDataCommand"/> to extend.</param>
     /// <param name="name">The name of the parameter.</param>
-    /// <param name="dataTable">The <see cref="DataTable"/> to be added as a table-valued parameter.</param>
+    /// <param name="dataTable">The <see cref="DataTable"/> to be added as a table-valued parameter. Can be <c>null</c> or empty.</param>
     /// <returns>
     /// The same <see cref="IDataCommand"/> instance for fluent chaining.
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the underlying command is not a SQL Server command.
     /// </exception>
-    public static IDataCommand ParameterStructured(this IDataCommand dataCommand, string name, DataTable dataTable)
+    public static IDataCommand ParameterStructured(this IDataCommand dataCommand, string name, DataTable? dataTable)
     {
         if (dataCommand is null)
             throw new ArgumentNullException(nameof(dataCommand));
@@ -127,15 +122,14 @@ public static class SqlCommandExtensions
         if (string.IsNullOrEmpty(name))
             throw new ArgumentException($"'{nameof(name)}' cannot be null or empty.", nameof(name));
 
-        if (dataTable is null)
-            throw new ArgumentNullException(nameof(dataTable));
-
         var sqlParameter = CreateSqlParameter(dataCommand);
 
         sqlParameter.ParameterName = name;
-        sqlParameter.Value = dataTable;
-        sqlParameter.Direction = ParameterDirection.Input;
         sqlParameter.SqlDbType = SqlDbType.Structured;
+        sqlParameter.Direction = ParameterDirection.Input;
+
+        // SQL Server requires null (not an empty DataTable) when a TVP has no rows
+        sqlParameter.Value = dataTable?.Rows.Count > 0 ? dataTable : null;
 
         return dataCommand.Parameter(sqlParameter);
     }

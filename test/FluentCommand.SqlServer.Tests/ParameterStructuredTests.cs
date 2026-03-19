@@ -145,4 +145,82 @@ public class ParameterStructuredTests : DatabaseTestBase
         users.Should().BeEmpty();
         total.Should().Be(0);
     }
+
+    [Fact]
+    public void ParameterStructuredWithNullDataTableReturnsNoResults()
+    {
+        DataTable? dataTable = null;
+
+        long total = -1;
+
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var users = session
+            .StoredProcedure("[dbo].[UserListByIds]")
+            .ParameterStructured("@IdList", dataTable)
+            .Parameter<long>(p => p
+                .Name("@Total")
+                .Type(DbType.Int64)
+                .Output(v => total = v)
+                .Direction(ParameterDirection.Output)
+            )
+            .Query<User>()
+            .ToList();
+
+        users.Should().BeEmpty();
+        total.Should().Be(0);
+    }
+
+    [Fact]
+    public void ParameterStructuredWithEmptyEntityListReturnsNoResults()
+    {
+        var ids = new List<IdItem>();
+
+        long total = -1;
+
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var users = session
+            .StoredProcedure("[dbo].[UserListByIds]")
+            .ParameterStructured("@IdList", ids)
+            .Parameter<long>(p => p
+                .Name("@Total")
+                .Type(DbType.Int64)
+                .Output(v => total = v)
+                .Direction(ParameterDirection.Output)
+            )
+            .Query<User>()
+            .ToList();
+
+        users.Should().BeEmpty();
+        total.Should().Be(0);
+    }
+
+    [Fact]
+    public void ParameterStructuredWithNullEntityListReturnsNoResults()
+    {
+        List<IdItem>? ids = null;
+
+        long total = -1;
+
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        var users = session
+            .StoredProcedure("[dbo].[UserListByIds]")
+            .ParameterStructured("@IdList", ids)
+            .Parameter<long>(p => p
+                .Name("@Total")
+                .Type(DbType.Int64)
+                .Output(v => total = v)
+                .Direction(ParameterDirection.Output)
+            )
+            .Query<User>()
+            .ToList();
+
+        users.Should().BeEmpty();
+        total.Should().Be(0);
+    }
 }

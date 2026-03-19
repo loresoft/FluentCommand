@@ -20,21 +20,23 @@ public class SqlDataRecordAdapter<T> : IEnumerable<SqlDataRecord> where T : clas
     // ReSharper disable once StaticMemberInGenericType
     private static readonly ConcurrentDictionary<Type, (SqlMetaData[] MetaData, IMemberAccessor[] Columns)> _metaDataCache = new();
 
-    private readonly IEnumerable<T> _source;
+    private readonly IEnumerable<T>? _source;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlDataRecordAdapter{T}"/> class.
     /// </summary>
-    /// <param name="source">The source collection to adapt.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="source"/> is null.</exception>
-    public SqlDataRecordAdapter(IEnumerable<T> source)
+    /// <param name="source">The source collection to adapt. Can be <c>null</c> or empty.</param>
+    public SqlDataRecordAdapter(IEnumerable<T>? source)
     {
-        _source = source ?? throw new ArgumentNullException(nameof(source));
+        _source = source;
     }
 
     /// <inheritdoc/>
     public IEnumerator<SqlDataRecord> GetEnumerator()
     {
+        if (_source is null)
+            yield break;
+
         var (metaData, columns) = GetCachedMetaData();
         var record = new SqlDataRecord(metaData);
 
