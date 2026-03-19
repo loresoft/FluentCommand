@@ -8,13 +8,7 @@ namespace FluentCommand.Generators;
 
 public abstract class DataReaderFactoryGenerator
 {
-    protected static void ReportDiagnostic(SourceProductionContext context, EquatableArray<Diagnostic> diagnostics)
-    {
-        foreach (var diagnostic in diagnostics)
-            context.ReportDiagnostic(diagnostic);
-    }
-
-    protected static void WriteSource(SourceProductionContext context, EntityClass entityClass)
+    protected static void WriteDataReaderSource(SourceProductionContext context, EntityClass entityClass)
     {
         var qualifiedName = entityClass.EntityNamespace is null
             ? entityClass.EntityName
@@ -25,7 +19,19 @@ public abstract class DataReaderFactoryGenerator
         context.AddSource($"{qualifiedName}DataReaderExtensions.g.cs", source);
     }
 
-    protected static EntityClass CreateClass(Location location, INamedTypeSymbol targetSymbol, List<Diagnostic> diagnostics)
+    protected static void WriteTypeAccessorSource(SourceProductionContext context, EntityClass entityClass)
+    {
+        var qualifiedName = entityClass.EntityNamespace is null
+            ? entityClass.EntityName
+            : $"{entityClass.EntityNamespace}.{entityClass.EntityName}";
+
+        var source = TypeAccessorWriter.Generate(entityClass);
+
+        context.AddSource($"{qualifiedName}TypeAccessor.g.cs", source);
+    }
+
+
+    protected static EntityClass? CreateClass(INamedTypeSymbol targetSymbol)
     {
         if (targetSymbol == null)
             return null;
@@ -33,6 +39,21 @@ public abstract class DataReaderFactoryGenerator
         var fullyQualified = targetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var classNamespace = targetSymbol.ContainingNamespace.ToDisplayString();
         var className = targetSymbol.Name;
+
+        // extract table mapping info
+        var typeAttributes = targetSymbol.GetAttributes();
+        var tableAttribute = FindSchemaAttribute(typeAttributes, "TableAttribute");
+
+        string? tableName = null;
+        string? tableSchema = null;
+
+        if (tableAttribute != null)
+        {
+            if (tableAttribute.ConstructorArguments.Length > 0 && tableAttribute.ConstructorArguments[0].Value is string name)
+                tableName = name;
+
+            tableSchema = GetNamedString(tableAttribute, "Schema");
+        }
 
         var mode = targetSymbol.Constructors.Any(c => c.Parameters.Length == 0)
             ? InitializationMode.ObjectInitializer
@@ -46,8 +67,15 @@ public abstract class DataReaderFactoryGenerator
                 .Select(p => CreateProperty(p))
                 .ToArray();
 
-            var entity = new EntityClass(mode, fullyQualified, classNamespace, className, propertyArray);
-            return entity;
+            return new EntityClass(
+                InitializationMode: mode,
+                FullyQualified: fullyQualified,
+                EntityNamespace: classNamespace,
+                EntityName: className,
+                Properties: propertyArray,
+                TableName: tableName,
+                TableSchema: tableSchema
+            );
         }
 
         // constructor initialization
@@ -55,18 +83,7 @@ public abstract class DataReaderFactoryGenerator
         // constructor with same number of parameters as properties
         var constructor = targetSymbol.Constructors.FirstOrDefault(c => c.Parameters.Length == propertySymbols.Count);
         if (constructor == null)
-        {
-            var constructorDiagnostic = Diagnostic.Create(
-                DiagnosticDescriptors.InvalidConstructor,
-                location,
-                propertySymbols.Count,
-                className
-            );
-
-            diagnostics.Add(constructorDiagnostic);
-
             return null;
-        }
 
         var properties = new List<EntityProperty>();
         foreach (var propertySymbol in propertySymbols)
@@ -77,24 +94,21 @@ public abstract class DataReaderFactoryGenerator
                 .FirstOrDefault(p => string.Equals(p.Name, propertySymbol.Name, StringComparison.InvariantCultureIgnoreCase));
 
             if (parameter == null)
-            {
-                var constructorDiagnostic = Diagnostic.Create(
-                    DiagnosticDescriptors.InvalidConstructorParameter,
-                    location,
-                    propertySymbol.Name,
-                    className
-                );
-
-                diagnostics.Add(constructorDiagnostic);
-
                 continue;
-            }
 
             var property = CreateProperty(propertySymbol, parameter.Name);
             properties.Add(property);
         }
 
-        return new EntityClass(mode, fullyQualified, classNamespace, className, properties);
+        return new EntityClass(
+            InitializationMode: mode,
+            FullyQualified: fullyQualified,
+            EntityNamespace: classNamespace,
+            EntityName: className,
+            Properties: properties,
+            TableName: tableName,
+            TableSchema: tableSchema
+        );
     }
 
     protected static List<IPropertySymbol> GetProperties(INamedTypeSymbol targetSymbol)
@@ -122,24 +136,79 @@ public abstract class DataReaderFactoryGenerator
         return properties.Values.ToList();
     }
 
-    protected static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string parameterName = null)
+    protected static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string? parameterName = null)
     {
         var propertyType = propertySymbol.Type.ToDisplayString();
         var propertyName = propertySymbol.Name;
+        var hasGetter = propertySymbol.GetMethod != null;
+        var hasSetter = propertySymbol.SetMethod != null && !propertySymbol.SetMethod.IsInitOnly;
 
-        // look for custom field converter
         var attributes = propertySymbol.GetAttributes();
-        if (attributes == null || attributes.Length == 0)
+        if (attributes == default || attributes.Length == 0)
         {
             return new EntityProperty(
-                propertyName,
-                propertyName,
-                propertyType,
-                parameterName);
+                PropertyName: propertyName,
+                ColumnName: propertyName,
+                PropertyType: propertyType,
+                ParameterName: parameterName,
+                HasGetter: hasGetter,
+                HasSetter: hasSetter
+            );
         }
 
         var columnName = GetColumnName(attributes) ?? propertyName;
+        var converterName = GetConverterName(attributes);
 
+        var isKey = HasDataAnnotationAttribute(attributes, "KeyAttribute");
+        var isNotMapped = IsNotMapped(attributes);
+        var isDatabaseGenerated = GetIsDatabaseGenerated(attributes);
+        var isConcurrencyCheck = HasDataAnnotationAttribute(attributes, "ConcurrencyCheckAttribute");
+        var foreignKey = GetSchemaAttributeConstructorStringArg(attributes, "ForeignKeyAttribute");
+        var isRequired = HasDataAnnotationAttribute(attributes, "RequiredAttribute");
+        var displayName = GetNamedString(FindDataAnnotationAttribute(attributes, "DisplayAttribute"), "Name");
+        var dataFormatString = GetNamedString(FindDataAnnotationAttribute(attributes, "DisplayFormatAttribute"), "DataFormatString");
+        var columnType = GetNamedString(FindSchemaAttribute(attributes, "ColumnAttribute"), "TypeName");
+        var columnOrder = GetNamedNumber(FindSchemaAttribute(attributes, "ColumnAttribute"), "Order");
+
+        return new EntityProperty(
+            PropertyName: propertyName,
+            ColumnName: columnName,
+            PropertyType: propertyType,
+            ParameterName: parameterName,
+            ConverterName: converterName,
+            IsKey: isKey,
+            IsNotMapped: isNotMapped,
+            IsDatabaseGenerated: isDatabaseGenerated,
+            IsConcurrencyCheck: isConcurrencyCheck,
+            ForeignKey: foreignKey,
+            IsRequired: isRequired,
+            HasGetter: hasGetter,
+            HasSetter: hasSetter,
+            DisplayName: displayName,
+            DataFormatString: dataFormatString,
+            ColumnType: columnType,
+            ColumnOrder: columnOrder
+        );
+    }
+
+    protected static string? GetColumnName(ImmutableArray<AttributeData> attributes)
+    {
+        var columnAttribute = FindSchemaAttribute(attributes, "ColumnAttribute");
+
+        if (columnAttribute == null)
+            return null;
+
+        // attribute constructor [Column("Name")]
+        var converterType = columnAttribute.ConstructorArguments.FirstOrDefault();
+        if (converterType.Value is string stringValue)
+            return stringValue;
+
+        return null;
+    }
+
+
+    private static string? GetConverterName(ImmutableArray<AttributeData> attributes)
+    {
         var converter = attributes
             .FirstOrDefault(a => a.AttributeClass is
             {
@@ -148,25 +217,12 @@ public abstract class DataReaderFactoryGenerator
             });
 
         if (converter == null)
-        {
-            return new EntityProperty(
-                propertyName,
-                columnName,
-                propertyType,
-                parameterName);
-        }
+            return null;
 
-        // attribute contructor
+        // attribute constructor
         var converterType = converter.ConstructorArguments.FirstOrDefault();
         if (converterType.Value is INamedTypeSymbol converterSymbol)
-        {
-            return new EntityProperty(
-                propertyName,
-                columnName,
-                propertyType,
-                parameterName,
-                converterSymbol.ToDisplayString());
-        }
+            return converterSymbol.ToDisplayString();
 
         // generic attribute
         var attributeClass = converter.AttributeClass;
@@ -175,80 +231,129 @@ public abstract class DataReaderFactoryGenerator
             && attributeClass.TypeArguments.Length == 1)
         {
             var typeArgument = attributeClass.TypeArguments[0];
-            var converterString = typeArgument.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-            return new EntityProperty(
-                propertyName,
-                columnName,
-                propertyType,
-                parameterName,
-                converterString);
+            return typeArgument.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         }
 
-        return new EntityProperty(
-            propertyName,
-            columnName,
-            propertyType,
-            parameterName);
+        return null;
     }
 
-    protected static string GetColumnName(ImmutableArray<AttributeData> attributes)
+    private static AttributeData? FindDataAnnotationAttribute(ImmutableArray<AttributeData> attributes, string name)
     {
-        var columnAttribute = attributes
-           .FirstOrDefault(a => a.AttributeClass is
-           {
-               Name: "ColumnAttribute",
-               ContainingNamespace:
-               {
-                   Name: "Schema",
-                   ContainingNamespace:
-                   {
-                       Name: "DataAnnotations",
-                       ContainingNamespace:
-                       {
-                           Name: "ComponentModel",
-                           ContainingNamespace.Name: "System"
-                       }
-                   }
-               }
-           });
+        return attributes.FirstOrDefault(a => a.AttributeClass is
+        {
+            ContainingNamespace:
+            {
+                Name: "DataAnnotations",
+                ContainingNamespace:
+                {
+                    Name: "ComponentModel",
+                    ContainingNamespace.Name: "System"
+                }
+            }
+        } && a.AttributeClass.Name == name);
+    }
 
-        if (columnAttribute == null)
+    private static bool HasDataAnnotationAttribute(ImmutableArray<AttributeData> attributes, string name)
+    {
+        return FindDataAnnotationAttribute(attributes, name) != null;
+    }
+
+    protected static AttributeData? FindSchemaAttribute(ImmutableArray<AttributeData> attributes, string name)
+    {
+        return attributes.FirstOrDefault(a =>
+            a.AttributeClass is
+            {
+                ContainingNamespace:
+                {
+                    Name: "Schema",
+                    ContainingNamespace:
+                    {
+                        Name: "DataAnnotations",
+                        ContainingNamespace:
+                        {
+                            Name: "ComponentModel",
+                            ContainingNamespace.Name: "System"
+                        }
+                    }
+                }
+            }
+            && a.AttributeClass.Name == name
+        );
+    }
+
+    private static string? GetSchemaAttributeConstructorStringArg(ImmutableArray<AttributeData> attributes, string name)
+    {
+        var attribute = FindSchemaAttribute(attributes, name);
+        if (attribute?.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is string value)
+            return value;
+
+        return null;
+    }
+
+    private static bool GetIsDatabaseGenerated(ImmutableArray<AttributeData> attributes)
+    {
+        var attribute = FindSchemaAttribute(attributes, "DatabaseGeneratedAttribute");
+        if (attribute == null)
+            return false;
+
+        if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is int option)
+            return option != 0; // DatabaseGeneratedOption.None = 0
+
+        return false;
+    }
+
+    private static string? GetNamedString(AttributeData? attribute, string argName)
+    {
+        if (attribute == null)
             return null;
 
-        // attribute contructor [Column("Name")]
-        var converterType = columnAttribute.ConstructorArguments.FirstOrDefault();
-        if (converterType.Value is string stringValue)
-            return stringValue;
+        foreach (var namedArg in attribute.NamedArguments)
+        {
+            if (namedArg.Key == argName && namedArg.Value.Value is string value)
+                return value;
+        }
+
+        return null;
+    }
+
+    private static int? GetNamedNumber(AttributeData? attribute, string argName)
+    {
+        if (attribute == null)
+            return null;
+
+        foreach (var namedArg in attribute.NamedArguments)
+        {
+            if (namedArg.Key == argName && namedArg.Value.Value is int value)
+                return value;
+        }
 
         return null;
     }
 
     protected static bool IsIncluded(IPropertySymbol propertySymbol)
     {
-        var attributes = propertySymbol.GetAttributes();
-        if (attributes.Length > 0 && attributes.Any(
-                a => a.AttributeClass is
+        return !propertySymbol.IsIndexer && !propertySymbol.IsAbstract && propertySymbol.DeclaredAccessibility == Accessibility.Public;
+    }
+
+    private static bool IsNotMapped(ImmutableArray<AttributeData> attributes)
+    {
+        return attributes.Any(
+            a => a.AttributeClass is
+            {
+                Name: "NotMappedAttribute",
+                ContainingNamespace:
                 {
-                    Name: "NotMappedAttribute",
+                    Name: "Schema",
                     ContainingNamespace:
                     {
-                        Name: "Schema",
+                        Name: "DataAnnotations",
                         ContainingNamespace:
                         {
-                            Name: "DataAnnotations",
-                            ContainingNamespace:
-                            {
-                                Name: "ComponentModel",
-                                ContainingNamespace.Name: "System"
-                            }
+                            Name: "ComponentModel",
+                            ContainingNamespace.Name: "System"
                         }
                     }
-                }))
-        {
-            return false;
-        }
-
-        return !propertySymbol.IsIndexer && !propertySymbol.IsAbstract && propertySymbol.DeclaredAccessibility == Accessibility.Public;
+                }
+            });
     }
 }

@@ -23,15 +23,15 @@ public static class DataTableExtensions
     /// <remarks>
     /// This method uses <see cref="ListDataReader{T}"/> to read the data from the source collection and load it into a <see cref="DataTable"/>.
     /// </remarks>
-    public static DataTable ToDataTable<T>(this IEnumerable<T> source, IEnumerable<string> ignoreNames = null)
+    public static DataTable ToDataTable<T>(this IEnumerable<T> source, IEnumerable<string>? ignoreNames = null)
         where T : class
     {
+        var dataTable = new DataTable();
         if (source == null)
-            return null;
+            return dataTable;
 
         using var dataReader = new ListDataReader<T>(source, ignoreNames);
 
-        var dataTable = new DataTable();
         dataTable.Load(dataReader);
 
         return dataTable;

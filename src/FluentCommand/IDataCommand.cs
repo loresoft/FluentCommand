@@ -56,7 +56,7 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     /// <returns>
     /// A fluent <see langword="interface" /> to the data command.
     /// </returns>
-    IDataCommand RegisterCallback<TParameter>(DbParameter parameter, Action<TParameter> callback);
+    IDataCommand RegisterCallback<TParameter>(DbParameter parameter, Action<TParameter?> callback);
 
 
     /// <summary>
@@ -106,7 +106,7 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     /// <remarks>
     /// Use the state to help control what is logged.
     /// </remarks>
-    IDataCommand LogState(object state);
+    IDataCommand LogState(object? state);
 
     /// <summary>
     /// Executes the command against the connection and sends the resulting <see cref="IDataQuery"/> for reading multiple results sets.

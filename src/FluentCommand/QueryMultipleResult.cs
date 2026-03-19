@@ -85,17 +85,15 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
-    public TEntity QuerySingle<TEntity>(
+    public TEntity? QuerySingle<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         NextResult();
 
-        var result = _reader.Read()
+        return _reader.Read()
             ? factory(_reader)
             : default;
-
-        return result;
     }
 
     /// <summary>
@@ -108,18 +106,16 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
-    public async Task<TEntity> QuerySingleAsync<TEntity>(
+    public async Task<TEntity?> QuerySingleAsync<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.Default,
         CancellationToken cancellationToken = default)
     {
         await NextResultAsync(cancellationToken).ConfigureAwait(false);
 
-        var result = await _reader.ReadAsync(cancellationToken).ConfigureAwait(false)
+        return await _reader.ReadAsync(cancellationToken).ConfigureAwait(false)
             ? factory(_reader)
             : default;
-
-        return result;
     }
 
 
@@ -131,7 +127,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public TValue QueryValue<TValue>(Func<object, TValue> convert)
+    public TValue? QueryValue<TValue>(Func<object?, TValue?>? convert)
     {
         NextResult();
 
@@ -151,8 +147,8 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public async Task<TValue> QueryValueAsync<TValue>(
-        Func<object, TValue> convert,
+    public async Task<TValue?> QueryValueAsync<TValue>(
+        Func<object?, TValue?>? convert,
         CancellationToken cancellationToken = default)
     {
         await NextResultAsync(cancellationToken).ConfigureAwait(false);

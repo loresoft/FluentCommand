@@ -42,7 +42,7 @@ public class LogicalEntityBuilder<TEntity>
     /// </returns>
     public LogicalEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         return Where(property, parameterValue, null, filterOperator);
@@ -61,11 +61,11 @@ public class LogicalEntityBuilder<TEntity>
     /// </returns>
     public LogicalEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators whereOperator = FilterOperators.Equal)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return Where(propertyAccessor.Column, parameterValue, tableAlias, whereOperator);
     }
@@ -83,9 +83,9 @@ public class LogicalEntityBuilder<TEntity>
     /// </returns>
     public LogicalEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
@@ -104,12 +104,12 @@ public class LogicalEntityBuilder<TEntity>
     /// </returns>
     public LogicalEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
@@ -127,11 +127,11 @@ public class LogicalEntityBuilder<TEntity>
     public LogicalEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
+        return WhereIn(propertyAccessor.Column, parameterValues, tableAlias);
     }
 
     /// <summary>
@@ -147,11 +147,11 @@ public class LogicalEntityBuilder<TEntity>
     public LogicalEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, condition);
     }
 
     /// <summary>
@@ -168,12 +168,12 @@ public class LogicalEntityBuilder<TEntity>
     public LogicalEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        string? tableAlias,
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, tableAlias, condition);
     }
 
     /// <summary>
@@ -191,7 +191,7 @@ public class LogicalEntityBuilder<TEntity>
 
         var statement = innerBuilder.BuildStatement();
 
-        if (statement != null && statement.Statement.HasValue())
+        if (statement?.Statement.HasValue() == true)
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return this;
@@ -212,9 +212,18 @@ public class LogicalEntityBuilder<TEntity>
 
         var statement = innerBuilder.BuildStatement();
 
-        if (statement != null && statement.Statement.HasValue())
+        if (statement?.Statement.HasValue() == true)
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return this;
+    }
+
+    private static IMemberAccessor GetPropertyAccessor<TValue>(Expression<Func<TEntity, TValue>> property)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+        if (propertyAccessor is null)
+            throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
+
+        return propertyAccessor;
     }
 }

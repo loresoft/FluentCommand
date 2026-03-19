@@ -39,7 +39,7 @@ public static class DataQueryExtensions
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    public static Task<TEntity> QuerySingleAsync<TEntity>(
+    public static Task<TEntity?> QuerySingleAsync<TEntity>(
         this IDataQueryAsync dataQuery,
         Func<IDataReader, TEntity> factory,
         CancellationToken cancellationToken = default)
@@ -57,7 +57,7 @@ public static class DataQueryExtensions
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public static TValue QueryValue<TValue>(this IDataQuery dataQuery)
+    public static TValue? QueryValue<TValue>(this IDataQuery dataQuery)
     {
         return dataQuery.QueryValue<TValue>(null);
     }
@@ -71,7 +71,7 @@ public static class DataQueryExtensions
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public static Task<TValue> QueryValueAsync<TValue>(
+    public static Task<TValue?> QueryValueAsync<TValue>(
         this IDataQueryAsync dataQuery,
         CancellationToken cancellationToken = default)
     {
@@ -86,7 +86,7 @@ public static class DataQueryExtensions
     /// <returns>
     /// The value of the first column values in the result set.
     /// </returns>
-    public static IEnumerable<TValue> QueryValues<TValue>(this IDataQuery dataQuery)
+    public static IEnumerable<TValue?> QueryValues<TValue>(this IDataQuery dataQuery)
     {
         return dataQuery.Query(r => r.GetValue<TValue>(0));
     }
@@ -100,7 +100,7 @@ public static class DataQueryExtensions
     /// <returns>
     /// The value of the first column values in the result set.
     /// </returns>
-    public static async Task<IEnumerable<TValue>> QueryValuesAsync<TValue>(
+    public static async Task<IEnumerable<TValue?>> QueryValuesAsync<TValue>(
         this IDataQueryAsync dataQuery,
         CancellationToken cancellationToken = default)
     {
@@ -127,7 +127,7 @@ public static class DataQueryExtensions
     /// <returns>
     /// A instance of a dynamic object if row exists; otherwise null.
     /// </returns>
-    public static dynamic QuerySingle(this IDataQuery dataQuery)
+    public static dynamic? QuerySingle(this IDataQuery dataQuery)
     {
         return dataQuery.QuerySingle(DataReaderExtensions.DynamicFactory);
     }
@@ -153,7 +153,7 @@ public static class DataQueryExtensions
     /// <returns>
     /// A instance of a dynamic object if row exists; otherwise null.
     /// </returns>
-    public static Task<dynamic> QuerySingleAsync(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default)
+    public static Task<dynamic?> QuerySingleAsync(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default)
     {
         return dataQuery.QuerySingleAsync(DataReaderExtensions.DynamicFactory, cancellationToken);
     }

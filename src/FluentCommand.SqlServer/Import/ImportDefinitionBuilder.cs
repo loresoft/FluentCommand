@@ -73,7 +73,8 @@ public class ImportDefinitionBuilder<TModel> : ImportDefinitionBuilder
     /// <returns>A <see cref="FieldDefinitionBuilder"/> for further configuration of the field.</returns>
     public FieldDefinitionBuilder Field<TValue>(Expression<Func<TModel, TValue>> property)
     {
-        var memberAccessor = _typeAccessor.FindProperty(property);
+        var memberAccessor = _typeAccessor.FindProperty(property)
+            ?? throw new ArgumentException($"Property expression '{property}' could not be resolved to a property on type '{typeof(TModel).Name}'.", nameof(property));
 
         var fieldMapping = ImportDefinition.Fields.FirstOrDefault(m => m.Name == memberAccessor.Column);
         if (fieldMapping == null)

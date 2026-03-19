@@ -17,8 +17,8 @@ public class DataMergeDefinition
     /// </remarks>
     public DataMergeDefinition()
     {
-        Columns = new List<DataMergeColumn>();
-        TemporaryTable = "#Merge" + DateTime.Now.Ticks;
+        Columns = [];
+        TemporaryTable = $"#Merge{DateTime.Now.Ticks}";
         IncludeInsert = true;
         IncludeUpdate = true;
         Mode = DataMergeMode.Auto;
@@ -30,7 +30,7 @@ public class DataMergeDefinition
     /// <value>
     /// The name of the target table.
     /// </value>
-    public string TargetTable { get; set; }
+    public string TargetTable { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the name of the temporary table used for bulk inserting data before merging.

@@ -22,12 +22,12 @@ public interface IDataSession
     /// <summary>
     /// Gets the underlying <see cref="DbTransaction"/> for the session.
     /// </summary>
-    DbTransaction Transaction { get; }
+    DbTransaction? Transaction { get; }
 
     /// <summary>
     /// Gets the underlying <see cref="IDataCache"/> for the session.
     /// </summary>
-    IDataCache Cache { get; }
+    IDataCache? Cache { get; }
 
     /// <summary>
     /// Gets the query generator provider.
@@ -43,7 +43,7 @@ public interface IDataSession
     /// <value>
     /// The data command query logger.
     /// </value>
-    IDataQueryLogger QueryLogger { get; }
+    IDataQueryLogger? QueryLogger { get; }
 
     /// <summary>
     /// Gets the interceptors registered for this session.

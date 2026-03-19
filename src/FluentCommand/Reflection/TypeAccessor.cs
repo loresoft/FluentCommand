@@ -12,12 +12,15 @@ namespace FluentCommand.Reflection;
 public class TypeAccessor
 {
     private static readonly ConcurrentDictionary<Type, TypeAccessor> _typeCache = new();
-    private readonly ConcurrentDictionary<string, IMemberAccessor> _memberCache = new();
-    private readonly ConcurrentDictionary<int, IMethodAccessor> _methodCache = new();
-    private readonly ConcurrentDictionary<int, IEnumerable<IMemberAccessor>> _propertyCache = new();
+    private readonly ConcurrentDictionary<string, IMemberAccessor?> _memberCache = new();
+    private readonly ConcurrentDictionary<int, IMethodAccessor?> _methodCache = new();
+    private readonly ConcurrentDictionary<int, IMemberAccessor[]> _propertyCache = new();
 
-    private readonly Lazy<Func<object>> _constructor;
-    private readonly Lazy<TableAttribute> _tableAttribute;
+    private readonly Lazy<Func<object>?> _constructor;
+    private readonly Lazy<TableAttribute?> _tableAttribute;
+
+    private readonly string? _tableName;
+    private readonly string? _tableSchema;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TypeAccessor"/> class for the specified <see cref="Type"/>.
@@ -30,8 +33,39 @@ public class TypeAccessor
             throw new ArgumentNullException(nameof(type));
 
         Type = type;
-        _constructor = new Lazy<Func<object>>(() => ExpressionFactory.CreateConstructor(Type));
-        _tableAttribute = new Lazy<TableAttribute>(() => type.GetCustomAttribute<TableAttribute>(true));
+        _constructor = new Lazy<Func<object>?>(() => ExpressionFactory.CreateConstructor(Type));
+        _tableAttribute = new Lazy<TableAttribute?>(() => type.GetCustomAttribute<TableAttribute>(true));
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TypeAccessor"/> class with pre-generated metadata,
+    /// avoiding runtime reflection and expression compilation for AOT-friendly scenarios.
+    /// </summary>
+    /// <param name="type">The <see cref="Type"/> this accessor is for.</param>
+    /// <param name="tableName">The pre-computed table name, or <c>null</c> to fall back to the type name.</param>
+    /// <param name="tableSchema">The pre-computed table schema, or <c>null</c>.</param>
+    /// <param name="constructor">A delegate that creates a new instance of the type, or <c>null</c> if no parameterless constructor exists.</param>
+    protected TypeAccessor(
+        Type type,
+        string? tableName,
+        string? tableSchema,
+        Func<object>? constructor)
+    {
+        if (type == null)
+            throw new ArgumentNullException(nameof(type));
+
+        Type = type;
+
+        _tableName = tableName;
+        _tableSchema = tableSchema;
+
+#if NET6_0_OR_GREATER
+        _constructor = new Lazy<Func<object>?>(constructor);
+        _tableAttribute = new Lazy<TableAttribute?>((TableAttribute?)null);
+#else
+        _constructor = new Lazy<Func<object>?>(() => constructor);
+        _tableAttribute = new Lazy<TableAttribute?>(static () => null);
+#endif
     }
 
     /// <summary>
@@ -51,13 +85,13 @@ public class TypeAccessor
     /// If not specified, returns the type name.
     /// </summary>
     /// <value>The name of the mapped table.</value>
-    public string TableName => _tableAttribute.Value?.Name ?? Type.Name;
+    public string TableName => _tableName ?? _tableAttribute.Value?.Name ?? Type.Name;
 
     /// <summary>
     /// Gets the schema of the table the class is mapped to, as specified by the <see cref="TableAttribute"/>.
     /// </summary>
     /// <value>The schema of the mapped table, or <c>null</c> if not specified.</value>
-    public string TableSchema => _tableAttribute.Value?.Schema;
+    public string? TableSchema => _tableSchema ?? _tableAttribute.Value?.Schema;
 
     /// <summary>
     /// Creates a new instance of the type represented by this accessor using the default constructor.
@@ -80,7 +114,7 @@ public class TypeAccessor
     /// </summary>
     /// <param name="name">The name of the method.</param>
     /// <returns>An <see cref="IMethodAccessor"/> for the method, or <c>null</c> if not found.</returns>
-    public IMethodAccessor FindMethod(string name)
+    public IMethodAccessor? FindMethod(string name)
     {
         return FindMethod(name, Type.EmptyTypes);
     }
@@ -91,7 +125,7 @@ public class TypeAccessor
     /// <param name="name">The name of the method.</param>
     /// <param name="parameterTypes">The method parameter types.</param>
     /// <returns>An <see cref="IMethodAccessor"/> for the method, or <c>null</c> if not found.</returns>
-    public IMethodAccessor FindMethod(string name, params Type[] parameterTypes)
+    public IMethodAccessor? FindMethod(string name, params Type[] parameterTypes)
     {
         return FindMethod(name, parameterTypes, BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
     }
@@ -103,19 +137,24 @@ public class TypeAccessor
     /// <param name="parameterTypes">The method parameter types.</param>
     /// <param name="flags">The binding flags to use for the search.</param>
     /// <returns>An <see cref="IMethodAccessor"/> for the method, or <c>null</c> if not found.</returns>
-    public IMethodAccessor FindMethod(string name, Type[] parameterTypes, BindingFlags flags)
+    public IMethodAccessor? FindMethod(string name, Type[] parameterTypes, BindingFlags flags)
     {
         int key = MethodAccessor.GetKey(name, parameterTypes);
+
+        // fast-path: avoid closure allocation from GetOrAdd lambda on cache hits
+        if (_methodCache.TryGetValue(key, out var cached))
+            return cached;
+
         return _methodCache.GetOrAdd(key, n => CreateMethodAccessor(name, parameterTypes, flags));
     }
 
-    private IMethodAccessor CreateMethodAccessor(string name, Type[] parameters, BindingFlags flags)
+    private MethodAccessor? CreateMethodAccessor(string name, Type[] parameters, BindingFlags flags)
     {
         var info = FindMethod(Type, name, parameters, flags);
         return info == null ? null : CreateAccessor(info);
     }
 
-    private static MethodInfo FindMethod(Type type, string name, Type[] parameterTypes, BindingFlags flags)
+    private static MethodInfo? FindMethod(Type type, string name, Type[] parameterTypes, BindingFlags flags)
     {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
@@ -142,7 +181,7 @@ public class TypeAccessor
 
         // if only one matches name, return it
         if (methodsByName.Count == 1)
-            return methodsByName.FirstOrDefault();
+            return methodsByName[0];
 
         // next, get all methods that match param count
         var methodsByParamCount = methodsByName
@@ -151,21 +190,21 @@ public class TypeAccessor
 
         // if only one matches with same param count, return it
         if (methodsByParamCount.Count == 1)
-            return methodsByParamCount.FirstOrDefault();
+            return methodsByParamCount[0];
 
         // still no match, make best guess by greatest matching param types
-        MethodInfo current = methodsByParamCount.FirstOrDefault();
+        MethodInfo? current = methodsByParamCount.FirstOrDefault();
         int matchCount = 0;
 
         foreach (var info in methodsByParamCount)
         {
             var paramTypes = info.GetParameters()
-                .Select(p => p.ParameterType)
+                .Select(static p => p.ParameterType)
                 .ToArray();
 
             // unsure which way IsAssignableFrom should be checked?
             int count = paramTypes
-                .Select(t => t.GetTypeInfo())
+                .Select(static t => t.GetTypeInfo())
                 .Where((t, i) => t.IsAssignableFrom(parameterTypes[i]))
                 .Count();
 
@@ -179,7 +218,7 @@ public class TypeAccessor
         return current;
     }
 
-    private static IMethodAccessor CreateAccessor(MethodInfo methodInfo)
+    private static MethodAccessor? CreateAccessor(MethodInfo methodInfo)
     {
         return methodInfo == null ? null : new MethodAccessor(methodInfo);
     }
@@ -192,7 +231,7 @@ public class TypeAccessor
     /// </summary>
     /// <param name="name">The name of the property or field to find.</param>
     /// <returns>An <see cref="IMemberAccessor"/> for the property or field if found; otherwise, <c>null</c>.</returns>
-    public IMemberAccessor Find(string name)
+    public IMemberAccessor? Find(string name)
     {
         return Find(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
     }
@@ -203,12 +242,16 @@ public class TypeAccessor
     /// <param name="name">The name of the property or field to find.</param>
     /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
     /// <returns>An <see cref="IMemberAccessor"/> for the property or field if found; otherwise, <c>null</c>.</returns>
-    public IMemberAccessor Find(string name, BindingFlags flags)
+    public IMemberAccessor? Find(string name, BindingFlags flags)
     {
+        // fast-path: avoid closure allocation from GetOrAdd lambda on cache hits
+        if (_memberCache.TryGetValue(name, out var cached))
+            return cached;
+
         return _memberCache.GetOrAdd(name, n => CreateAccessor(n, flags));
     }
 
-    private IMemberAccessor CreateAccessor(string name, BindingFlags flags)
+    private IMemberAccessor? CreateAccessor(string name, BindingFlags flags)
     {
         // first try property
         var property = FindProperty(Type, name, flags);
@@ -230,7 +273,7 @@ public class TypeAccessor
     /// </summary>
     /// <param name="name">The name of the property or field to find.</param>
     /// <returns>An <see cref="IMemberAccessor"/> instance for the property or field if found; otherwise <c>null</c>.</returns>
-    public IMemberAccessor FindColumn(string name)
+    public IMemberAccessor? FindColumn(string name)
     {
         return FindColumn(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
     }
@@ -241,12 +284,16 @@ public class TypeAccessor
     /// <param name="name">The name of the property or column to find.</param>
     /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
     /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
-    public IMemberAccessor FindColumn(string name, BindingFlags flags)
+    public IMemberAccessor? FindColumn(string name, BindingFlags flags)
     {
+        // fast-path: avoid closure allocation from GetOrAdd lambda on cache hits
+        if (_memberCache.TryGetValue(name, out var cached))
+            return cached;
+
         return _memberCache.GetOrAdd(name, n => CreateColumnAccessor(n, flags));
     }
 
-    private IMemberAccessor CreateColumnAccessor(string name, BindingFlags flags)
+    private IMemberAccessor? CreateColumnAccessor(string name, BindingFlags flags)
     {
         var typeInfo = Type.GetTypeInfo();
 
@@ -274,7 +321,7 @@ public class TypeAccessor
     /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyExpression"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
-    public IMemberAccessor FindProperty<T>(Expression<Func<T>> propertyExpression)
+    public IMemberAccessor? FindProperty<T>(Expression<Func<T>> propertyExpression)
     {
         if (propertyExpression == null)
             throw new ArgumentNullException(nameof(propertyExpression));
@@ -294,7 +341,7 @@ public class TypeAccessor
     /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyExpression"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
-    public IMemberAccessor FindProperty<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
+    public IMemberAccessor? FindProperty<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
     {
         if (propertyExpression == null)
             throw new ArgumentNullException(nameof(propertyExpression));
@@ -310,7 +357,7 @@ public class TypeAccessor
     /// </summary>
     /// <param name="name">The name of the property to find.</param>
     /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
-    public IMemberAccessor FindProperty(string name)
+    public IMemberAccessor? FindProperty(string name)
     {
         return FindProperty(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
     }
@@ -321,8 +368,12 @@ public class TypeAccessor
     /// <param name="name">The name of the property to find.</param>
     /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
     /// <returns>An <see cref="IMemberAccessor"/> for the property if found; otherwise, <c>null</c>.</returns>
-    public IMemberAccessor FindProperty(string name, BindingFlags flags)
+    public IMemberAccessor? FindProperty(string name, BindingFlags flags)
     {
+        // fast-path: avoid closure allocation from GetOrAdd lambda on cache hits
+        if (_memberCache.TryGetValue(name, out var cached))
+            return cached;
+
         return _memberCache.GetOrAdd(name, n => CreatePropertyAccessor(n, flags));
     }
 
@@ -342,11 +393,17 @@ public class TypeAccessor
     /// <returns>An <see cref="IEnumerable{IMemberAccessor}"/> for the type's properties.</returns>
     public IEnumerable<IMemberAccessor> GetProperties(BindingFlags flags)
     {
-        return _propertyCache.GetOrAdd((int)flags, k =>
+        var key = (int)flags;
+
+        // fast-path: avoid closure allocation from GetOrAdd lambda on cache hits
+        if (_propertyCache.TryGetValue(key, out var cached))
+            return cached;
+
+        return _propertyCache.GetOrAdd(key, k =>
         {
             var typeInfo = Type.GetTypeInfo();
             var properties = typeInfo.GetProperties(flags);
-            return properties.Select(GetAccessor);
+            return properties.Select(GetAccessor).ToArray();
         });
     }
 
@@ -356,16 +413,20 @@ public class TypeAccessor
         if (propertyInfo == null)
             throw new ArgumentNullException(nameof(propertyInfo));
 
-        return _memberCache.GetOrAdd(propertyInfo.Name, n => CreateAccessor(propertyInfo));
+        // fast-path: avoid closure allocation from GetOrAdd lambda on cache hits
+        if (_memberCache.TryGetValue(propertyInfo.Name, out var cached) && cached != null)
+            return cached;
+
+        return _memberCache.GetOrAdd(propertyInfo.Name, n => CreateAccessor(propertyInfo))!;
     }
 
-    private IMemberAccessor CreatePropertyAccessor(string name, BindingFlags flags)
+    private PropertyAccessor? CreatePropertyAccessor(string name, BindingFlags flags)
     {
         var info = FindProperty(Type, name, flags);
         return info == null ? null : CreateAccessor(info);
     }
 
-    private IMemberAccessor FindProperty(MemberExpression memberExpression)
+    private IMemberAccessor? FindProperty(MemberExpression? memberExpression)
     {
         if (memberExpression == null)
             throw new ArgumentException("The expression is not a member access expression.", nameof(memberExpression));
@@ -378,7 +439,7 @@ public class TypeAccessor
         return FindProperty(property.Name);
     }
 
-    private static PropertyInfo FindProperty(Type type, string name, BindingFlags flags)
+    private static PropertyInfo? FindProperty(Type type, string name, BindingFlags flags)
     {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
@@ -393,14 +454,12 @@ public class TypeAccessor
             return property;
 
         // if not found, search while ignoring case
-        property = typeInfo
+        return typeInfo
             .GetProperties(flags)
             .FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-        return property;
     }
 
-    private static IMemberAccessor CreateAccessor(PropertyInfo propertyInfo)
+    private static PropertyAccessor? CreateAccessor(PropertyInfo propertyInfo)
     {
         return propertyInfo == null ? null : new PropertyAccessor(propertyInfo);
     }
@@ -414,7 +473,7 @@ public class TypeAccessor
     /// <returns>
     /// An <see cref="IMemberAccessor"/> instance for the field if found; otherwise <c>null</c>.
     /// </returns>
-    public IMemberAccessor FindField(string name)
+    public IMemberAccessor? FindField(string name)
     {
         return FindField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
     }
@@ -425,18 +484,22 @@ public class TypeAccessor
     /// <param name="name">The name of the field to find.</param>
     /// <param name="flags">A bitmask comprised of one or more <see cref="BindingFlags"/> that specify how the search is conducted.</param>
     /// <returns>An <see cref="IMemberAccessor"/> for the field if found; otherwise, <c>null</c>.</returns>
-    public IMemberAccessor FindField(string name, BindingFlags flags)
+    public IMemberAccessor? FindField(string name, BindingFlags flags)
     {
+        // fast-path: avoid closure allocation from GetOrAdd lambda on cache hits
+        if (_memberCache.TryGetValue(name, out var cached))
+            return cached;
+
         return _memberCache.GetOrAdd(name, n => CreateFieldAccessor(n, flags));
     }
 
-    private IMemberAccessor CreateFieldAccessor(string name, BindingFlags flags)
+    private FieldAccessor? CreateFieldAccessor(string name, BindingFlags flags)
     {
         var info = FindField(Type, name, flags);
         return info == null ? null : CreateAccessor(info);
     }
 
-    private static FieldInfo FindField(Type type, string name, BindingFlags flags)
+    private static FieldInfo? FindField(Type type, string name, BindingFlags flags)
     {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
@@ -456,7 +519,7 @@ public class TypeAccessor
             .FirstOrDefault(f => f.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static IMemberAccessor CreateAccessor(FieldInfo fieldInfo)
+    private static FieldAccessor? CreateAccessor(FieldInfo fieldInfo)
     {
         return fieldInfo == null ? null : new FieldAccessor(fieldInfo);
     }
@@ -480,6 +543,48 @@ public class TypeAccessor
     /// <returns>The <see cref="TypeAccessor"/> for the specified type.</returns>
     public static TypeAccessor GetAccessor(Type type)
     {
-        return _typeCache.GetOrAdd(type, t => new TypeAccessor(t));
+        // fast-path: avoid overhead of GetOrAdd on cache hits
+        if (_typeCache.TryGetValue(type, out var cached))
+            return cached;
+
+        return _typeCache.GetOrAdd(type, static t => new TypeAccessor(t));
+    }
+
+
+    /// <summary>
+    /// Registers a pre-generated <see cref="TypeAccessor"/> for the specified <see cref="Type"/>,
+    /// allowing source-generated metadata to be used instead of runtime reflection.
+    /// </summary>
+    /// <param name="type">The type to register the accessor for.</param>
+    /// <param name="accessor">The pre-generated accessor.</param>
+    public static void Register(Type type, TypeAccessor accessor)
+    {
+        if (type == null) throw new ArgumentNullException(nameof(type));
+        if (accessor == null) throw new ArgumentNullException(nameof(accessor));
+        _typeCache[type] = accessor;
+    }
+
+
+    /// <summary>
+    /// Pre-registers a member accessor by name so that subsequent lookups
+    /// via <see cref="Find(string)"/>, <see cref="FindProperty(string)"/>, or <see cref="FindColumn(string)"/>
+    /// return it without reflection.
+    /// </summary>
+    /// <param name="name">The lookup key (property name or column name).</param>
+    /// <param name="accessor">The member accessor to register.</param>
+    protected void RegisterMember(string name, IMemberAccessor accessor)
+    {
+        _memberCache.TryAdd(name, accessor);
+    }
+
+    /// <summary>
+    /// Pre-registers a collection of property accessors for the specified binding flags,
+    /// so that <see cref="GetProperties(BindingFlags)"/> returns them without reflection.
+    /// </summary>
+    /// <param name="flags">The binding flags key.</param>
+    /// <param name="properties">The property accessors to register.</param>
+    protected void RegisterProperties(BindingFlags flags, IEnumerable<IMemberAccessor> properties)
+    {
+        _propertyCache.TryAdd((int)flags, [.. properties]);
     }
 }

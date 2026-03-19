@@ -29,12 +29,12 @@ public class DataSession : DisposableBase, IDataSession
     /// <summary>
     /// Gets the underlying <see cref="DbTransaction"/> for the session.
     /// </summary>
-    public DbTransaction Transaction { get; private set; }
+    public DbTransaction? Transaction { get; private set; }
 
     /// <summary>
     /// Gets the underlying <see cref="IDataCache"/> for the session.
     /// </summary>
-    public IDataCache Cache { get; }
+    public IDataCache? Cache { get; }
 
     /// <summary>
     /// Gets the query generator provider.
@@ -50,7 +50,7 @@ public class DataSession : DisposableBase, IDataSession
     /// <value>
     /// The data command query logger.
     /// </value>
-    public IDataQueryLogger QueryLogger { get; }
+    public IDataQueryLogger? QueryLogger { get; }
 
     /// <summary>
     /// Gets the interceptors registered for this session.
@@ -75,10 +75,10 @@ public class DataSession : DisposableBase, IDataSession
     public DataSession(
         DbConnection connection,
         bool disposeConnection = true,
-        IDataCache cache = null,
-        IQueryGenerator queryGenerator = null,
-        IDataQueryLogger logger = null,
-        IEnumerable<IDataInterceptor> interceptors = null)
+        IDataCache? cache = null,
+        IQueryGenerator? queryGenerator = null,
+        IDataQueryLogger? logger = null,
+        IEnumerable<IDataInterceptor>? interceptors = null)
     {
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
@@ -112,13 +112,13 @@ public class DataSession : DisposableBase, IDataSession
     public DataSession(
         DbTransaction transaction,
         bool disposeConnection = false,
-        IDataCache cache = null,
-        IQueryGenerator queryGenerator = null,
-        IDataQueryLogger logger = null,
-        IEnumerable<IDataInterceptor> interceptors = null)
-        : this(transaction?.Connection, disposeConnection, cache, queryGenerator, logger, interceptors)
+        IDataCache? cache = null,
+        IQueryGenerator? queryGenerator = null,
+        IDataQueryLogger? logger = null,
+        IEnumerable<IDataInterceptor>? interceptors = null)
+        : this(GetTransactionConnection(transaction), disposeConnection, cache, queryGenerator, logger, interceptors)
     {
-        Transaction = transaction ?? throw new ArgumentNullException(nameof(transaction));
+        Transaction = transaction;
     }
 
     /// <summary>
@@ -170,8 +170,8 @@ public class DataSession : DisposableBase, IDataSession
     /// </returns>
     public async Task<DbTransaction> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified, CancellationToken cancellationToken = default)
     {
-        await EnsureConnectionAsync(cancellationToken);
-        Transaction = await Connection.BeginTransactionAsync(isolationLevel, cancellationToken);
+        await EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
+        Transaction = await Connection.BeginTransactionAsync(isolationLevel, cancellationToken).ConfigureAwait(false);
 
         return Transaction;
     }
@@ -309,7 +309,7 @@ public class DataSession : DisposableBase, IDataSession
 
         // When no operation is using the connection and the context had opened the connection
         // the connection can be closed
-        await Connection.CloseAsync();
+        await Connection.CloseAsync().ConfigureAwait(false);
         _openedConnection = false;
     }
 
@@ -318,12 +318,13 @@ public class DataSession : DisposableBase, IDataSession
     /// </summary>
     protected override async ValueTask DisposeResourcesAsync()
     {
-        if (Connection == null)
+        if (!_disposeConnection)
             return;
 
-        // Dispose the connection created
-        if (_disposeConnection)
-            await Connection.DisposeAsync();
+        if (Transaction is not null)
+            await Transaction.DisposeAsync().ConfigureAwait(false);
+
+        await Connection.DisposeAsync().ConfigureAwait(false);
     }
 #endif
 
@@ -332,12 +333,20 @@ public class DataSession : DisposableBase, IDataSession
     /// </summary>
     protected override void DisposeManagedResources()
     {
-        if (Connection == null)
+        if (!_disposeConnection)
             return;
 
-        // Dispose the connection created
-        if (_disposeConnection)
-            Connection.Dispose();
+        Transaction?.Dispose();
+        Connection.Dispose();
+    }
+
+    private static DbConnection GetTransactionConnection(DbTransaction transaction)
+    {
+        if (transaction is null)
+            throw new ArgumentNullException(nameof(transaction));
+
+        return transaction.Connection
+            ?? throw new ArgumentException("Transaction has no associated connection.", nameof(transaction));
     }
 }
 
@@ -363,10 +372,10 @@ public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscrimina
     public DataSession(
         DbConnection connection,
         bool disposeConnection = true,
-        IDataCache cache = null,
-        IQueryGenerator queryGenerator = null,
-        IDataQueryLogger logger = null,
-        IEnumerable<IDataInterceptor> interceptors = null)
+        IDataCache? cache = null,
+        IQueryGenerator? queryGenerator = null,
+        IDataQueryLogger? logger = null,
+        IEnumerable<IDataInterceptor>? interceptors = null)
         : base(connection, disposeConnection, cache, queryGenerator, logger, interceptors)
     {
     }
@@ -385,10 +394,10 @@ public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscrimina
     public DataSession(
         DbTransaction transaction,
         bool disposeConnection = false,
-        IDataCache cache = null,
-        IQueryGenerator queryGenerator = null,
-        IDataQueryLogger logger = null,
-        IEnumerable<IDataInterceptor> interceptors = null)
+        IDataCache? cache = null,
+        IQueryGenerator? queryGenerator = null,
+        IDataQueryLogger? logger = null,
+        IEnumerable<IDataInterceptor>? interceptors = null)
         : base(transaction, disposeConnection, cache, queryGenerator, logger, interceptors)
     {
     }

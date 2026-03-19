@@ -146,7 +146,7 @@ public class IndentedStringBuilder
     /// </summary>
     /// <param name="text">The string to append.</param>
     /// <param name="condition">The condition delegate to evaluate. If condition is null, String.IsNullOrWhiteSpace method will be used.</param>
-    public IndentedStringBuilder AppendIf(string text, Func<string, bool> condition = null)
+    public IndentedStringBuilder AppendIf(string text, Func<string, bool>? condition = null)
     {
         var c = condition ?? (s => !string.IsNullOrEmpty(s));
 
@@ -174,7 +174,7 @@ public class IndentedStringBuilder
     /// </summary>
     /// <param name="text">The string to append.</param>
     /// <param name="condition">The condition delegate to evaluate. If condition is null, String.IsNullOrWhiteSpace method will be used.</param>
-    public IndentedStringBuilder AppendLineIf(string text, Func<string, bool> condition = null)
+    public IndentedStringBuilder AppendLineIf(string text, Func<string, bool>? condition = null)
     {
         var c = condition ?? (s => !string.IsNullOrEmpty(s));
 

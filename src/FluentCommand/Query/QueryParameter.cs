@@ -13,7 +13,7 @@ public class QueryParameter
     /// <param name="name">The name of the parameter as it appears in the SQL statement (e.g., <c>@Id</c>).</param>
     /// <param name="value">The value to be assigned to the parameter.</param>
     /// <param name="type">The <see cref="Type"/> of the parameter value.</param>
-    public QueryParameter(string name, object value, Type type)
+    public QueryParameter(string name, object? value, Type type)
     {
         Name = name;
         Value = value;
@@ -34,7 +34,7 @@ public class QueryParameter
     /// <value>
     /// An <see cref="object"/> containing the parameter value.
     /// </value>
-    public object Value { get; }
+    public object? Value { get; }
 
     /// <summary>
     /// Gets the <see cref="Type"/> of the parameter value.

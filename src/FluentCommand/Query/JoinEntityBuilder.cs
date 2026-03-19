@@ -40,7 +40,7 @@ public class JoinEntityBuilder<TLeft, TRight> : JoinBuilder<JoinEntityBuilder<TL
         Expression<Func<TLeft, TValue>> property,
         string tableAlias)
     {
-        var propertyAccessor = _leftAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(_leftAccessor, property);
 
         return Left(propertyAccessor.Column, tableAlias);
     }
@@ -59,9 +59,12 @@ public class JoinEntityBuilder<TLeft, TRight> : JoinBuilder<JoinEntityBuilder<TL
         Expression<Func<TRight, TValue>> property,
         string tableAlias)
     {
+        var tableName = _rightAccessor.TableName
+            ?? throw new InvalidOperationException("The right entity table name is not configured.");
+
         return Right(
             property,
-            _rightAccessor.TableName,
+            tableName,
             _rightAccessor.TableSchema,
             tableAlias);
     }
@@ -79,16 +82,32 @@ public class JoinEntityBuilder<TLeft, TRight> : JoinBuilder<JoinEntityBuilder<TL
     /// </returns>
     public JoinEntityBuilder<TLeft, TRight> Right<TValue>(
         Expression<Func<TRight, TValue>> property,
-        string tableName,
-        string tableSchema,
-        string tableAlias)
+        string? tableName,
+        string? tableSchema,
+        string? tableAlias)
     {
-        var propertyAccessor = _rightAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(_rightAccessor, property);
+        var resolvedTableName = tableName ?? _rightAccessor.TableName
+            ?? throw new InvalidOperationException("The right entity table name is not configured.");
 
         return Right(
             propertyAccessor.Column,
-            tableName ?? _rightAccessor.TableName,
+            resolvedTableName,
             tableSchema ?? _rightAccessor.TableSchema,
-            tableAlias ?? _rightAccessor.TableName);
+            tableAlias ?? resolvedTableName);
+    }
+
+    private static IMemberAccessor GetPropertyAccessor<TModel, TValue>(
+        TypeAccessor typeAccessor,
+        Expression<Func<TModel, TValue>> property)
+    {
+        if (property is null)
+            throw new ArgumentNullException(nameof(property));
+
+        var propertyAccessor = typeAccessor.FindProperty(property);
+        if (propertyAccessor is null)
+            throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
+
+        return propertyAccessor;
     }
 }

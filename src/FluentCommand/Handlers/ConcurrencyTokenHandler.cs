@@ -25,7 +25,7 @@ public class ConcurrencyTokenHandler : IDataParameterHandler, IDataFieldConverte
     }
 
     /// <inheritdoc />
-    public object ReadValue(IDbDataParameter parameter)
+    public object? ReadValue(IDbDataParameter parameter)
     {
         return parameter.Value switch
         {
@@ -36,7 +36,7 @@ public class ConcurrencyTokenHandler : IDataParameterHandler, IDataFieldConverte
     }
 
     /// <inheritdoc />
-    public void SetValue(IDbDataParameter parameter, object value)
+    public void SetValue(IDbDataParameter parameter, object? value)
     {
         parameter.DbType = DbType.Binary;
         parameter.Value = value switch

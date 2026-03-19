@@ -18,7 +18,7 @@ public class DataQueryFormatter
     /// <param name="exception">The exception thrown when executing the command.</param>
     /// <returns>The command formatted as a string</returns>
     /// <exception cref="System.ArgumentNullException">command</exception>
-    public string FormatCommand(IDbCommand command, TimeSpan duration, Exception exception)
+    public string FormatCommand(IDbCommand command, TimeSpan duration, Exception? exception)
     {
         if (command == null)
             throw new ArgumentNullException(nameof(command));

@@ -17,7 +17,7 @@ internal static class ExpressionFactory
     /// For void methods, returns <c>null</c>.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="methodInfo"/> is <c>null</c>.</exception>
-    public static Func<object, object[], object> CreateMethod(MethodInfo methodInfo)
+    public static Func<object?, object?[], object?> CreateMethod(MethodInfo methodInfo)
     {
         if (methodInfo == null)
             throw new ArgumentNullException(nameof(methodInfo));
@@ -27,8 +27,8 @@ internal static class ExpressionFactory
         var parametersParameter = Expression.Parameter(typeof(object[]), "parameters");
 
         // build parameter list
-        var parameterExpressions = new List<Expression>();
         var paramInfos = methodInfo.GetParameters();
+        var parameterExpressions = new Expression[paramInfos.Length];
         for (int i = 0; i < paramInfos.Length; i++)
         {
             // (Ti)parameters[i]
@@ -36,15 +36,19 @@ internal static class ExpressionFactory
 
             Type parameterType = paramInfos[i].ParameterType;
             if (parameterType.IsByRef)
-                parameterType = parameterType.GetElementType();
+            {
+                parameterType = parameterType.GetElementType()
+                    ?? throw new InvalidOperationException($"By-ref parameter '{paramInfos[i].Name}' has no element type.");
+            }
 
-            var valueCast = Expression.Convert(valueObj, parameterType);
-
-            parameterExpressions.Add(valueCast);
+            parameterExpressions[i] = Expression.Convert(valueObj, parameterType);
         }
 
+        var declaringType = methodInfo.DeclaringType
+            ?? throw new InvalidOperationException($"Method '{methodInfo.Name}' has no declaring type.");
+
         // non-instance for static method, or ((TInstance)instance)
-        var instanceCast = methodInfo.IsStatic ? null : Expression.Convert(instanceParameter, methodInfo.DeclaringType);
+        var instanceCast = methodInfo.IsStatic ? null : Expression.Convert(instanceParameter, declaringType);
 
         // static invoke or ((TInstance)instance).Method
         var methodCall = Expression.Call(instanceCast, methodInfo, parameterExpressions);
@@ -52,7 +56,7 @@ internal static class ExpressionFactory
         // ((TInstance)instance).Method((T0)parameters[0], (T1)parameters[1], ...)
         if (methodCall.Type == typeof(void))
         {
-            var lambda = Expression.Lambda<Action<object, object[]>>(methodCall, instanceParameter, parametersParameter);
+            var lambda = Expression.Lambda<Action<object?, object?[]>>(methodCall, instanceParameter, parametersParameter);
             var execute = lambda.Compile();
 
             return (instance, parameters) =>
@@ -63,8 +67,8 @@ internal static class ExpressionFactory
         }
         else
         {
-            var castMethodCall = Expression.Convert(methodCall, typeof(object));
-            var lambda = Expression.Lambda<Func<object, object[], object>>(castMethodCall, instanceParameter, parametersParameter);
+            var castMethodCall = CastToObject(methodCall);
+            var lambda = Expression.Lambda<Func<object?, object?[], object?>>(castMethodCall, instanceParameter, parametersParameter);
 
             return lambda.Compile();
         }
@@ -74,25 +78,19 @@ internal static class ExpressionFactory
     /// Creates a delegate that constructs an instance of the specified type using its parameterless constructor.
     /// </summary>
     /// <param name="type">The type to instantiate.</param>
-    /// <returns>A <see cref="Func{TResult}"/> that creates an instance of the specified type.</returns>
+    /// <returns>A <see cref="Func{TResult}"/> that creates an instance of the specified type, or <c>null</c> if no parameterless constructor exists.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="type"/> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentException">Thrown if the type does not have a parameterless constructor.</exception>
-    public static Func<object> CreateConstructor(Type type)
+    public static Func<object>? CreateConstructor(Type type)
     {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
 
-        var typeInfo = type.GetTypeInfo();
-
-        var constructorInfo = typeInfo.GetConstructor(Type.EmptyTypes);
+        var constructorInfo = type.GetConstructor(Type.EmptyTypes);
         if (constructorInfo == null)
-            throw new ArgumentException("Could not find constructor for type.", nameof(type));
+            return null;
 
         var instanceCreate = Expression.New(constructorInfo);
-
-        var instanceCreateCast = typeInfo.IsValueType
-            ? Expression.Convert(instanceCreate, typeof(object))
-            : Expression.TypeAs(instanceCreate, typeof(object));
+        var instanceCreateCast = CastToObject(instanceCreate);
 
         var lambda = Expression.Lambda<Func<object>>(instanceCreateCast);
 
@@ -108,7 +106,7 @@ internal static class ExpressionFactory
     /// or <c>null</c> if the property is not readable.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyInfo"/> is <c>null</c>.</exception>
-    public static Func<object, object> CreateGet(PropertyInfo propertyInfo)
+    public static Func<object, object?>? CreateGet(PropertyInfo propertyInfo)
     {
         if (propertyInfo == null)
             throw new ArgumentNullException(nameof(propertyInfo));
@@ -117,13 +115,17 @@ internal static class ExpressionFactory
             return null;
 
         var instance = Expression.Parameter(typeof(object), "instance");
-        var declaringType = propertyInfo.DeclaringType;
-        var getMethod = propertyInfo.GetGetMethod(true);
+
+        var declaringType = propertyInfo.DeclaringType
+            ?? throw new InvalidOperationException($"Property '{propertyInfo.Name}' has no declaring type.");
+
+        var getMethod = propertyInfo.GetGetMethod(true)
+            ?? throw new InvalidOperationException($"Property '{propertyInfo.Name}' has no get method.");
 
         var instanceCast = CreateCast(instance, declaringType, getMethod.IsStatic);
 
         var call = Expression.Call(instanceCast, getMethod);
-        var valueCast = Expression.TypeAs(call, typeof(object));
+        var valueCast = CastToObject(call);
 
         var lambda = Expression.Lambda<Func<object, object>>(valueCast, instance);
         return lambda.Compile();
@@ -137,18 +139,19 @@ internal static class ExpressionFactory
     /// A <see cref="Func{T, TResult}"/> that takes an instance and returns the field value as <c>object</c>.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="fieldInfo"/> is <c>null</c>.</exception>
-    public static Func<object, object> CreateGet(FieldInfo fieldInfo)
+    public static Func<object, object?> CreateGet(FieldInfo fieldInfo)
     {
         if (fieldInfo == null)
             throw new ArgumentNullException(nameof(fieldInfo));
 
         var instance = Expression.Parameter(typeof(object), "instance");
-        var declaringType = fieldInfo.DeclaringType;
+        var declaringType = fieldInfo.DeclaringType
+            ?? throw new InvalidOperationException($"Field '{fieldInfo.Name}' has no declaring type.");
 
         var instanceCast = CreateCast(instance, declaringType, fieldInfo.IsStatic);
 
         var fieldAccess = Expression.Field(instanceCast, fieldInfo);
-        var valueCast = Expression.TypeAs(fieldAccess, typeof(object));
+        var valueCast = CastToObject(fieldAccess);
 
         var lambda = Expression.Lambda<Func<object, object>>(valueCast, instance);
         return lambda.Compile();
@@ -163,7 +166,7 @@ internal static class ExpressionFactory
     /// or <c>null</c> if the property is not writable.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyInfo"/> is <c>null</c>.</exception>
-    public static Action<object, object> CreateSet(PropertyInfo propertyInfo)
+    public static Action<object, object?>? CreateSet(PropertyInfo propertyInfo)
     {
         if (propertyInfo == null)
             throw new ArgumentNullException(nameof(propertyInfo));
@@ -174,17 +177,21 @@ internal static class ExpressionFactory
         var instance = Expression.Parameter(typeof(object), "instance");
         var value = Expression.Parameter(typeof(object), "value");
 
-        var declaringType = propertyInfo.DeclaringType;
+        var declaringType = propertyInfo.DeclaringType
+            ?? throw new InvalidOperationException($"Property '{propertyInfo.Name}' has no declaring type.");
+
         var propertyType = propertyInfo.PropertyType;
-        var setMethod = propertyInfo.GetSetMethod(true);
+        var setMethod = propertyInfo.GetSetMethod(true)
+            ?? throw new InvalidOperationException($"Property '{propertyInfo.Name}' has no set method.");
 
         var instanceCast = CreateCast(instance, declaringType, setMethod.IsStatic);
-        var valueCast = CreateCast(value, propertyType, false);
+        var valueCast = CreateCast(value, propertyType, false)
+            ?? throw new InvalidOperationException($"Failed to create cast expression for property '{propertyInfo.Name}'.");
 
         var call = Expression.Call(instanceCast, setMethod, valueCast);
         var parameters = new[] { instance, value };
 
-        var lambda = Expression.Lambda<Action<object, object>>(call, parameters);
+        var lambda = Expression.Lambda<Action<object, object?>>(call, parameters);
         return lambda.Compile();
     }
 
@@ -196,7 +203,7 @@ internal static class ExpressionFactory
     /// An <see cref="Action{T1, T2}"/> that takes an instance and a value to set.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="fieldInfo"/> is <c>null</c>.</exception>
-    public static Action<object, object> CreateSet(FieldInfo fieldInfo)
+    public static Action<object, object?> CreateSet(FieldInfo fieldInfo)
     {
         if (fieldInfo == null)
             throw new ArgumentNullException(nameof(fieldInfo));
@@ -204,20 +211,25 @@ internal static class ExpressionFactory
         var instance = Expression.Parameter(typeof(object), "instance");
         var value = Expression.Parameter(typeof(object), "value");
 
-        var declaringType = fieldInfo.DeclaringType;
+        var declaringType = fieldInfo.DeclaringType
+            ?? throw new InvalidOperationException($"Field '{fieldInfo.Name}' has no declaring type.");
+
         var fieldType = fieldInfo.FieldType;
 
         var instanceCast = CreateCast(instance, declaringType, fieldInfo.IsStatic);
-        var valueCast = CreateCast(value, fieldType, false);
+
+        var valueCast = CreateCast(value, fieldType, false)
+            ?? throw new InvalidOperationException($"Failed to create cast expression for field '{fieldInfo.Name}'.");
 
         var member = Expression.Field(instanceCast, fieldInfo);
         var assign = Expression.Assign(member, valueCast);
 
         var parameters = new[] { instance, value };
 
-        var lambda = Expression.Lambda<Action<object, object>>(assign, parameters);
+        var lambda = Expression.Lambda<Action<object, object?>>(assign, parameters);
         return lambda.Compile();
     }
+
 
     /// <summary>
     /// Creates a cast expression for the given parameter and type, handling static and value types appropriately.
@@ -228,15 +240,29 @@ internal static class ExpressionFactory
     /// <returns>
     /// A <see cref="UnaryExpression"/> representing the cast, or <c>null</c> if the member is static.
     /// </returns>
-    private static UnaryExpression CreateCast(ParameterExpression instance, Type declaringType, bool isStatic)
+    private static UnaryExpression? CreateCast(ParameterExpression instance, Type declaringType, bool isStatic)
     {
         if (isStatic)
             return null;
 
-        // value as T is slightly faster than (T)value, so if it's not a value type, use that
-        if (declaringType.GetTypeInfo().IsValueType)
+        // TypeAs (isinst) is faster than Convert (castclass) for reference types
+        if (declaringType.IsValueType)
             return Expression.Convert(instance, declaringType);
         else
             return Expression.TypeAs(instance, declaringType);
+    }
+
+    /// <summary>
+    /// Creates the optimal expression for boxing/casting an expression result to <see cref="object"/>.
+    /// Uses <c>Convert</c> (box) for value types and <c>TypeAs</c> (isinst) for reference types.
+    /// </summary>
+    private static UnaryExpression CastToObject(Expression expression)
+    {
+        // Value types: Convert emits a direct 'box' instruction.
+        // Reference types: TypeAs emits 'isinst' which avoids the InvalidCastException
+        // preparation overhead of 'castclass'; upcasting to object never fails.
+        return expression.Type.IsValueType
+            ? Expression.Convert(expression, typeof(object))
+            : Expression.TypeAs(expression, typeof(object));
     }
 }

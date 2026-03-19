@@ -18,7 +18,7 @@ public class SqlServerGenerator : IQueryGenerator
     public virtual string BuildSelect(SelectStatement selectStatement)
     {
         if (selectStatement.FromExpressions == null || selectStatement.FromExpressions.Count == 0)
-            throw new ArgumentException("No table specified to select from", nameof(selectStatement.FromExpressions));
+            throw new ArgumentException("No table specified to select from", nameof(selectStatement));
 
         var selectBuilder = StringBuilderCache.Acquire();
 
@@ -35,7 +35,7 @@ public class SqlServerGenerator : IQueryGenerator
         if (selectStatement.SelectExpressions?.Count > 0)
             selectBuilder.AppendJoin(", ", selectStatement.SelectExpressions.Select(SelectExpression));
         else
-            selectBuilder.Append("*");
+            selectBuilder.Append('*');
 
         selectBuilder
             .AppendLine()
@@ -57,9 +57,9 @@ public class SqlServerGenerator : IQueryGenerator
             selectBuilder
                 .AppendLine()
                 .Append("WHERE ")
-                .Append("(")
+                .Append('(')
                 .AppendJoin(" AND ", selectStatement.WhereExpressions.Select(WhereExpression))
-                .Append(")");
+                .Append(')');
         }
 
         if (selectStatement.GroupExpressions?.Count > 0)
@@ -127,7 +127,7 @@ public class SqlServerGenerator : IQueryGenerator
             insertBuilder
                 .Append(" (")
                 .AppendJoin(", ", insertStatement.ColumnExpressions.Select(ColumnExpression))
-                .Append(")");
+                .Append(')');
         }
 
         if (insertStatement.OutputExpressions?.Count > 0)
@@ -142,7 +142,7 @@ public class SqlServerGenerator : IQueryGenerator
         insertBuilder
             .AppendLine()
             .Append("VALUES ")
-            .Append("(")
+            .Append('(')
             .AppendJoin(", ", insertStatement.ValueExpressions)
             .Append(");");
 
@@ -157,9 +157,6 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if the table or update values are not specified.</exception>
     public virtual string BuildUpdate(UpdateStatement updateStatement)
     {
-        if (updateStatement.TableExpression == null)
-            throw new ArgumentException("No table specified to update", nameof(updateStatement));
-
         if (updateStatement.UpdateExpressions == null || updateStatement.UpdateExpressions.Count == 0)
             throw new ArgumentException("No values specified for update", nameof(updateStatement));
 
@@ -212,9 +209,9 @@ public class SqlServerGenerator : IQueryGenerator
             updateBuilder
                 .AppendLine()
                 .Append("WHERE ")
-                .Append("(")
+                .Append('(')
                 .AppendJoin(" AND ", updateStatement.WhereExpressions.Select(WhereExpression))
-                .Append(")");
+                .Append(')');
         }
 
         updateBuilder.AppendLine(";");
@@ -279,9 +276,9 @@ public class SqlServerGenerator : IQueryGenerator
             deleteBuilder
                 .AppendLine()
                 .Append("WHERE ")
-                .Append("(")
+                .Append('(')
                 .AppendJoin(" AND ", deleteStatement.WhereExpressions.Select(WhereExpression))
-                .Append(")");
+                .Append(')');
         }
 
         deleteBuilder.AppendLine(";");
@@ -294,7 +291,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// </summary>
     /// <param name="whereExpressions">A collection of <see cref="WhereExpression"/> objects representing WHERE conditions.</param>
     /// <returns>A SQL WHERE clause string, or <c>null</c> if no expressions are provided.</returns>
-    public virtual string BuildWhere(IReadOnlyCollection<WhereExpression> whereExpressions)
+    public virtual string? BuildWhere(IReadOnlyCollection<WhereExpression> whereExpressions)
     {
         if (whereExpressions == null || whereExpressions.Count == 0)
             return null;
@@ -304,9 +301,9 @@ public class SqlServerGenerator : IQueryGenerator
         if (whereExpressions?.Count > 0)
         {
             whereBuilder
-                .Append("(")
+                .Append('(')
                 .AppendJoin(" AND ", whereExpressions.Select(WhereExpression))
-                .Append(")");
+                .Append(')');
         }
 
         return StringBuilderCache.ToString(whereBuilder);
@@ -317,7 +314,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// </summary>
     /// <param name="sortExpressions">A collection of <see cref="SortExpression"/> objects representing sort conditions.</param>
     /// <returns>A SQL ORDER BY clause string, or <c>null</c> if no expressions are provided.</returns>
-    public virtual string BuildOrder(IReadOnlyCollection<SortExpression> sortExpressions)
+    public virtual string? BuildOrder(IReadOnlyCollection<SortExpression> sortExpressions)
     {
         if (sortExpressions == null || sortExpressions.Count == 0)
             return null;
@@ -370,7 +367,7 @@ public class SqlServerGenerator : IQueryGenerator
         if (columnExpression is null)
             throw new ArgumentNullException(nameof(columnExpression));
 
-        if (string.IsNullOrWhiteSpace(columnExpression.ColumnName))
+        if (columnExpression.ColumnName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(columnExpression.ColumnName)}' property cannot be null or empty.", nameof(columnExpression));
 
         if (columnExpression.IsRaw)
@@ -427,7 +424,7 @@ public class SqlServerGenerator : IQueryGenerator
         if (tableExpression is null)
             throw new ArgumentNullException(nameof(tableExpression));
 
-        if (string.IsNullOrWhiteSpace(tableExpression.TableName))
+        if (tableExpression.TableName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(tableExpression.TableName)}' property cannot be null or empty.", nameof(tableExpression));
 
         if (tableExpression.IsRaw)
@@ -457,7 +454,7 @@ public class SqlServerGenerator : IQueryGenerator
         if (sortExpression is null)
             throw new ArgumentNullException(nameof(sortExpression));
 
-        if (string.IsNullOrWhiteSpace(sortExpression.ColumnName))
+        if (sortExpression.ColumnName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(sortExpression.ColumnName)}' property cannot be null or empty.", nameof(sortExpression));
 
         if (sortExpression.IsRaw)
@@ -496,14 +493,14 @@ public class SqlServerGenerator : IQueryGenerator
         if (whereExpression is null)
             throw new ArgumentNullException(nameof(whereExpression));
 
-        if (string.IsNullOrWhiteSpace(whereExpression.ColumnName))
+        if (whereExpression.ColumnName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(whereExpression.ColumnName)}' property cannot be null or empty.", nameof(whereExpression));
 
         if (whereExpression.IsRaw)
             return whereExpression.ColumnName;
 
         var parameterlessFilters = new[] { FilterOperators.IsNull, FilterOperators.IsNotNull };
-        if (!parameterlessFilters.Contains(whereExpression.FilterOperator) && string.IsNullOrWhiteSpace(whereExpression.ParameterName))
+        if (!parameterlessFilters.Contains(whereExpression.FilterOperator) && whereExpression.ParameterName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(whereExpression.ParameterName)}' property cannot be null or empty.", nameof(whereExpression));
 
         var columnName = ColumnExpression(whereExpression);
@@ -541,9 +538,9 @@ public class SqlServerGenerator : IQueryGenerator
         var logical = logicalOperator == LogicalOperators.And ? " AND " : " OR ";
 
         stringBuilder
-            .Append("(")
+            .Append('(')
             .AppendJoin(logical, whereExpressions.Select(WhereExpression))
-            .Append(")");
+            .Append(')' );
 
         return StringBuilderCache.ToString(stringBuilder);
     }
@@ -573,13 +570,13 @@ public class SqlServerGenerator : IQueryGenerator
         if (updateExpression is null)
             throw new ArgumentNullException(nameof(updateExpression));
 
-        if (string.IsNullOrWhiteSpace(updateExpression.ColumnName))
+        if (updateExpression.ColumnName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(updateExpression.ColumnName)}' cannot be null or empty.", nameof(updateExpression));
 
         if (updateExpression.IsRaw)
             return updateExpression.ColumnName;
 
-        if (string.IsNullOrWhiteSpace(updateExpression.ParameterName))
+        if (updateExpression.ParameterName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(updateExpression.ParameterName)}' cannot be null or empty.", nameof(updateExpression));
 
         var quotedName = ColumnExpression(updateExpression);
@@ -598,22 +595,6 @@ public class SqlServerGenerator : IQueryGenerator
     {
         if (joinExpression is null)
             throw new ArgumentNullException(nameof(joinExpression));
-
-        if (string.IsNullOrWhiteSpace(joinExpression.LeftColumnName))
-            throw new ArgumentException($"'{nameof(joinExpression.LeftColumnName)}' cannot be null or empty.", nameof(joinExpression));
-
-        if (string.IsNullOrWhiteSpace(joinExpression.LeftTableAlias))
-            throw new ArgumentException($"'{nameof(joinExpression.LeftTableAlias)}' cannot be null or empty.", nameof(joinExpression));
-
-        if (string.IsNullOrWhiteSpace(joinExpression.RightColumnName))
-            throw new ArgumentException($"'{nameof(joinExpression.RightColumnName)}' cannot be null or empty.", nameof(joinExpression));
-
-        if (string.IsNullOrWhiteSpace(joinExpression.RightTableName))
-            throw new ArgumentException($"'{nameof(joinExpression.RightTableName)}' cannot be null or empty.", nameof(joinExpression));
-
-        if (string.IsNullOrWhiteSpace(joinExpression.RightTableAlias))
-            throw new ArgumentException($"'{nameof(joinExpression.RightTableAlias)}' cannot be null or empty.", nameof(joinExpression));
-
 
         var leftColumn = ColumnExpression(new ColumnExpression(joinExpression.LeftColumnName, joinExpression.LeftTableAlias));
         var rightColumn = ColumnExpression(new ColumnExpression(joinExpression.RightColumnName, joinExpression.RightTableAlias));
@@ -643,7 +624,7 @@ public class SqlServerGenerator : IQueryGenerator
         if (name == "*")
             return name;
 
-        if (name.StartsWith("[") && name.EndsWith("]"))
+        if (name.StartsWith('[') && name.EndsWith(']'))
             return name;
 
         return "[" + name.Replace("]", "]]") + "]";
@@ -656,8 +637,8 @@ public class SqlServerGenerator : IQueryGenerator
     /// <returns>The unquoted identifier name.</returns>
     public virtual string ParseIdentifier(string name)
     {
-        if (name.StartsWith("[") && name.EndsWith("]"))
-            return name.Substring(1, name.Length - 2);
+        if (name.StartsWith('[') && name.EndsWith(']'))
+            return name[1..^1];
 
         return name;
     }

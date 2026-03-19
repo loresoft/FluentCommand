@@ -82,7 +82,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <value>
     /// The <see cref="TableExpression"/> representing the target table.
     /// </value>
-    protected TableExpression TableExpression { get; private set; }
+    protected TableExpression? TableExpression { get; private set; }
 
     /// <summary>
     /// Sets the target table to update.
@@ -95,8 +95,8 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Table(
         string tableName,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         TableExpression = new TableExpression(tableName, tableSchema, tableAlias);
 
@@ -114,7 +114,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Value<TValue>(
         string columnName,
-        TValue parameterValue)
+        TValue? parameterValue)
     {
         return Value(columnName, parameterValue, typeof(TValue));
     }
@@ -131,7 +131,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <exception cref="ArgumentException">Thrown if <paramref name="columnName"/> is null or empty.</exception>
     public TBuilder Value(
         string columnName,
-        object parameterValue,
+        object? parameterValue,
         Type parameterType)
     {
         if (string.IsNullOrWhiteSpace(columnName))
@@ -158,8 +158,8 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder ValueIf<TValue>(
         string columnName,
-        TValue parameterValue,
-        Func<string, TValue, bool> condition)
+        TValue? parameterValue,
+        Func<string, TValue?, bool> condition)
     {
         if (condition != null && !condition(columnName, parameterValue))
             return (TBuilder)this;
@@ -178,7 +178,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="columnNames"/> is <c>null</c>.</exception>
     public TBuilder Output(
         IEnumerable<string> columnNames,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -200,8 +200,8 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Output(
         string columnName,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
         var outputClause = new ColumnExpression(columnName, tableAlias, columnAlias);
 
@@ -222,9 +222,9 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder OutputIf(
         string columnName,
-        string tableAlias = null,
-        string columnAlias = null,
-        Func<string, bool> condition = null)
+        string? tableAlias = null,
+        string? columnAlias = null,
+        Func<string, bool>? condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
@@ -243,8 +243,8 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public virtual TBuilder From(
         string tableName,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         var fromClause = new TableExpression(tableName, tableSchema, tableAlias);
 
@@ -291,8 +291,11 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <returns>
     /// A <see cref="QueryStatement"/> containing the SQL UPDATE statement and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
+        if (TableExpression is null)
+            throw new InvalidOperationException("Table must be specified before building an update statement.");
+
         var updateStatement = new UpdateStatement(
             TableExpression,
             UpdateExpressions,

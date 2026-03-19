@@ -74,7 +74,7 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <value>
     /// The <see cref="TableExpression"/> representing the target table.
     /// </value>
-    protected TableExpression TableExpression { get; private set; }
+    protected TableExpression? TableExpression { get; private set; }
 
     /// <summary>
     /// Sets the target table to delete from.
@@ -87,8 +87,8 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Table(
         string tableName,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         TableExpression = new TableExpression(tableName, tableSchema, tableAlias);
 
@@ -106,7 +106,7 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="columnNames"/> is <c>null</c>.</exception>
     public TBuilder Output(
         IEnumerable<string> columnNames,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -128,8 +128,8 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Output(
         string columnName,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
         var outputClause = new ColumnExpression(columnName, tableAlias, columnAlias);
 
@@ -150,9 +150,9 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder OutputIf(
         string columnName,
-        string tableAlias = null,
-        string columnAlias = null,
-        Func<string, bool> condition = null)
+        string? tableAlias = null,
+        string? columnAlias = null,
+        Func<string, bool>? condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
@@ -171,8 +171,8 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public virtual TBuilder From(
         string tableName,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         var fromClause = new TableExpression(tableName, tableSchema, tableAlias);
 
@@ -219,8 +219,11 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <returns>
     /// A <see cref="QueryStatement"/> containing the SQL DELETE statement and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
+        if (TableExpression is null)
+            throw new InvalidOperationException("Table must be specified before building a delete statement.");
+
         var deleteStatement = new DeleteStatement(
             TableExpression,
             OutputExpressions,

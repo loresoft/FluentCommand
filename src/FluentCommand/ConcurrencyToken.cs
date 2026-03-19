@@ -36,7 +36,7 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
     /// Initializes a new instance of the <see cref="ConcurrencyToken"/> struct.
     /// </summary>
     /// <param name="value">The value.</param>
-    public ConcurrencyToken(string value)
+    public ConcurrencyToken(string? value)
     {
 #if NET5_0_OR_GREATER
         Value = string.IsNullOrEmpty(value) ? [] : Convert.FromHexString(value);
@@ -67,14 +67,14 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
     public override string ToString()
     {
 #if NET5_0_OR_GREATER
-        return Value != null ? Convert.ToHexString(Value) : null;
+        return Value != null ? Convert.ToHexString(Value) : string.Empty;
 #else
-        return Value != null ? ToHexString(Value) : null;
+        return Value != null ? ToHexString(Value) : string.Empty;
 #endif
     }
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is ConcurrencyToken token && Equals(token);
     }
@@ -82,13 +82,30 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
     /// <inheritdoc />
     public bool Equals(ConcurrencyToken other)
     {
-        return EqualityComparer<byte[]>.Default.Equals(Value, other.Value);
+        if (ReferenceEquals(Value, other.Value))
+            return true;
+
+        if (Value is null || other.Value is null)
+            return false;
+
+        return Value.AsSpan().SequenceEqual(other.Value);
     }
 
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return Value.GetHashCode();
+        if (Value is null || Value.Length == 0)
+            return 0;
+
+        unchecked
+        {
+            int hash = 17;
+
+            foreach (var b in Value)
+                hash = (hash * 31) + b;
+
+            return hash;
+        }
     }
 
 
@@ -226,8 +243,11 @@ public readonly struct ConcurrencyToken : IEquatable<ConcurrencyToken>
         return StringBuilderCache.ToString(hex);
     }
 
-    private static byte[] FromHexString(string hexString)
+    private static byte[] FromHexString(string? hexString)
     {
+        if (hexString == null)
+            return [];
+
         var hexLength = hexString.Length;
         var bytes = new byte[hexLength / 2];
 

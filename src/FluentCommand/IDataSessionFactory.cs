@@ -14,7 +14,7 @@ public interface IDataSessionFactory
     /// <returns>
     /// A new <see cref="IDataSession" /> instance.
     /// </returns>
-    IDataSession CreateSession(string connectionString = null);
+    IDataSession CreateSession(string? connectionString = null);
 
     /// <summary>
     /// Creates a new data session from this database configuration

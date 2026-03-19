@@ -10,7 +10,7 @@ namespace FluentCommand.Reflection;
 [DebuggerDisplay("Name: {Name}")]
 public class MethodAccessor : IMethodAccessor
 {
-    private readonly Lazy<Func<object, object[], object>> _invoker;
+    private readonly Lazy<Func<object?, object?[], object?>> _invoker;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MethodAccessor"/> class using the specified <see cref="MethodInfo"/>.
@@ -24,7 +24,7 @@ public class MethodAccessor : IMethodAccessor
 
         MethodInfo = methodInfo;
         Name = methodInfo.Name;
-        _invoker = new Lazy<Func<object, object[], object>>(() => ExpressionFactory.CreateMethod(MethodInfo));
+        _invoker = new Lazy<Func<object?, object?[], object?>>(() => ExpressionFactory.CreateMethod(MethodInfo));
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public class MethodAccessor : IMethodAccessor
     /// <exception cref="ArgumentNullException">Thrown if required arguments are <c>null</c>.</exception>
     /// <exception cref="TargetParameterCountException">Thrown if the number of parameters in <paramref name="arguments"/> does not match the method signature.</exception>
     /// <exception cref="TargetInvocationException">Thrown if the invoked method throws an exception.</exception>
-    public object Invoke(object instance, params object[] arguments)
+    public object? Invoke(object? instance, params object?[] arguments)
     {
         return _invoker.Value.Invoke(instance, arguments);
     }

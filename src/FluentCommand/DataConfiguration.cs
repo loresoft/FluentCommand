@@ -23,10 +23,10 @@ public class DataConfiguration : IDataConfiguration
     public DataConfiguration(
         DbProviderFactory providerFactory,
         string connectionString,
-        IDataCache cache = null,
-        IQueryGenerator queryGenerator = null,
-        IDataQueryLogger queryLogger = null,
-        IEnumerable<IDataInterceptor> interceptors = null)
+        IDataCache? cache = null,
+        IQueryGenerator? queryGenerator = null,
+        IDataQueryLogger? queryLogger = null,
+        IEnumerable<IDataInterceptor>? interceptors = null)
     {
         ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
         ConnectionString = connectionString;
@@ -58,7 +58,7 @@ public class DataConfiguration : IDataConfiguration
     /// <value>
     /// The data command query logger.
     /// </value>
-    public IDataQueryLogger QueryLogger { get; }
+    public IDataQueryLogger? QueryLogger { get; }
 
     /// <summary>
     /// Gets the data cache manager.
@@ -66,7 +66,7 @@ public class DataConfiguration : IDataConfiguration
     /// <value>
     /// The data cache manager.
     /// </value>
-    public virtual IDataCache DataCache { get; }
+    public virtual IDataCache? DataCache { get; }
 
     /// <summary>
     /// Gets the query generator provider.
@@ -91,7 +91,7 @@ public class DataConfiguration : IDataConfiguration
     /// <returns>
     /// A new <see cref="IDataSession" /> instance.
     /// </returns>
-    public virtual IDataSession CreateSession(string connectionString = null)
+    public virtual IDataSession CreateSession(string? connectionString = null)
     {
         var connection = CreateConnection(connectionString);
         return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger, Interceptors);
@@ -126,7 +126,7 @@ public class DataConfiguration : IDataConfiguration
     /// </returns>
     /// <exception cref="InvalidOperationException">Database provider factory failed to create a connection object.</exception>
     /// <exception cref="ArgumentException">The connection string is invalid</exception>
-    public virtual DbConnection CreateConnection(string connectionString = null)
+    public virtual DbConnection CreateConnection(string? connectionString = null)
     {
         var connection = ProviderFactory.CreateConnection();
         if (connection == null)
@@ -161,10 +161,10 @@ public class DataConfiguration<TDiscriminator> : DataConfiguration, IDataConfigu
     public DataConfiguration(
         DbProviderFactory providerFactory,
         string connectionString,
-        IDataCache cache = null,
-        IQueryGenerator queryGenerator = null,
-        IDataQueryLogger queryLogger = null,
-        IEnumerable<IDataInterceptor> interceptors = null)
+        IDataCache? cache = null,
+        IQueryGenerator? queryGenerator = null,
+        IDataQueryLogger? queryLogger = null,
+        IEnumerable<IDataInterceptor>? interceptors = null)
         : base(providerFactory, connectionString, cache, queryGenerator, queryLogger, interceptors)
     {
     }

@@ -12,15 +12,15 @@ namespace FluentCommand.Reflection;
 [DebuggerDisplay("Name: {Name}")]
 public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccessor>
 {
-    private readonly Lazy<ColumnAttribute> _columnAttribute;
-    private readonly Lazy<KeyAttribute> _keyAttribute;
-    private readonly Lazy<NotMappedAttribute> _notMappedAttribute;
-    private readonly Lazy<DatabaseGeneratedAttribute> _databaseGeneratedAttribute;
-    private readonly Lazy<ConcurrencyCheckAttribute> _concurrencyCheckAttribute;
-    private readonly Lazy<ForeignKeyAttribute> _foreignKeyAttribute;
-    private readonly Lazy<RequiredAttribute> _requiredAttribute;
-    private readonly Lazy<DisplayAttribute> _displayAttribute;
-    private readonly Lazy<DisplayFormatAttribute> _displayFormatAttribute;
+    private readonly Lazy<ColumnAttribute?> _columnAttribute;
+    private readonly Lazy<KeyAttribute?> _keyAttribute;
+    private readonly Lazy<NotMappedAttribute?> _notMappedAttribute;
+    private readonly Lazy<DatabaseGeneratedAttribute?> _databaseGeneratedAttribute;
+    private readonly Lazy<ConcurrencyCheckAttribute?> _concurrencyCheckAttribute;
+    private readonly Lazy<ForeignKeyAttribute?> _foreignKeyAttribute;
+    private readonly Lazy<RequiredAttribute?> _requiredAttribute;
+    private readonly Lazy<DisplayAttribute?> _displayAttribute;
+    private readonly Lazy<DisplayFormatAttribute?> _displayFormatAttribute;
 
 
     /// <summary>
@@ -32,15 +32,15 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     {
         MemberInfo = memberInfo ?? throw new ArgumentNullException(nameof(memberInfo));
 
-        _columnAttribute = new Lazy<ColumnAttribute>(() => MemberInfo.GetCustomAttribute<ColumnAttribute>(true));
-        _keyAttribute = new Lazy<KeyAttribute>(() => MemberInfo.GetCustomAttribute<KeyAttribute>(true));
-        _notMappedAttribute = new Lazy<NotMappedAttribute>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>(true));
-        _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>(true));
-        _concurrencyCheckAttribute = new Lazy<ConcurrencyCheckAttribute>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>(true));
-        _foreignKeyAttribute = new Lazy<ForeignKeyAttribute>(() => MemberInfo.GetCustomAttribute<ForeignKeyAttribute>(true));
-        _requiredAttribute = new Lazy<RequiredAttribute>(() => MemberInfo.GetCustomAttribute<RequiredAttribute>(true));
-        _displayAttribute = new Lazy<DisplayAttribute>(() => MemberInfo.GetCustomAttribute<DisplayAttribute>(true));
-        _displayFormatAttribute = new Lazy<DisplayFormatAttribute>(() => MemberInfo.GetCustomAttribute<DisplayFormatAttribute>(true));
+        _columnAttribute = new Lazy<ColumnAttribute?>(() => MemberInfo.GetCustomAttribute<ColumnAttribute>(true));
+        _keyAttribute = new Lazy<KeyAttribute?>(() => MemberInfo.GetCustomAttribute<KeyAttribute>(true));
+        _notMappedAttribute = new Lazy<NotMappedAttribute?>(() => MemberInfo.GetCustomAttribute<NotMappedAttribute>(true));
+        _databaseGeneratedAttribute = new Lazy<DatabaseGeneratedAttribute?>(() => MemberInfo.GetCustomAttribute<DatabaseGeneratedAttribute>(true));
+        _concurrencyCheckAttribute = new Lazy<ConcurrencyCheckAttribute?>(() => MemberInfo.GetCustomAttribute<ConcurrencyCheckAttribute>(true));
+        _foreignKeyAttribute = new Lazy<ForeignKeyAttribute?>(() => MemberInfo.GetCustomAttribute<ForeignKeyAttribute>(true));
+        _requiredAttribute = new Lazy<RequiredAttribute?>(() => MemberInfo.GetCustomAttribute<RequiredAttribute>(true));
+        _displayAttribute = new Lazy<DisplayAttribute?>(() => MemberInfo.GetCustomAttribute<DisplayAttribute>(true));
+        _displayFormatAttribute = new Lazy<DisplayFormatAttribute?>(() => MemberInfo.GetCustomAttribute<DisplayFormatAttribute>(true));
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// This value is determined by the <see cref="ColumnAttribute.TypeName"/> property if specified.
     /// </summary>
     /// <value>The provider-specific column data type.</value>
-    public string ColumnType => _columnAttribute.Value?.TypeName;
+    public string? ColumnType => _columnAttribute.Value?.TypeName;
 
     /// <summary>
     /// Gets the zero-based order of the column the member is mapped to in the database.
@@ -129,7 +129,7 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// This value is determined by the <see cref="ForeignKeyAttribute.Name"/> property if specified.
     /// </summary>
     /// <value>The name of the navigation property or foreign key(s), or <c>null</c> if not applicable.</value>
-    public string ForeignKey => _foreignKeyAttribute.Value?.Name;
+    public string? ForeignKey => _foreignKeyAttribute.Value?.Name;
 
     /// <summary>
     /// Gets a value indicating whether this member is required (non-nullable or marked as required).
@@ -152,21 +152,21 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// <value>
     /// The data format string for display formatting, or <c>null</c> if not specified.
     /// </value>
-    public string DataFormatString => _displayFormatAttribute.Value?.DataFormatString;
+    public string? DataFormatString => _displayFormatAttribute.Value?.DataFormatString;
 
     /// <summary>
     /// Returns the value of the member for the specified object instance.
     /// </summary>
     /// <param name="instance">The object whose member value will be returned.</param>
     /// <returns>The value of the member for the given <paramref name="instance"/>.</returns>
-    public abstract object GetValue(object instance);
+    public abstract object? GetValue(object instance);
 
     /// <summary>
     /// Sets the value of the member for the specified object instance.
     /// </summary>
     /// <param name="instance">The object whose member value will be set.</param>
     /// <param name="value">The new value to assign to the member.</param>
-    public abstract void SetValue(object instance, object value);
+    public abstract void SetValue(object instance, object? value);
 
 
     /// <summary>
@@ -174,14 +174,18 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// </summary>
     /// <param name="other">The <see cref="IMemberAccessor"/> to compare with this instance.</param>
     /// <returns><c>true</c> if the specified accessor is equal to this instance; otherwise, <c>false</c>.</returns>
-    public bool Equals(IMemberAccessor other)
+    public bool Equals(IMemberAccessor? other)
     {
-        if (ReferenceEquals(null, other))
+        if (other is null)
             return false;
+
         if (ReferenceEquals(this, other))
             return true;
 
-        return Equals(other.MemberInfo, MemberInfo);
+        if (other is MemberAccessor otherAccessor)
+            return Equals(otherAccessor.MemberInfo, MemberInfo);
+
+        return string.Equals(other.Name, Name, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -189,16 +193,15 @@ public abstract class MemberAccessor : IMemberAccessor, IEquatable<IMemberAccess
     /// </summary>
     /// <param name="obj">The <see cref="object"/> to compare with this instance.</param>
     /// <returns><c>true</c> if the specified object is equal to this instance; otherwise, <c>false</c>.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj))
-            return false;
-        if (ReferenceEquals(this, obj))
-            return true;
-        if (obj.GetType() != typeof(MemberAccessor))
+        if (obj is null)
             return false;
 
-        return Equals((MemberAccessor)obj);
+        if (ReferenceEquals(this, obj))
+            return true;
+
+        return obj is IMemberAccessor other && Equals(other);
     }
 
     /// <summary>

@@ -9,8 +9,8 @@ namespace FluentCommand.Query;
 /// </summary>
 public class ChangeTableBuilder : StatementBuilder<ChangeTableBuilder>
 {
-    private TableExpression _fromTable;
-    private QueryParameter _parameter;
+    private TableExpression? _fromTable;
+    private QueryParameter? _parameter;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ChangeTableBuilder"/> class.
@@ -30,8 +30,8 @@ public class ChangeTableBuilder : StatementBuilder<ChangeTableBuilder>
     /// <returns>The same <see cref="ChangeTableBuilder"/> instance for fluent chaining.</returns>
     public ChangeTableBuilder From(
         string tableName,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         _fromTable = new TableExpression(tableName, tableSchema, tableAlias);
 
@@ -45,7 +45,7 @@ public class ChangeTableBuilder : StatementBuilder<ChangeTableBuilder>
     /// <param name="tableAlias">The alias to use for the table in the query (optional).</param>
     /// <returns>The same <see cref="ChangeTableBuilder"/> instance for fluent chaining.</returns>
     public ChangeTableBuilder From<TEntity>(
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         var typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
@@ -75,8 +75,11 @@ public class ChangeTableBuilder : StatementBuilder<ChangeTableBuilder>
     /// <returns>
     /// A <see cref="QueryStatement"/> representing the constructed <c>CHANGETABLE</c> query and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
+        if (_fromTable is null)
+            throw new InvalidOperationException("The table source must be specified using From() before building the statement.");
+
         if (_parameter == null)
             return new QueryStatement(QueryGenerator.TableExpression(_fromTable), Parameters);
 

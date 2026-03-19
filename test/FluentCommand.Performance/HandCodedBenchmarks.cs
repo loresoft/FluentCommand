@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Data;
 
@@ -15,37 +15,16 @@ public class HandCodedBenchmarks : BenchmarkBase
 {
     private SqlCommand _postCommand;
     private SqlParameter _idParam;
-    private DataTable _table;
 
     [GlobalSetup]
     public void Setup()
     {
         BaseSetup();
-        _postCommand = new SqlCommand("select Top 1 * from Posts where Id = @Id", Connection);
+        _postCommand = new SqlCommand("select Top 1 * from Post where Id = @Id", Connection);
 
         _idParam = _postCommand.Parameters.Add("@Id", SqlDbType.Int);
 
         _postCommand.Prepare();
-
-        _table = new DataTable
-        {
-            Columns =
-                    {
-                        {"Id", typeof (int)},
-                        {"Text", typeof (string)},
-                        {"CreationDate", typeof (DateTime)},
-                        {"LastChangeDate", typeof (DateTime)},
-                        {"Counter1", typeof (int)},
-                        {"Counter2", typeof (int)},
-                        {"Counter3", typeof (int)},
-                        {"Counter4", typeof (int)},
-                        {"Counter5", typeof (int)},
-                        {"Counter6", typeof (int)},
-                        {"Counter7", typeof (int)},
-                        {"Counter8", typeof (int)},
-                        {"Counter9", typeof (int)},
-                    }
-        };
     }
 
     [Benchmark(Description = "SqlCommand")]

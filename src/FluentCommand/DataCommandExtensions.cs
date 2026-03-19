@@ -2,7 +2,6 @@ using System.Data;
 using System.Data.Common;
 
 using FluentCommand.Extensions;
-using FluentCommand.Reflection;
 
 namespace FluentCommand;
 
@@ -60,7 +59,7 @@ public static class DataCommandExtensions
     public static IDataCommand Parameter<TParameter>(
         this IDataCommand dataCommand,
         string name,
-        TParameter value)
+        TParameter? value)
     {
 
         var parameter = dataCommand.Command.CreateParameter();
@@ -88,7 +87,7 @@ public static class DataCommandExtensions
     public static IDataCommand Parameter(
         this IDataCommand dataCommand,
         string name,
-        object value,
+        object? value,
         Type type)
     {
         var parameter = dataCommand.Command.CreateParameter();
@@ -115,8 +114,8 @@ public static class DataCommandExtensions
     public static IDataCommand ParameterIf<TParameter>(
         this IDataCommand dataCommand,
         string name,
-        TParameter value,
-        Func<string, TParameter, bool> condition = null)
+        TParameter? value,
+        Func<string, TParameter?, bool>? condition = null)
     {
         if (condition != null && !condition(name, value))
             return dataCommand;
@@ -138,9 +137,9 @@ public static class DataCommandExtensions
     public static IDataCommand ParameterIf(
         this IDataCommand dataCommand,
         string name,
-        object value,
+        object? value,
         Type type,
-        Func<string, object, bool> condition = null)
+        Func<string, object?, bool>? condition = null)
     {
         if (condition != null && !condition(name, value))
             return dataCommand;
@@ -184,7 +183,7 @@ public static class DataCommandExtensions
     public static IDataCommand ParameterOut<TParameter>(
         this IDataCommand dataCommand,
         string name,
-        Action<TParameter> callback)
+        Action<TParameter?> callback)
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
@@ -213,8 +212,8 @@ public static class DataCommandExtensions
     public static IDataCommand ParameterOut<TParameter>(
         this IDataCommand dataCommand,
         string name,
-        TParameter value,
-        Action<TParameter> callback)
+        TParameter? value,
+        Action<TParameter?> callback)
     {
         var parameter = dataCommand.Command.CreateParameter();
         parameter.ParameterName = name;
@@ -243,7 +242,7 @@ public static class DataCommandExtensions
     /// </returns>
     public static IDataCommand Return<TParameter>(
         this IDataCommand dataCommand,
-        Action<TParameter> callback)
+        Action<TParameter?> callback)
     {
         const string parameterName = "@ReturnValue";
 

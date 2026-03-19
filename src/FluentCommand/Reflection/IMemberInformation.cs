@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
 
 namespace FluentCommand.Reflection;
 
@@ -17,15 +16,6 @@ public interface IMemberInformation
     /// The <see cref="Type"/> representing the member's data type.
     /// </value>
     Type MemberType { get; }
-
-    /// <summary>
-    /// Gets the underlying <see cref="MemberInfo"/> for the member,
-    /// which provides reflection-based access to metadata.
-    /// </summary>
-    /// <value>
-    /// The <see cref="MemberInfo"/> instance for the member.
-    /// </value>
-    MemberInfo MemberInfo { get; }
 
     /// <summary>
     /// Gets the name of the member as defined in the entity class.
@@ -52,7 +42,7 @@ public interface IMemberInformation
     /// <value>
     /// The provider-specific column data type.
     /// </value>
-    string ColumnType { get; }
+    string? ColumnType { get; }
 
     /// <summary>
     /// Gets the zero-based order of the column the member is mapped to in the database.
@@ -106,7 +96,7 @@ public interface IMemberInformation
     /// <value>
     /// The name of the navigation property or foreign key(s), or <c>null</c> if not applicable.
     /// </value>
-    string ForeignKey { get; }
+    string? ForeignKey { get; }
 
     /// <summary>
     /// Gets a value indicating whether this member has a getter method.
@@ -149,5 +139,5 @@ public interface IMemberInformation
     /// <value>
     /// The data format string for display formatting, or <c>null</c> if not specified.
     /// </value>
-    string DataFormatString { get; }
+    string? DataFormatString { get; }
 }

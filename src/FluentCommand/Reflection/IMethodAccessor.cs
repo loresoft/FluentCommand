@@ -32,5 +32,5 @@ public interface IMethodAccessor
     /// <exception cref="ArgumentNullException">Thrown if required arguments are <c>null</c>.</exception>
     /// <exception cref="TargetParameterCountException">Thrown if the number of parameters in <paramref name="arguments"/> does not match the method signature.</exception>
     /// <exception cref="TargetInvocationException">Thrown if the invoked method throws an exception.</exception>
-    object Invoke(object instance, params object[] arguments);
+    object? Invoke(object? instance, params object?[] arguments);
 }

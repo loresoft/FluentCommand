@@ -15,11 +15,11 @@ namespace FluentCommand;
 public class DataConfigurationBuilder
 {
     private readonly IServiceCollection _services;
-    private string _nameOrConnectionString;
-    private Type _providerFactoryType;
-    private Type _dataCacheType;
-    private Type _queryGeneratorType;
-    private Type _queryLoggerType;
+    private string? _nameOrConnectionString;
+    private Type? _providerFactoryType;
+    private Type? _dataCacheType;
+    private Type? _queryGeneratorType;
+    private Type? _queryLoggerType;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataConfigurationBuilder"/> class.
@@ -371,10 +371,11 @@ public class DataConfigurationBuilder
 
         _services.TryAddSingleton<IDataConfiguration>(sp =>
         {
-            var connectionString = ResolveConnectionString(sp, _nameOrConnectionString);
+            var connectionString = ResolveConnectionString(sp, _nameOrConnectionString)
+                ?? throw new InvalidOperationException("Connection string could not be resolved.");
 
             return new DataConfiguration(
-                sp.GetRequiredService(providerFactory) as DbProviderFactory,
+                (DbProviderFactory)sp.GetRequiredService(providerFactory),
                 connectionString,
                 sp.GetService(dataCache) as IDataCache,
                 sp.GetService(queryGenerator) as IQueryGenerator,
@@ -383,7 +384,7 @@ public class DataConfigurationBuilder
             );
         });
 
-        _services.TryAddTransient<IDataSessionFactory>(sp => sp.GetService<IDataConfiguration>());
+        _services.TryAddTransient<IDataSessionFactory>(sp => sp.GetRequiredService<IDataConfiguration>());
         _services.TryAddTransient<IDataSession, DataSession>();
     }
 
@@ -399,10 +400,11 @@ public class DataConfigurationBuilder
 
         _services.TryAddSingleton<IDataConfiguration<TDiscriminator>>(sp =>
         {
-            var connectionString = ResolveConnectionString(sp, _nameOrConnectionString);
+            var connectionString = ResolveConnectionString(sp, _nameOrConnectionString)
+                ?? throw new InvalidOperationException("Connection string could not be resolved.");
 
             return new DataConfiguration<TDiscriminator>(
-                sp.GetRequiredService(providerFactory) as DbProviderFactory,
+                (DbProviderFactory)sp.GetRequiredService(providerFactory),
                 connectionString,
                 sp.GetService(dataCache) as IDataCache,
                 sp.GetService(queryGenerator) as IQueryGenerator,
@@ -411,7 +413,7 @@ public class DataConfigurationBuilder
             );
         });
 
-        _services.TryAddTransient<IDataSessionFactory<TDiscriminator>>(sp => sp.GetService<IDataConfiguration<TDiscriminator>>());
+        _services.TryAddTransient<IDataSessionFactory<TDiscriminator>>(sp => sp.GetRequiredService<IDataConfiguration<TDiscriminator>>());
         _services.TryAddTransient<IDataSession<TDiscriminator>, DataSession<TDiscriminator>>();
     }
 
@@ -422,25 +424,28 @@ public class DataConfigurationBuilder
 
         // convert specific types to interfaces
         if (_providerFactoryType != null)
-            _services.TryAddSingleton(sp => sp.GetService(_providerFactoryType) as DbProviderFactory);
+            _services.TryAddSingleton(sp => (DbProviderFactory)sp.GetRequiredService(_providerFactoryType));
 
         if (_dataCacheType != null)
-            _services.TryAddSingleton(sp => sp.GetService(_dataCacheType) as IDataCache);
+            _services.TryAddSingleton(sp => (IDataCache)sp.GetRequiredService(_dataCacheType));
 
         if (_queryGeneratorType != null)
-            _services.TryAddSingleton(sp => sp.GetService(_queryGeneratorType) as IQueryGenerator);
+            _services.TryAddSingleton(sp => (IQueryGenerator)sp.GetRequiredService(_queryGeneratorType));
         else
             _services.TryAddSingleton<IQueryGenerator, SqlServerGenerator>();
 
         if (_queryLoggerType != null)
-            _services.TryAddSingleton(sp => sp.GetService(_queryLoggerType) as IDataQueryLogger);
+            _services.TryAddSingleton(sp => (IDataQueryLogger)sp.GetRequiredService(_queryLoggerType));
         else
             _services.TryAddSingleton<IDataQueryLogger, DataQueryLogger>();
 
     }
 
-    private static string ResolveConnectionString(IServiceProvider serviceProvider, string nameOrConnectionString)
+    private static string? ResolveConnectionString(IServiceProvider serviceProvider, string? nameOrConnectionString)
     {
+        if (nameOrConnectionString is null || string.IsNullOrEmpty(nameOrConnectionString))
+            return null;
+
         var isConnectionString = nameOrConnectionString.IndexOfAny([';', '=']) > 0;
         if (isConnectionString)
             return nameOrConnectionString;

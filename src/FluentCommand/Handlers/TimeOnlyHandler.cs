@@ -29,7 +29,7 @@ public class TimeOnlyHandler : IDataParameterHandler, IDataFieldConverter<TimeOn
     }
 
     /// <inheritdoc />
-    public object ReadValue(IDbDataParameter parameter)
+    public object? ReadValue(IDbDataParameter parameter)
     {
         return parameter.Value switch
         {
@@ -41,7 +41,7 @@ public class TimeOnlyHandler : IDataParameterHandler, IDataFieldConverter<TimeOn
     }
 
     /// <inheritdoc />
-    public void SetValue(IDbDataParameter parameter, object value)
+    public void SetValue(IDbDataParameter parameter, object? value)
     {
         parameter.DbType = DbType.Time;
         parameter.Value = value switch

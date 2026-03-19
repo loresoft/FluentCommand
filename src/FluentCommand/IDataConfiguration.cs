@@ -31,7 +31,7 @@ public interface IDataConfiguration : IDataSessionFactory
     /// <value>
     /// The data command query logger.
     /// </value>
-    IDataQueryLogger QueryLogger { get; }
+    IDataQueryLogger? QueryLogger { get; }
 
     /// <summary>
     /// Gets the data cache manager.
@@ -39,7 +39,7 @@ public interface IDataConfiguration : IDataSessionFactory
     /// <value>
     /// The data cache manager.
     /// </value>
-    IDataCache DataCache { get; }
+    IDataCache? DataCache { get; }
 
     /// <summary>
     /// Gets the query generator provider.
@@ -55,7 +55,7 @@ public interface IDataConfiguration : IDataSessionFactory
     /// <value>
     /// The list of <see cref="IDataInterceptor"/> instances that will be applied to each session created from this configuration.
     /// </value>
-    IEnumerable<IDataInterceptor> Interceptors { get; }
+    IEnumerable<IDataInterceptor>? Interceptors { get; }
 
     /// <summary>
     /// Creates a new <see cref="DbConnection" /> instance from this database configuration.
@@ -64,7 +64,7 @@ public interface IDataConfiguration : IDataSessionFactory
     /// <param name="connectionString">The connection string to use for the session.  If <paramref name="connectionString"/> is <c>null</c>, <see cref="ConnectionString"/> will be used.</param>
     /// A new <see cref="DbConnection" /> instance.
     /// </returns>
-    DbConnection CreateConnection(string connectionString = null);
+    DbConnection CreateConnection(string? connectionString = null);
 }
 
 /// <summary>

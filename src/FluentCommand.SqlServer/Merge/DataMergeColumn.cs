@@ -25,7 +25,7 @@ public class DataMergeColumn
     /// <value>
     /// The name of the source column.
     /// </value>
-    public string SourceColumn { get; set; }
+    public string SourceColumn { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the name of the target column in the destination table.
@@ -33,7 +33,7 @@ public class DataMergeColumn
     /// <value>
     /// The name of the target column.
     /// </value>
-    public string TargetColumn { get; set; }
+    public string TargetColumn { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the SQL Server native data type for the <see cref="SourceColumn"/>.
@@ -41,7 +41,7 @@ public class DataMergeColumn
     /// <value>
     /// The SQL Server native data type (e.g., <c>nvarchar(100)</c>, <c>int</c>).
     /// </value>
-    public string NativeType { get; set; }
+    public string NativeType { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether the column is included in the bulk copy operation.

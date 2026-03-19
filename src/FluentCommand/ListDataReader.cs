@@ -32,7 +32,7 @@ public class ListDataReader<T> : DbDataReader where T : class
     /// </summary>
     /// <param name="list">The list of items to read</param>
     /// <param name="ignoreNames">A list of property names to ignore in the reader</param>
-    public ListDataReader(IEnumerable<T> list, IEnumerable<string> ignoreNames = null)
+    public ListDataReader(IEnumerable<T> list, IEnumerable<string>? ignoreNames = null)
     {
         if (list is null)
             throw new ArgumentNullException(nameof(list));
@@ -160,7 +160,7 @@ public class ListDataReader<T> : DbDataReader where T : class
     public override Type GetFieldType(int i) => _activeColumns[i].MemberType;
 
     /// <inheritdoc/>
-    public override object GetValue(int i) => _activeColumns[i].GetValue(_iterator.Current);
+    public override object GetValue(int i) => _activeColumns[i].GetValue(_iterator.Current)!;
 
     /// <inheritdoc/>
     public override int GetValues(object[] values)
@@ -187,7 +187,7 @@ public class ListDataReader<T> : DbDataReader where T : class
     public override byte GetByte(int i) => (byte)GetValue(i);
 
     /// <inheritdoc/>
-    public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length)
+    public override long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferOffset, int length)
     {
         byte[] value = (byte[])GetValue(i);
 
@@ -197,7 +197,8 @@ public class ListDataReader<T> : DbDataReader where T : class
 
         int count = Math.Min(length, available);
 
-        Buffer.BlockCopy(value, (int)fieldOffset, buffer, bufferOffset, count);
+        if (buffer != null)
+            Buffer.BlockCopy(value, (int)fieldOffset, buffer, bufferOffset, count);
 
         return count;
     }
@@ -206,7 +207,7 @@ public class ListDataReader<T> : DbDataReader where T : class
     public override char GetChar(int i) => (char)GetValue(i);
 
     /// <inheritdoc/>
-    public override long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
+    public override long GetChars(int i, long fieldOffset, char[]? buffer, int bufferOffset, int length)
     {
         if (buffer == null)
             throw new ArgumentNullException(nameof(buffer));

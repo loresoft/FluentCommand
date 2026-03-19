@@ -16,11 +16,11 @@ public class DataReaderFactoryWriterTests
             "Status",
             new EntityProperty[]
             {
-                new("Id", "Id", typeof(int).FullName),
-                new("Name", "Name", typeof(string).FullName),
-                new("IsActive", "IsActive", typeof(bool).FullName),
-                new("Updated", "Updated", typeof(DateTimeOffset).FullName),
-                new("RowVersion", "RowVersion", typeof(byte[]).FullName),
+                new("Id", "Id", typeof(int).FullName!),
+                new("Name", "Name", typeof(string).FullName!),
+                new("IsActive", "IsActive", typeof(bool).FullName!),
+                new("Updated", "Updated", typeof(DateTimeOffset).FullName!),
+                new("RowVersion", "RowVersion", typeof(byte[]).FullName!),
             }
         );
 

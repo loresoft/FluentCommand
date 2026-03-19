@@ -41,7 +41,7 @@ public static class TypeExtensions
     /// </summary>
     /// <param name="type">The type to get a default value for.</param>
     /// <returns>A default value the specified <paramref name="type"/>.</returns>
-    public static object Default(this Type type)
+    public static object? Default(this Type type)
     {
         if (type == null)
             throw new ArgumentNullException(nameof(type));

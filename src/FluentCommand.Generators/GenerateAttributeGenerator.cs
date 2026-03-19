@@ -9,25 +9,17 @@ public class GenerateAttributeGenerator : DataReaderFactoryGenerator, IIncrement
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
+        var entityClasses = context.SyntaxProvider.ForAttributeWithMetadataName(
             fullyQualifiedMetadataName: "FluentCommand.Attributes.GenerateReaderAttribute",
             predicate: SyntacticPredicate,
             transform: SemanticTransform
         )
-        .Where(static context => context is not null);
+        .Where(static context => context.Count > 0)
+        .SelectMany(static (item, _) => item)
+        .WithTrackingName("GenerateAttributeGenerator");
 
-        // Emit the diagnostics, if needed
-        var diagnostics = provider
-            .Select(static (item, _) => item.Diagnostics)
-            .Where(static item => item.Count > 0);
-
-        context.RegisterSourceOutput(diagnostics, ReportDiagnostic);
-
-        var entityClasses = provider
-            .SelectMany(static (item, _) => item.EntityClasses)
-            .Where(static item => item is not null);
-
-        context.RegisterSourceOutput(entityClasses, WriteSource);
+        context.RegisterSourceOutput(entityClasses, WriteDataReaderSource);
+        context.RegisterSourceOutput(entityClasses, WriteTypeAccessorSource);
     }
 
     private static bool SyntacticPredicate(SyntaxNode syntaxNode, CancellationToken cancellationToken)
@@ -35,31 +27,30 @@ public class GenerateAttributeGenerator : DataReaderFactoryGenerator, IIncrement
         return true;
     }
 
-    private static EntityContext SemanticTransform(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
+    private static EquatableArray<EntityClass> SemanticTransform(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken)
     {
         if (context.Attributes.Length == 0)
-            return null;
+            return EquatableArray<EntityClass>.Empty;
 
         var classes = new List<EntityClass>();
-        var diagnostics = new List<Diagnostic>();
 
         foreach (var attribute in context.Attributes)
         {
             if (attribute == null)
-                return null;
+                return EquatableArray<EntityClass>.Empty;
 
             if (attribute.ConstructorArguments.Length != 1)
-                return null;
+                return EquatableArray<EntityClass>.Empty;
 
             var comparerArgument = attribute.ConstructorArguments[0];
             if (comparerArgument.Value is not INamedTypeSymbol targetSymbol)
-                return null;
+                return EquatableArray<EntityClass>.Empty;
 
-            var entityClass = CreateClass(context.TargetNode.GetLocation(), targetSymbol, diagnostics);
+            var entityClass = CreateClass(targetSymbol);
             if (entityClass != null)
                 classes.Add(entityClass);
         }
 
-        return new EntityContext(classes, diagnostics);
+        return classes;
     }
 }

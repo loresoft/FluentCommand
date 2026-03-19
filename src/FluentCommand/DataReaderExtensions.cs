@@ -50,7 +50,8 @@ public static class DataReaderExtensions
     public static dynamic DynamicFactory(IDataReader reader)
     {
         dynamic expando = new ExpandoObject();
-        var dictionary = expando as IDictionary<string, object>;
+        if (expando is not IDictionary<string, object?> dictionary)
+            return expando;
 
         for (int i = 0; i < reader.FieldCount; i++)
             dictionary.Add(reader.GetName(i), reader[i]);

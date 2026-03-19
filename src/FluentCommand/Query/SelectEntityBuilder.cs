@@ -38,10 +38,10 @@ public class SelectEntityBuilder<TEntity>
     /// </returns>
     public SelectEntityBuilder<TEntity> Column(
         Expression<Func<TEntity, object>> property,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         // alias column as property name if they don't match
         if (propertyAccessor.Name == propertyAccessor.Column)
@@ -62,11 +62,11 @@ public class SelectEntityBuilder<TEntity>
     /// </returns>
     public SelectEntityBuilder<TEntity> Column<TModel>(
         Expression<Func<TModel, object>> property,
-        string tableAlias = null,
-        string columnAlias = null) where TModel : class
+        string? tableAlias = null,
+        string? columnAlias = null) where TModel : class
     {
         var typeAccessor = TypeAccessor.GetAccessor<TModel>();
-        var propertyAccessor = typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(typeAccessor, property);
 
         // alias column as property name if they don't match
         if (propertyAccessor.Name == propertyAccessor.Column)
@@ -88,11 +88,11 @@ public class SelectEntityBuilder<TEntity>
     /// </returns>
     public SelectEntityBuilder<TEntity> ColumnIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
-        string columnAlias = null,
-        Func<string, bool> condition = null)
+        string? tableAlias = null,
+        string? columnAlias = null,
+        Func<string, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         // alias column as property name if they don't match
         if (propertyAccessor.Name == propertyAccessor.Column)
@@ -112,7 +112,7 @@ public class SelectEntityBuilder<TEntity>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="columnNames"/> is <c>null</c>.</exception>
     public override SelectEntityBuilder<TEntity> Columns(
         IEnumerable<string> columnNames,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -142,8 +142,8 @@ public class SelectEntityBuilder<TEntity>
     /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Columns(
-        string tableAlias = null,
-        Func<IMemberAccessor, bool> filter = null)
+        string? tableAlias = null,
+        Func<IMemberAccessor, bool>? filter = null)
     {
         var properties = _typeAccessor.GetProperties();
 
@@ -175,10 +175,10 @@ public class SelectEntityBuilder<TEntity>
     /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Columns<TModel>(
-        string tableAlias = null,
-        Func<IMemberAccessor, bool> filter = null)
+        string? tableAlias = null,
+        Func<IMemberAccessor, bool>? filter = null)
     {
-        var typeAccessor = TypeAccessor.GetAccessor(typeof(TModel));
+        var typeAccessor = TypeAccessor.GetAccessor<TModel>();
         var properties = typeAccessor.GetProperties();
 
         foreach (var property in properties)
@@ -211,10 +211,10 @@ public class SelectEntityBuilder<TEntity>
     /// </returns>
     public SelectEntityBuilder<TEntity> Count<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return Count(propertyAccessor.Column, tableAlias, columnAlias);
     }
@@ -233,10 +233,10 @@ public class SelectEntityBuilder<TEntity>
     public SelectEntityBuilder<TEntity> Aggregate<TValue>(
         Expression<Func<TEntity, TValue>> property,
         AggregateFunctions function,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return Aggregate(function, propertyAccessor.Column, tableAlias, columnAlias);
     }
@@ -251,9 +251,9 @@ public class SelectEntityBuilder<TEntity>
     /// The same builder instance for method chaining.
     /// </returns>
     public override SelectEntityBuilder<TEntity> From(
-        string tableName = null,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableName = null,
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         return base.From(
             tableName ?? _typeAccessor.TableName,
@@ -304,7 +304,7 @@ public class SelectEntityBuilder<TEntity>
     /// <inheritdoc />
     public SelectEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         return Where<TValue>(property, parameterValue, null, filterOperator);
@@ -313,11 +313,11 @@ public class SelectEntityBuilder<TEntity>
     /// <inheritdoc />
     public SelectEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
@@ -336,12 +336,12 @@ public class SelectEntityBuilder<TEntity>
     /// </returns>
     public SelectEntityBuilder<TEntity> Where<TModel, TValue>(
         Expression<Func<TModel, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         var typeAccessor = TypeAccessor.GetAccessor<TModel>();
-        var propertyAccessor = typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(typeAccessor, property);
 
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
@@ -349,9 +349,9 @@ public class SelectEntityBuilder<TEntity>
     /// <inheritdoc />
     public SelectEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
@@ -359,12 +359,12 @@ public class SelectEntityBuilder<TEntity>
     /// <inheritdoc />
     public SelectEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
@@ -373,34 +373,34 @@ public class SelectEntityBuilder<TEntity>
     public SelectEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
+        return WhereIn(propertyAccessor.Column, parameterValues, tableAlias);
     }
 
     /// <inheritdoc />
     public SelectEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, condition);
     }
 
     /// <inheritdoc />
     public SelectEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        string? tableAlias,
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, tableAlias, condition);
     }
 
     /// <inheritdoc />
@@ -446,7 +446,7 @@ public class SelectEntityBuilder<TEntity>
         Expression<Func<TEntity, TValue>> property,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return OrderBy(propertyAccessor.Column, null, sortDirection);
     }
@@ -463,10 +463,10 @@ public class SelectEntityBuilder<TEntity>
     /// </returns>
     public SelectEntityBuilder<TEntity> OrderBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias,
+        string? tableAlias,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return OrderBy(propertyAccessor.Column, tableAlias, sortDirection);
     }
@@ -484,9 +484,9 @@ public class SelectEntityBuilder<TEntity>
     public SelectEntityBuilder<TEntity> OrderByIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         SortDirections sortDirection = SortDirections.Ascending,
-        Func<string, bool> condition = null)
+        Func<string, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return OrderByIf(propertyAccessor.Column, null, sortDirection, condition);
     }
@@ -504,11 +504,11 @@ public class SelectEntityBuilder<TEntity>
     /// </returns>
     public SelectEntityBuilder<TEntity> OrderByIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias,
+        string? tableAlias,
         SortDirections sortDirection = SortDirections.Ascending,
-        Func<string, bool> condition = null)
+        Func<string, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return OrderByIf(propertyAccessor.Column, tableAlias, sortDirection, condition);
     }
@@ -524,9 +524,9 @@ public class SelectEntityBuilder<TEntity>
     /// </returns>
     public SelectEntityBuilder<TEntity> GroupBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return GroupBy(propertyAccessor.Column, tableAlias);
     }
@@ -537,7 +537,7 @@ public class SelectEntityBuilder<TEntity>
     /// <returns>
     /// A <see cref="QueryStatement"/> containing the SQL SELECT statement and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         // add table and schema from attribute if not set
         if (FromExpressions.Count == 0)
@@ -545,4 +545,21 @@ public class SelectEntityBuilder<TEntity>
 
         return base.BuildStatement();
     }
+
+    private static IMemberAccessor GetPropertyAccessor<TModel, TValue>(
+        TypeAccessor typeAccessor,
+        Expression<Func<TModel, TValue>> property)
+    {
+        if (property is null)
+            throw new ArgumentNullException(nameof(property));
+
+        var propertyAccessor = typeAccessor.FindProperty(property);
+        if (propertyAccessor is null)
+            throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
+
+        return propertyAccessor;
+    }
+
+    private static IMemberAccessor GetPropertyAccessor<TValue>(Expression<Func<TEntity, TValue>> property)
+        => GetPropertyAccessor(_typeAccessor, property);
 }

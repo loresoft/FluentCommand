@@ -15,7 +15,7 @@ public interface IMemberAccessor : IMemberInformation
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="instance"/> is <c>null</c>.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the member does not have a getter.</exception>
-    object GetValue(object instance);
+    object? GetValue(object instance);
 
     /// <summary>
     /// Sets the value of the member for the specified object instance.
@@ -24,5 +24,5 @@ public interface IMemberAccessor : IMemberInformation
     /// <param name="value">The new value to assign to the member.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="instance"/> is <c>null</c>.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the member does not have a setter.</exception>
-    void SetValue(object instance, object value);
+    void SetValue(object instance, object? value);
 }

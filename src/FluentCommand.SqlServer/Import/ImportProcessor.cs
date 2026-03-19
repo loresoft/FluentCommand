@@ -1,6 +1,4 @@
-using System;
 using System.Data;
-using System.Xml.Serialization;
 
 using FluentCommand.Extensions;
 using FluentCommand.Merge;
@@ -90,8 +88,11 @@ public class ImportProcessor : IImportProcessor
 
         foreach (var field in importContext.MappedFields)
         {
+            if (field.Definition.DataType is null)
+                continue;
+
             var dataType = Nullable.GetUnderlyingType(field.Definition.DataType)
-                           ?? field.Definition.DataType;
+                ?? field.Definition.DataType;
 
             var dataColumn = new DataColumn
             {
@@ -169,7 +170,7 @@ public class ImportProcessor : IImportProcessor
                     continue;
                 }
 
-                var index = field.FieldMap.Index;
+                var index = field.FieldMap?.Index;
                 if (!index.HasValue)
                     continue;
 
@@ -208,7 +209,7 @@ public class ImportProcessor : IImportProcessor
     /// The converted value, or the result of the translator if configured.
     /// </returns>
     /// <exception cref="InvalidOperationException">Thrown if a configured translator cannot be resolved.</exception>
-    protected virtual async Task<object> ConvertValue(ImportProcessContext importContext, FieldDefinition field, string value)
+    protected virtual async Task<object?> ConvertValue(ImportProcessContext importContext, FieldDefinition field, string value)
     {
 #pragma warning disable CS0618 // Type or member is obsolete
         if (field.Translator != null)
@@ -229,7 +230,9 @@ public class ImportProcessor : IImportProcessor
             return await translator.Translate(value);
         }
 
-        return ConvertExtensions.SafeConvert(field.DataType, value);
+        return field.DataType is not null
+            ? ConvertExtensions.SafeConvert(field.DataType, value)
+            : value;
     }
 
     /// <summary>
@@ -240,9 +243,9 @@ public class ImportProcessor : IImportProcessor
     /// <returns>
     /// The default value for the field, or <c>null</c> if no default is configured.
     /// </returns>
-    protected virtual object GetDefault(FieldDefinition fieldDefinition, string username)
+    protected virtual object? GetDefault(FieldDefinition fieldDefinition, string username)
     {
-        var fieldDefault = fieldDefinition?.Default;
+        var fieldDefault = fieldDefinition.Default;
         if (!fieldDefault.HasValue)
             return null;
 
@@ -282,7 +285,9 @@ public class ImportProcessor : IImportProcessor
         foreach (var fieldMapping in importContext.MappedFields)
         {
             var fieldDefinition = fieldMapping.Definition;
-            var nativeType = SqlTypeMapping.NativeType(fieldDefinition.DataType);
+            var nativeType = fieldDefinition.DataType is not null
+                ? SqlTypeMapping.NativeType(fieldDefinition.DataType)
+                : "sql_variant";
 
             mergeMapping
                 .Column(fieldDefinition.Name)
@@ -295,7 +300,7 @@ public class ImportProcessor : IImportProcessor
         return mergeDefinition;
     }
 
-    protected virtual IImportValidator GetValidator(ImportProcessContext importContext)
+    protected virtual IImportValidator? GetValidator(ImportProcessContext importContext)
     {
 #pragma warning disable CS0618 // Type or member is obsolete
         if (importContext.Definition.Validator != null)

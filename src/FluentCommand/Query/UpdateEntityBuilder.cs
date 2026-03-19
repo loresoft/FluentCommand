@@ -43,8 +43,8 @@ public class UpdateEntityBuilder<TEntity>
         Expression<Func<TEntity, TValue>> property,
         TValue parameterValue)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
-        return Value(propertyAccessor?.Column, parameterValue);
+        var propertyAccessor = GetPropertyAccessor(property);
+        return Value(propertyAccessor.Column, parameterValue);
     }
 
     /// <summary>
@@ -59,11 +59,11 @@ public class UpdateEntityBuilder<TEntity>
     /// </returns>
     public UpdateEntityBuilder<TEntity> ValueIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        Func<string, TValue, bool> condition)
+        TValue? parameterValue,
+        Func<string, TValue?, bool> condition)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
-        return ValueIf(propertyAccessor?.Column, parameterValue, condition);
+        var propertyAccessor = GetPropertyAccessor(property);
+        return ValueIf(propertyAccessor.Column, parameterValue, condition);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public class UpdateEntityBuilder<TEntity>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="entity"/> is <c>null</c>.</exception>
     public UpdateEntityBuilder<TEntity> Values(
         TEntity entity,
-        IEnumerable<string> columnNames = null)
+        IEnumerable<string>? columnNames = null)
     {
         if (entity is null)
             throw new ArgumentNullException(nameof(entity));
@@ -113,11 +113,11 @@ public class UpdateEntityBuilder<TEntity>
     /// </returns>
     public UpdateEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
-        return Output(propertyAccessor?.Column, tableAlias, columnAlias);
+        var propertyAccessor = GetPropertyAccessor(property);
+        return Output(propertyAccessor.Column, tableAlias, columnAlias);
     }
 
     /// <summary>
@@ -133,12 +133,12 @@ public class UpdateEntityBuilder<TEntity>
     /// </returns>
     public UpdateEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
-        string columnAlias = null,
-        Func<string, bool> condition = null)
+        string? tableAlias = null,
+        string? columnAlias = null,
+        Func<string, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
-        return OutputIf(propertyAccessor?.Column, tableAlias, columnAlias, condition);
+        var propertyAccessor = GetPropertyAccessor(property);
+        return OutputIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
     }
 
     /// <summary>
@@ -151,9 +151,9 @@ public class UpdateEntityBuilder<TEntity>
     /// The same builder instance for method chaining.
     /// </returns>
     public override UpdateEntityBuilder<TEntity> From(
-        string tableName = null,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableName = null,
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         return base.From(
             tableName ?? _typeAccessor.TableName,
@@ -204,7 +204,7 @@ public class UpdateEntityBuilder<TEntity>
     /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         return Where<TValue>(property, parameterValue, null, filterOperator);
@@ -213,11 +213,11 @@ public class UpdateEntityBuilder<TEntity>
     /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
@@ -236,12 +236,13 @@ public class UpdateEntityBuilder<TEntity>
     /// </returns>
     public UpdateEntityBuilder<TEntity> Where<TModel, TValue>(
         Expression<Func<TModel, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         var typeAccessor = TypeAccessor.GetAccessor<TModel>();
-        var propertyAccessor = typeAccessor.FindProperty(property);
+        var propertyAccessor = typeAccessor.FindProperty(property)
+            ?? throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
 
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
@@ -249,9 +250,9 @@ public class UpdateEntityBuilder<TEntity>
     /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
@@ -259,12 +260,12 @@ public class UpdateEntityBuilder<TEntity>
     /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
@@ -273,34 +274,34 @@ public class UpdateEntityBuilder<TEntity>
     public UpdateEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
+        return WhereIn(propertyAccessor.Column, parameterValues, tableAlias);
     }
 
     /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, condition);
     }
 
     /// <inheritdoc />
     public UpdateEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        string? tableAlias,
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, tableAlias, condition);
     }
 
     /// <inheritdoc />
@@ -339,12 +340,21 @@ public class UpdateEntityBuilder<TEntity>
     /// <returns>
     /// A <see cref="QueryStatement"/> containing the SQL UPDATE statement and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         // add table and schema from attribute if not set
         if (TableExpression == null)
             Table(_typeAccessor.TableName, _typeAccessor.TableSchema);
 
         return base.BuildStatement();
+    }
+
+    private static IMemberAccessor GetPropertyAccessor<TValue>(Expression<Func<TEntity, TValue>> property)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+        if (propertyAccessor is null)
+            throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
+
+        return propertyAccessor;
     }
 }

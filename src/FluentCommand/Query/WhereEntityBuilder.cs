@@ -40,7 +40,7 @@ public class WhereEntityBuilder<TEntity>
     /// <returns>The builder instance for chaining further calls.</returns>
     public WhereEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         return Where(property, parameterValue, null, filterOperator);
@@ -57,13 +57,13 @@ public class WhereEntityBuilder<TEntity>
     /// <returns>The builder instance for chaining further calls.</returns>
     public WhereEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return Where(propertyAccessor?.Column, parameterValue, tableAlias, filterOperator);
+        return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
 
     /// <summary>
@@ -77,11 +77,11 @@ public class WhereEntityBuilder<TEntity>
     public WhereEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
+        return WhereIn(propertyAccessor.Column, parameterValues, tableAlias);
     }
 
     /// <summary>
@@ -98,11 +98,11 @@ public class WhereEntityBuilder<TEntity>
     public WhereEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, condition);
     }
 
     /// <summary>
@@ -120,12 +120,12 @@ public class WhereEntityBuilder<TEntity>
     public WhereEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        string? tableAlias,
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, tableAlias, condition);
     }
 
     /// <summary>
@@ -142,9 +142,9 @@ public class WhereEntityBuilder<TEntity>
     /// <returns>The builder instance for chaining further calls.</returns>
     public WhereEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
@@ -164,14 +164,14 @@ public class WhereEntityBuilder<TEntity>
     /// <returns>The builder instance for chaining further calls.</returns>
     public WhereEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereIf(propertyAccessor?.Column, parameterValue, tableAlias, filterOperator, condition);
+        return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
 
     /// <summary>
@@ -219,13 +219,25 @@ public class WhereEntityBuilder<TEntity>
     /// A <see cref="QueryStatement"/> containing the SQL WHERE clause and its parameters,
     /// or <c>null</c> if no expressions are present.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         if (WhereExpressions == null || WhereExpressions.Count == 0)
             return null;
 
         var statement = QueryGenerator.BuildWhere(WhereExpressions);
 
+        if (statement.IsNullOrWhiteSpace())
+            return null;
+
         return new QueryStatement(statement, Parameters);
+    }
+
+    private static IMemberAccessor GetPropertyAccessor<TValue>(Expression<Func<TEntity, TValue>> property)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+        if (propertyAccessor is null)
+            throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
+
+        return propertyAccessor;
     }
 }

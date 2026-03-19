@@ -7,8 +7,13 @@ using FluentCommand.Handlers;
 namespace FluentCommand;
 
 /// <summary>
-/// 
+/// Provides a registry for associating .NET types with custom data parameter handlers used to set database parameter values and types.
 /// </summary>
+/// <remarks>
+/// This class enables registration and retrieval of type-specific handlers that control how values are
+/// assigned to database parameters, supporting extensibility for custom or non-standard data types. Handlers can be
+/// added for new types at runtime. Thread-safe for concurrent access.
+/// </remarks>
 public static class DataParameterHandlers
 {
     private static readonly ConcurrentDictionary<Type, IDataParameterHandler> _dataTypeHandlers;
@@ -52,7 +57,7 @@ public static class DataParameterHandlers
     /// </summary>
     /// <param name="type">The type to get a handler for.</param>
     /// <returns>The <see cref="IDataParameterHandler"/> for the specified type; otherwise null if not found</returns>
-    public static IDataParameterHandler GetTypeHandler(Type type)
+    public static IDataParameterHandler? GetTypeHandler(Type type)
     {
         var underlyingType = type.GetUnderlyingType();
         return _dataTypeHandlers.TryGetValue(underlyingType, out var handler) ? handler : null;
@@ -65,7 +70,7 @@ public static class DataParameterHandlers
     /// <param name="parameter">The parameter to set the value on.</param>
     /// <param name="value">The value to set.</param>
     /// <param name="type">The data type to use.</param>
-    public static void SetValue(DbParameter parameter, object value, Type type)
+    public static void SetValue(DbParameter parameter, object? value, Type type)
     {
         var valueType = type.GetUnderlyingType();
         var handler = GetTypeHandler(valueType);

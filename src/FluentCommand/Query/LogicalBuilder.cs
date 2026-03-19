@@ -50,7 +50,7 @@ public abstract class LogicalBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// A <see cref="QueryStatement"/> containing the logical SQL expression and its parameters,
     /// or <c>null</c> if no WHERE expressions are present.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         if (WhereExpressions.Count == 0)
             return null;

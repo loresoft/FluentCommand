@@ -134,7 +134,7 @@ public static class CsvCommandExtensions
     private static void WriteData(TextWriter writer, IDataReader reader)
     {
         var wroteHeader = false;
-        Type[] rowTypes = null;
+        Type[]? rowTypes = null;
 
         while (reader.Read())
         {
@@ -158,7 +158,7 @@ public static class CsvCommandExtensions
     private static async Task WriteDataAsync(TextWriter writer, DbDataReader reader, CancellationToken cancellationToken = default)
     {
         var wroteHeader = false;
-        Type[] rowTypes = null;
+        Type[]? rowTypes = null;
 
         while (await reader.ReadAsync(cancellationToken))
         {
@@ -367,7 +367,7 @@ public static class CsvCommandExtensions
         WriteValue(writer, formattedValue);
     }
 
-    private static void WriteValue(TextWriter writer, string value)
+    private static void WriteValue(TextWriter writer, string? value)
     {
         if (string.IsNullOrEmpty(value))
             return;

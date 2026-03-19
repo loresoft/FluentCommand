@@ -14,7 +14,7 @@ public interface IDataCache
     ///     <para>Success is true if the key was found; otherwise false</para>
     ///     <para>Value is the cache entry that is identified by key</para>
     /// </returns>
-    (bool Success, T Value) Get<T>(string key);
+    (bool Success, T? Value) Get<T>(string key);
 
     /// <summary>
     /// Gets the specified cache entry from the cache as an object.
@@ -26,7 +26,7 @@ public interface IDataCache
     ///     <para>Success is true if the key was found; otherwise false</para>
     ///     <para>Value is the cache entry that is identified by key</para>
     /// </returns>
-    Task<(bool Success, T Value)> GetAsync<T>(string key, CancellationToken cancellationToken = default);
+    Task<(bool Success, T? Value)> GetAsync<T>(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Inserts a cache entry into the cache, specifying information about how the entry will be evicted.

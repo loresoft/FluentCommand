@@ -153,7 +153,7 @@ public static class DataRecordExtensions
     /// <param name="dataRecord">The data record.</param>
     /// <param name="name">The <paramref name="name"/> of the field to find.</param>
     /// <returns>The <see cref="IDataReader"/> for the specified column <paramref name="name"/>.</returns>
-    public static IDataReader GetData(this IDataRecord dataRecord, string name)
+    public static IDataReader? GetData(this IDataRecord dataRecord, string name)
     {
         int ordinal = dataRecord.GetOrdinal(name);
         return dataRecord.IsDBNull(ordinal) ? null : dataRecord.GetData(ordinal);
@@ -423,7 +423,7 @@ public static class DataRecordExtensions
     /// <param name="dataRecord">The data record.</param>
     /// <param name="name">The <paramref name="name"/> of the field to find.</param>
     /// <returns>The string value of the specified field.</returns>
-    public static string GetStringNull(this IDataRecord dataRecord, string name)
+    public static string? GetStringNull(this IDataRecord dataRecord, string name)
     {
         int ordinal = dataRecord.GetOrdinal(name);
         return dataRecord.IsDBNull(ordinal) ? null : dataRecord.GetString(ordinal);
@@ -503,7 +503,7 @@ public static class DataRecordExtensions
     /// <param name="dataRecord">The data record.</param>
     /// <param name="name">The <paramref name="name"/> of the field to find.</param>
     /// <returns>The <see cref="object"/> which will contain the field value upon return.</returns>
-    public static object GetValue(this IDataRecord dataRecord, string name)
+    public static object? GetValue(this IDataRecord dataRecord, string name)
     {
         int ordinal = dataRecord.GetOrdinal(name);
         return dataRecord.IsDBNull(ordinal) ? null : dataRecord.GetValue(ordinal);
@@ -518,7 +518,7 @@ public static class DataRecordExtensions
     /// <returns>
     /// The <typeparamref name="T"/> which will contain the field value upon return.
     /// </returns>
-    public static T GetValue<T>(this IDataRecord dataRecord, string name)
+    public static T? GetValue<T>(this IDataRecord dataRecord, string name)
     {
         int ordinal = dataRecord.GetOrdinal(name);
         return dataRecord.GetValue<T>(ordinal);
@@ -533,7 +533,7 @@ public static class DataRecordExtensions
     /// <returns>
     /// The <typeparamref name="T"/> which will contain the field value upon return.
     /// </returns>
-    public static T GetValue<T>(this IDataRecord dataRecord, int index)
+    public static T? GetValue<T>(this IDataRecord dataRecord, int index)
     {
         if (dataRecord.IsDBNull(index))
             return default;

@@ -22,7 +22,7 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
     /// </returns>
     TBuilder Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal);
 
     /// <summary>
@@ -38,8 +38,8 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
     /// </returns>
     TBuilder Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal);
 
     /// <summary>
@@ -55,7 +55,7 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
     TBuilder WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias = null);
+        string? tableAlias = null);
 
     /// <summary>
     /// Conditionally adds a WHERE IN clause for the specified property and collection of values.
@@ -73,7 +73,7 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
     TBuilder WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        Func<string, IEnumerable<TValue>, bool> condition = null);
+        Func<string, IEnumerable<TValue>, bool>? condition = null);
 
     /// <summary>
     /// Conditionally adds a WHERE IN clause for the specified property, collection of values, and table alias.
@@ -92,8 +92,8 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
     TBuilder WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias,
-        Func<string, IEnumerable<TValue>, bool> condition = null);
+        string? tableAlias,
+        Func<string, IEnumerable<TValue>, bool>? condition = null);
 
     /// <summary>
     /// Conditionally adds a WHERE clause for the specified property, value, and filter operator.
@@ -111,9 +111,9 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
     /// </returns>
     TBuilder WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null);
+        Func<string, TValue?, bool>? condition = null);
 
     /// <summary>
     /// Conditionally adds a WHERE clause for the specified property, value, filter operator, and table alias.
@@ -132,10 +132,10 @@ public interface IWhereEntityBuilder<TEntity, out TBuilder>
     /// </returns>
     TBuilder WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null);
+        Func<string, TValue?, bool>? condition = null);
 
     /// <summary>
     /// Adds a logical AND group to the WHERE clause using the specified builder action.

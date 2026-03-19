@@ -34,7 +34,7 @@ namespace FluentCommand.Entities
         /// <returns>
         /// A instance of <see cref="T:global::FluentCommand.Entities.Status"/>  if row exists; otherwise null.
         /// </returns>
-        public static global::FluentCommand.Entities.Status QuerySingle<TEntity>(
+        public static global::FluentCommand.Entities.Status? QuerySingle<TEntity>(
             this global::FluentCommand.IDataQuery dataQuery)
             where TEntity : global::FluentCommand.Entities.Status
         {
@@ -73,7 +73,7 @@ namespace FluentCommand.Entities
         /// <returns>
         /// A instance of <see cref="T:global::FluentCommand.Entities.Status"/>  if row exists; otherwise null.
         /// </returns>
-        public static global::System.Threading.Tasks.Task<global::FluentCommand.Entities.Status> QuerySingleAsync<TEntity>(
+        public static global::System.Threading.Tasks.Task<global::FluentCommand.Entities.Status?> QuerySingleAsync<TEntity>(
             this global::FluentCommand.IDataQueryAsync dataQuery,
             global::System.Threading.CancellationToken cancellationToken = default)
             where TEntity : global::FluentCommand.Entities.Status

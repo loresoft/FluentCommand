@@ -37,15 +37,15 @@ public interface IQueryGenerator
     /// Builds a SQL WHERE clause from the specified collection of <see cref="WhereExpression"/> objects.
     /// </summary>
     /// <param name="whereExpressions">A collection of <see cref="WhereExpression"/> objects representing WHERE conditions.</param>
-    /// <returns>A SQL WHERE clause string.</returns>
-    string BuildWhere(IReadOnlyCollection<WhereExpression> whereExpressions);
+    /// <returns>A SQL WHERE clause string, or <c>null</c> if no expressions are provided.</returns>
+    string? BuildWhere(IReadOnlyCollection<WhereExpression> whereExpressions);
 
     /// <summary>
     /// Builds a SQL ORDER BY clause from the specified collection of <see cref="SortExpression"/> objects.
     /// </summary>
     /// <param name="sortExpressions">A collection of <see cref="SortExpression"/> objects representing sort conditions.</param>
-    /// <returns>A SQL ORDER BY clause string.</returns>
-    string BuildOrder(IReadOnlyCollection<SortExpression> sortExpressions);
+    /// <returns>A SQL ORDER BY clause string, or <c>null</c> if no expressions are provided.</returns>
+    string? BuildOrder(IReadOnlyCollection<SortExpression> sortExpressions);
 
     /// <summary>
     /// Builds a SQL comment expression.

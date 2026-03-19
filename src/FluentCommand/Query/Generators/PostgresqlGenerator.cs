@@ -77,9 +77,6 @@ public class PostgreSqlGenerator : SqlServerGenerator
     /// <exception cref="ArgumentException">Thrown if the table or update values are not specified.</exception>
     public override string BuildUpdate(UpdateStatement updateStatement)
     {
-        if (updateStatement.TableExpression == null)
-            throw new ArgumentException("No table specified to update", nameof(updateStatement));
-
         if (updateStatement.UpdateExpressions == null || updateStatement.UpdateExpressions.Count == 0)
             throw new ArgumentException("No values specified for update", nameof(updateStatement));
 

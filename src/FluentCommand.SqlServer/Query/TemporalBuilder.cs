@@ -9,8 +9,8 @@ namespace FluentCommand.Query;
 /// </summary>
 public class TemporalBuilder : StatementBuilder<TemporalBuilder>
 {
-    private TableExpression _from;
-    private string _temporal;
+    private TableExpression? _from;
+    private string? _temporal;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TemporalBuilder"/> class.
@@ -31,8 +31,8 @@ public class TemporalBuilder : StatementBuilder<TemporalBuilder>
     /// <returns>The same <see cref="TemporalBuilder"/> instance for fluent chaining.</returns>
     public TemporalBuilder From(
         string tableName,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         _from = new TableExpression(tableName, tableSchema, tableAlias);
 
@@ -46,7 +46,7 @@ public class TemporalBuilder : StatementBuilder<TemporalBuilder>
     /// <param name="tableAlias">The alias to use for the table in the query (optional).</param>
     /// <returns>The same <see cref="TemporalBuilder"/> instance for fluent chaining.</returns>
     public TemporalBuilder From<TEntity>(
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         var typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
@@ -153,8 +153,11 @@ public class TemporalBuilder : StatementBuilder<TemporalBuilder>
     /// <returns>
     /// A <see cref="QueryStatement"/> representing the constructed temporal query and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
+        if (_from is null)
+            throw new InvalidOperationException("The table source must be specified using From() before building the statement.");
+
         if (_temporal.IsNullOrWhiteSpace())
             return new QueryStatement(QueryGenerator.TableExpression(_from), Parameters);
 

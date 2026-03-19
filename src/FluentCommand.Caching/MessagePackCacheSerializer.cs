@@ -15,7 +15,7 @@ public class MessagePackCacheSerializer : IDistributedCacheSerializer
     /// Initializes a new instance of the <see cref="MessagePackCacheSerializer"/> class.
     /// </summary>
     /// <param name="messagePackSerializerOptions">The message pack serializer options.</param>
-    public MessagePackCacheSerializer(MessagePackSerializerOptions messagePackSerializerOptions = null)
+    public MessagePackCacheSerializer(MessagePackSerializerOptions? messagePackSerializerOptions = null)
     {
         _messagePackSerializerOptions = messagePackSerializerOptions
             ?? ContractlessStandardResolver.Options.WithCompression(MessagePackCompression.Lz4BlockArray);

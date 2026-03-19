@@ -29,13 +29,14 @@ public static class ChangeTableBuilderExtensions
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        selectBuilder.FromRaw(statement.Statement);
+        if (statement is not null)
+            selectBuilder.FromRaw(statement.Statement);
 
         return selectBuilder;
     }
 
     /// <summary>
-    /// Adds a <c>CHANGETABLE (CHANGES ...)</c> clause to the entity select query using a custom <see cref="ChangeTableBuilder"/> configuration.
+    /// Adds a <c>CHANGETABLE (CHANGES ...)</c> clause to the entity select query
     /// The table and schema are preset from the entity type.
     /// </summary>
     /// <typeparam name="TEntity">The entity type representing the table for change tracking.</typeparam>
@@ -65,7 +66,8 @@ public static class ChangeTableBuilderExtensions
         builder(innerBuilder);
 
         var statement = innerBuilder.BuildStatement();
-        selectBuilder.FromRaw(statement.Statement);
+        if (statement is not null)
+            selectBuilder.FromRaw(statement.Statement);
 
         return selectBuilder;
     }

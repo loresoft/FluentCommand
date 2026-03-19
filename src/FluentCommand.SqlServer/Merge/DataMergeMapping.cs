@@ -68,11 +68,11 @@ public class DataMergeMapping<TEntity> : DataMergeMapping, IDataMergeMapping<TEn
             throw new ArgumentException("The member access expression does not access a property.", nameof(propertyExpression));
 
         var column = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.ColumnAttribute>();
-        if (!string.IsNullOrEmpty(column?.Name))
+        if (column != null && !string.IsNullOrEmpty(column.Name))
             return column.Name;
 
         var display = property.GetCustomAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
-        if (!string.IsNullOrEmpty(display?.Name))
+        if (display != null && !string.IsNullOrEmpty(display.Name))
             return display.Name;
 
         return property.Name;

@@ -104,8 +104,8 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Column(
         string columnName,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
         var selectClause = new ColumnExpression(columnName, tableAlias, columnAlias);
 
@@ -126,9 +126,9 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder ColumnIf(
         string columnName,
-        string tableAlias = null,
-        string columnAlias = null,
-        Func<string, bool> condition = null)
+        string? tableAlias = null,
+        string? columnAlias = null,
+        Func<string, bool>? condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
@@ -147,7 +147,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="columnNames"/> is <c>null</c>.</exception>
     public virtual TBuilder Columns(
         IEnumerable<string> columnNames,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         if (columnNames is null)
             throw new ArgumentNullException(nameof(columnNames));
@@ -169,8 +169,8 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder Count(
         string columnName = "*",
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
         var selectClause = new AggregateExpression(AggregateFunctions.Count, columnName, tableAlias, columnAlias);
 
@@ -192,8 +192,8 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder Aggregate(
         AggregateFunctions function,
         string columnName,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
         var selectClause = new AggregateExpression(function, columnName, tableAlias, columnAlias);
 
@@ -213,8 +213,8 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public virtual TBuilder From(
         string tableName,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         var fromClause = new TableExpression(tableName, tableSchema, tableAlias);
 
@@ -232,7 +232,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// The same builder instance for method chaining.
     /// </returns>
     public TBuilder From<TEntity>(
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         var typeAccessor = TypeAccessor.GetAccessor<TEntity>();
 
@@ -301,7 +301,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder OrderBy(
         string columnName,
-        string tableAlias,
+        string? tableAlias,
         SortDirections sortDirection = SortDirections.Ascending)
     {
         var orderClause = new SortExpression(columnName, tableAlias, sortDirection);
@@ -323,7 +323,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     public TBuilder OrderByIf(
         string columnName,
         SortDirections sortDirection = SortDirections.Ascending,
-        Func<string, bool> condition = null)
+        Func<string, bool>? condition = null)
     {
         return OrderByIf(columnName, null, sortDirection, condition);
     }
@@ -340,9 +340,9 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder OrderByIf(
         string columnName,
-        string tableAlias,
+        string? tableAlias,
         SortDirections sortDirection = SortDirections.Ascending,
-        Func<string, bool> condition = null)
+        Func<string, bool>? condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
@@ -375,7 +375,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder OrderByRawIf(
         string sortExpression,
-        Func<string, bool> condition = null)
+        Func<string, bool>? condition = null)
     {
         if (condition != null && !condition(sortExpression))
             return (TBuilder)this;
@@ -412,7 +412,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// </returns>
     public TBuilder GroupBy(
         string columnName,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         var orderClause = new GroupExpression(columnName, tableAlias);
 
@@ -469,7 +469,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <returns>
     /// A <see cref="QueryStatement"/> containing the SQL SELECT statement and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         var selectStatement = new SelectStatement(
             SelectExpressions,

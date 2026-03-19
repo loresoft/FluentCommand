@@ -45,7 +45,7 @@ public class DataParameter<TValue> : IDataParameter<TValue>
     /// </summary>
     /// <param name="value">The value of the parameter.</param>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
-    public IDataParameter<TValue> Value(TValue value)
+    public IDataParameter<TValue> Value(TValue? value)
     {
         // handle value type by using actual value
         var valueType = value != null ? value.GetType() : typeof(TValue);
@@ -97,7 +97,7 @@ public class DataParameter<TValue> : IDataParameter<TValue>
     /// </summary>
     /// <param name="callback">The callback used to get the out value.</param>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
-    public IDataParameter<TValue> Output(Action<TValue> callback)
+    public IDataParameter<TValue> Output(Action<TValue?> callback)
     {
         // set direction output only if not already set
         if (!_hasDirection)
@@ -117,7 +117,7 @@ public class DataParameter<TValue> : IDataParameter<TValue>
     /// </summary>
     /// <param name="callback">The callback used to get the return value.</param>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
-    public IDataParameter<TValue> Return(Action<TValue> callback)
+    public IDataParameter<TValue> Return(Action<TValue?> callback)
     {
         // force name and direction
         _parameter.ParameterName = "@ReturnValue";

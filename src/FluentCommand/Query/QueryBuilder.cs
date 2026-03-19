@@ -194,9 +194,10 @@ public class QueryBuilder : IStatementBuilder
     /// Builds and returns a <see cref="QueryStatement"/> representing the composed SQL query and its parameters.
     /// </summary>
     /// <returns>
-    /// A <see cref="QueryStatement"/> containing the SQL statement and associated <see cref="QueryParameter"/> values.
+    /// A <see cref="QueryStatement"/> containing the SQL statement and associated <see cref="QueryParameter"/> values,
+    /// or <c>null</c> if no statement can be built from the current configuration.
     /// </returns>
-    public QueryStatement BuildStatement()
+    public QueryStatement? BuildStatement()
     {
         // optimize for when only 1 builder
         if (_builderQueue.Count == 1)
@@ -213,8 +214,12 @@ public class QueryBuilder : IStatementBuilder
             var builder = _builderQueue.Dequeue();
             var statement = builder.BuildStatement();
 
-            query.AppendLine(statement.Statement);
+            if (statement != null)
+                query.AppendLine(statement.Statement);
         }
+
+        if (query.Length == 0)
+            return null;
 
         return new QueryStatement(query.ToString(), Parameters);
     }

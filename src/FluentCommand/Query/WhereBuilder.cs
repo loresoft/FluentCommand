@@ -23,11 +23,14 @@ public class WhereBuilder : WhereBuilder<WhereBuilder>
     }
 
     /// <inheritdoc />
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         var statement = QueryGenerator.BuildWhere(
             whereExpressions: WhereExpressions
         );
+
+        if (statement.IsNullOrWhiteSpace())
+            return null;
 
         return new QueryStatement(statement, Parameters);
     }
@@ -99,8 +102,8 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// </returns>
     public TBuilder Where<TValue>(
         string columnName,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         var parameterName = NextParameter();
@@ -124,7 +127,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     public TBuilder WhereIn<TValue>(
         string columnName,
         IEnumerable<TValue> parameterValues,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
         var parameterNames = new List<string>();
         foreach (var parameterValue in parameterValues)
@@ -156,7 +159,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     public TBuilder WhereInIf<TValue>(
         string columnName,
         IEnumerable<TValue> parameterValues,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
         if (condition != null && !condition(columnName, parameterValues))
             return (TBuilder)this;
@@ -178,8 +181,8 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     public TBuilder WhereInIf<TValue>(
         string columnName,
         IEnumerable<TValue> parameterValues,
-        string tableAlias,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        string? tableAlias,
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
         if (condition != null && !condition(columnName, parameterValues))
             return (TBuilder)this;
@@ -200,9 +203,9 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// </returns>
     public TBuilder WhereIf<TValue>(
         string columnName,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
         return WhereIf(columnName, parameterValue, null, filterOperator, condition);
     }
@@ -221,10 +224,10 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// </returns>
     public TBuilder WhereIf<TValue>(
         string columnName,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
         if (condition != null && !condition(columnName, parameterValue))
             return (TBuilder)this;
@@ -243,7 +246,7 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// <exception cref="ArgumentException">Thrown if <paramref name="whereClause"/> is null or empty.</exception>
     public TBuilder WhereRaw(
         string whereClause,
-        IEnumerable<QueryParameter> parameters = null)
+        IEnumerable<QueryParameter>? parameters = null)
     {
         if (string.IsNullOrWhiteSpace(whereClause))
             throw new ArgumentException($"'{nameof(whereClause)}' cannot be null or empty.", nameof(whereClause));
@@ -267,8 +270,8 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// </returns>
     public TBuilder WhereRawIf(
         string whereClause,
-        IEnumerable<QueryParameter> parameters = null,
-        Func<string, IEnumerable<QueryParameter>, bool> condition = null)
+        IEnumerable<QueryParameter>? parameters = null,
+        Func<string, IEnumerable<QueryParameter>?, bool>? condition = null)
     {
         if (condition != null && !condition(whereClause, parameters))
             return (TBuilder)this;

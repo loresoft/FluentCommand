@@ -23,7 +23,7 @@ public static class StringBuilderCache
     private const int DefaultCapacity = 16; // == StringBuilder.DefaultCapacity
 
     [ThreadStatic]
-    private static StringBuilder t_cachedInstance;
+    private static StringBuilder? t_cachedInstance;
 
     /// <summary>
     /// Retrieves a <see cref="StringBuilder"/> instance with the specified capacity.

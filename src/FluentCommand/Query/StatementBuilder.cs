@@ -26,7 +26,7 @@ public class StatementBuilder : StatementBuilder<StatementBuilder>
     /// <value>
     /// The SQL query statement as a <see cref="string"/>.
     /// </value>
-    protected string Statement { get; set; }
+    protected string Statement { get; set; } = string.Empty;
 
     /// <summary>
     /// Sets the SQL query statement for this builder.
@@ -50,7 +50,7 @@ public class StatementBuilder : StatementBuilder<StatementBuilder>
     /// <returns>
     /// The current <see cref="StatementBuilder"/> instance for method chaining.
     /// </returns>
-    public StatementBuilder Parameter<TValue>(string name, TValue value)
+    public StatementBuilder Parameter<TValue>(string name, TValue? value)
     {
         var queryParam = new QueryParameter(name, value, typeof(TValue));
         Parameters.Add(queryParam);
@@ -59,7 +59,7 @@ public class StatementBuilder : StatementBuilder<StatementBuilder>
     }
 
     /// <inheritdoc />
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         return new QueryStatement(Statement, Parameters);
     }
@@ -144,7 +144,7 @@ public abstract class StatementBuilder<TBuilder> : IStatementBuilder, IQueryBuil
     /// <returns>
     /// The current builder instance for method chaining.
     /// </returns>
-    public TBuilder Comment(string comment)
+    public TBuilder Comment(string? comment)
     {
         if (comment.IsNullOrWhiteSpace())
             return (TBuilder)this;
@@ -157,7 +157,7 @@ public abstract class StatementBuilder<TBuilder> : IStatementBuilder, IQueryBuil
     }
 
     /// <inheritdoc />
-    public abstract QueryStatement BuildStatement();
+    public abstract QueryStatement? BuildStatement();
 
     /// <summary>
     /// Generates the next unique parameter name for use in the query.

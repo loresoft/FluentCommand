@@ -29,7 +29,7 @@ public interface IDataQuery : IDisposable
     /// <returns>
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
-    TEntity QuerySingle<TEntity>(
+    TEntity? QuerySingle<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow);
 
@@ -41,7 +41,7 @@ public interface IDataQuery : IDisposable
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    TValue QueryValue<TValue>(Func<object, TValue> convert);
+    TValue? QueryValue<TValue>(Func<object?, TValue?>? convert);
 
     /// <summary>
     /// Executes the command against the connection and converts the results to a <see cref="DataTable"/>.

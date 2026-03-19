@@ -8,7 +8,7 @@ namespace FluentCommand.Merge;
 public class DataReaderWrapper : IDataReader
 {
     private readonly IDataReader _dataReader;
-    private readonly string _fieldPrefix;
+    private readonly string? _fieldPrefix;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataReaderWrapper"/> class with the specified data reader.
@@ -24,7 +24,7 @@ public class DataReaderWrapper : IDataReader
     /// </summary>
     /// <param name="dataReader">The underlying <see cref="IDataReader"/> to wrap.</param>
     /// <param name="fieldPrefix">The prefix to apply to field names when accessing data, or <c>null</c> for no prefix.</param>
-    public DataReaderWrapper(IDataReader dataReader, string fieldPrefix)
+    public DataReaderWrapper(IDataReader dataReader, string? fieldPrefix)
     {
         _dataReader = dataReader;
         _fieldPrefix = fieldPrefix;
@@ -102,7 +102,8 @@ public class DataReaderWrapper : IDataReader
     /// <param name="bufferOffset">The index for buffer to start the read operation.</param>
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of bytes read.</returns>
-    public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length) => _dataReader.GetBytes(i, fieldOffset, buffer, bufferOffset, length);
+    public long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferOffset, int length)
+        => _dataReader.GetBytes(i, fieldOffset, buffer, bufferOffset, length);
 
     /// <summary>
     /// Gets the character value of the specified column.
@@ -120,7 +121,8 @@ public class DataReaderWrapper : IDataReader
     /// <param name="bufferOffset">The index for buffer to start the read operation.</param>
     /// <param name="length">The number of characters to read.</param>
     /// <returns>The actual number of characters read.</returns>
-    public long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length) => _dataReader.GetChars(i, fieldOffset, buffer, bufferOffset, length);
+    public long GetChars(int i, long fieldOffset, char[]? buffer, int bufferOffset, int length)
+        => _dataReader.GetChars(i, fieldOffset, buffer, bufferOffset, length);
 
     /// <summary>
     /// Gets the <see cref="Guid"/> value of the specified field.
@@ -242,7 +244,7 @@ public class DataReaderWrapper : IDataReader
     /// Returns a <see cref="DataTable"/> that describes the column metadata of the <see cref="IDataReader"/>.
     /// </summary>
     /// <returns>A <see cref="DataTable"/> that describes the column metadata.</returns>
-    public DataTable GetSchemaTable() => _dataReader.GetSchemaTable();
+    public DataTable? GetSchemaTable() => _dataReader.GetSchemaTable();
 
     /// <summary>
     /// Advances the data reader to the next result, when reading the results of batch SQL statements.

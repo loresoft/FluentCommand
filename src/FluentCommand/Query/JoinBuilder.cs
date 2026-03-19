@@ -25,6 +25,14 @@ public class JoinBuilder : JoinBuilder<JoinBuilder>
 public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     where TBuilder : JoinBuilder<TBuilder>
 {
+    private string? _leftColumnName;
+    private string? _leftTableAlias;
+    private string? _rightColumnName;
+    private string? _rightTableName;
+    private string? _rightTableSchema;
+    private string? _rightTableAlias;
+    private JoinTypes _joinType = JoinTypes.Inner;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="JoinBuilder{TBuilder}"/> class.
     /// </summary>
@@ -34,14 +42,6 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
         : base(queryGenerator, parameters)
     {
     }
-
-    /// <summary>
-    /// Gets or sets the join expression that defines the JOIN clause.
-    /// </summary>
-    /// <value>
-    /// The <see cref="JoinExpression"/> representing the JOIN clause.
-    /// </value>
-    protected JoinExpression JoinExpression { get; set; } = new();
 
     /// <summary>
     /// Specifies the left column to join on.
@@ -55,11 +55,8 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
         string columnName,
         string tableAlias)
     {
-        JoinExpression = JoinExpression with
-        {
-            LeftColumnName = columnName,
-            LeftTableAlias = tableAlias
-        };
+        _leftColumnName = columnName;
+        _leftTableAlias = tableAlias;
 
         return (TBuilder)this;
     }
@@ -77,16 +74,13 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     public TBuilder Right(
         string columnName,
         string tableName,
-        string tableSchema,
-        string tableAlias)
+        string? tableSchema,
+        string? tableAlias)
     {
-        JoinExpression = JoinExpression with
-        {
-            RightColumnName = columnName,
-            RightTableName = tableName,
-            RightTableSchema = tableSchema,
-            RightTableAlias = tableAlias ?? tableName
-        };
+        _rightColumnName = columnName;
+        _rightTableName = tableName;
+        _rightTableSchema = tableSchema;
+        _rightTableAlias = tableAlias ?? tableName;
 
         return (TBuilder)this;
     }
@@ -100,10 +94,7 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// </returns>
     public TBuilder Type(JoinTypes joinType)
     {
-        JoinExpression = JoinExpression with
-        {
-            JoinType = joinType
-        };
+        _joinType = joinType;
 
         return (TBuilder)this;
     }
@@ -114,9 +105,23 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// <returns>
     /// The <see cref="JoinExpression"/> for the JOIN clause.
     /// </returns>
+    /// <exception cref="InvalidOperationException">Thrown if the left or right side of the join has not been specified.</exception>
     public virtual JoinExpression BuildExpression()
     {
-        return JoinExpression;
+        if (_leftTableAlias is null || _leftColumnName is null)
+            throw new InvalidOperationException("Left join column and table alias must be specified.");
+
+        if (_rightTableName is null || _rightTableAlias is null || _rightColumnName is null)
+            throw new InvalidOperationException("Right join table, alias, and column must be specified.");
+
+        return new JoinExpression(
+            LeftTableAlias: _leftTableAlias,
+            LeftColumnName: _leftColumnName,
+            RightTableName: _rightTableName,
+            RightTableAlias: _rightTableAlias,
+            RightColumnName: _rightColumnName,
+            RightTableSchema: _rightTableSchema,
+            JoinType: _joinType);
     }
 
     /// <summary>
@@ -125,9 +130,9 @@ public class JoinBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// <returns>
     /// A <see cref="QueryStatement"/> containing the SQL JOIN clause and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
-        var joinClause = QueryGenerator.JoinExpression(JoinExpression);
+        var joinClause = QueryGenerator.JoinExpression(BuildExpression());
 
         return new QueryStatement(joinClause, Parameters);
     }

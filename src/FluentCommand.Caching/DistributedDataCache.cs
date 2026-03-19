@@ -41,7 +41,7 @@ public partial class DistributedDataCache : IDataCache
     /// <para>Value is the cache entry that is identified by key</para>
     /// </returns>
     /// <exception cref="System.ArgumentException">key cannot be null or empty. - key</exception>
-    public (bool Success, T Value) Get<T>(string key)
+    public (bool Success, T? Value) Get<T>(string key)
     {
         if (string.IsNullOrEmpty(key))
             throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
@@ -72,7 +72,7 @@ public partial class DistributedDataCache : IDataCache
     /// <para>Value is the cache entry that is identified by key</para>
     /// </returns>
     /// <exception cref="System.ArgumentException">'key' cannot be null or empty. - key</exception>
-    public async Task<(bool Success, T Value)> GetAsync<T>(string key, CancellationToken cancellationToken = default)
+    public async Task<(bool Success, T? Value)> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(key))
             throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));

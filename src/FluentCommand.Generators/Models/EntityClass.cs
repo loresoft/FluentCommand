@@ -5,5 +5,7 @@ public record EntityClass(
     string FullyQualified,
     string EntityNamespace,
     string EntityName,
-    EquatableArray<EntityProperty> Properties
+    EquatableArray<EntityProperty> Properties,
+    string? TableName = null,
+    string? TableSchema = null
 );

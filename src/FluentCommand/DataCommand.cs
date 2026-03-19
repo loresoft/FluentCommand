@@ -20,7 +20,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
     private TimeSpan? _slidingExpiration;
     private DateTimeOffset? _absoluteExpiration;
-    private object _logState;
+    private object? _logState;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataCommand" /> class.
@@ -30,8 +30,8 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <param name="commandInterceptors">Pre-filtered command interceptors from the owning session.</param>
     public DataCommand(
         IDataSession dataSession,
-        DbTransaction transaction,
-        IDataCommandInterceptor[] commandInterceptors = null)
+        DbTransaction? transaction,
+        IDataCommandInterceptor[]? commandInterceptors = null)
     {
         _callbacks = new Queue<DataCallback>();
         _dataSession = dataSession ?? throw new ArgumentNullException(nameof(dataSession));
@@ -177,7 +177,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </remarks>
     public IDataCommand ExpireCache<TEntity>()
     {
-        string cacheKey = CacheKey<TEntity>(true);
+        string? cacheKey = CacheKey<TEntity>(true);
         if (_dataSession.Cache != null && cacheKey != null)
             _dataSession.Cache.Remove(cacheKey);
 
@@ -194,7 +194,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <remarks>
     /// Use the state to help control what is logged.
     /// </remarks>
-    public IDataCommand LogState(object state)
+    public IDataCommand LogState(object? state)
     {
         _logState = state;
         return this;
@@ -254,8 +254,8 @@ public class DataCommand : DisposableBase, IDataCommand
         {
             var results = new List<TEntity>();
 
-            using var reader = await Command.ExecuteReaderAsync(commandBehavior, token);
-            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            using var reader = await Command.ExecuteReaderAsync(commandBehavior, token).ConfigureAwait(false);
+            while (await reader.ReadAsync(token).ConfigureAwait(false))
             {
                 var entity = factory(reader);
                 results.Add(entity);
@@ -277,7 +277,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    public TEntity QuerySingle<TEntity>(
+    public TEntity? QuerySingle<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow)
     {
@@ -287,11 +287,10 @@ public class DataCommand : DisposableBase, IDataCommand
         return QueryFactory(() =>
         {
             using var reader = Command.ExecuteReader(commandBehavior);
-            var result = reader.Read()
+            return reader.Read()
                 ? factory(reader)
                 : default;
 
-            return result;
         }, true);
     }
 
@@ -306,7 +305,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    public async Task<TEntity> QuerySingleAsync<TEntity>(
+    public async Task<TEntity?> QuerySingleAsync<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow,
         CancellationToken cancellationToken = default)
@@ -320,11 +319,10 @@ public class DataCommand : DisposableBase, IDataCommand
                 .ExecuteReaderAsync(commandBehavior, token)
                 .ConfigureAwait(false);
 
-            var result = await reader.ReadAsync(token).ConfigureAwait(false)
+            return await reader.ReadAsync(token).ConfigureAwait(false)
                ? factory(reader)
                : default;
 
-            return result;
         }, true, cancellationToken).ConfigureAwait(false);
     }
 
@@ -337,7 +335,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public TValue QueryValue<TValue>(Func<object, TValue> convert)
+    public TValue? QueryValue<TValue>(Func<object?, TValue?>? convert)
     {
         return QueryFactory(() =>
         {
@@ -355,8 +353,8 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    public async Task<TValue> QueryValueAsync<TValue>(
-        Func<object, TValue> convert,
+    public async Task<TValue?> QueryValueAsync<TValue>(
+        Func<object?, TValue?>? convert,
         CancellationToken cancellationToken = default)
     {
         return await QueryFactoryAsync(async (token) =>
@@ -515,7 +513,7 @@ public class DataCommand : DisposableBase, IDataCommand
         await QueryFactoryAsync(async (token) =>
         {
             using var reader = await Command.ExecuteReaderAsync(commandBehavior, token).ConfigureAwait(false);
-            await readAction(reader, cancellationToken);
+            await readAction(reader, token).ConfigureAwait(false);
 
             return true;
         }, false, cancellationToken).ConfigureAwait(false);
@@ -569,7 +567,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
             var (cacheSuccess, cacheValue) = GetCache<TResult>(cacheKey);
             if (cacheSuccess)
-                return cacheValue;
+                return cacheValue!;
 
             _dataSession.EnsureConnection();
 
@@ -621,7 +619,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
             var (cacheSuccess, cacheValue) = await GetCacheAsync<TResult>(cacheKey, cancellationToken).ConfigureAwait(false);
             if (cacheSuccess)
-                return cacheValue;
+                return cacheValue!;
 
             await _dataSession.EnsureConnectionAsync(cancellationToken).ConfigureAwait(false);
 
@@ -652,8 +650,8 @@ public class DataCommand : DisposableBase, IDataCommand
 
 #if NETCOREAPP3_0_OR_GREATER
 
-            await _dataSession.ReleaseConnectionAsync();
-            await DisposeAsync();
+            await _dataSession.ReleaseConnectionAsync().ConfigureAwait(false);
+            await DisposeAsync().ConfigureAwait(false);
 #else
             _dataSession.ReleaseConnection();
             Dispose();
@@ -663,7 +661,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
 
 
-    private string CacheKey<T>(bool supportCache)
+    private string? CacheKey<T>(bool supportCache)
     {
         if (!supportCache)
             return null;
@@ -676,7 +674,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         var commandText = Command.CommandText;
         var commandType = Command.CommandType;
-        var typeName = typeof(T).FullName;
+        var typeName = typeof(T).FullName!;
 
         var hashCode = HashCode.Seed
             .Combine(commandType)
@@ -690,14 +688,14 @@ public class DataCommand : DisposableBase, IDataCommand
 
             hashCode = hashCode
                 .Combine(parameter.ParameterName)
-                .Combine(parameter.Value)
+                .Combine(parameter.Value ?? DBNull.Value)
                 .Combine(parameter.DbType);
         }
 
         return $"fluent:data:query:{hashCode:X}";
     }
 
-    private (bool Success, T Value) GetCache<T>(string key)
+    private (bool Success, T? Value) GetCache<T>(string? key)
     {
         if (_slidingExpiration == null && _absoluteExpiration == null)
             return (false, default);
@@ -712,7 +710,7 @@ public class DataCommand : DisposableBase, IDataCommand
         return cache.Get<T>(key);
     }
 
-    private async Task<(bool Success, T Value)> GetCacheAsync<T>(string key, CancellationToken cancellationToken)
+    private async Task<(bool Success, T? Value)> GetCacheAsync<T>(string? key, CancellationToken cancellationToken)
     {
         if (_slidingExpiration == null && _absoluteExpiration == null)
             return (false, default);
@@ -729,7 +727,7 @@ public class DataCommand : DisposableBase, IDataCommand
             .ConfigureAwait(false);
     }
 
-    private void SetCache<T>(string key, T value)
+    private void SetCache<T>(string? key, T value)
     {
         if (_slidingExpiration == null && _absoluteExpiration == null)
             return;
@@ -744,7 +742,7 @@ public class DataCommand : DisposableBase, IDataCommand
         cache.Set(key, value, _absoluteExpiration, _slidingExpiration);
     }
 
-    private async Task SetCacheAsync<T>(string key, T value, CancellationToken cancellationToken)
+    private async Task SetCacheAsync<T>(string? key, T value, CancellationToken cancellationToken)
     {
         if (_slidingExpiration == null && _absoluteExpiration == null)
             return;
@@ -762,7 +760,7 @@ public class DataCommand : DisposableBase, IDataCommand
     }
 
 
-    private void LogCommand(long startingTimestamp, Exception exception = null)
+    private void LogCommand(long startingTimestamp, Exception? exception = null)
     {
         // indicates already logged
         if (startingTimestamp == 0)

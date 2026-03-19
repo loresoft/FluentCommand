@@ -6,20 +6,12 @@ namespace FluentCommand.Merge;
 public class DataMergeOutputRow
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataMergeOutputRow"/> class.
-    /// </summary>
-    public DataMergeOutputRow()
-    {
-        Columns = new List<DataMergeOutputColumn>();
-    }
-
-    /// <summary>
     /// Gets or sets the merge action performed on this row (e.g., "INSERT", "UPDATE", "DELETE").
     /// </summary>
     /// <value>
     /// The merge action for this row.
     /// </value>
-    public string Action { get; set; }
+    public string Action { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the collection of columns that were affected by the merge operation.
@@ -27,7 +19,7 @@ public class DataMergeOutputRow
     /// <value>
     /// The list of <see cref="DataMergeOutputColumn"/> objects representing the changed columns.
     /// </value>
-    public List<DataMergeOutputColumn> Columns { get; set; }
+    public List<DataMergeOutputColumn> Columns { get; set; } = [];
 
     /// <summary>
     /// Gets the <see cref="DataMergeOutputColumn"/> with the specified column name, or <c>null</c> if not found.
@@ -36,11 +28,6 @@ public class DataMergeOutputRow
     /// <returns>
     /// The <see cref="DataMergeOutputColumn"/> with the specified name, or <c>null</c> if no such column exists.
     /// </returns>
-    public DataMergeOutputColumn this[string columnName]
-    {
-        get
-        {
-            return Columns.FirstOrDefault(c => c.Name == columnName);
-        }
-    }
+    public DataMergeOutputColumn? this[string columnName]
+        => Columns.FirstOrDefault(c => c.Name == columnName);
 }

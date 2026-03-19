@@ -46,7 +46,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>
     /// A new <see cref="HashCode"/> instance representing the combined hash code.
     /// </returns>
-    public HashCode Combine<TValue>(TValue value)
+    public HashCode Combine<TValue>(TValue? value)
     {
         var hashCode = value is null ? 0 : EqualityComparer<TValue>.Default.GetHashCode(value);
         unchecked
@@ -64,7 +64,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>
     /// A new <see cref="HashCode"/> instance representing the combined hash code.
     /// </returns>
-    public HashCode Combine(string value)
+    public HashCode Combine(string? value)
     {
         // need to handle string values deterministically
         var hashCode = HashString(value);
@@ -84,7 +84,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>
     /// A new <see cref="HashCode"/> instance representing the combined hash code.
     /// </returns>
-    public HashCode Combine(object value)
+    public HashCode Combine(object? value)
     {
         // need to handle string values deterministically
         return value switch
@@ -153,7 +153,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>
     /// The string representation of the hash code value as specified by <paramref name="provider"/>.
     /// </returns>
-    public string ToString(IFormatProvider provider) => _hashCode.ToString(provider);
+    public string ToString(IFormatProvider? provider) => _hashCode.ToString(provider);
 
     /// <summary>
     /// Converts the numeric value of this instance to its equivalent string representation using the specified format.
@@ -172,7 +172,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>
     /// The string representation of the hash code value as specified by <paramref name="format"/> and <paramref name="provider"/>.
     /// </returns>
-    public string ToString(string format, IFormatProvider provider) => _hashCode.ToString(format, provider);
+    public string ToString(string? format, IFormatProvider? provider) => _hashCode.ToString(format, provider);
 
     /// <summary>
     /// Determines whether the specified object is equal to this instance.
@@ -181,7 +181,7 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>
     /// <c>true</c> if the specified object is a <see cref="HashCode"/> and is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object obj) => obj is HashCode code && Equals(code);
+    public override bool Equals(object? obj) => obj is HashCode code && Equals(code);
 
     /// <summary>
     /// Indicates whether the current object is equal to another <see cref="HashCode"/> instance.
@@ -228,9 +228,9 @@ public readonly struct HashCode : IFormattable, IEquatable<HashCode>
     /// <returns>
     /// A 32-bit signed integer hash code for the string, or 0 if the string is null or empty.
     /// </returns>
-    public static int HashString(string text)
+    public static int HashString(string? text)
     {
-        if (string.IsNullOrEmpty(text))
+        if (text == null || string.IsNullOrEmpty(text))
             return 0;
 
         int hash = DefaultSeed;

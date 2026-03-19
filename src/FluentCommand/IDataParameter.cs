@@ -20,7 +20,7 @@ public interface IDataParameter<TValue>
     /// </summary>
     /// <param name="value">The value of the parameter.</param>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
-    IDataParameter<TValue> Value(TValue value);
+    IDataParameter<TValue> Value(TValue? value);
 
     /// <summary>
     /// Sets a value that indicates whether the parameter is input-only, output-only, bidirectional, or a stored procedure return value.
@@ -30,7 +30,7 @@ public interface IDataParameter<TValue>
     IDataParameter<TValue> Direction(ParameterDirection parameterDirection);
 
     /// <summary>
-    /// Sets the <see cref="DbType"/> of the parameter. 
+    /// Sets the <see cref="DbType"/> of the parameter.
     /// </summary>
     /// <param name="dbType">The <see cref="DbType"/> of the parameter.</param>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
@@ -48,12 +48,12 @@ public interface IDataParameter<TValue>
     /// </summary>
     /// <param name="callback">The callback used to get the out value.</param>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
-    IDataParameter<TValue> Output(Action<TValue> callback);
+    IDataParameter<TValue> Output(Action<TValue?> callback);
 
     /// <summary>
     /// Sets the parameter direction to ReturnValue and registers the call back to get the return value.
     /// </summary>
     /// <param name="callback">The callback used to get the return value.</param>
     /// <returns>A fluent <see langword="interface"/> to a data command parameter.</returns>
-    IDataParameter<TValue> Return(Action<TValue> callback);
+    IDataParameter<TValue> Return(Action<TValue?> callback);
 }

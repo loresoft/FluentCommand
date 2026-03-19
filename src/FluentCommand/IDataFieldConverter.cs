@@ -14,6 +14,6 @@ public interface IDataFieldConverter<out TValue>
     /// <param name="dataRecord">The data record to read the value from.</param>
     /// <param name="fieldIndex">Index of the field.</param>
     /// <returns>The value read from the <paramref name="dataRecord"/></returns>
-    public TValue ReadValue(IDataRecord dataRecord, int fieldIndex);
+    public TValue? ReadValue(IDataRecord dataRecord, int fieldIndex);
 
 }

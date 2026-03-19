@@ -37,7 +37,7 @@ public class OrderEntityBuilder<TEntity> : OrderBuilder<OrderEntityBuilder<TEnti
         Expression<Func<TEntity, TValue>> property,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return OrderBy(propertyAccessor.Column, null, sortDirection);
     }
@@ -54,10 +54,10 @@ public class OrderEntityBuilder<TEntity> : OrderBuilder<OrderEntityBuilder<TEnti
     /// </returns>
     public OrderEntityBuilder<TEntity> OrderBy<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias,
+        string? tableAlias,
         SortDirections sortDirection = SortDirections.Ascending)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return OrderBy(propertyAccessor.Column, tableAlias, sortDirection);
     }
@@ -75,12 +75,21 @@ public class OrderEntityBuilder<TEntity> : OrderBuilder<OrderEntityBuilder<TEnti
     /// </returns>
     public OrderEntityBuilder<TEntity> OrderByIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
+        string? tableAlias = null,
         SortDirections sortDirection = SortDirections.Ascending,
-        Func<string, bool> condition = null)
+        Func<string, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return OrderByIf(propertyAccessor.Column, tableAlias, sortDirection, condition);
+    }
+
+    private static IMemberAccessor GetPropertyAccessor<TValue>(Expression<Func<TEntity, TValue>> property)
+    {
+        var propertyAccessor = _typeAccessor.FindProperty(property);
+        if (propertyAccessor is null)
+            throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
+
+        return propertyAccessor;
     }
 }

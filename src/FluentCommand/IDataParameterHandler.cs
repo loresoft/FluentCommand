@@ -21,12 +21,12 @@ public interface IDataParameterHandler
     /// </summary>
     /// <param name="parameter">The parameter to read the value from.</param>
     /// <returns>The value read from the <paramref name="parameter"/></returns>
-    object ReadValue(IDbDataParameter parameter);
+    object? ReadValue(IDbDataParameter parameter);
 
     /// <summary>
     /// Set the value on the specified <paramref name="parameter"/>.
     /// </summary>
     /// <param name="parameter">The parameter to be updated.</param>
     /// <param name="value">The value to set.</param>
-    void SetValue(IDbDataParameter parameter, object value);
+    void SetValue(IDbDataParameter parameter, object? value);
 }

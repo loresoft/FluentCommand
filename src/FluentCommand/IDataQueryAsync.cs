@@ -38,7 +38,7 @@ public interface IDataQueryAsync
     /// A instance of <typeparamref name="TEntity" /> if row exists; otherwise null.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    Task<TEntity> QuerySingleAsync<TEntity>(
+    Task<TEntity?> QuerySingleAsync<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow,
         CancellationToken cancellationToken = default);
@@ -52,8 +52,8 @@ public interface IDataQueryAsync
     /// <returns>
     /// The value of the first column of the first row in the result set.
     /// </returns>
-    Task<TValue> QueryValueAsync<TValue>(
-        Func<object, TValue> convert,
+    Task<TValue?> QueryValueAsync<TValue>(
+        Func<object?, TValue?>? convert,
         CancellationToken cancellationToken = default);
 
     /// <summary>

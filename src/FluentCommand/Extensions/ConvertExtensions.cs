@@ -1,7 +1,5 @@
 using System.Globalization;
 
-#nullable enable
-
 namespace FluentCommand.Extensions;
 
 /// <summary>

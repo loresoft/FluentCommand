@@ -70,7 +70,7 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// </returns>
     public TBuilder OrderBy(
         string columnName,
-        string tableAlias,
+        string? tableAlias,
         SortDirections sortDirection = SortDirections.Ascending)
     {
         var orderClause = new SortExpression(columnName, tableAlias, sortDirection);
@@ -92,9 +92,9 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// </returns>
     public TBuilder OrderByIf(
         string columnName,
-        string tableAlias = null,
+        string? tableAlias = null,
         SortDirections sortDirection = SortDirections.Ascending,
-        Func<string, bool> condition = null)
+        Func<string, bool>? condition = null)
     {
         if (condition != null && !condition(columnName))
             return (TBuilder)this;
@@ -125,7 +125,7 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// <returns>
     /// The same builder instance for method chaining.
     /// </returns>
-    public TBuilder OrderByRawIf(string sortExpression, Func<string, bool> condition = null)
+    public TBuilder OrderByRawIf(string sortExpression, Func<string, bool>? condition = null)
     {
         if (condition != null && !condition(sortExpression))
             return (TBuilder)this;
@@ -159,12 +159,15 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// A <see cref="QueryStatement"/> containing the SQL ORDER BY clause and its parameters,
     /// or <c>null</c> if no sort expressions are present.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         if (SortExpressions == null || SortExpressions.Count == 0)
             return null;
 
         var statement = QueryGenerator.BuildOrder(SortExpressions);
+
+        if (statement.IsNullOrWhiteSpace())
+            return null;
 
         return new QueryStatement(statement, Parameters);
     }

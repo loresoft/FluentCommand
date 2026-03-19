@@ -9,8 +9,8 @@ namespace FluentCommand.Reflection;
 /// </summary>
 public class PropertyAccessor : MemberAccessor
 {
-    private readonly Lazy<Func<object, object>> _getter;
-    private readonly Lazy<Action<object, object>> _setter;
+    private readonly Lazy<Func<object, object?>?> _getter;
+    private readonly Lazy<Action<object, object?>?> _setter;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PropertyAccessor"/> class using the specified <see cref="PropertyInfo"/>.
@@ -26,10 +26,10 @@ public class PropertyAccessor : MemberAccessor
         MemberType = propertyInfo.PropertyType;
 
         HasGetter = propertyInfo.CanRead;
-        _getter = new Lazy<Func<object, object>>(() => ExpressionFactory.CreateGet(propertyInfo));
+        _getter = new Lazy<Func<object, object?>?>(() => ExpressionFactory.CreateGet(propertyInfo));
 
         HasSetter = propertyInfo.CanWrite;
-        _setter = new Lazy<Action<object, object>>(() => ExpressionFactory.CreateSet(propertyInfo));
+        _setter = new Lazy<Action<object, object?>?>(() => ExpressionFactory.CreateSet(propertyInfo));
     }
 
     /// <summary>
@@ -62,9 +62,9 @@ public class PropertyAccessor : MemberAccessor
     /// <param name="instance">The object whose property value will be returned.</param>
     /// <returns>The value of the property for the given <paramref name="instance"/>.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the property does not have a getter.</exception>
-    public override object GetValue(object instance)
+    public override object? GetValue(object instance)
     {
-        if (_getter == null || !HasGetter)
+        if (!HasGetter)
             throw new InvalidOperationException($"Property '{Name}' does not have a getter.");
 
         var get = _getter.Value;
@@ -80,9 +80,9 @@ public class PropertyAccessor : MemberAccessor
     /// <param name="instance">The object whose property value will be set.</param>
     /// <param name="value">The new value for this property.</param>
     /// <exception cref="InvalidOperationException">Thrown if the property does not have a setter.</exception>
-    public override void SetValue(object instance, object value)
+    public override void SetValue(object instance, object? value)
     {
-        if (_setter == null || !HasSetter)
+        if (!HasSetter)
             throw new InvalidOperationException($"Property '{Name}' does not have a setter.");
 
         var set = _setter.Value;

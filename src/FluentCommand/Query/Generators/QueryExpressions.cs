@@ -9,8 +9,8 @@ namespace FluentCommand.Query.Generators;
 /// <param name="IsRaw">Indicates if the table expression is a raw SQL fragment.</param>
 public record TableExpression(
     string TableName,
-    string TableSchema = null,
-    string TableAlias = null,
+    string? TableSchema = null,
+    string? TableAlias = null,
     bool IsRaw = false);
 
 /// <summary>
@@ -22,8 +22,8 @@ public record TableExpression(
 /// <param name="IsRaw">Indicates if the column expression is a raw SQL fragment.</param>
 public record ColumnExpression(
     string ColumnName,
-    string TableAlias = null,
-    string ColumnAlias = null,
+    string? TableAlias = null,
+    string? ColumnAlias = null,
     bool IsRaw = false);
 
 /// <summary>
@@ -36,7 +36,7 @@ public record ColumnExpression(
 public record UpdateExpression(
     string ColumnName,
     string ParameterName,
-    string TableAlias = null,
+    string? TableAlias = null,
     bool IsRaw = false)
     : ColumnExpression(ColumnName, TableAlias, null, IsRaw);
 
@@ -49,7 +49,7 @@ public record UpdateExpression(
 /// <param name="IsRaw">Indicates if the sort expression is a raw SQL fragment.</param>
 public record SortExpression(
     string ColumnName,
-    string TableAlias = null,
+    string? TableAlias = null,
     SortDirections SortDirection = SortDirections.Ascending,
     bool IsRaw = false)
     : ColumnExpression(ColumnName, TableAlias, null, IsRaw);
@@ -62,7 +62,7 @@ public record SortExpression(
 /// <param name="IsRaw">Indicates if the group expression is a raw SQL fragment.</param>
 public record GroupExpression(
     string ColumnName,
-    string TableAlias = null,
+    string? TableAlias = null,
     bool IsRaw = false)
     : ColumnExpression(ColumnName, TableAlias, null, IsRaw);
 
@@ -77,8 +77,8 @@ public record GroupExpression(
 public record AggregateExpression(
     AggregateFunctions Aggregate,
     string ColumnName,
-    string TableAlias = null,
-    string ColumnAlias = null,
+    string? TableAlias = null,
+    string? ColumnAlias = null,
     bool IsRaw = false)
     : ColumnExpression(ColumnName, TableAlias, ColumnAlias, IsRaw);
 
@@ -92,8 +92,8 @@ public record AggregateExpression(
 /// <param name="IsRaw">Indicates if the where expression is a raw SQL fragment.</param>
 public record WhereExpression(
     string ColumnName,
-    string ParameterName = null,
-    string TableAlias = null,
+    string? ParameterName = null,
+    string? TableAlias = null,
     FilterOperators FilterOperator = FilterOperators.Equal,
     bool IsRaw = false)
     : ColumnExpression(ColumnName, TableAlias, null, IsRaw);
@@ -113,17 +113,17 @@ public record LimitExpression(
 /// <param name="LeftTableAlias">The alias of the left table in the join.</param>
 /// <param name="LeftColumnName">The column name from the left table to join on.</param>
 /// <param name="RightTableName">The name of the right table in the join.</param>
-/// <param name="RightTableSchema">The schema of the right table (optional).</param>
 /// <param name="RightTableAlias">The alias of the right table in the join.</param>
 /// <param name="RightColumnName">The column name from the right table to join on.</param>
+/// <param name="RightTableSchema">The schema of the right table (optional).</param>
 /// <param name="JoinType">The type of join (e.g., Inner, Left, Right).</param>
 public record JoinExpression(
-    string LeftTableAlias = null,
-    string LeftColumnName = null,
-    string RightTableName = null,
-    string RightTableSchema = null,
-    string RightTableAlias = null,
-    string RightColumnName = null,
+    string LeftTableAlias,
+    string LeftColumnName,
+    string RightTableName,
+    string RightTableAlias,
+    string RightColumnName,
+    string? RightTableSchema = null,
     JoinTypes JoinType = JoinTypes.Inner);
 
 /// <summary>

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 
 namespace FluentCommand;
 
@@ -14,5 +14,5 @@ public interface IDataQueryFormatter
     /// <param name="duration">The execution duration.</param>
     /// <param name="exception">The exception thrown when executing the command.</param>
     /// <returns>The command formatted as a string</returns>
-    string FormatCommand(IDbCommand command, TimeSpan duration, Exception exception);
+    string FormatCommand(IDbCommand command, TimeSpan duration, Exception? exception);
 }

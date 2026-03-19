@@ -75,7 +75,7 @@ public static class DataReaderFactoryWriter
             .AppendLine("\")]")
             .Append("public static global::System.Threading.Tasks.Task<")
             .Append(entity.FullyQualified)
-            .Append("> QuerySingle")
+            .Append("?> QuerySingle")
             .AppendLine("Async<TEntity>(")
             .IncrementIndent()
             .AppendLine("this global::FluentCommand.IDataQueryAsync dataQuery,")
@@ -176,7 +176,7 @@ public static class DataReaderFactoryWriter
             .AppendLine("\")]")
             .Append("public static ")
             .Append(entity.FullyQualified)
-            .AppendLine(" QuerySingle<TEntity>(")
+            .AppendLine("? QuerySingle<TEntity>(")
             .IncrementIndent()
             .AppendLine("this global::FluentCommand.IDataQuery dataQuery)")
             .Append("where TEntity : ")
@@ -283,6 +283,9 @@ public static class DataReaderFactoryWriter
 
         foreach (var entityProperty in entity.Properties)
         {
+            if (entityProperty.IsNotMapped)
+                continue;
+
             var aliasType = GetAliasMap(entityProperty.PropertyType);
             var fieldName = CamelCase(entityProperty.PropertyName);
 
@@ -315,6 +318,9 @@ public static class DataReaderFactoryWriter
 
         foreach (var entityProperty in entity.Properties)
         {
+            if (entityProperty.IsNotMapped)
+                continue;
+
             var fieldName = CamelCase(entityProperty.PropertyName);
 
             codeBuilder
@@ -344,7 +350,7 @@ public static class DataReaderFactoryWriter
                     .Append("var c_")
                     .Append(fieldName)
                     .Append(" = global::FluentCommand.Internal.Singleton<")
-                    .Append(entityProperty.ConverterName)
+                    .Append(entityProperty.ConverterName!)
                     .AppendLine(">.Current")
                     .IncrementIndent()
                     .Append("as global::FluentCommand.IDataFieldConverter<")
@@ -391,14 +397,15 @@ public static class DataReaderFactoryWriter
             .AppendLine("(")
             .IncrementIndent();
 
+        var mappedProperties = entity.Properties.Where(p => !p.IsNotMapped).ToList();
         var index = 0;
-        var count = entity.Properties.Count;
+        var count = mappedProperties.Count;
 
-        foreach (var entityProperty in entity.Properties)
+        foreach (var entityProperty in mappedProperties)
         {
             var fieldName = CamelCase(entityProperty.PropertyName);
             codeBuilder
-                .Append(entityProperty.ParameterName)
+                .Append(entityProperty.ParameterName!)
                 .Append(": ")
                 .Append(" v_")
                 .Append(fieldName);
@@ -422,10 +429,11 @@ public static class DataReaderFactoryWriter
             .AppendLine("{")
             .IncrementIndent();
 
+        var mappedProperties = entity.Properties.Where(p => !p.IsNotMapped).ToList();
         var index = 0;
-        var count = entity.Properties.Count;
+        var count = mappedProperties.Count;
 
-        foreach (var entityProperty in entity.Properties)
+        foreach (var entityProperty in mappedProperties)
         {
             var fieldName = CamelCase(entityProperty.PropertyName);
             codeBuilder

@@ -119,7 +119,7 @@ public static class DataMergeGenerator
     /// <param name="mergeDefinition">The <see cref="DataMergeDefinition"/> describing the merge operation.</param>
     /// <param name="reader">An optional <see cref="IDataReader"/> to provide source data for the merge statement.</param>
     /// <returns>The SQL MERGE statement.</returns>
-    public static string BuildMerge(DataMergeDefinition mergeDefinition, IDataReader reader)
+    public static string BuildMerge(DataMergeDefinition mergeDefinition, IDataReader? reader)
     {
         var mergeColumns = mergeDefinition.Columns
             .Where(c => !c.IsIgnored && (c.IsKey || c.CanInsert || c.CanUpdate))
@@ -531,7 +531,7 @@ public static class DataMergeGenerator
             DateOnly dateValue => dateValue.ToString("yyyy-MM-dd"),
             TimeOnly timeValue => timeValue.ToString("hh:mm:ss.ffffff"),
 #endif
-            _ => Convert.ToString(value)
+            _ => Convert.ToString(value) ?? string.Empty
         };
     }
 

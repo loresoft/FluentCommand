@@ -42,10 +42,10 @@ public class DeleteEntityBuilder<TEntity>
     /// </returns>
     public DeleteEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
         return Output(propertyAccessor.Column, tableAlias, columnAlias);
     }
 
@@ -62,11 +62,11 @@ public class DeleteEntityBuilder<TEntity>
     /// </returns>
     public DeleteEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
-        string columnAlias = null,
-        Func<string, bool> condition = null)
+        string? tableAlias = null,
+        string? columnAlias = null,
+        Func<string, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
         return OutputIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
     }
 
@@ -80,9 +80,9 @@ public class DeleteEntityBuilder<TEntity>
     /// The same builder instance for method chaining.
     /// </returns>
     public override DeleteEntityBuilder<TEntity> From(
-        string tableName = null,
-        string tableSchema = null,
-        string tableAlias = null)
+        string? tableName = null,
+        string? tableSchema = null,
+        string? tableAlias = null)
     {
         return base.From(
             tableName ?? _typeAccessor.TableName,
@@ -142,7 +142,7 @@ public class DeleteEntityBuilder<TEntity>
     /// </returns>
     public DeleteEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         return Where<TValue>(property, parameterValue, null, filterOperator);
@@ -161,11 +161,11 @@ public class DeleteEntityBuilder<TEntity>
     /// </returns>
     public DeleteEntityBuilder<TEntity> Where<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
@@ -185,11 +185,11 @@ public class DeleteEntityBuilder<TEntity>
     public DeleteEntityBuilder<TEntity> Where<TModel, TValue>(
         Expression<Func<TModel, TValue>> property,
         TValue parameterValue,
-        string tableAlias,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal)
     {
         var typeAccessor = TypeAccessor.GetAccessor<TModel>();
-        var propertyAccessor = typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(typeAccessor, property);
 
         return Where(propertyAccessor.Column, parameterValue, tableAlias, filterOperator);
     }
@@ -207,9 +207,9 @@ public class DeleteEntityBuilder<TEntity>
     /// </returns>
     public DeleteEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
+        TValue? parameterValue,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
         return WhereIf(property, parameterValue, null, filterOperator, condition);
     }
@@ -228,12 +228,12 @@ public class DeleteEntityBuilder<TEntity>
     /// </returns>
     public DeleteEntityBuilder<TEntity> WhereIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        string tableAlias,
+        TValue? parameterValue,
+        string? tableAlias,
         FilterOperators filterOperator = FilterOperators.Equal,
-        Func<string, TValue, bool> condition = null)
+        Func<string, TValue?, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
         return WhereIf(propertyAccessor.Column, parameterValue, tableAlias, filterOperator, condition);
     }
@@ -251,11 +251,11 @@ public class DeleteEntityBuilder<TEntity>
     public DeleteEntityBuilder<TEntity> WhereIn<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias = null)
+        string? tableAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereIn(propertyAccessor?.Column, parameterValues, tableAlias);
+        return WhereIn(propertyAccessor.Column, parameterValues, tableAlias);
     }
 
     /// <summary>
@@ -271,11 +271,11 @@ public class DeleteEntityBuilder<TEntity>
     public DeleteEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, condition);
     }
 
     /// <summary>
@@ -292,12 +292,12 @@ public class DeleteEntityBuilder<TEntity>
     public DeleteEntityBuilder<TEntity> WhereInIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
         IEnumerable<TValue> parameterValues,
-        string tableAlias,
-        Func<string, IEnumerable<TValue>, bool> condition = null)
+        string? tableAlias,
+        Func<string, IEnumerable<TValue>, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
 
-        return WhereInIf(propertyAccessor?.Column, parameterValues, tableAlias, condition);
+        return WhereInIf(propertyAccessor.Column, parameterValues, tableAlias, condition);
     }
 
     /// <summary>
@@ -315,7 +315,7 @@ public class DeleteEntityBuilder<TEntity>
 
         var statement = innerBuilder.BuildStatement();
 
-        if (statement != null && statement.Statement.HasValue())
+        if (statement?.Statement.HasValue() == true)
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return this;
@@ -336,7 +336,7 @@ public class DeleteEntityBuilder<TEntity>
 
         var statement = innerBuilder.BuildStatement();
 
-        if (statement != null && statement.Statement.HasValue())
+        if (statement?.Statement.HasValue() == true)
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return this;
@@ -348,7 +348,7 @@ public class DeleteEntityBuilder<TEntity>
     /// <returns>
     /// A <see cref="QueryStatement"/> containing the SQL DELETE statement and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         // add table and schema from attribute if not set
         if (TableExpression == null)
@@ -356,4 +356,23 @@ public class DeleteEntityBuilder<TEntity>
 
         return base.BuildStatement();
     }
+
+
+    private static IMemberAccessor GetPropertyAccessor<TModel, TValue>(
+        TypeAccessor typeAccessor,
+        Expression<Func<TModel, TValue>> property)
+    {
+        if (property is null)
+            throw new ArgumentNullException(nameof(property));
+
+        var propertyAccessor = typeAccessor.FindProperty(property);
+        if (propertyAccessor is null)
+            throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
+
+        return propertyAccessor;
+    }
+
+    private static IMemberAccessor GetPropertyAccessor<TValue>(Expression<Func<TEntity, TValue>> property)
+        => GetPropertyAccessor(_typeAccessor, property);
+
 }

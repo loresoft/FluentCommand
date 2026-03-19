@@ -9,8 +9,8 @@ namespace FluentCommand.Reflection;
 /// </summary>
 public class FieldAccessor : MemberAccessor
 {
-    private readonly Lazy<Func<object, object>> _getter;
-    private readonly Lazy<Action<object, object>> _setter;
+    private readonly Lazy<Func<object, object?>> _getter;
+    private readonly Lazy<Action<object, object?>>? _setter;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FieldAccessor"/> class using the specified <see cref="FieldInfo"/>.
@@ -25,12 +25,12 @@ public class FieldAccessor : MemberAccessor
         Name = fieldInfo.Name;
         MemberType = fieldInfo.FieldType;
 
-        _getter = new Lazy<Func<object, object>>(() => ExpressionFactory.CreateGet(fieldInfo));
+        _getter = new Lazy<Func<object, object?>>(() => ExpressionFactory.CreateGet(fieldInfo));
         HasGetter = true;
 
-        bool isReadonly = !fieldInfo.IsInitOnly && !fieldInfo.IsLiteral;
+        bool isReadonly = fieldInfo.IsInitOnly || fieldInfo.IsLiteral;
         if (!isReadonly)
-            _setter = new Lazy<Action<object, object>>(() => ExpressionFactory.CreateSet(fieldInfo));
+            _setter = new Lazy<Action<object, object?>>(() => ExpressionFactory.CreateSet(fieldInfo));
 
         HasSetter = !isReadonly;
     }
@@ -66,12 +66,12 @@ public class FieldAccessor : MemberAccessor
     /// <returns>The value of the field for the given <paramref name="instance"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="instance"/> is <c>null</c>.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the field does not have a getter.</exception>
-    public override object GetValue(object instance)
+    public override object? GetValue(object instance)
     {
         if (instance == null)
             throw new ArgumentNullException(nameof(instance));
 
-        if (_getter == null || !HasGetter)
+        if (!HasGetter)
             throw new InvalidOperationException($"Field '{Name}' does not have a getter.");
 
         var get = _getter.Value;
@@ -88,7 +88,7 @@ public class FieldAccessor : MemberAccessor
     /// <param name="value">The new value for this field.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="instance"/> is <c>null</c>.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the field does not have a setter.</exception>
-    public override void SetValue(object instance, object value)
+    public override void SetValue(object instance, object? value)
     {
         if (instance == null)
             throw new ArgumentNullException(nameof(instance));

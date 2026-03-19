@@ -37,9 +37,9 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// </returns>
     public InsertEntityBuilder<TEntity> Value<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue)
+        TValue? parameterValue)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
         return Value(propertyAccessor.Column, parameterValue);
     }
 
@@ -55,10 +55,10 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// </returns>
     public InsertEntityBuilder<TEntity> ValueIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        TValue parameterValue,
-        Func<string, TValue, bool> condition)
+        TValue? parameterValue,
+        Func<string, TValue?, bool> condition)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
         return ValueIf(propertyAccessor.Column, parameterValue, condition);
     }
 
@@ -74,16 +74,20 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="entity"/> is <c>null</c>.</exception>
     public InsertEntityBuilder<TEntity> Values(
         TEntity entity,
-        IEnumerable<string> columnNames = null)
+        IEnumerable<string>? columnNames = null)
     {
         if (entity is null)
             throw new ArgumentNullException(nameof(entity));
 
         var properties = _typeAccessor.GetProperties();
+        if (properties == null)
+            return this;
+
         var columnSet = new HashSet<string>(columnNames ?? []);
 
         foreach (var property in properties)
         {
+
             if (columnSet.Count > 0 && !columnSet.Contains(property.Column))
                 continue;
 
@@ -109,10 +113,10 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// </returns>
     public InsertEntityBuilder<TEntity> Output<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
-        string columnAlias = null)
+        string? tableAlias = null,
+        string? columnAlias = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
         return Output(propertyAccessor.Column, tableAlias, columnAlias);
     }
 
@@ -129,11 +133,11 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// </returns>
     public InsertEntityBuilder<TEntity> OutputIf<TValue>(
         Expression<Func<TEntity, TValue>> property,
-        string tableAlias = null,
-        string columnAlias = null,
-        Func<string, bool> condition = null)
+        string? tableAlias = null,
+        string? columnAlias = null,
+        Func<string, bool>? condition = null)
     {
-        var propertyAccessor = _typeAccessor.FindProperty(property);
+        var propertyAccessor = GetPropertyAccessor(property);
         return OutputIf(propertyAccessor.Column, tableAlias, columnAlias, condition);
     }
 
@@ -143,7 +147,7 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
     /// <returns>
     /// A <see cref="QueryStatement"/> containing the SQL INSERT statement and its parameters.
     /// </returns>
-    public override QueryStatement BuildStatement()
+    public override QueryStatement? BuildStatement()
     {
         // add table and schema from attribute if not set
         if (TableExpression == null)
@@ -151,4 +155,22 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
 
         return base.BuildStatement();
     }
+
+    private static IMemberAccessor GetPropertyAccessor<TModel, TValue>(
+        TypeAccessor typeAccessor,
+        Expression<Func<TModel, TValue>> property)
+    {
+        if (property is null)
+            throw new ArgumentNullException(nameof(property));
+
+        var propertyAccessor = typeAccessor.FindProperty(property);
+        if (propertyAccessor is null)
+            throw new ArgumentException("The specified property does not exist on the entity.", nameof(property));
+
+        return propertyAccessor;
+    }
+
+    private static IMemberAccessor GetPropertyAccessor<TValue>(Expression<Func<TEntity, TValue>> property)
+        => GetPropertyAccessor(_typeAccessor, property);
+
 }
