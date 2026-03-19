@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,13 +11,13 @@ public class StatusConstructor
     public StatusConstructor(
         int id,
         string name,
-        string description,
+        string? description,
         bool isActive,
         int displayOrder,
         DateTimeOffset created,
-        string createdBy,
+        string? createdBy,
         DateTimeOffset updated,
-        string updatedBy,
+        string? updatedBy,
         ConcurrencyToken rowVersion)
     {
         Id = id;
@@ -35,13 +34,13 @@ public class StatusConstructor
 
     public int Id { get; }
     public string Name { get; }
-    public string Description { get; }
+    public string? Description { get; }
     public int DisplayOrder { get; }
     public bool IsActive { get; }
     public DateTimeOffset Created { get; }
-    public string CreatedBy { get; }
+    public string? CreatedBy { get; }
     public DateTimeOffset Updated { get; }
-    public string UpdatedBy { get; }
+    public string? UpdatedBy { get; }
 
     [ConcurrencyCheck]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

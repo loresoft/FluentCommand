@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FluentCommand.Entities;
@@ -10,7 +9,7 @@ public class UserRole
     public Guid RoleId { get; set; }
 
     [NotMapped]
-    public virtual User User { get; set; }
+    public virtual User? User { get; set; }
     [NotMapped]
-    public virtual Role Role { get; set; }
+    public virtual Role? Role { get; set; }
 }

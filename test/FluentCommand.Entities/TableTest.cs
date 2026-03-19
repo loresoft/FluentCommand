@@ -13,7 +13,7 @@ public class TableTest
     public string Test { get; set; } = null!;
 
     [Column(BlahColumn)]
-    public string Blah { get; set; }
+    public string? Blah { get; set; }
 
     [Column("Table Example ID")]
     public int? TableExampleID { get; set; }
@@ -21,11 +21,11 @@ public class TableTest
     public int? TableExampleObject { get; set; }
 
     [Column("1stNumber")]
-    public string FirstNumber { get; set; }
+    public string? FirstNumber { get; set; }
 
     [Column("123Street")]
-    public string Street { get; set; }
+    public string? Street { get; set; }
 
     [Column("123 Test 123")]
-    public string Test123 { get; set; }
+    public string? Test123 { get; set; }
 }
