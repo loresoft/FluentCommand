@@ -1,17 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <IsRoslynComponent>true</IsRoslynComponent>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <DevelopmentDependency>true</DevelopmentDependency>
     <IsPackable>false</IsPackable>
     <AnalyzerLanguage>cs</AnalyzerLanguage>
-    <AnalyzerRoslynVersion>4.4</AnalyzerRoslynVersion>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <Nullable>enable</Nullable>
-    <Description>Source generators for FluentCommand that create DataReader factory methods and extension methods for entity classes</Description>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <!-- https://learn.microsoft.com/en-us/visualstudio/extensibility/roslyn-version-support -->

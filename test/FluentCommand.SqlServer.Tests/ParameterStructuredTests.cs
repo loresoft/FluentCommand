@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Data;
 
 using FluentCommand.Entities;
@@ -6,12 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FluentCommand.SqlServer.Tests;
 
-public class ParameterStructuredTests : DatabaseTestBase
+public class ParameterStructuredTests(DatabaseFixture databaseFixture) : DatabaseTestBase(databaseFixture)
 {
-    public ParameterStructuredTests(DatabaseFixture databaseFixture) : base(databaseFixture)
-    {
-    }
-
     [Fact]
     public void ParameterStructuredWithEntityQueryReturnsMatchingUsers()
     {

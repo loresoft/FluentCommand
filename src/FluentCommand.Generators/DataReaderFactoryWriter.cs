@@ -1,3 +1,5 @@
+using System.Text;
+
 using FluentCommand.Generators.Models;
 
 namespace FluentCommand.Generators;

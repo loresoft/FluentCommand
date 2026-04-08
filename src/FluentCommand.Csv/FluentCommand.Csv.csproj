@@ -2,8 +2,6 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <RootNamespace>FluentCommand</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <Description>Fluent Wrapper for DbCommand with CSV export support for query results</Description>
   </PropertyGroup>
   <ItemGroup>
