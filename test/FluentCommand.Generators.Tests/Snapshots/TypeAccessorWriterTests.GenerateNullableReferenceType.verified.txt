@@ -13,10 +13,10 @@ namespace FluentCommand.Entities
         public ContactGeneratedTypeAccessor()
             : base(typeof(global::FluentCommand.Entities.Contact), "Contact", null, static () => new global::FluentCommand.Entities.Contact())
         {
-            RegisterMember("Id", IdMember);
-            RegisterMember("Name", NameMember);
-            RegisterMember("Email", EmailMember);
-            RegisterMember("Age", AgeMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Contact.Id), IdMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Contact.Name), NameMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Contact.Email), EmailMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Contact.Age), AgeMember);
 
             RegisterProperties(
                 global::System.Reflection.BindingFlags.Public | global::System.Reflection.BindingFlags.Static | global::System.Reflection.BindingFlags.Instance,
@@ -32,7 +32,7 @@ namespace FluentCommand.Entities
         private sealed class IdMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(int);
-            public string Name => "Id";
+            public string Name => nameof(global::FluentCommand.Entities.Contact.Id);
             public string Column => "Id";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -48,16 +48,31 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Contact)instance).Id;
+            {
+                var typed = instance as global::FluentCommand.Entities.Contact;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Contact.", nameof(instance));
+
+                return typed.Id;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Contact)instance).Id = (int)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Contact;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Contact.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'Id' does not accept null.");
+
+                typed.Id = (int)value;
+            }
         }
 
         private sealed class NameMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(string);
-            public string Name => "Name";
+            public string Name => nameof(global::FluentCommand.Entities.Contact.Name);
             public string Column => "Name";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -73,16 +88,31 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Contact)instance).Name;
+            {
+                var typed = instance as global::FluentCommand.Entities.Contact;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Contact.", nameof(instance));
+
+                return typed.Name;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Contact)instance).Name = (string)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Contact;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Contact.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'Name' does not accept null.");
+
+                typed.Name = (string)value;
+            }
         }
 
         private sealed class EmailMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(string);
-            public string Name => "Email";
+            public string Name => nameof(global::FluentCommand.Entities.Contact.Email);
             public string Column => "Email";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -98,16 +128,28 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Contact)instance).Email;
+            {
+                var typed = instance as global::FluentCommand.Entities.Contact;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Contact.", nameof(instance));
+
+                return typed.Email;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Contact)instance).Email = (string?)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Contact;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Contact.", nameof(instance));
+
+                typed.Email = value is null ? default : (string?)value;
+            }
         }
 
         private sealed class AgeMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(int?);
-            public string Name => "Age";
+            public string Name => nameof(global::FluentCommand.Entities.Contact.Age);
             public string Column => "Age";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -123,10 +165,22 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Contact)instance).Age;
+            {
+                var typed = instance as global::FluentCommand.Entities.Contact;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Contact.", nameof(instance));
+
+                return typed.Age;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Contact)instance).Age = (int?)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Contact;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Contact.", nameof(instance));
+
+                typed.Age = value is null ? default : (int?)value;
+            }
         }
 
     }

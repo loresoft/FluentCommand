@@ -14,11 +14,11 @@ namespace FluentCommand.Entities
         public StatusGeneratedTypeAccessor()
             : base(typeof(global::FluentCommand.Entities.Status), "Status", "dbo", static () => new global::FluentCommand.Entities.Status())
         {
-            RegisterMember("Id", IdMember);
-            RegisterMember("Name", NameMember);
-            RegisterMember("IsActive", IsActiveMember);
-            RegisterMember("Updated", UpdatedMember);
-            RegisterMember("RowVersion", RowVersionMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Status.Id), IdMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Status.Name), NameMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Status.IsActive), IsActiveMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Status.Updated), UpdatedMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.Status.RowVersion), RowVersionMember);
 
             RegisterProperties(
                 global::System.Reflection.BindingFlags.Public | global::System.Reflection.BindingFlags.Static | global::System.Reflection.BindingFlags.Instance,
@@ -35,7 +35,7 @@ namespace FluentCommand.Entities
         private sealed class IdMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(System.Int32);
-            public string Name => "Id";
+            public string Name => nameof(global::FluentCommand.Entities.Status.Id);
             public string Column => "Id";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -51,16 +51,31 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Status)instance).Id;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                return typed.Id;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Status)instance).Id = (System.Int32)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'Id' does not accept null.");
+
+                typed.Id = (System.Int32)value;
+            }
         }
 
         private sealed class NameMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(System.String);
-            public string Name => "Name";
+            public string Name => nameof(global::FluentCommand.Entities.Status.Name);
             public string Column => "Name";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -76,16 +91,31 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Status)instance).Name;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                return typed.Name;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Status)instance).Name = (System.String)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'Name' does not accept null.");
+
+                typed.Name = (System.String)value;
+            }
         }
 
         private sealed class IsActiveMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(System.Boolean);
-            public string Name => "IsActive";
+            public string Name => nameof(global::FluentCommand.Entities.Status.IsActive);
             public string Column => "IsActive";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -101,16 +131,31 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Status)instance).IsActive;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                return typed.IsActive;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Status)instance).IsActive = (System.Boolean)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'IsActive' does not accept null.");
+
+                typed.IsActive = (System.Boolean)value;
+            }
         }
 
         private sealed class UpdatedMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(System.DateTimeOffset);
-            public string Name => "Updated";
+            public string Name => nameof(global::FluentCommand.Entities.Status.Updated);
             public string Column => "Updated";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -126,16 +171,31 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Status)instance).Updated;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                return typed.Updated;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Status)instance).Updated = (System.DateTimeOffset)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'Updated' does not accept null.");
+
+                typed.Updated = (System.DateTimeOffset)value;
+            }
         }
 
         private sealed class RowVersionMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(System.Byte[]);
-            public string Name => "RowVersion";
+            public string Name => nameof(global::FluentCommand.Entities.Status.RowVersion);
             public string Column => "RowVersion";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -151,10 +211,25 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.Status)instance).RowVersion;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                return typed.RowVersion;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.Status)instance).RowVersion = (System.Byte[])value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.Status;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type Status.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'RowVersion' does not accept null.");
+
+                typed.RowVersion = (System.Byte[])value;
+            }
         }
 
     }

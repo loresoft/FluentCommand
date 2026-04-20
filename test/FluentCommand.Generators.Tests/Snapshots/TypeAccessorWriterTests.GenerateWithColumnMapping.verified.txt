@@ -12,9 +12,9 @@ namespace FluentCommand.Entities
         public UserGeneratedTypeAccessor()
             : base(typeof(global::FluentCommand.Entities.User), "Users", null, static () => new global::FluentCommand.Entities.User())
         {
-            RegisterMember("Id", IdMember);
-            RegisterMember("Name", NameMember);
-            RegisterMember("Email", EmailMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.User.Id), IdMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.User.Name), NameMember);
+            RegisterMember(nameof(global::FluentCommand.Entities.User.Email), EmailMember);
             RegisterMember("user_id", IdMember);
             RegisterMember("user_name", NameMember);
 
@@ -31,7 +31,7 @@ namespace FluentCommand.Entities
         private sealed class IdMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(System.Int32);
-            public string Name => "Id";
+            public string Name => nameof(global::FluentCommand.Entities.User.Id);
             public string Column => "user_id";
             public string? ColumnType => "int";
             public int? ColumnOrder => null;
@@ -47,16 +47,31 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.User)instance).Id;
+            {
+                var typed = instance as global::FluentCommand.Entities.User;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type User.", nameof(instance));
+
+                return typed.Id;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.User)instance).Id = (System.Int32)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.User;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type User.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'Id' does not accept null.");
+
+                typed.Id = (System.Int32)value;
+            }
         }
 
         private sealed class NameMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(System.String);
-            public string Name => "Name";
+            public string Name => nameof(global::FluentCommand.Entities.User.Name);
             public string Column => "user_name";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -72,16 +87,31 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.User)instance).Name;
+            {
+                var typed = instance as global::FluentCommand.Entities.User;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type User.", nameof(instance));
+
+                return typed.Name;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.User)instance).Name = (System.String)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.User;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type User.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'Name' does not accept null.");
+
+                typed.Name = (System.String)value;
+            }
         }
 
         private sealed class EmailMemberAccessor : global::FluentCommand.Reflection.IMemberAccessor
         {
             public global::System.Type MemberType => typeof(System.String);
-            public string Name => "Email";
+            public string Name => nameof(global::FluentCommand.Entities.User.Email);
             public string Column => "Email";
             public string? ColumnType => null;
             public int? ColumnOrder => null;
@@ -97,10 +127,25 @@ namespace FluentCommand.Entities
             public string? DataFormatString => null;
 
             public object? GetValue(object instance)
-                => ((global::FluentCommand.Entities.User)instance).Email;
+            {
+                var typed = instance as global::FluentCommand.Entities.User;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type User.", nameof(instance));
+
+                return typed.Email;
+            }
 
             public void SetValue(object instance, object? value)
-                => ((global::FluentCommand.Entities.User)instance).Email = (System.String)value!;
+            {
+                var typed = instance as global::FluentCommand.Entities.User;
+                if (typed is null)
+                    throw new global::System.ArgumentException("Expected instance of type User.", nameof(instance));
+
+                if (value is null)
+                    throw new global::System.ArgumentNullException(nameof(value), "Property 'Email' does not accept null.");
+
+                typed.Email = (System.String)value;
+            }
         }
 
     }

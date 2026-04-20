@@ -3,12 +3,89 @@ using System.Collections.Immutable;
 using FluentCommand.Generators.Models;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FluentCommand.Generators;
 
-public abstract class DataReaderFactoryGenerator
+[Generator(LanguageNames.CSharp)]
+public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
 {
-    protected static void WriteDataReaderSource(SourceProductionContext context, EntityClass entityClass)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        // Pipeline for [GenerateReader(typeof(T))] attribute
+        var generateAttributeClasses = context.SyntaxProvider.ForAttributeWithMetadataName(
+            fullyQualifiedMetadataName: "FluentCommand.Attributes.GenerateReaderAttribute",
+            predicate: static (_, __) => true,
+            transform: static (context, _) =>
+            {
+                if (context.Attributes.Length == 0)
+                    return [];
+
+                var classes = new List<EntityClass>();
+
+                foreach (var attribute in context.Attributes)
+                {
+                    if (attribute == null)
+                        return [];
+
+                    if (attribute.ConstructorArguments.Length != 1)
+                        return [];
+
+                    var comparerArgument = attribute.ConstructorArguments[0];
+                    if (comparerArgument.Value is not INamedTypeSymbol targetSymbol)
+                        return [];
+
+                    var entityClass = CreateClass(targetSymbol);
+                    if (entityClass != null)
+                        classes.Add(entityClass);
+                }
+
+                return new EquatableArray<EntityClass>(classes);
+            }
+        )
+        .Where(static context => context.Count > 0)
+        .SelectMany(static (item, _) => item)
+        .WithTrackingName("GenerateAttributeGenerator");
+
+        context.RegisterSourceOutput(generateAttributeClasses, WriteDataReaderSource);
+        context.RegisterSourceOutput(generateAttributeClasses, WriteTypeAccessorSource);
+
+        // Pipeline for [Table] attribute
+        var tableAttributeClasses = context.SyntaxProvider.ForAttributeWithMetadataName(
+            fullyQualifiedMetadataName: "System.ComponentModel.DataAnnotations.Schema.TableAttribute",
+            predicate: static (syntaxNode, _) =>
+            {
+                return
+                    (
+                        syntaxNode is ClassDeclarationSyntax { AttributeLists.Count: > 0 } classDeclaration
+                            && !classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
+                            && !classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
+                    )
+                    ||
+                    (
+                        syntaxNode is RecordDeclarationSyntax { AttributeLists.Count: > 0 } recordDeclaration
+                            && !recordDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
+                            && !recordDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
+                    );
+            },
+            transform: static (context, _) =>
+            {
+                if (context.TargetSymbol is not INamedTypeSymbol targetSymbol)
+                    return null;
+
+                return CreateClass(targetSymbol);
+            }
+        )
+        .Where(static context => context is not null)
+        .Select(static (context, _) => context!)
+        .WithTrackingName("TableAttributeGenerator");
+
+        context.RegisterSourceOutput(tableAttributeClasses, WriteDataReaderSource);
+        context.RegisterSourceOutput(tableAttributeClasses, WriteTypeAccessorSource);
+    }
+
+    private static void WriteDataReaderSource(SourceProductionContext context, EntityClass entityClass)
     {
         var qualifiedName = entityClass.EntityNamespace is null
             ? entityClass.EntityName
@@ -19,7 +96,7 @@ public abstract class DataReaderFactoryGenerator
         context.AddSource($"{qualifiedName}DataReaderExtensions.g.cs", source);
     }
 
-    protected static void WriteTypeAccessorSource(SourceProductionContext context, EntityClass entityClass)
+    private static void WriteTypeAccessorSource(SourceProductionContext context, EntityClass entityClass)
     {
         var qualifiedName = entityClass.EntityNamespace is null
             ? entityClass.EntityName
@@ -31,7 +108,7 @@ public abstract class DataReaderFactoryGenerator
     }
 
 
-    protected static EntityClass? CreateClass(INamedTypeSymbol targetSymbol)
+    private static EntityClass? CreateClass(INamedTypeSymbol targetSymbol)
     {
         if (targetSymbol == null)
             return null;
@@ -115,7 +192,7 @@ public abstract class DataReaderFactoryGenerator
         );
     }
 
-    protected static List<IPropertySymbol> GetProperties(INamedTypeSymbol targetSymbol)
+    private static List<IPropertySymbol> GetProperties(INamedTypeSymbol targetSymbol)
     {
         var properties = new Dictionary<string, IPropertySymbol>();
 
@@ -140,7 +217,7 @@ public abstract class DataReaderFactoryGenerator
         return [.. properties.Values];
     }
 
-    protected static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string? parameterName = null, HashSet<string>? classIgnored = null)
+    private static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string? parameterName = null, HashSet<string>? classIgnored = null)
     {
         var propertyType = propertySymbol.Type.ToDisplayString();
         var memberTypeName = propertySymbol.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString();
@@ -204,7 +281,7 @@ public abstract class DataReaderFactoryGenerator
         );
     }
 
-    protected static string? GetColumnName(ImmutableArray<AttributeData> attributes)
+    private static string? GetColumnName(ImmutableArray<AttributeData> attributes)
     {
         var columnAttribute = FindSchemaAttribute(attributes, "ColumnAttribute");
 
@@ -271,7 +348,7 @@ public abstract class DataReaderFactoryGenerator
         return FindDataAnnotationAttribute(attributes, name) != null;
     }
 
-    protected static AttributeData? FindSchemaAttribute(ImmutableArray<AttributeData> attributes, string name)
+    private static AttributeData? FindSchemaAttribute(ImmutableArray<AttributeData> attributes, string name)
     {
         return attributes.FirstOrDefault(a =>
             a.AttributeClass is
@@ -343,7 +420,7 @@ public abstract class DataReaderFactoryGenerator
         return null;
     }
 
-    protected static bool IsIncluded(IPropertySymbol propertySymbol)
+    private static bool IsIncluded(IPropertySymbol propertySymbol)
     {
         return !propertySymbol.IsIndexer
             && !propertySymbol.IsAbstract

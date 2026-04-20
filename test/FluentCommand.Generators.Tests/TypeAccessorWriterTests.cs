@@ -101,16 +101,161 @@ public class TypeAccessorWriterTests
         var source = TypeAccessorWriter.Generate(entityClass);
 
         // verify typeof() uses MemberTypeName (no nullable annotation)
-        // and setter cast uses PropertyType (preserving nullable annotation)
         Assert.Contains("typeof(string)", source);
         Assert.DoesNotContain("typeof(string?)", source);
         Assert.Contains("typeof(int?)", source);
-        Assert.Contains("= (string?)value!", source);
-        Assert.Contains("= (int?)value!", source);
+
+        // nullable types use default pattern instead of throwing on null
+        Assert.Contains("value is null ? default : (string?)value", source);
+        Assert.Contains("value is null ? default : (int?)value", source);
+
+        // non-nullable types throw ArgumentNullException on null
+        Assert.Contains("throw new global::System.ArgumentNullException(nameof(value), \"Property 'Id' does not accept null.\")", source);
+        Assert.Contains("throw new global::System.ArgumentNullException(nameof(value), \"Property 'Name' does not accept null.\")", source);
 
         await Verifier
             .Verify(source)
             .UseDirectory("Snapshots")
             .ScrubLinesContaining("GeneratedCodeAttribute");
+    }
+
+    [Fact]
+    public void GetValueThrowsOnNullInstance()
+    {
+        var entityClass = new EntityClass(
+            InitializationMode.ObjectInitializer,
+            "global::FluentCommand.Entities.Item",
+            "FluentCommand.Entities",
+            "Item",
+            new EntityProperty[]
+            {
+                new("Id", "Id", "int", "int", IsKey: true),
+            },
+            TableName: "Item"
+        );
+
+        var source = TypeAccessorWriter.Generate(entityClass);
+
+        // GetValue validates instance type via as-cast + null check
+        Assert.Contains("var typed = instance as global::FluentCommand.Entities.Item;", source);
+        Assert.Contains("throw new global::System.ArgumentException(\"Expected instance of type Item.\", nameof(instance));", source);
+    }
+
+    [Fact]
+    public void SetValueThrowsOnNullInstance()
+    {
+        var entityClass = new EntityClass(
+            InitializationMode.ObjectInitializer,
+            "global::FluentCommand.Entities.Item",
+            "FluentCommand.Entities",
+            "Item",
+            new EntityProperty[]
+            {
+                new("Id", "Id", "int", "int", IsKey: true),
+            },
+            TableName: "Item"
+        );
+
+        var source = TypeAccessorWriter.Generate(entityClass);
+
+        // SetValue validates instance type via as-cast + null check
+        Assert.Contains("if (typed is null)", source);
+        Assert.Contains("throw new global::System.ArgumentException(\"Expected instance of type Item.\", nameof(instance));", source);
+    }
+
+    [Fact]
+    public void SetValueNonNullableRejectsNull()
+    {
+        var entityClass = new EntityClass(
+            InitializationMode.ObjectInitializer,
+            "global::FluentCommand.Entities.Item",
+            "FluentCommand.Entities",
+            "Item",
+            new EntityProperty[]
+            {
+                new("Id", "Id", "int", "int", IsKey: true),
+                new("Name", "Name", "string", "string", IsRequired: true),
+            },
+            TableName: "Item"
+        );
+
+        var source = TypeAccessorWriter.Generate(entityClass);
+
+        // non-nullable value type: throws ArgumentNullException
+        Assert.Contains("throw new global::System.ArgumentNullException(nameof(value), \"Property 'Id' does not accept null.\")", source);
+
+        // non-nullable reference type: also throws ArgumentNullException
+        Assert.Contains("throw new global::System.ArgumentNullException(nameof(value), \"Property 'Name' does not accept null.\")", source);
+
+        // both use direct cast without null-forgiving operator
+        Assert.Contains("typed.Id = (int)value;", source);
+        Assert.Contains("typed.Name = (string)value;", source);
+        Assert.DoesNotContain("value!", source);
+    }
+
+    [Fact]
+    public void SetValueNullableAcceptsNull()
+    {
+        var entityClass = new EntityClass(
+            InitializationMode.ObjectInitializer,
+            "global::FluentCommand.Entities.Item",
+            "FluentCommand.Entities",
+            "Item",
+            new EntityProperty[]
+            {
+                new("Age", "Age", "int?", "int?"),
+                new("Email", "Email", "string?", "string"),
+            },
+            TableName: "Item"
+        );
+
+        var source = TypeAccessorWriter.Generate(entityClass);
+
+        // nullable types use default-on-null pattern
+        Assert.Contains("typed.Age = value is null ? default : (int?)value;", source);
+        Assert.Contains("typed.Email = value is null ? default : (string?)value;", source);
+
+        // no ArgumentNullException for nullable properties
+        Assert.DoesNotContain("does not accept null", source);
+    }
+
+    [Fact]
+    public void GetValueNoGetterThrowsInvalidOperation()
+    {
+        var entityClass = new EntityClass(
+            InitializationMode.ObjectInitializer,
+            "global::FluentCommand.Entities.Item",
+            "FluentCommand.Entities",
+            "Item",
+            new EntityProperty[]
+            {
+                new("Secret", "Secret", "string", "string", HasGetter: false),
+            },
+            TableName: "Item"
+        );
+
+        var source = TypeAccessorWriter.Generate(entityClass);
+
+        Assert.Contains("throw new global::System.InvalidOperationException(\"Property 'Secret' does not have a getter.\")", source);
+    }
+
+    [Fact]
+    public void SetValueNoSetterThrowsInvalidOperation()
+    {
+        var entityClass = new EntityClass(
+            InitializationMode.ObjectInitializer,
+            "global::FluentCommand.Entities.Item",
+            "FluentCommand.Entities",
+            "Item",
+            new EntityProperty[]
+            {
+                new("ReadOnly", "ReadOnly", "string", "string", HasSetter: false),
+            },
+            TableName: "Item"
+        );
+
+        var source = TypeAccessorWriter.Generate(entityClass);
+
+        Assert.Contains("throw new global::System.InvalidOperationException(\"Property 'ReadOnly' does not have a setter.\")", source);
     }
 }

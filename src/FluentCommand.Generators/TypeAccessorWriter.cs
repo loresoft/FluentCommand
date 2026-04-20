@@ -118,9 +118,11 @@ public static class TypeAccessorWriter
         foreach (var prop in entity.Properties)
         {
             codeBuilder
-                .Append("RegisterMember(\"")
+                .Append("RegisterMember(nameof(")
+                .Append(entity.FullyQualified)
+                .Append(".")
                 .Append(prop.PropertyName)
-                .Append("\", ")
+                .Append("), ")
                 .Append(prop.PropertyName)
                 .AppendLine("Member);");
         }
@@ -196,9 +198,11 @@ public static class TypeAccessorWriter
 
         // Name
         codeBuilder
-            .Append("public string Name => \"")
+            .Append("public string Name => nameof(")
+            .Append(entity.FullyQualified)
+            .Append(".")
             .Append(prop.PropertyName)
-            .AppendLine("\";");
+            .AppendLine(");");
 
         // Column
         codeBuilder
@@ -273,13 +277,23 @@ public static class TypeAccessorWriter
         {
             codeBuilder
                 .AppendLine("public object? GetValue(object instance)")
+                .AppendLine("{")
                 .IncrementIndent()
-                .Append("=> ((")
+                .Append("var typed = instance as ")
                 .Append(entity.FullyQualified)
-                .Append(")instance).")
+                .AppendLine(";")
+                .AppendLine("if (typed is null)")
+                .IncrementIndent()
+                .Append("throw new global::System.ArgumentException(\"Expected instance of type ")
+                .Append(entity.EntityName)
+                .AppendLine(".\", nameof(instance));")
+                .DecrementIndent()
+                .AppendLine()
+                .Append("return typed.")
                 .Append(prop.PropertyName)
                 .AppendLine(";")
-                .DecrementIndent();
+                .DecrementIndent()
+                .AppendLine("}");
         }
         else
         {
@@ -297,17 +311,52 @@ public static class TypeAccessorWriter
         // SetValue
         if (prop.HasSetter)
         {
+            var isNullableType = prop.PropertyType.EndsWith("?");
+
             codeBuilder
                 .AppendLine("public void SetValue(object instance, object? value)")
+                .AppendLine("{")
                 .IncrementIndent()
-                .Append("=> ((")
+                .Append("var typed = instance as ")
                 .Append(entity.FullyQualified)
-                .Append(")instance).")
-                .Append(prop.PropertyName)
-                .Append(" = (")
-                .Append(prop.PropertyType)
-                .AppendLine(")value!;")
-                .DecrementIndent();
+                .AppendLine(";")
+                .AppendLine("if (typed is null)")
+                .IncrementIndent()
+                .Append("throw new global::System.ArgumentException(\"Expected instance of type ")
+                .Append(entity.EntityName)
+                .AppendLine(".\", nameof(instance));")
+                .DecrementIndent()
+                .AppendLine();
+
+            if (isNullableType)
+            {
+                codeBuilder
+                    .Append("typed.")
+                    .Append(prop.PropertyName)
+                    .Append(" = value is null ? default : (")
+                    .Append(prop.PropertyType)
+                    .AppendLine(")value;");
+            }
+            else
+            {
+                codeBuilder
+                    .AppendLine("if (value is null)")
+                    .IncrementIndent()
+                    .Append("throw new global::System.ArgumentNullException(nameof(value), \"Property '")
+                    .Append(prop.PropertyName)
+                    .AppendLine("' does not accept null.\");")
+                    .DecrementIndent()
+                    .AppendLine()
+                    .Append("typed.")
+                    .Append(prop.PropertyName)
+                    .Append(" = (")
+                    .Append(prop.PropertyType)
+                    .AppendLine(")value;");
+            }
+
+            codeBuilder
+                .DecrementIndent()
+                .AppendLine("}");
         }
         else
         {
