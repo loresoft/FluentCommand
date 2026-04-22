@@ -62,7 +62,7 @@ public class TypeAccessorTests
         // Arrange
         var accessor = TypeAccessor.GetAccessor<Status>();
         var status = new Status { Name = "Active" };
-        var member = accessor.Find("Name");
+        var member = accessor.Find("Name")!;
 
         // Act
         var value = member.GetValue(status);

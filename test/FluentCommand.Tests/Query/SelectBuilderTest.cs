@@ -33,7 +33,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -59,7 +59,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -85,7 +85,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -109,7 +109,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -132,7 +132,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -156,7 +156,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -183,7 +183,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -206,7 +206,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -229,7 +229,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -251,7 +251,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -268,9 +268,9 @@ public class SelectBuilderTest
         var builder = new SelectEntityBuilder<Entities.Task>(sqlProvider, parameters, LogicalOperators.And)
             .Tag()
             .Column(p => p.Id, "t")
-            .Column(p => p.Description, "t")
-            .Column(p => p.DueDate, "t")
-            .Column<User>(p => p.DisplayName, "u")
+            .Column(p => p.Description!, "t")
+            .Column(p => p.DueDate!, "t")
+            .Column<User>(p => p.DisplayName!, "u")
             .Column<User>(p => p.EmailAddress, "u", "Email")
             .Column<Status>(p => p.Name, "s", "Status")
             .From(tableAlias: "t")
@@ -289,7 +289,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -308,7 +308,7 @@ public class SelectBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -320,6 +320,6 @@ public class SelectBuilderTest
         [Column("EntityId")]
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

@@ -47,7 +47,7 @@ public class HashCodeTests
     [Fact]
     public void Combine_NullString_ProducesExpectedHash()
     {
-        var hash = HashCode.Seed.Combine((string)null);
+        var hash = HashCode.Seed.Combine((string)null!);
         hash.GetHashCode().Should().NotBe(0);
     }
 

@@ -8,7 +8,7 @@ namespace FluentCommand.Performance;
 [BenchmarkCategory("ORM")]
 public abstract class BenchmarkBase
 {
-    private SqlConnection _connection;
+    private SqlConnection _connection = null!;
     protected SqlConnection Connection => _connection;
 
     public static string ConnectionString { get; } = "Data Source=(local);Initial Catalog=tempdb;Integrated Security=True;TrustServerCertificate=True";

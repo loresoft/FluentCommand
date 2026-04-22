@@ -114,12 +114,12 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         string email = "kara.thrace@battlestar.com";
         string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-        dynamic user = await session.Sql(sql)
+        dynamic? user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .QuerySingleAsync(cancellationToken: TestCancellation);
 
         Assert.NotNull(user);
-        Assert.Equal(user.EmailAddress, email);
+        Assert.Equal(user?.EmailAddress, email);
     }
 
     [Fact]
@@ -301,9 +301,9 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                      "select * from [Role]; " +
                      "select * from [Priority]; ";
 
-        User user = null;
-        List<Role> roles = null;
-        List<Priority> priorities = null;
+        User? user = null;
+        List<Role>? roles = null;
+        List<Priority>? priorities = null;
 
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();

@@ -18,7 +18,7 @@ public class DeleteBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier.Verify(sql).UseDirectory("Snapshots");
     }
@@ -36,7 +36,7 @@ public class DeleteBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)
@@ -62,7 +62,7 @@ public class DeleteBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)

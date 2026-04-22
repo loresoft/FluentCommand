@@ -1,14 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="TestResults\**" />
-    <EmbeddedResource Remove="TestResults\**" />
-    <None Remove="TestResults\**" />
-  </ItemGroup>
   <ItemGroup>
     <None Remove="Scripts\Script001.Tracker.Schema.sql" />
     <None Remove="Scripts\Script002.Tracker.Data.sql" />
@@ -24,22 +19,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" />
-    <PackageReference Include="coverlet.collector">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="coverlet.MTP" />
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="dbup-sqlserver" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Testcontainers.Azurite" />
     <PackageReference Include="Testcontainers.MsSql" />
     <PackageReference Include="Testcontainers.Redis" />
     <PackageReference Include="Verify.XunitV3" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.v3.mtp-v2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FluentCommand.Caching\FluentCommand.Caching.csproj" />
@@ -50,15 +39,6 @@
     <ProjectReference Include="..\FluentCommand.Entities\FluentCommand.Entities.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="appsettings.linux.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.github.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.appveyor.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

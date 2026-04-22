@@ -10,20 +10,20 @@ public class User
 {
     public Guid Id { get; set; }
 
-    public string EmailAddress { get; set; }
+    public string EmailAddress { get; set; } = null!;
 
-    public string DisplayName { get; set; }
+    public string DisplayName { get; set; } = null!;
 
-    public string FirstName { get; set; }
+    public string FirstName { get; set; } = null!;
 
-    public string LastName { get; set; }
+    public string LastName { get; set; } = null!;
 
-    public string PasswordHash { get; set; }
+    public string PasswordHash { get; set; } = null!;
 
     public DateTimeOffset Created { get; set; }
-    public string CreatedBy { get; set; }
+    public string CreatedBy { get; set; } = null!;
     public DateTimeOffset Updated { get; set; }
-    public string UpdatedBy { get; set; }
+    public string UpdatedBy { get; set; } = null!;
 
     [ConcurrencyCheck]
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

@@ -33,7 +33,7 @@ public class DapperBenchmarks : BenchmarkBase
     }
 
     [Benchmark(Description = "QueryFirstOrDefault<T>")]
-    public Post QueryFirstOrDefault()
+    public Post? QueryFirstOrDefault()
     {
         var i = NextIndex();
         return Connection.QueryFirstOrDefault<Post>("select * from Post where Id = @Id", new { Id = i });

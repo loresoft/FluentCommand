@@ -13,8 +13,8 @@ namespace FluentCommand.Performance;
 [Description("Hand Coded")]
 public class HandCodedBenchmarks : BenchmarkBase
 {
-    private SqlCommand _postCommand;
-    private SqlParameter _idParam;
+    private SqlCommand _postCommand = null!;
+    private SqlParameter _idParam = null!;
 
     [GlobalSetup]
     public void Setup()

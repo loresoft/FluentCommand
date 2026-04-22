@@ -22,7 +22,7 @@ public class InsertBuilderTest
 
         var queryStatement = builder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)

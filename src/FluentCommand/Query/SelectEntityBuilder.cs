@@ -37,7 +37,7 @@ public class SelectEntityBuilder<TEntity>
     /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Column(
-        Expression<Func<TEntity, object>> property,
+        Expression<Func<TEntity, object?>> property,
         string? tableAlias = null,
         string? columnAlias = null)
     {
@@ -61,7 +61,7 @@ public class SelectEntityBuilder<TEntity>
     /// The same builder instance for method chaining.
     /// </returns>
     public SelectEntityBuilder<TEntity> Column<TModel>(
-        Expression<Func<TModel, object>> property,
+        Expression<Func<TModel, object?>> property,
         string? tableAlias = null,
         string? columnAlias = null) where TModel : class
     {

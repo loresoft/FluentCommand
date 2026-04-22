@@ -18,8 +18,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress";
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
         var user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -54,8 +54,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress";
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
         var user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -71,8 +71,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress";
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
         var user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -98,15 +98,15 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress";
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-        dynamic user = session.Sql(sql)
+        dynamic? user = session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .QuerySingle();
 
         Assert.NotNull(user);
-        Assert.Equal(user.EmailAddress, email);
+        Assert.Equal(user?.EmailAddress, email);
     }
 
     [Fact]
@@ -115,8 +115,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -151,8 +151,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [Blah].[User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [Blah].[User] where EmailAddress like @EmailAddress";
 
         Action action = () =>
         {
@@ -189,8 +189,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         IEnumerable<dynamic> users = session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -206,8 +206,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -223,8 +223,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -239,8 +239,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select Count(*) from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select Count(*) from [User] where EmailAddress like @EmailAddress";
 
         var count = session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -255,8 +255,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = new List<dynamic>();
 
@@ -279,14 +279,14 @@ public class DataCommandSqlTests : DatabaseTestBase
     public void SqlQueryMultiple()
     {
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress; " +
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress; " +
                      "select * from [Role]; " +
                      "select * from [Priority]; ";
 
-        User user = null;
-        List<Role> roles = null;
-        List<Priority> priorities = null;
+        User? user = null;
+        List<Role>? roles = null;
+        List<Priority>? priorities = null;
 
         using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
@@ -318,8 +318,8 @@ public class DataCommandSqlTests : DatabaseTestBase
         var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var dataCommand = session.Sql(sql);
 

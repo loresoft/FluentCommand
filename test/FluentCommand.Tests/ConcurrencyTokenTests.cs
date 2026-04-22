@@ -14,7 +14,7 @@ public class ConcurrencyTokenTests
     [Fact]
     public void Constructor_WithNullByteArray_SetsEmptyValue()
     {
-        var token = new ConcurrencyToken((byte[])null);
+        var token = new ConcurrencyToken((byte[])null!);
 
         token.Value.Should().BeEmpty();
     }
@@ -32,7 +32,7 @@ public class ConcurrencyTokenTests
     [Fact]
     public void Constructor_WithNullString_SetsEmptyValue()
     {
-        var token = new ConcurrencyToken((string)null);
+        var token = new ConcurrencyToken((string)null!);
 
         token.Value.Should().BeEmpty();
     }

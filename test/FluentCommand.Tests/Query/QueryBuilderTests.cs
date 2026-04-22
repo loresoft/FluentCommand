@@ -29,7 +29,7 @@ public class QueryBuilderTests
 
         var queryStatement = queryBuilder.BuildStatement();
 
-        var sql = queryStatement.Statement;
+        var sql = queryStatement!.Statement;
 
         await Verifier
             .Verify(sql)

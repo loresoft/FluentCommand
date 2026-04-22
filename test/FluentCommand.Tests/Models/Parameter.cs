@@ -4,8 +4,8 @@ namespace FluentCommand.Tests.Models;
 
 public class Parameter
 {
-    public string Name { get; set; }
-    public object Value { get; set; }
+    public string Name { get; set; } = null!;
+    public object Value { get; set; } = null!;
     public DbType DbType { get; set; }
 
     public override int GetHashCode()

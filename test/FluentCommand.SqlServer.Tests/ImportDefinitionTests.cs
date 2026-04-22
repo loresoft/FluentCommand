@@ -7,7 +7,7 @@ public class ImportDefinitionTests
     [Fact]
     public void Build_Should_Throw_On_Null_Builder()
     {
-        Action act = () => ImportDefinition.Build(null);
+        Action act = () => ImportDefinition.Build(null!);
         act.Should().Throw<ArgumentNullException>();
     }
 

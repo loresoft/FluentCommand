@@ -17,5 +17,6 @@ nullable
 queryable
 serialization
 serializer
+sql
 upsert
 validator

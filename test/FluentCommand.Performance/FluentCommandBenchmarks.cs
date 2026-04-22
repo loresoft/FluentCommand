@@ -63,7 +63,7 @@ public class FluentCommandBenchmarks : BenchmarkBase
     }
 
     [Benchmark(Description = "QuerySingle<T> (Factory)")]
-    public Post QuerySingleFactory()
+    public Post? QuerySingleFactory()
     {
         var i = NextIndex();
 
@@ -91,7 +91,7 @@ public class FluentCommandBenchmarks : BenchmarkBase
     }
 
     [Benchmark(Description = "QuerySinglePost (Generated)")]
-    public Post QuerySinglePost()
+    public Post? QuerySinglePost()
     {
         var i = NextIndex();
 

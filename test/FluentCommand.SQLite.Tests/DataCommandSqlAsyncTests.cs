@@ -17,8 +17,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress";
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
         var user = await session
             .Sql(sql)
@@ -54,8 +54,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress";
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
         var user = await session
             .Sql(sql)
@@ -72,8 +72,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress";
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
         var user = await session
             .Sql(sql)
@@ -100,15 +100,15 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress";
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress";
 
-        dynamic user = await session.Sql(sql)
+        dynamic? user = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
             .QuerySingleAsync(cancellationToken: TestCancellation);
 
         Assert.NotNull(user);
-        Assert.Equal(user.EmailAddress, email);
+        Assert.Equal(user?.EmailAddress, email);
     }
 
     [Fact]
@@ -117,8 +117,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -153,8 +153,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         IEnumerable<dynamic> users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -170,8 +170,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = await session
             .Sql(sql)
@@ -202,8 +202,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -219,8 +219,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -235,8 +235,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select Count(*) from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select Count(*) from [User] where EmailAddress like @EmailAddress";
 
         var count = await session.Sql(sql)
             .Parameter("@EmailAddress", email)
@@ -251,8 +251,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
 
-        string email = "%@battlestar.com";
-        string sql = "select * from [User] where EmailAddress like @EmailAddress";
+        const string email = "%@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress like @EmailAddress";
 
         var users = new List<dynamic>();
 
@@ -276,14 +276,14 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     public async System.Threading.Tasks.Task SqlQueryMultipleAsync()
     {
 
-        string email = "kara.thrace@battlestar.com";
-        string sql = "select * from [User] where EmailAddress = @EmailAddress; " +
+        const string email = "kara.thrace@battlestar.com";
+        const string sql = "select * from [User] where EmailAddress = @EmailAddress; " +
                      "select * from [Role]; " +
                      "select * from [Priority]; ";
 
-        User user = null;
-        List<Role> roles = null;
-        List<Priority> priorities = null;
+        User? user = null;
+        List<Role>? roles = null;
+        List<Priority>? priorities = null;
 
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();

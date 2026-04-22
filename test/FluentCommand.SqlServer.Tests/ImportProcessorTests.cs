@@ -13,7 +13,7 @@ namespace FluentCommand.SqlServer.Tests;
 public class ImportProcessorTests : ImportProcessor
 {
     public ImportProcessorTests()
-        : base(null, new ServiceCollection().BuildServiceProvider().CreateScope() as IServiceScopeFactory)
+        : base(null!, (IServiceScopeFactory)new ServiceCollection().BuildServiceProvider().CreateScope())
     {
     }
 
@@ -154,13 +154,13 @@ public class ImportProcessorTests : ImportProcessor
 
     [Theory]
     [MemberData(nameof(ConvertData))]
-    public async Task ConvertValueTest(string value, Type type, object expected)
+    public async Task ConvertValueTest(string value, Type type, object? expected)
     {
         var fieldDefinition = new FieldDefinition();
         fieldDefinition.Name = "Test";
         fieldDefinition.DataType = type;
 
-        var convertedValue = await ConvertValue(null, fieldDefinition, value);
+        var convertedValue = await ConvertValue(null!, fieldDefinition, value);
         Assert.Equal(expected, convertedValue);
     }
 
@@ -168,7 +168,7 @@ public class ImportProcessorTests : ImportProcessor
     [InlineData(FieldDefault.UserName, null, "test@user.com")]
     [InlineData(FieldDefault.Static, "testing123", "testing123")]
     [InlineData(FieldDefault.Static, 42, 42)]
-    public void GetDefaultTest(FieldDefault fieldDefault, object defaultValue, object expected)
+    public void GetDefaultTest(FieldDefault fieldDefault, object? defaultValue, object? expected)
     {
         var fieldDefinition = new FieldDefinition();
         fieldDefinition.Name = "Test";
@@ -204,7 +204,7 @@ public class ImportProcessorTests : ImportProcessor
         emailField.DisplayName.Should().Be("User Email");
     }
 
-    public static TheoryData<string, Type, object> ConvertData =>
+    public static TheoryData<string, Type, object?> ConvertData =>
         new()
         {
             { "1", typeof(int), 1 },
