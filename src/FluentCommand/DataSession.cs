@@ -286,6 +286,9 @@ public class DataSession : DisposableBase, IDataSession
 
         // When no operation is using the connection and the context had opened the connection
         // the connection can be closed
+        foreach (var interceptor in _connectionInterceptors)
+            interceptor.ConnectionClosing(Connection, this);
+
         Connection.Close();
         _openedConnection = false;
     }
@@ -309,6 +312,9 @@ public class DataSession : DisposableBase, IDataSession
 
         // When no operation is using the connection and the context had opened the connection
         // the connection can be closed
+        foreach (var interceptor in _connectionInterceptors)
+            await interceptor.ConnectionClosingAsync(Connection, this).ConfigureAwait(false);
+
         await Connection.CloseAsync().ConfigureAwait(false);
         _openedConnection = false;
     }
@@ -324,6 +330,14 @@ public class DataSession : DisposableBase, IDataSession
         if (Transaction is not null)
             await Transaction.DisposeAsync().ConfigureAwait(false);
 
+        if (_openedConnection)
+        {
+            foreach (var interceptor in _connectionInterceptors)
+                await interceptor.ConnectionClosingAsync(Connection, this).ConfigureAwait(false);
+
+            _openedConnection = false;
+        }
+
         await Connection.DisposeAsync().ConfigureAwait(false);
     }
 #endif
@@ -337,6 +351,15 @@ public class DataSession : DisposableBase, IDataSession
             return;
 
         Transaction?.Dispose();
+
+        if (_openedConnection)
+        {
+            foreach (var interceptor in _connectionInterceptors)
+                interceptor.ConnectionClosing(Connection, this);
+
+            _openedConnection = false;
+        }
+
         Connection.Dispose();
     }
 

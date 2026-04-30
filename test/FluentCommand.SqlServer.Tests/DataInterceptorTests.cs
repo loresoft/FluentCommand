@@ -1,6 +1,7 @@
 using System.Data.Common;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FluentCommand.SqlServer.Tests;
 
@@ -23,6 +24,8 @@ public class DataInterceptorTests : DatabaseTestBase
 
         interceptor.ConnectionOpenedCount.Should().Be(1);
         interceptor.ConnectionOpenedAsyncCount.Should().Be(0);
+        interceptor.ConnectionClosingCount.Should().Be(1);
+        interceptor.ConnectionClosingAsyncCount.Should().Be(0);
     }
 
     [Fact]
@@ -34,10 +37,12 @@ public class DataInterceptorTests : DatabaseTestBase
         await using var session = new DataSession(config.CreateConnection(), interceptors: [interceptor]);
 
         await session.EnsureConnectionAsync(TestCancellation);
-        session.ReleaseConnection();
+        await session.ReleaseConnectionAsync();
 
         interceptor.ConnectionOpenedAsyncCount.Should().Be(1);
         interceptor.ConnectionOpenedCount.Should().Be(0);
+        interceptor.ConnectionClosingAsyncCount.Should().Be(1);
+        interceptor.ConnectionClosingCount.Should().Be(0);
     }
 
     [Fact]
@@ -54,6 +59,7 @@ public class DataInterceptorTests : DatabaseTestBase
         session.ReleaseConnection();
 
         interceptor.ConnectionOpenedCount.Should().Be(1);
+        interceptor.ConnectionClosingCount.Should().Be(1);
     }
 
     [Fact]
@@ -144,11 +150,27 @@ public class DataInterceptorTests : DatabaseTestBase
         session.Interceptors.Should().BeEmpty();
     }
 
+    [Fact]
+    public void WhenSqlPrintExecuted_PrintMessageIsLogged()
+    {
+        var config = Services.GetRequiredService<IDataConfiguration>();
+        var logger = new TrackingLogger<MessageInterceptor>();
+        var interceptor = new MessageInterceptor(logger);
+
+        using var session = new DataSession(config.CreateConnection(), interceptors: [interceptor]);
+
+        session.Sql("PRINT 'fluent command print message'; SELECT 1").QueryValue<int>().Should().Be(1);
+
+        logger.Messages.Should().Contain(m => m.Contains("fluent command print message", StringComparison.Ordinal));
+    }
+
 
     private sealed class TrackingConnectionInterceptor : IDataConnectionInterceptor
     {
         public int ConnectionOpenedCount { get; private set; }
         public int ConnectionOpenedAsyncCount { get; private set; }
+        public int ConnectionClosingCount { get; private set; }
+        public int ConnectionClosingAsyncCount { get; private set; }
 
         public void ConnectionOpened(DbConnection connection, IDataSession session)
             => ConnectionOpenedCount++;
@@ -156,6 +178,15 @@ public class DataInterceptorTests : DatabaseTestBase
         public Task ConnectionOpenedAsync(DbConnection connection, IDataSession session, CancellationToken cancellationToken = default)
         {
             ConnectionOpenedAsyncCount++;
+            return Task.CompletedTask;
+        }
+
+        public void ConnectionClosing(DbConnection connection, IDataSession session)
+            => ConnectionClosingCount++;
+
+        public Task ConnectionClosingAsync(DbConnection connection, IDataSession session, CancellationToken cancellationToken = default)
+        {
+            ConnectionClosingAsyncCount++;
             return Task.CompletedTask;
         }
     }
@@ -172,6 +203,27 @@ public class DataInterceptorTests : DatabaseTestBase
         {
             CommandExecutingAsyncCount++;
             return Task.CompletedTask;
+        }
+    }
+
+    private sealed class TrackingLogger<T> : ILogger<T>
+    {
+        public List<string> Messages { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state)
+            where TState : notnull
+            => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            Messages.Add(formatter(state, exception));
         }
     }
 }

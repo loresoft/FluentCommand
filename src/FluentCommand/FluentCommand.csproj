@@ -14,6 +14,6 @@
     <PackageReference Include="System.ComponentModel.Annotations" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\FluentCommand.Generators\bin\$(Configuration)\netstandard2.0\FluentCommand.Generators.dll" PackagePath="analyzers/dotnet/roslyn4.8/cs" Pack="true" Visible="false" />
+    <None Include="..\FluentCommand.Generators\bin\$(Configuration)\netstandard2.0\FluentCommand.Generators.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
   </ItemGroup>
 </Project>

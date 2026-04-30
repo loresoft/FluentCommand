@@ -25,5 +25,27 @@ public interface IDataConnectionInterceptor : IDataInterceptor
     /// <param name="session">The <see cref="IDataSession"/> that opened the connection.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task ConnectionOpenedAsync(DbConnection connection, IDataSession session, CancellationToken cancellationToken = default);
+    Task ConnectionOpenedAsync(
+        DbConnection connection,
+        IDataSession session,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Called immediately before a database connection is closed.
+    /// </summary>
+    /// <param name="connection">The <see cref="DbConnection"/> that is about to be closed.</param>
+    /// <param name="session">The <see cref="IDataSession"/> that opened the connection.</param>
+    void ConnectionClosing(DbConnection connection, IDataSession session);
+
+    /// <summary>
+    /// Called immediately before a database connection is closed asynchronously.
+    /// </summary>
+    /// <param name="connection">The <see cref="DbConnection"/> that is about to be closed.</param>
+    /// <param name="session">The <see cref="IDataSession"/> that opened the connection.</param>
+    /// <param name="cancellationToken">The cancellation instruction.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task ConnectionClosingAsync(
+        DbConnection connection,
+        IDataSession session,
+        CancellationToken cancellationToken = default);
 }

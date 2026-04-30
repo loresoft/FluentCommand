@@ -23,4 +23,18 @@ public static class DataConfigurationBuilderExtensions
 
         return builder;
     }
+
+    /// <summary>
+    /// Configures the <see cref="DataConfigurationBuilder"/> to capture SQL Server informational messages such as PRINT output.
+    /// </summary>
+    /// <param name="builder">The data configuration builder to configure.</param>
+    /// <returns>
+    /// The same <see cref="DataConfigurationBuilder"/> instance so that multiple calls can be chained.
+    /// </returns>
+    public static DataConfigurationBuilder CaptureMessages(this DataConfigurationBuilder builder)
+    {
+        builder.AddInterceptor<MessageInterceptor>();
+
+        return builder;
+    }
 }
