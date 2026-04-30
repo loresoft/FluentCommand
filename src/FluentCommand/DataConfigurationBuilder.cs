@@ -20,6 +20,7 @@ public class DataConfigurationBuilder
     private Type? _dataCacheType;
     private Type? _queryGeneratorType;
     private Type? _queryLoggerType;
+    private int? _commandTimeout;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataConfigurationBuilder"/> class.
@@ -54,6 +55,32 @@ public class DataConfigurationBuilder
     public DataConfigurationBuilder UseConnectionString(string connectionString)
     {
         _nameOrConnectionString = connectionString;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the default command timeout in seconds.
+    /// </summary>
+    /// <param name="timeout">The time, in seconds, to wait for commands to execute.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    public DataConfigurationBuilder UseCommandTimeout(int timeout)
+    {
+        _commandTimeout = timeout;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the default command timeout.
+    /// </summary>
+    /// <param name="timeout">The time to wait for commands to execute.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    public DataConfigurationBuilder UseCommandTimeout(TimeSpan timeout)
+    {
+        _commandTimeout = (int)timeout.TotalSeconds;
         return this;
     }
 
@@ -380,7 +407,8 @@ public class DataConfigurationBuilder
                 sp.GetService(dataCache) as IDataCache,
                 sp.GetService(queryGenerator) as IQueryGenerator,
                 sp.GetService(queryLogger) as IDataQueryLogger,
-                sp.GetServices<IDataInterceptor>()
+                sp.GetServices<IDataInterceptor>(),
+                _commandTimeout
             );
         });
 
@@ -409,7 +437,8 @@ public class DataConfigurationBuilder
                 sp.GetService(dataCache) as IDataCache,
                 sp.GetService(queryGenerator) as IQueryGenerator,
                 sp.GetService(queryLogger) as IDataQueryLogger,
-                sp.GetServices<IDataInterceptor>()
+                sp.GetServices<IDataInterceptor>(),
+                _commandTimeout
             );
         });
 

@@ -53,6 +53,14 @@ public class DataSession : DisposableBase, IDataSession
     public IDataQueryLogger? QueryLogger { get; }
 
     /// <summary>
+    /// Gets the default command timeout in seconds.
+    /// </summary>
+    /// <value>
+    /// The default command timeout in seconds.
+    /// </value>
+    public int? CommandTimeout { get; }
+
+    /// <summary>
     /// Gets the interceptors registered for this session.
     /// </summary>
     /// <value>
@@ -69,6 +77,7 @@ public class DataSession : DisposableBase, IDataSession
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="connection" /> instance.</exception>
@@ -78,7 +87,8 @@ public class DataSession : DisposableBase, IDataSession
         IDataCache? cache = null,
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? logger = null,
-        IEnumerable<IDataInterceptor>? interceptors = null)
+        IEnumerable<IDataInterceptor>? interceptors = null,
+        int? commandTimeout = null)
     {
         if (connection == null)
             throw new ArgumentNullException(nameof(connection));
@@ -90,6 +100,7 @@ public class DataSession : DisposableBase, IDataSession
         Cache = cache;
         QueryGenerator = queryGenerator ?? new SqlServerGenerator();
         QueryLogger = logger;
+        CommandTimeout = commandTimeout;
 
         _interceptors = interceptors is null ? [] : [.. interceptors];
         _connectionInterceptors = [.. _interceptors.OfType<IDataConnectionInterceptor>()];
@@ -106,6 +117,7 @@ public class DataSession : DisposableBase, IDataSession
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
     /// <exception cref="ArgumentNullException"><paramref name="transaction" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="transaction" /> instance.</exception>
@@ -115,8 +127,9 @@ public class DataSession : DisposableBase, IDataSession
         IDataCache? cache = null,
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? logger = null,
-        IEnumerable<IDataInterceptor>? interceptors = null)
-        : this(GetTransactionConnection(transaction), disposeConnection, cache, queryGenerator, logger, interceptors)
+        IEnumerable<IDataInterceptor>? interceptors = null,
+        int? commandTimeout = null)
+        : this(GetTransactionConnection(transaction), disposeConnection, cache, queryGenerator, logger, interceptors, commandTimeout)
     {
         Transaction = transaction;
     }
@@ -135,6 +148,7 @@ public class DataSession : DisposableBase, IDataSession
         Cache = dataConfiguration.DataCache;
         QueryGenerator = dataConfiguration.QueryGenerator;
         QueryLogger = dataConfiguration.QueryLogger;
+        CommandTimeout = dataConfiguration.CommandTimeout;
 
         _interceptors = dataConfiguration.Interceptors is null ? [] : [.. dataConfiguration.Interceptors];
         _connectionInterceptors = [.. _interceptors.OfType<IDataConnectionInterceptor>()];
@@ -186,7 +200,7 @@ public class DataSession : DisposableBase, IDataSession
     /// </returns>
     public IDataCommand Sql(string sql)
     {
-        var dataCommand = new DataCommand(this, Transaction, _commandInterceptors);
+        var dataCommand = new DataCommand(this, Transaction, _commandInterceptors, commandTimeout: CommandTimeout);
         return dataCommand.Sql(sql);
     }
 
@@ -199,7 +213,7 @@ public class DataSession : DisposableBase, IDataSession
     /// </returns>
     public IDataCommand StoredProcedure(string storedProcedureName)
     {
-        var dataCommand = new DataCommand(this, Transaction, _commandInterceptors);
+        var dataCommand = new DataCommand(this, Transaction, _commandInterceptors, commandTimeout: CommandTimeout);
         return dataCommand.StoredProcedure(storedProcedureName);
     }
 
@@ -389,6 +403,7 @@ public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscrimina
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="connection" /> instance.</exception>
@@ -398,8 +413,9 @@ public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscrimina
         IDataCache? cache = null,
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? logger = null,
-        IEnumerable<IDataInterceptor>? interceptors = null)
-        : base(connection, disposeConnection, cache, queryGenerator, logger, interceptors)
+        IEnumerable<IDataInterceptor>? interceptors = null,
+        int? commandTimeout = null)
+        : base(connection, disposeConnection, cache, queryGenerator, logger, interceptors, commandTimeout)
     {
     }
 
@@ -411,6 +427,7 @@ public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscrimina
     /// <param name="cache">The <see cref="IDataCache" /> used to cached results of queries.</param>
     /// <param name="queryGenerator">The query generator provider.</param>
     /// <param name="logger">The logger delegate for writing log messages.</param>
+    /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
     /// <exception cref="ArgumentNullException"><paramref name="transaction" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="transaction" /> instance.</exception>
@@ -420,8 +437,9 @@ public class DataSession<TDiscriminator> : DataSession, IDataSession<TDiscrimina
         IDataCache? cache = null,
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? logger = null,
-        IEnumerable<IDataInterceptor>? interceptors = null)
-        : base(transaction, disposeConnection, cache, queryGenerator, logger, interceptors)
+        IEnumerable<IDataInterceptor>? interceptors = null,
+        int? commandTimeout = null)
+        : base(transaction, disposeConnection, cache, queryGenerator, logger, interceptors, commandTimeout)
     {
     }
 

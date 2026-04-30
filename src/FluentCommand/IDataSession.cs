@@ -46,6 +46,14 @@ public interface IDataSession
     IDataQueryLogger? QueryLogger { get; }
 
     /// <summary>
+    /// Gets the default command timeout in seconds.
+    /// </summary>
+    /// <value>
+    /// The default command timeout in seconds.
+    /// </value>
+    int? CommandTimeout { get; }
+
+    /// <summary>
     /// Gets the interceptors registered for this session.
     /// </summary>
     /// <value>

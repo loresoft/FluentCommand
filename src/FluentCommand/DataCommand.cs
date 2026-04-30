@@ -28,16 +28,20 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <param name="dataSession">The data session.</param>
     /// <param name="transaction">The DbTransaction for this DataCommand.</param>
     /// <param name="commandInterceptors">Pre-filtered command interceptors from the owning session.</param>
+    /// <param name="commandTimeout">The command timeout in seconds.</param>
     public DataCommand(
         IDataSession dataSession,
         DbTransaction? transaction,
-        IDataCommandInterceptor[]? commandInterceptors = null)
+        IDataCommandInterceptor[]? commandInterceptors = null,
+        int? commandTimeout = null)
     {
         _callbacks = new Queue<DataCallback>();
         _dataSession = dataSession ?? throw new ArgumentNullException(nameof(dataSession));
 
         Command = dataSession.Connection.CreateCommand();
         Command.Transaction = transaction;
+        if (commandTimeout.HasValue)
+            Command.CommandTimeout = commandTimeout.Value;
 
         _commandInterceptors = commandInterceptors ?? [];
     }

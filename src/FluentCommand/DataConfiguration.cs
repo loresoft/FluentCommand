@@ -18,6 +18,7 @@ public class DataConfiguration : IDataConfiguration
     /// <param name="cache">The data cache manager.</param>
     /// <param name="queryGenerator">The query generator.</param>
     /// <param name="queryLogger">The query command logger.</param>
+    /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply to each session created from this configuration.</param>
     /// <exception cref="ArgumentNullException">The <paramref name="providerFactory"/> is null</exception>
     public DataConfiguration(
@@ -26,11 +27,13 @@ public class DataConfiguration : IDataConfiguration
         IDataCache? cache = null,
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? queryLogger = null,
-        IEnumerable<IDataInterceptor>? interceptors = null)
+        IEnumerable<IDataInterceptor>? interceptors = null,
+        int? commandTimeout = null)
     {
         ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
         ConnectionString = connectionString;
         QueryLogger = queryLogger;
+        CommandTimeout = commandTimeout;
         DataCache = cache;
         QueryGenerator = queryGenerator ?? new SqlServerGenerator();
         Interceptors = interceptors ?? [];
@@ -59,6 +62,14 @@ public class DataConfiguration : IDataConfiguration
     /// The data command query logger.
     /// </value>
     public IDataQueryLogger? QueryLogger { get; }
+
+    /// <summary>
+    /// Gets the default command timeout in seconds.
+    /// </summary>
+    /// <value>
+    /// The default command timeout in seconds.
+    /// </value>
+    public int? CommandTimeout { get; }
 
     /// <summary>
     /// Gets the data cache manager.
@@ -94,7 +105,7 @@ public class DataConfiguration : IDataConfiguration
     public virtual IDataSession CreateSession(string? connectionString = null)
     {
         var connection = CreateConnection(connectionString);
-        return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger, Interceptors);
+        return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger, Interceptors, CommandTimeout);
     }
 
     /// <summary>
@@ -114,7 +125,7 @@ public class DataConfiguration : IDataConfiguration
         if (transaction.Connection == null)
             throw new ArgumentException("The specified transaction doesn't have a vaild connection", nameof(transaction));
 
-        return new DataSession(transaction, false, DataCache, QueryGenerator, QueryLogger, Interceptors);
+        return new DataSession(transaction, false, DataCache, QueryGenerator, QueryLogger, Interceptors, CommandTimeout);
     }
 
     /// <summary>
@@ -157,6 +168,7 @@ public class DataConfiguration<TDiscriminator> : DataConfiguration, IDataConfigu
     /// <param name="cache">The data cache manager.</param>
     /// <param name="queryGenerator">The query generator.</param>
     /// <param name="queryLogger">The query command logger.</param>
+    /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply during this configuration's lifetime.</param>
     public DataConfiguration(
         DbProviderFactory providerFactory,
@@ -164,8 +176,9 @@ public class DataConfiguration<TDiscriminator> : DataConfiguration, IDataConfigu
         IDataCache? cache = null,
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? queryLogger = null,
-        IEnumerable<IDataInterceptor>? interceptors = null)
-        : base(providerFactory, connectionString, cache, queryGenerator, queryLogger, interceptors)
+        IEnumerable<IDataInterceptor>? interceptors = null,
+        int? commandTimeout = null)
+        : base(providerFactory, connectionString, cache, queryGenerator, queryLogger, interceptors, commandTimeout)
     {
     }
 }
