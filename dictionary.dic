@@ -1,4 +1,5 @@
 accessor
+annotatable
 app
 awaitable
 cacheable
@@ -6,17 +7,21 @@ clr
 csv
 deconstruct
 deserialization
+deserialized
 deserializer
 deserializing
 inline
 json
 linq
+metadata
 middleware
 mvc
 nullable
 queryable
 serialization
+serialized
 serializer
 sql
+sqlite
 upsert
 validator
