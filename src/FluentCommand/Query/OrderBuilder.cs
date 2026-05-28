@@ -143,8 +143,7 @@ public abstract class OrderBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="sortExpressions"/> is <c>null</c>.</exception>
     public TBuilder OrderByRaw(IEnumerable<string> sortExpressions)
     {
-        if (sortExpressions is null)
-            throw new ArgumentNullException(nameof(sortExpressions));
+        ArgumentNullException.ThrowIfNull(sortExpressions);
 
         foreach (var sortExpression in sortExpressions)
             OrderByRaw(sortExpression);

@@ -12,8 +12,7 @@ public static class TypeExtensions
     /// <returns>Returns a type dealing with <see cref="T:Nullable`1"/>.</returns>
     public static Type GetUnderlyingType(this Type type)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
         return Nullable.GetUnderlyingType(type) ?? type;
     }
@@ -27,8 +26,7 @@ public static class TypeExtensions
     /// </returns>
     public static bool IsNullable(this Type type)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
         if (!type.IsValueType)
             return true;
@@ -43,8 +41,7 @@ public static class TypeExtensions
     /// <returns>A default value the specified <paramref name="type"/>.</returns>
     public static object? Default(this Type type)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
         return type.IsValueType
           ? Activator.CreateInstance(type)

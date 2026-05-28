@@ -80,8 +80,7 @@ public class UpdateEntityBuilder<TEntity>
         TEntity entity,
         IEnumerable<string>? columnNames = null)
     {
-        if (entity is null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         var properties = _typeAccessor.GetProperties();
         var columnSet = new HashSet<string>(columnNames ?? []);

@@ -19,12 +19,9 @@ public static class CollectionExtensions
     /// </returns>
     public static T FirstOrAdd<T>(this ICollection<T> source, Func<T, bool> predicate, Func<T> valueFactory)
     {
-        if (source == null)
-            throw new ArgumentNullException("source");
-        if (predicate == null)
-            throw new ArgumentNullException("predicate");
-        if (valueFactory == null)
-            throw new ArgumentNullException("valueFactory");
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(predicate);
+        ArgumentNullException.ThrowIfNull(valueFactory);
 
         // return first match
         foreach (T element in source.Where(predicate))
@@ -46,10 +43,8 @@ public static class CollectionExtensions
     /// <returns>The number of items removed.</returns>
     public static int RemoveAll<T>(this ICollection<T> collection, Func<T, bool> filter)
     {
-        if (collection == null)
-            throw new ArgumentNullException("collection");
-        if (filter == null)
-            throw new ArgumentNullException("filter");
+        ArgumentNullException.ThrowIfNull(collection);
+        ArgumentNullException.ThrowIfNull(filter);
 
         var removed = collection.Where(filter).ToArray();
         foreach (var remove in removed)

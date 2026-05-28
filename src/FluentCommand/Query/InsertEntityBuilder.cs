@@ -76,8 +76,7 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
         TEntity entity,
         IEnumerable<string>? columnNames = null)
     {
-        if (entity is null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         var properties = _typeAccessor.GetProperties();
         if (properties == null)
@@ -160,8 +159,7 @@ public class InsertEntityBuilder<TEntity> : InsertBuilder<InsertEntityBuilder<TE
         TypeAccessor typeAccessor,
         Expression<Func<TModel, TValue>> property)
     {
-        if (property is null)
-            throw new ArgumentNullException(nameof(property));
+        ArgumentNullException.ThrowIfNull(property);
 
         var propertyAccessor = typeAccessor.FindProperty(property);
         if (propertyAccessor is null)

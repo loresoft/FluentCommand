@@ -561,8 +561,7 @@ public static class ConvertExtensions
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="type"/> is <c>null</c>.</exception>
     public static object? SafeConvert(Type type, string? input)
     {
-        if (type is null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
         // first try string
         if (type == typeof(string))

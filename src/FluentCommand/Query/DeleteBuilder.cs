@@ -108,8 +108,7 @@ public abstract class DeleteBuilder<TBuilder> : WhereBuilder<TBuilder>
         IEnumerable<string> columnNames,
         string? tableAlias = null)
     {
-        if (columnNames is null)
-            throw new ArgumentNullException(nameof(columnNames));
+        ArgumentNullException.ThrowIfNull(columnNames);
 
         foreach (var column in columnNames)
             Output(column, tableAlias);

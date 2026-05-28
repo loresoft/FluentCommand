@@ -119,8 +119,7 @@ public class DataConfiguration : IDataConfiguration
     /// <exception cref="System.ArgumentException">The specified transaction doesn't have a vaild connection </exception>
     public IDataSession CreateSession(DbTransaction transaction)
     {
-        if (transaction is null)
-            throw new ArgumentNullException(nameof(transaction));
+        ArgumentNullException.ThrowIfNull(transaction);
 
         if (transaction.Connection == null)
             throw new ArgumentException("The specified transaction doesn't have a vaild connection", nameof(transaction));

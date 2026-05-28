@@ -19,8 +19,7 @@ internal static class ExpressionFactory
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="methodInfo"/> is <c>null</c>.</exception>
     public static Func<object?, object?[], object?> CreateMethod(MethodInfo methodInfo)
     {
-        if (methodInfo == null)
-            throw new ArgumentNullException(nameof(methodInfo));
+        ArgumentNullException.ThrowIfNull(methodInfo);
 
         // parameters to execute
         var instanceParameter = Expression.Parameter(typeof(object), "instance");
@@ -82,8 +81,7 @@ internal static class ExpressionFactory
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="type"/> is <c>null</c>.</exception>
     public static Func<object>? CreateConstructor(Type type)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
         var constructorInfo = type.GetConstructor(Type.EmptyTypes);
         if (constructorInfo == null)
@@ -108,8 +106,7 @@ internal static class ExpressionFactory
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyInfo"/> is <c>null</c>.</exception>
     public static Func<object, object?>? CreateGet(PropertyInfo propertyInfo)
     {
-        if (propertyInfo == null)
-            throw new ArgumentNullException(nameof(propertyInfo));
+        ArgumentNullException.ThrowIfNull(propertyInfo);
 
         if (!propertyInfo.CanRead)
             return null;
@@ -141,8 +138,7 @@ internal static class ExpressionFactory
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="fieldInfo"/> is <c>null</c>.</exception>
     public static Func<object, object?> CreateGet(FieldInfo fieldInfo)
     {
-        if (fieldInfo == null)
-            throw new ArgumentNullException(nameof(fieldInfo));
+        ArgumentNullException.ThrowIfNull(fieldInfo);
 
         var instance = Expression.Parameter(typeof(object), "instance");
         var declaringType = fieldInfo.DeclaringType
@@ -168,8 +164,7 @@ internal static class ExpressionFactory
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyInfo"/> is <c>null</c>.</exception>
     public static Action<object, object?>? CreateSet(PropertyInfo propertyInfo)
     {
-        if (propertyInfo == null)
-            throw new ArgumentNullException(nameof(propertyInfo));
+        ArgumentNullException.ThrowIfNull(propertyInfo);
 
         if (!propertyInfo.CanWrite)
             return null;
@@ -205,8 +200,7 @@ internal static class ExpressionFactory
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="fieldInfo"/> is <c>null</c>.</exception>
     public static Action<object, object?> CreateSet(FieldInfo fieldInfo)
     {
-        if (fieldInfo == null)
-            throw new ArgumentNullException(nameof(fieldInfo));
+        ArgumentNullException.ThrowIfNull(fieldInfo);
 
         var instance = Expression.Parameter(typeof(object), "instance");
         var value = Expression.Parameter(typeof(object), "value");

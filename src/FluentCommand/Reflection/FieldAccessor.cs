@@ -19,8 +19,7 @@ public class FieldAccessor : MemberAccessor
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="fieldInfo"/> is <c>null</c>.</exception>
     public FieldAccessor(FieldInfo fieldInfo) : base(fieldInfo)
     {
-        if (fieldInfo == null)
-            throw new ArgumentNullException(nameof(fieldInfo));
+        ArgumentNullException.ThrowIfNull(fieldInfo);
 
         Name = fieldInfo.Name;
         MemberType = fieldInfo.FieldType;
@@ -68,8 +67,7 @@ public class FieldAccessor : MemberAccessor
     /// <exception cref="InvalidOperationException">Thrown if the field does not have a getter.</exception>
     public override object? GetValue(object instance)
     {
-        if (instance == null)
-            throw new ArgumentNullException(nameof(instance));
+        ArgumentNullException.ThrowIfNull(instance);
 
         if (!HasGetter)
             throw new InvalidOperationException($"Field '{Name}' does not have a getter.");
@@ -90,8 +88,7 @@ public class FieldAccessor : MemberAccessor
     /// <exception cref="InvalidOperationException">Thrown if the field does not have a setter.</exception>
     public override void SetValue(object instance, object? value)
     {
-        if (instance == null)
-            throw new ArgumentNullException(nameof(instance));
+        ArgumentNullException.ThrowIfNull(instance);
 
         if (_setter == null || !HasSetter)
             throw new InvalidOperationException($"Field '{Name}' does not have a setter.");

@@ -34,8 +34,7 @@ public class ListDataReader<T> : DbDataReader where T : class
     /// <param name="ignoreNames">A list of property names to ignore in the reader</param>
     public ListDataReader(IEnumerable<T> list, IEnumerable<string>? ignoreNames = null)
     {
-        if (list is null)
-            throw new ArgumentNullException(nameof(list));
+        ArgumentNullException.ThrowIfNull(list);
 
         _iterator = list.GetEnumerator();
 
@@ -209,8 +208,7 @@ public class ListDataReader<T> : DbDataReader where T : class
     /// <inheritdoc/>
     public override long GetChars(int i, long fieldOffset, char[]? buffer, int bufferOffset, int length)
     {
-        if (buffer == null)
-            throw new ArgumentNullException(nameof(buffer));
+        ArgumentNullException.ThrowIfNull(buffer);
 
         string value = (string)GetValue(i);
 

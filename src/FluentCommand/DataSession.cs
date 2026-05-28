@@ -90,8 +90,7 @@ public class DataSession : DisposableBase, IDataSession
         IEnumerable<IDataInterceptor>? interceptors = null,
         int? commandTimeout = null)
     {
-        if (connection == null)
-            throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
         if (string.IsNullOrEmpty(connection.ConnectionString))
             throw new ArgumentException("Invalid connection string", nameof(connection));
@@ -141,8 +140,7 @@ public class DataSession : DisposableBase, IDataSession
     /// <exception cref="ArgumentNullException"><paramref name="dataConfiguration"/> is null</exception>
     public DataSession(IDataConfiguration dataConfiguration)
     {
-        if (dataConfiguration == null)
-            throw new ArgumentNullException(nameof(dataConfiguration));
+        ArgumentNullException.ThrowIfNull(dataConfiguration);
 
         Connection = dataConfiguration.CreateConnection();
         Cache = dataConfiguration.DataCache;
@@ -379,8 +377,7 @@ public class DataSession : DisposableBase, IDataSession
 
     private static DbConnection GetTransactionConnection(DbTransaction transaction)
     {
-        if (transaction is null)
-            throw new ArgumentNullException(nameof(transaction));
+        ArgumentNullException.ThrowIfNull(transaction);
 
         return transaction.Connection
             ?? throw new ArgumentException("Transaction has no associated connection.", nameof(transaction));

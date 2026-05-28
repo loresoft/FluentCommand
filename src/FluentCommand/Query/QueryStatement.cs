@@ -22,8 +22,7 @@ public class QueryStatement : IQueryStatement
         if (string.IsNullOrWhiteSpace(statement))
             throw new ArgumentException($"'{nameof(statement)}' cannot be null or whitespace.", nameof(statement));
 
-        if (parameters is null)
-            throw new ArgumentNullException(nameof(parameters));
+        ArgumentNullException.ThrowIfNull(parameters);
 
         Statement = statement;
         Parameters = parameters;

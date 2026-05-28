@@ -19,8 +19,7 @@ public class MethodAccessor : IMethodAccessor
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="methodInfo"/> is <c>null</c>.</exception>
     public MethodAccessor(MethodInfo methodInfo)
     {
-        if (methodInfo == null)
-            throw new ArgumentNullException(nameof(methodInfo));
+        ArgumentNullException.ThrowIfNull(methodInfo);
 
         MethodInfo = methodInfo;
         Name = methodInfo.Name;

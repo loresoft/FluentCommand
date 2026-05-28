@@ -18,8 +18,7 @@ public class PostgreSqlGenerator : SqlServerGenerator
     /// <exception cref="ArgumentException">Thrown if the table or values are not specified.</exception>
     public override string BuildInsert(InsertStatement insertStatement)
     {
-        if (insertStatement is null)
-            throw new ArgumentNullException(nameof(insertStatement));
+        ArgumentNullException.ThrowIfNull(insertStatement);
 
         if (insertStatement.TableExpression == null)
             throw new ArgumentException("No table specified to insert into", nameof(insertStatement));
@@ -263,8 +262,7 @@ public class PostgreSqlGenerator : SqlServerGenerator
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="tableExpression"/> is <c>null</c>.</exception>
     public override string TableExpression(TableExpression tableExpression)
     {
-        if (tableExpression is null)
-            throw new ArgumentNullException(nameof(tableExpression));
+        ArgumentNullException.ThrowIfNull(tableExpression);
 
         // sqlite doesn't support schema
         tableExpression = tableExpression with { TableSchema = null };
@@ -281,8 +279,7 @@ public class PostgreSqlGenerator : SqlServerGenerator
     /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
     public override string WhereExpression(WhereExpression whereExpression)
     {
-        if (whereExpression is null)
-            throw new ArgumentNullException(nameof(whereExpression));
+        ArgumentNullException.ThrowIfNull(whereExpression);
 
         if (string.IsNullOrWhiteSpace(whereExpression.ColumnName))
             throw new ArgumentException($"'{nameof(whereExpression.ColumnName)}' property cannot be null or empty.", nameof(whereExpression));

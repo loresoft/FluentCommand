@@ -99,8 +99,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if the table or values are not specified.</exception>
     public virtual string BuildInsert(InsertStatement insertStatement)
     {
-        if (insertStatement is null)
-            throw new ArgumentNullException(nameof(insertStatement));
+        ArgumentNullException.ThrowIfNull(insertStatement);
 
         if (insertStatement.TableExpression == null)
             throw new ArgumentException("No table specified to insert into", nameof(insertStatement));
@@ -425,8 +424,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if the column name is not specified.</exception>
     public virtual string ColumnExpression(ColumnExpression columnExpression)
     {
-        if (columnExpression is null)
-            throw new ArgumentNullException(nameof(columnExpression));
+        ArgumentNullException.ThrowIfNull(columnExpression);
 
         if (columnExpression.ColumnName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(columnExpression.ColumnName)}' property cannot be null or empty.", nameof(columnExpression));
@@ -454,8 +452,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="aggregateExpression"/> is <c>null</c>.</exception>
     public virtual string AggregateExpression(AggregateExpression aggregateExpression)
     {
-        if (aggregateExpression is null)
-            throw new ArgumentNullException(nameof(aggregateExpression));
+        ArgumentNullException.ThrowIfNull(aggregateExpression);
 
         if (aggregateExpression.IsRaw)
             return aggregateExpression.ColumnName;
@@ -482,8 +479,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if the table name is not specified.</exception>
     public virtual string TableExpression(TableExpression tableExpression)
     {
-        if (tableExpression is null)
-            throw new ArgumentNullException(nameof(tableExpression));
+        ArgumentNullException.ThrowIfNull(tableExpression);
 
         if (tableExpression.TableName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(tableExpression.TableName)}' property cannot be null or empty.", nameof(tableExpression));
@@ -512,8 +508,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if the column name is not specified.</exception>
     public virtual string SortExpression(SortExpression sortExpression)
     {
-        if (sortExpression is null)
-            throw new ArgumentNullException(nameof(sortExpression));
+        ArgumentNullException.ThrowIfNull(sortExpression);
 
         if (sortExpression.ColumnName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(sortExpression.ColumnName)}' property cannot be null or empty.", nameof(sortExpression));
@@ -536,8 +531,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="groupExpression"/> is <c>null</c>.</exception>
     public virtual string GroupExpression(GroupExpression groupExpression)
     {
-        if (groupExpression is null)
-            throw new ArgumentNullException(nameof(groupExpression));
+        ArgumentNullException.ThrowIfNull(groupExpression);
 
         return ColumnExpression(groupExpression);
     }
@@ -551,8 +545,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
     public virtual string WhereExpression(WhereExpression whereExpression)
     {
-        if (whereExpression is null)
-            throw new ArgumentNullException(nameof(whereExpression));
+        ArgumentNullException.ThrowIfNull(whereExpression);
 
         if (whereExpression.ColumnName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(whereExpression.ColumnName)}' property cannot be null or empty.", nameof(whereExpression));
@@ -628,8 +621,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
     public virtual string UpdateExpression(UpdateExpression updateExpression)
     {
-        if (updateExpression is null)
-            throw new ArgumentNullException(nameof(updateExpression));
+        ArgumentNullException.ThrowIfNull(updateExpression);
 
         if (updateExpression.ColumnName.IsNullOrWhiteSpace())
             throw new ArgumentException($"'{nameof(updateExpression.ColumnName)}' cannot be null or empty.", nameof(updateExpression));
@@ -653,8 +645,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if required upsert configuration is missing.</exception>
     protected static void ValidateUpsert(UpsertStatement upsertStatement)
     {
-        if (upsertStatement is null)
-            throw new ArgumentNullException(nameof(upsertStatement));
+        ArgumentNullException.ThrowIfNull(upsertStatement);
 
         if (upsertStatement.TableExpression == null)
             throw new ArgumentException("No table specified to upsert into", nameof(upsertStatement));
@@ -681,8 +672,7 @@ public class SqlServerGenerator : IQueryGenerator
     /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
     public virtual string JoinExpression(JoinExpression joinExpression)
     {
-        if (joinExpression is null)
-            throw new ArgumentNullException(nameof(joinExpression));
+        ArgumentNullException.ThrowIfNull(joinExpression);
 
         var leftColumn = ColumnExpression(new ColumnExpression(joinExpression.LeftColumnName, joinExpression.LeftTableAlias));
         var rightColumn = ColumnExpression(new ColumnExpression(joinExpression.RightColumnName, joinExpression.RightTableAlias));

@@ -29,8 +29,7 @@ public class TypeAccessor
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="type"/> is <c>null</c>.</exception>
     public TypeAccessor(Type type)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
         Type = type;
         _constructor = new Lazy<Func<object>?>(() => ExpressionFactory.CreateConstructor(Type));
@@ -51,8 +50,7 @@ public class TypeAccessor
         string? tableSchema,
         Func<object>? constructor)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
         Type = type;
 
@@ -156,10 +154,8 @@ public class TypeAccessor
 
     private static MethodInfo? FindMethod(Type type, string name, Type[] parameterTypes, BindingFlags flags)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(name);
 
         if (parameterTypes == null)
             parameterTypes = Type.EmptyTypes;
@@ -323,8 +319,7 @@ public class TypeAccessor
     /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
     public IMemberAccessor? FindProperty<T>(Expression<Func<T>> propertyExpression)
     {
-        if (propertyExpression == null)
-            throw new ArgumentNullException(nameof(propertyExpression));
+        ArgumentNullException.ThrowIfNull(propertyExpression);
 
         if (propertyExpression.Body is UnaryExpression unaryExpression)
             return FindProperty(unaryExpression.Operand as MemberExpression);
@@ -343,8 +338,7 @@ public class TypeAccessor
     /// <exception cref="ArgumentException">Thrown if the expression is not a valid property access expression.</exception>
     public IMemberAccessor? FindProperty<TSource, TValue>(Expression<Func<TSource, TValue>> propertyExpression)
     {
-        if (propertyExpression == null)
-            throw new ArgumentNullException(nameof(propertyExpression));
+        ArgumentNullException.ThrowIfNull(propertyExpression);
 
         if (propertyExpression.Body is UnaryExpression unaryExpression)
             return FindProperty(unaryExpression.Operand as MemberExpression);
@@ -410,8 +404,7 @@ public class TypeAccessor
 
     private IMemberAccessor GetAccessor(PropertyInfo propertyInfo)
     {
-        if (propertyInfo == null)
-            throw new ArgumentNullException(nameof(propertyInfo));
+        ArgumentNullException.ThrowIfNull(propertyInfo);
 
         // fast-path: avoid closure allocation from GetOrAdd lambda on cache hits
         if (_memberCache.TryGetValue(propertyInfo.Name, out var cached) && cached != null)
@@ -441,11 +434,9 @@ public class TypeAccessor
 
     private static PropertyInfo? FindProperty(Type type, string name, BindingFlags flags)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
 
         var typeInfo = type.GetTypeInfo();
         // first try GetProperty
@@ -501,11 +492,9 @@ public class TypeAccessor
 
     private static FieldInfo? FindField(Type type, string name, BindingFlags flags)
     {
-        if (type == null)
-            throw new ArgumentNullException(nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
 
-        if (name == null)
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNull(name);
 
         // first try GetField
         var typeInfo = type.GetTypeInfo();
@@ -559,8 +548,8 @@ public class TypeAccessor
     /// <param name="accessor">The pre-generated accessor.</param>
     public static void Register(Type type, TypeAccessor accessor)
     {
-        if (type == null) throw new ArgumentNullException(nameof(type));
-        if (accessor == null) throw new ArgumentNullException(nameof(accessor));
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(accessor);
         _typeCache[type] = accessor;
     }
 

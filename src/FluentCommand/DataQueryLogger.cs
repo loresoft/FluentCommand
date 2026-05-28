@@ -39,8 +39,7 @@ public partial class DataQueryLogger : IDataQueryLogger
         if (Logger == null)
             return;
 
-        if (command is null)
-            throw new ArgumentNullException(nameof(command));
+        ArgumentNullException.ThrowIfNull(command);
 
         var elapsed = duration.TotalMilliseconds;
         var commandType = command.CommandType;

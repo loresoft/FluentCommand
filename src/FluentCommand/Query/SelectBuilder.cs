@@ -149,8 +149,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
         IEnumerable<string> columnNames,
         string? tableAlias = null)
     {
-        if (columnNames is null)
-            throw new ArgumentNullException(nameof(columnNames));
+        ArgumentNullException.ThrowIfNull(columnNames);
 
         foreach (var column in columnNames)
             Column(column, tableAlias);
@@ -393,8 +392,7 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="sortExpressions"/> is <c>null</c>.</exception>
     public TBuilder OrderByRaw(IEnumerable<string> sortExpressions)
     {
-        if (sortExpressions is null)
-            throw new ArgumentNullException(nameof(sortExpressions));
+        ArgumentNullException.ThrowIfNull(sortExpressions);
 
         foreach (var sortExpression in sortExpressions)
             SortExpressions.Add(new SortExpression(sortExpression, IsRaw: true));

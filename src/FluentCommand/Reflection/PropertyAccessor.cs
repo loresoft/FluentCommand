@@ -19,8 +19,7 @@ public class PropertyAccessor : MemberAccessor
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyInfo"/> is <c>null</c>.</exception>
     public PropertyAccessor(PropertyInfo propertyInfo) : base(propertyInfo)
     {
-        if (propertyInfo == null)
-            throw new ArgumentNullException(nameof(propertyInfo));
+        ArgumentNullException.ThrowIfNull(propertyInfo);
 
         Name = propertyInfo.Name;
         MemberType = propertyInfo.PropertyType;

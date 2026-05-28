@@ -20,8 +20,7 @@ public class DataQueryFormatter
     /// <exception cref="System.ArgumentNullException">command</exception>
     public string FormatCommand(IDbCommand command, TimeSpan duration, Exception? exception)
     {
-        if (command == null)
-            throw new ArgumentNullException(nameof(command));
+        ArgumentNullException.ThrowIfNull(command);
 
         var elapsed = duration.TotalMilliseconds;
         var commandType = command.CommandType;

@@ -105,8 +105,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <exception cref="ArgumentNullException"><paramref name="parameter"/> is null</exception>
     public IDataCommand Parameter(DbParameter parameter)
     {
-        if (parameter == null)
-            throw new ArgumentNullException(nameof(parameter));
+        ArgumentNullException.ThrowIfNull(parameter);
 
         Command.Parameters.Add(parameter);
         return this;
@@ -217,8 +216,7 @@ public class DataCommand : DisposableBase, IDataCommand
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult)
     {
-        if (factory == null)
-            throw new ArgumentNullException(nameof(factory));
+        ArgumentNullException.ThrowIfNull(factory);
 
         return QueryFactory(() =>
         {
@@ -251,8 +249,7 @@ public class DataCommand : DisposableBase, IDataCommand
         CommandBehavior commandBehavior = CommandBehavior.SingleResult,
         CancellationToken cancellationToken = default)
     {
-        if (factory == null)
-            throw new ArgumentNullException(nameof(factory));
+        ArgumentNullException.ThrowIfNull(factory);
 
         return await QueryFactoryAsync(async (token) =>
         {
@@ -285,8 +282,7 @@ public class DataCommand : DisposableBase, IDataCommand
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow)
     {
-        if (factory == null)
-            throw new ArgumentNullException(nameof(factory));
+        ArgumentNullException.ThrowIfNull(factory);
 
         return QueryFactory(() =>
         {
@@ -314,8 +310,7 @@ public class DataCommand : DisposableBase, IDataCommand
         CommandBehavior commandBehavior = CommandBehavior.SingleResult | CommandBehavior.SingleRow,
         CancellationToken cancellationToken = default)
     {
-        if (factory == null)
-            throw new ArgumentNullException(nameof(factory));
+        ArgumentNullException.ThrowIfNull(factory);
 
         return await QueryFactoryAsync(async (token) =>
         {
@@ -416,8 +411,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <param name="queryAction">The query action delegate to pass the open <see cref="IDataQuery" /> for reading multiple results.</param>
     public void QueryMultiple(Action<IDataQuery> queryAction)
     {
-        if (queryAction == null)
-            throw new ArgumentNullException(nameof(queryAction));
+        ArgumentNullException.ThrowIfNull(queryAction);
 
         QueryFactory(() =>
         {
@@ -439,8 +433,7 @@ public class DataCommand : DisposableBase, IDataCommand
         Func<IDataQueryAsync, Task> queryAction,
         CancellationToken cancellationToken = default)
     {
-        if (queryAction == null)
-            throw new ArgumentNullException(nameof(queryAction));
+        ArgumentNullException.ThrowIfNull(queryAction);
 
         await QueryFactoryAsync(async (token) =>
         {
@@ -558,8 +551,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
     private TResult QueryFactory<TResult>(Func<TResult> query, bool supportCache)
     {
-        if (query == null)
-            throw new ArgumentNullException(nameof(query));
+        ArgumentNullException.ThrowIfNull(query);
 
         AssertDisposed();
 
@@ -610,8 +602,7 @@ public class DataCommand : DisposableBase, IDataCommand
         bool supportCache,
         CancellationToken cancellationToken = default)
     {
-        if (query == null)
-            throw new ArgumentNullException(nameof(query));
+        ArgumentNullException.ThrowIfNull(query);
 
         AssertDisposed();
 
