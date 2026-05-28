@@ -145,22 +145,23 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 .Select(p => CreateProperty(p, classIgnored: classIgnored))
                 .ToArray();
 
-            return new EntityClass(
-                InitializationMode: mode,
-                FullyQualified: fullyQualified,
-                EntityNamespace: classNamespace,
-                EntityName: className,
-                Properties: propertyArray,
-                TableName: tableName,
-                TableSchema: tableSchema
-            );
+            return new EntityClass
+            {
+                InitializationMode = mode,
+                FullyQualified = fullyQualified,
+                EntityNamespace = classNamespace,
+                EntityName = className,
+                Properties = propertyArray,
+                TableName = tableName,
+                TableSchema = tableSchema
+            };
         }
 
         // constructor initialization
 
         // constructor with same number of parameters as mappable properties
         var mappableCount = propertySymbols
-            .Count(p => !classIgnored.Contains(p.Name) && !HasIgnorePropertyAttribute(p.GetAttributes()));
+            .Count(p => IsMappableProperty(p, classIgnored));
 
         var constructor = targetSymbol.Constructors.FirstOrDefault(c => c.Parameters.Length == mappableCount);
         if (constructor == null)
@@ -181,15 +182,16 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
             properties.Add(property);
         }
 
-        return new EntityClass(
-            InitializationMode: mode,
-            FullyQualified: fullyQualified,
-            EntityNamespace: classNamespace,
-            EntityName: className,
-            Properties: properties,
-            TableName: tableName,
-            TableSchema: tableSchema
-        );
+        return new EntityClass
+        {
+            InitializationMode = mode,
+            FullyQualified = fullyQualified,
+            EntityNamespace = classNamespace,
+            EntityName = className,
+            Properties = properties,
+            TableName = tableName,
+            TableSchema = tableSchema
+        };
     }
 
     private static List<IPropertySymbol> GetProperties(INamedTypeSymbol targetSymbol)
@@ -224,21 +226,25 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         var propertyName = propertySymbol.Name;
         var hasGetter = propertySymbol.GetMethod != null;
         var hasSetter = propertySymbol.SetMethod?.IsInitOnly == false;
-        var isNotMapped = (classIgnored?.Contains(propertyName) == true) || !IsSupportedType(propertySymbol.Type);
-
         var attributes = propertySymbol.GetAttributes();
+        var jsonColumn = GetJsonColumn(attributes);
+        var isJsonColumn = jsonColumn != null;
+        var isNotMapped = (classIgnored?.Contains(propertyName) == true) || (!isJsonColumn && !IsSupportedType(propertySymbol.Type));
+
         if (attributes == default || attributes.Length == 0)
         {
-            return new EntityProperty(
-                PropertyName: propertyName,
-                ColumnName: propertyName,
-                PropertyType: propertyType,
-                MemberTypeName: memberTypeName,
-                ParameterName: parameterName,
-                IsNotMapped: isNotMapped,
-                HasGetter: hasGetter,
-                HasSetter: hasSetter
-            );
+            return new EntityProperty
+            {
+                PropertyName = propertyName,
+                ColumnName = propertyName,
+                PropertyType = propertyType,
+                MemberTypeName = memberTypeName,
+                ParameterName = parameterName,
+                IsNotMapped = isNotMapped,
+                HasGetter = hasGetter,
+                HasSetter = hasSetter,
+                IsJsonColumn = isJsonColumn
+            };
         }
 
         var columnName = GetColumnName(attributes) ?? propertyName;
@@ -258,27 +264,72 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         var dataFormatString = GetNamedString(FindDataAnnotationAttribute(attributes, "DisplayFormatAttribute"), "DataFormatString");
         var columnType = GetNamedString(FindSchemaAttribute(attributes, "ColumnAttribute"), "TypeName");
         var columnOrder = GetNamedNumber(FindSchemaAttribute(attributes, "ColumnAttribute"), "Order");
+        var jsonOptionsProviderName = GetJsonOptionsProviderName(jsonColumn);
+        var jsonContextName = GetJsonContextName(jsonColumn);
+        var jsonTypeInfoPropertyName = GetJsonTypeInfoPropertyName(jsonColumn);
 
-        return new EntityProperty(
-            PropertyName: propertyName,
-            ColumnName: columnName,
-            PropertyType: propertyType,
-            MemberTypeName: memberTypeName,
-            ParameterName: parameterName,
-            ConverterName: converterName,
-            IsKey: isKey,
-            IsNotMapped: isNotMapped,
-            IsDatabaseGenerated: isDatabaseGenerated,
-            IsConcurrencyCheck: isConcurrencyCheck,
-            ForeignKey: foreignKey,
-            IsRequired: isRequired,
-            HasGetter: hasGetter,
-            HasSetter: hasSetter,
-            DisplayName: displayName,
-            DataFormatString: dataFormatString,
-            ColumnType: columnType,
-            ColumnOrder: columnOrder
-        );
+        return new EntityProperty
+        {
+            PropertyName = propertyName,
+            ColumnName = columnName,
+            PropertyType = propertyType,
+            MemberTypeName = memberTypeName,
+            ParameterName = parameterName,
+            ConverterName = converterName,
+            IsKey = isKey,
+            IsNotMapped = isNotMapped,
+            IsDatabaseGenerated = isDatabaseGenerated,
+            IsConcurrencyCheck = isConcurrencyCheck,
+            ForeignKey = foreignKey,
+            IsRequired = isRequired,
+            HasGetter = hasGetter,
+            HasSetter = hasSetter,
+            DisplayName = displayName,
+            DataFormatString = dataFormatString,
+            ColumnType = columnType,
+            ColumnOrder = columnOrder,
+            IsJsonColumn = isJsonColumn,
+            JsonOptionsProviderName = jsonOptionsProviderName,
+            JsonContextName = jsonContextName,
+            JsonTypeInfoPropertyName = jsonTypeInfoPropertyName
+        };
+    }
+
+    private static AttributeData? GetJsonColumn(ImmutableArray<AttributeData> attributes)
+    {
+        return attributes.FirstOrDefault(a => a.AttributeClass is
+        {
+            Name: "JsonColumnAttribute",
+            ContainingNamespace:
+            {
+                Name: "Attributes",
+                ContainingNamespace.Name: "FluentCommand"
+            }
+        });
+    }
+
+    private static string? GetJsonOptionsProviderName(AttributeData? attribute)
+    {
+        if (attribute?.ConstructorArguments.Length == 1 && attribute.ConstructorArguments[0].Value is INamedTypeSymbol providerSymbol)
+            return providerSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+        return null;
+    }
+
+    private static string? GetJsonContextName(AttributeData? attribute)
+    {
+        if (attribute?.ConstructorArguments.Length == 2 && attribute.ConstructorArguments[0].Value is INamedTypeSymbol contextSymbol)
+            return contextSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+        return null;
+    }
+
+    private static string? GetJsonTypeInfoPropertyName(AttributeData? attribute)
+    {
+        if (attribute?.ConstructorArguments.Length == 2 && attribute.ConstructorArguments[1].Value is string propertyName)
+            return propertyName;
+
+        return null;
     }
 
     private static string? GetColumnName(ImmutableArray<AttributeData> attributes)
@@ -502,6 +553,15 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 ContainingNamespace.Name: "FluentCommand"
             }
         });
+    }
+
+    private static bool IsMappableProperty(IPropertySymbol propertySymbol, HashSet<string> classIgnored)
+    {
+        var attributes = propertySymbol.GetAttributes();
+        if (classIgnored.Contains(propertySymbol.Name) || HasIgnorePropertyAttribute(attributes) || IsNotMapped(attributes))
+            return false;
+
+        return GetJsonColumn(attributes) != null || IsSupportedType(propertySymbol.Type);
     }
 
     private static HashSet<string> GetClassIgnoredProperties(ImmutableArray<AttributeData> attributes)

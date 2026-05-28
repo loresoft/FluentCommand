@@ -6,8 +6,6 @@ using System.Text;
 
 using FluentCommand.Extensions;
 
-using Microsoft.IO;
-
 namespace FluentCommand;
 
 /// <summary>
@@ -15,8 +13,11 @@ namespace FluentCommand;
 /// </summary>
 public static class CsvCommandExtensions
 {
-    private static readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
+#if NETSTANDARD2_0
+    private static readonly char[] SpecialChars = [',', '"', '\n', '\r'];
+#else
     private static readonly SearchValues<char> SpecialChars = SearchValues.Create(",\"\n\r");
+#endif
 
     /// <summary>
     /// Executes the query and returns a CSV string from the data set returned by the query.
@@ -28,20 +29,18 @@ public static class CsvCommandExtensions
     /// <exception cref="ArgumentNullException"><paramref name="dataCommand"/> is <c>null</c>.</exception>
     public static string QueryCsv(this IDataCommand dataCommand)
     {
-        if (dataCommand is null)
-            throw new ArgumentNullException(nameof(dataCommand));
+        ArgumentNullException.ThrowIfNull(dataCommand);
 
-        using var stream = _memoryStreamManager.GetStream();
+        var builder = new StringBuilder(1024);
+        using var writer = new StringWriter(builder, CultureInfo.InvariantCulture);
 
-        QueryCsv(dataCommand, stream);
+        dataCommand.Read(
+            readAction: reader => WriteData(writer, reader),
+            commandBehavior: CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
 
-        var bytes = stream.GetReadOnlySequence();
+        writer.Flush();
 
-#if NET5_0_OR_GREATER
-        return Encoding.UTF8.GetString(bytes);
-#else
-        return Encoding.UTF8.GetString(bytes.ToArray());
-#endif
+        return builder.ToString();
     }
 
     /// <summary>
@@ -54,10 +53,8 @@ public static class CsvCommandExtensions
     /// </exception>
     public static void QueryCsv(this IDataCommand dataCommand, Stream stream)
     {
-        if (dataCommand is null)
-            throw new ArgumentNullException(nameof(dataCommand));
-        if (stream is null)
-            throw new ArgumentNullException(nameof(stream));
+        ArgumentNullException.ThrowIfNull(dataCommand);
+        ArgumentNullException.ThrowIfNull(stream);
 
         using var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true);
 
@@ -79,20 +76,25 @@ public static class CsvCommandExtensions
     /// <exception cref="ArgumentNullException"><paramref name="dataCommand"/> is <c>null</c>.</exception>
     public static async Task<string> QueryCsvAsync(this IDataCommand dataCommand, CancellationToken cancellationToken = default)
     {
-        if (dataCommand is null)
-            throw new ArgumentNullException(nameof(dataCommand));
+        ArgumentNullException.ThrowIfNull(dataCommand);
 
-        using var stream = _memoryStreamManager.GetStream();
+        var builder = new StringBuilder(1024);
+        using var writer = new StringWriter(builder, CultureInfo.InvariantCulture);
 
-        await QueryCsvAsync(dataCommand, stream, cancellationToken);
+        await dataCommand.ReadAsync(
+            readAction: async (reader, token) =>
+            {
+                if (reader is DbDataReader dataReader)
+                    await WriteDataAsync(writer, dataReader, token);
+                else
+                    WriteData(writer, reader);
+            },
+            commandBehavior: CommandBehavior.SequentialAccess | CommandBehavior.SingleResult,
+            cancellationToken: cancellationToken);
 
-        var bytes = stream.GetReadOnlySequence();
+        await writer.FlushAsync(cancellationToken);
 
-#if NET5_0_OR_GREATER
-        return Encoding.UTF8.GetString(bytes);
-#else
-        return Encoding.UTF8.GetString(bytes.ToArray());
-#endif
+        return builder.ToString();
     }
 
     /// <summary>
@@ -109,10 +111,8 @@ public static class CsvCommandExtensions
     /// </exception>
     public static async Task QueryCsvAsync(this IDataCommand dataCommand, Stream stream, CancellationToken cancellationToken = default)
     {
-        if (dataCommand is null)
-            throw new ArgumentNullException(nameof(dataCommand));
-        if (stream is null)
-            throw new ArgumentNullException(nameof(stream));
+        ArgumentNullException.ThrowIfNull(dataCommand);
+        ArgumentNullException.ThrowIfNull(stream);
 
         using var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024, true);
 
@@ -369,11 +369,16 @@ public static class CsvCommandExtensions
 
     private static void WriteValue(TextWriter writer, string? value)
     {
-        if (string.IsNullOrEmpty(value))
+        if (value.IsNullOrEmpty())
             return;
 
         var span = value.AsSpan();
+
+#if NETSTANDARD2_0
+        var needsQuotes = span.IndexOfAny(SpecialChars) >= 0;
+#else
         var needsQuotes = span.ContainsAny(SpecialChars);
+#endif
 
         if (!needsQuotes)
         {

@@ -330,7 +330,21 @@ public static class DataReaderFactoryWriter
                 .Append(entityProperty.ColumnName)
                 .AppendLine("\":");
 
-            if (string.IsNullOrEmpty(entityProperty.ConverterName))
+            if (entityProperty.IsJsonColumn)
+            {
+                codeBuilder
+                    .IncrementIndent()
+                    .Append("v_")
+                    .Append(fieldName)
+                    .Append(" = dataRecord.GetFromJson<")
+                    .Append(entityProperty.PropertyType)
+                    .Append(">(__index")
+                    .Append(GetJsonReaderArgument(entityProperty))
+                    .AppendLine(");")
+                    .AppendLine("break;")
+                    .DecrementIndent();
+            }
+            else if (string.IsNullOrEmpty(entityProperty.ConverterName))
             {
                 var readerName = GetReaderName(entityProperty.PropertyType);
 
@@ -509,6 +523,20 @@ public static class DataReaderFactoryWriter
             "FluentCommand.ConcurrencyToken" => "GetBytes",
             _ => $"GetValue<{type}>"
         };
+    }
+
+    private static string GetJsonReaderArgument(EntityProperty entityProperty)
+    {
+        if (!string.IsNullOrEmpty(entityProperty.JsonOptionsProviderName))
+            return $", {entityProperty.JsonOptionsProviderName}.Options";
+
+        if (!string.IsNullOrEmpty(entityProperty.JsonContextName)
+            && !string.IsNullOrEmpty(entityProperty.JsonTypeInfoPropertyName))
+        {
+            return $", {entityProperty.JsonContextName}.Default.{entityProperty.JsonTypeInfoPropertyName}";
+        }
+
+        return string.Empty;
     }
 
     private static string CamelCase(string name)

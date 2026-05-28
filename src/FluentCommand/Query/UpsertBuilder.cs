@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+
 using FluentCommand.Query.Generators;
 
 namespace FluentCommand.Query;
@@ -111,8 +114,7 @@ public abstract class UpsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         if (string.IsNullOrWhiteSpace(columnName))
             throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
 
-        if (parameterType is null)
-            throw new ArgumentNullException(nameof(parameterType));
+        ArgumentNullException.ThrowIfNull(parameterType);
 
         var paramterName = NextParameter();
 
@@ -146,6 +148,49 @@ public abstract class UpsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
+    /// Adds a value for the specified column name with the value serialized as JSON using the specified <paramref name="options" />.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValue">The value to serialize as JSON and insert or update for the column.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use when serializing.</param>
+    /// <returns>The same builder instance for method chaining.</returns>
+    public TBuilder ValueJson<TValue>(
+        string columnName,
+        TValue? parameterValue,
+        JsonSerializerOptions? options = null)
+    {
+        var json = parameterValue is not null
+            ? JsonSerializer.Serialize(parameterValue, options)
+            : null;
+
+        return Value(columnName, json);
+    }
+
+    /// <summary>
+    /// Adds a value for the specified column name with the value serialized as JSON using the specified <paramref name="jsonTypeInfo" />.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValue">The value to serialize as JSON and insert or update for the column.</param>
+    /// <param name="jsonTypeInfo">The <see cref="JsonTypeInfo{T}"/> to use when serializing.</param>
+    /// <returns>The same builder instance for method chaining.</returns>
+    public TBuilder ValueJson<TValue>(
+        string columnName,
+        TValue? parameterValue,
+        JsonTypeInfo<TValue> jsonTypeInfo)
+    {
+        ArgumentNullException.ThrowIfNull(jsonTypeInfo);
+
+        var json = parameterValue is not null
+            ? JsonSerializer.Serialize(parameterValue, jsonTypeInfo)
+            : null;
+
+        return Value(columnName, json);
+    }
+
+
+    /// <summary>
     /// Adds a key column used to determine whether a row already exists.
     /// </summary>
     /// <param name="columnName">The key column name.</param>
@@ -153,8 +198,7 @@ public abstract class UpsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// <exception cref="ArgumentException">Thrown if <paramref name="columnName"/> is null or empty.</exception>
     public TBuilder Key(string columnName)
     {
-        if (string.IsNullOrWhiteSpace(columnName))
-            throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         KeyExpressions.Add(new ColumnExpression(columnName));
 
@@ -188,8 +232,7 @@ public abstract class UpsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         IEnumerable<string> columnNames,
         string? tableAlias = null)
     {
-        if (columnNames is null)
-            throw new ArgumentNullException(nameof(columnNames));
+        ArgumentNullException.ThrowIfNull(columnNames);
 
         foreach (var column in columnNames)
             Output(column, tableAlias);

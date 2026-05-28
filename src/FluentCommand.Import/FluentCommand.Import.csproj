@@ -4,6 +4,6 @@
     <Description>Fluent Wrapper for DbCommand with data import, field mapping, and merge capabilities</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="System.Text.Json" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
   </ItemGroup>
 </Project>

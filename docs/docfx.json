@@ -5,8 +5,7 @@
         {
           "files": [
             "src/FluentCommand/bin/Release/net8.0/FluentCommand.dll",
-            "src/FluentCommand.SqlServer/bin/Release/net8.0/FluentCommand.SqlServer.dll",
-            "src/FluentCommand.Json/bin/Release/net8.0/FluentCommand.Json.dll"
+            "src/FluentCommand.SqlServer/bin/Release/net8.0/FluentCommand.SqlServer.dll"
           ],
           "src": "../"
         }

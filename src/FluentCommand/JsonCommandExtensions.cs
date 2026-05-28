@@ -8,8 +8,6 @@ using System.Text.Json.Serialization.Metadata;
 
 using FluentCommand.Extensions;
 
-using Microsoft.IO;
-
 namespace FluentCommand;
 
 /// <summary>
@@ -17,8 +15,6 @@ namespace FluentCommand;
 /// </summary>
 public static class JsonCommandExtensions
 {
-    private static readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
-
     /// <summary>
     /// Adds a new parameter with the specified <paramref name="name" /> with the <paramref name="value" /> serialized as JSON using the specified <paramref name="options" />.
     /// </summary>
@@ -69,7 +65,7 @@ public static class JsonCommandExtensions
 
 
     /// <summary>
-    /// Executes the query and returns a JSON string from data set returned by the query.
+    /// Executes the query and writes the data set returned by the query as JSON to the specified stream.
     /// </summary>
     /// <param name="dataCommand">The data command.</param>
     /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
@@ -80,19 +76,20 @@ public static class JsonCommandExtensions
         this IDataCommand dataCommand,
         JsonWriterOptions options = default)
     {
-        if (dataCommand is null)
-            throw new ArgumentNullException(nameof(dataCommand));
+        ArgumentNullException.ThrowIfNull(dataCommand);
 
-        using var stream = _memoryStreamManager.GetStream();
+#if NETSTANDARD2_0
+        using var stream = new MemoryStream();
 
         QueryJson(dataCommand, stream, options);
 
-        var bytes = stream.GetReadOnlySequence();
-
-#if NET5_0_OR_GREATER
-        return Encoding.UTF8.GetString(bytes);
+        return Encoding.UTF8.GetString(stream.ToArray());
 #else
-        return Encoding.UTF8.GetString(bytes.ToArray());
+        var bufferWriter = new ArrayBufferWriter<byte>();
+
+        QueryJson(dataCommand, bufferWriter, options);
+
+        return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
 #endif
     }
 
@@ -102,18 +99,13 @@ public static class JsonCommandExtensions
     /// <param name="dataCommand">The data command.</param>
     /// <param name="stream">The destination for writing JSON text.</param>
     /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
-    /// <returns>
-    /// A JSON string representing the <see cref="IDataReader" /> result of the command.
-    /// </returns>
     public static void QueryJson(
         this IDataCommand dataCommand,
         Stream stream,
         JsonWriterOptions options = default)
     {
-        if (dataCommand is null)
-            throw new ArgumentNullException(nameof(dataCommand));
-        if (stream is null)
-            throw new ArgumentNullException(nameof(stream));
+        ArgumentNullException.ThrowIfNull(dataCommand);
+        ArgumentNullException.ThrowIfNull(stream);
 
         var writer = new Utf8JsonWriter(stream, options);
 
@@ -126,9 +118,33 @@ public static class JsonCommandExtensions
         writer.Flush();
     }
 
+    /// <summary>
+    /// Executes the query and writes the data set returned by the query as JSON to the specified buffer writer.
+    /// </summary>
+    /// <param name="dataCommand">The data command.</param>
+    /// <param name="bufferWriter">The destination for writing UTF-8 encoded JSON text.</param>
+    /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
+    public static void QueryJson(
+        this IDataCommand dataCommand,
+        IBufferWriter<byte> bufferWriter,
+        JsonWriterOptions options = default)
+    {
+        ArgumentNullException.ThrowIfNull(dataCommand);
+        ArgumentNullException.ThrowIfNull(bufferWriter);
+
+        var writer = new Utf8JsonWriter(bufferWriter, options);
+
+        writer.WriteStartArray();
+
+        dataCommand.Read(reader => WriteData(reader, writer), CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
+
+        writer.WriteEndArray();
+
+        writer.Flush();
+    }
 
     /// <summary>
-    /// Executes the query and returns a JSON string from data set returned by the query asynchronously.
+    /// Executes the query asynchronously and writes the data set returned by the query as JSON to the specified stream.
     /// </summary>
     /// <param name="dataCommand">The data command.</param>
     /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
@@ -141,19 +157,20 @@ public static class JsonCommandExtensions
         JsonWriterOptions options = default,
         CancellationToken cancellationToken = default)
     {
-        if (dataCommand is null)
-            throw new ArgumentNullException(nameof(dataCommand));
+        ArgumentNullException.ThrowIfNull(dataCommand);
 
-        using var stream = _memoryStreamManager.GetStream();
+#if NETSTANDARD2_0
+        using var stream = new MemoryStream();
 
         await QueryJsonAsync(dataCommand, stream, options, cancellationToken);
 
-        var bytes = stream.GetReadOnlySequence();
-
-#if NET5_0_OR_GREATER
-        return Encoding.UTF8.GetString(bytes);
+        return Encoding.UTF8.GetString(stream.ToArray());
 #else
-        return Encoding.UTF8.GetString(bytes.ToArray());
+        var bufferWriter = new ArrayBufferWriter<byte>();
+
+        await QueryJsonAsync(dataCommand, bufferWriter, options, cancellationToken);
+
+        return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
 #endif
 
     }
@@ -165,21 +182,52 @@ public static class JsonCommandExtensions
     /// <param name="stream">The destination for writing JSON text.</param>
     /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    /// A JSON string representing the <see cref="IDataReader" /> result of the command.
-    /// </returns>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
     public static async Task QueryJsonAsync(
         this IDataCommand dataCommand,
         Stream stream,
         JsonWriterOptions options = default,
         CancellationToken cancellationToken = default)
     {
-        if (dataCommand is null)
-            throw new ArgumentNullException(nameof(dataCommand));
-        if (stream is null)
-            throw new ArgumentNullException(nameof(stream));
+        ArgumentNullException.ThrowIfNull(dataCommand);
+        ArgumentNullException.ThrowIfNull(stream);
 
         var writer = new Utf8JsonWriter(stream, options);
+
+        writer.WriteStartArray();
+
+        await dataCommand.ReadAsync(async (reader, token) =>
+        {
+            if (reader is DbDataReader dataReader)
+                await WriteDataAsync(dataReader, writer, token);
+            else
+                WriteData(reader, writer);
+
+        }, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult, cancellationToken);
+
+        writer.WriteEndArray();
+
+        await writer.FlushAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Executes the query asynchronously and writes the data set returned by the query as JSON to the specified buffer writer.
+    /// </summary>
+    /// <param name="dataCommand">The data command.</param>
+    /// <param name="bufferWriter">The destination for writing UTF-8 encoded JSON text.</param>
+    /// <param name="options">The <see cref="JsonWriterOptions" /> options.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    public static async Task QueryJsonAsync(
+        this IDataCommand dataCommand,
+        IBufferWriter<byte> bufferWriter,
+        JsonWriterOptions options = default,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(dataCommand);
+        ArgumentNullException.ThrowIfNull(bufferWriter);
+
+        var writer = new Utf8JsonWriter(bufferWriter, options);
 
         writer.WriteStartArray();
 

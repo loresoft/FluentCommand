@@ -7,22 +7,23 @@ public class TypeAccessorWriterTests
     [Fact]
     public async Task GenerateObjectInitializer()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Status",
-            "FluentCommand.Entities",
-            "Status",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Status",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Status",
+            Properties = new EntityProperty[]
             {
-                new("Id", "Id", typeof(int).FullName!, typeof(int).FullName!, IsKey: true, IsDatabaseGenerated: true),
-                new("Name", "Name", typeof(string).FullName!, typeof(string).FullName!, IsRequired: true),
-                new("IsActive", "IsActive", typeof(bool).FullName!, typeof(bool).FullName!),
-                new("Updated", "Updated", typeof(DateTimeOffset).FullName!, typeof(DateTimeOffset).FullName!, IsConcurrencyCheck: true),
-                new("RowVersion", "RowVersion", typeof(byte[]).FullName!, typeof(byte[]).FullName!),
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = typeof(int).FullName!, MemberTypeName = typeof(int).FullName!, IsKey = true, IsDatabaseGenerated = true },
+                new() { PropertyName = "Name", ColumnName = "Name", PropertyType = typeof(string).FullName!, MemberTypeName = typeof(string).FullName!, IsRequired = true },
+                new() { PropertyName = "IsActive", ColumnName = "IsActive", PropertyType = typeof(bool).FullName!, MemberTypeName = typeof(bool).FullName! },
+                new() { PropertyName = "Updated", ColumnName = "Updated", PropertyType = typeof(DateTimeOffset).FullName!, MemberTypeName = typeof(DateTimeOffset).FullName!, IsConcurrencyCheck = true },
+                new() { PropertyName = "RowVersion", ColumnName = "RowVersion", PropertyType = typeof(byte[]).FullName!, MemberTypeName = typeof(byte[]).FullName! },
             },
-            TableName: "Status",
-            TableSchema: "dbo"
-        );
+            TableName = "Status",
+            TableSchema = "dbo"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -35,19 +36,20 @@ public class TypeAccessorWriterTests
     [Fact]
     public async Task GenerateWithColumnMapping()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.User",
-            "FluentCommand.Entities",
-            "User",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.User",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "User",
+            Properties = new EntityProperty[]
             {
-                new("Id", "user_id", typeof(int).FullName!, typeof(int).FullName!, IsKey: true, IsDatabaseGenerated: true, ColumnType: "int"),
-                new("Name", "user_name", typeof(string).FullName!, typeof(string).FullName!, IsRequired: true, DisplayName: "User Name"),
-                new("Email", "Email", typeof(string).FullName!, typeof(string).FullName!),
+                new() { PropertyName = "Id", ColumnName = "user_id", PropertyType = typeof(int).FullName!, MemberTypeName = typeof(int).FullName!, IsKey = true, IsDatabaseGenerated = true, ColumnType = "int" },
+                new() { PropertyName = "Name", ColumnName = "user_name", PropertyType = typeof(string).FullName!, MemberTypeName = typeof(string).FullName!, IsRequired = true, DisplayName = "User Name" },
+                new() { PropertyName = "Email", ColumnName = "Email", PropertyType = typeof(string).FullName!, MemberTypeName = typeof(string).FullName! },
             },
-            TableName: "Users"
-        );
+            TableName = "Users"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -60,17 +62,18 @@ public class TypeAccessorWriterTests
     [Fact]
     public async Task GenerateConstructorMode()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.Constructor,
-            "global::FluentCommand.Entities.UserRecord",
-            "FluentCommand.Entities",
-            "UserRecord",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.Constructor,
+            FullyQualified = "global::FluentCommand.Entities.UserRecord",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "UserRecord",
+            Properties = new EntityProperty[]
             {
-                new("Id", "Id", typeof(int).FullName!, typeof(int).FullName!, ParameterName: "id", IsKey: true),
-                new("Name", "Name", typeof(string).FullName!, typeof(string).FullName!, ParameterName: "name"),
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = typeof(int).FullName!, MemberTypeName = typeof(int).FullName!, ParameterName = "id", IsKey = true },
+                new() { PropertyName = "Name", ColumnName = "Name", PropertyType = typeof(string).FullName!, MemberTypeName = typeof(string).FullName!, ParameterName = "name" },
             }
-        );
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -83,20 +86,21 @@ public class TypeAccessorWriterTests
     [Fact]
     public async Task GenerateNullableReferenceType()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Contact",
-            "FluentCommand.Entities",
-            "Contact",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Contact",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Contact",
+            Properties = new EntityProperty[]
             {
-                new("Id", "Id", "int", "int", IsKey: true, IsDatabaseGenerated: true),
-                new("Name", "Name", "string", "string", IsRequired: true),
-                new("Email", "Email", "string?", "string"),
-                new("Age", "Age", "int?", "int?"),
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "int", MemberTypeName = "int", IsKey = true, IsDatabaseGenerated = true },
+                new() { PropertyName = "Name", ColumnName = "Name", PropertyType = "string", MemberTypeName = "string", IsRequired = true },
+                new() { PropertyName = "Email", ColumnName = "Email", PropertyType = "string?", MemberTypeName = "string" },
+                new() { PropertyName = "Age", ColumnName = "Age", PropertyType = "int?", MemberTypeName = "int?" },
             },
-            TableName: "Contact"
-        );
+            TableName = "Contact"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -122,17 +126,18 @@ public class TypeAccessorWriterTests
     [Fact]
     public void GetValueThrowsOnNullInstance()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Item",
-            "FluentCommand.Entities",
-            "Item",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Item",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Item",
+            Properties = new EntityProperty[]
             {
-                new("Id", "Id", "int", "int", IsKey: true),
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "int", MemberTypeName = "int", IsKey = true },
             },
-            TableName: "Item"
-        );
+            TableName = "Item"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -144,17 +149,18 @@ public class TypeAccessorWriterTests
     [Fact]
     public void SetValueThrowsOnNullInstance()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Item",
-            "FluentCommand.Entities",
-            "Item",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Item",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Item",
+            Properties = new EntityProperty[]
             {
-                new("Id", "Id", "int", "int", IsKey: true),
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "int", MemberTypeName = "int", IsKey = true },
             },
-            TableName: "Item"
-        );
+            TableName = "Item"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -166,18 +172,19 @@ public class TypeAccessorWriterTests
     [Fact]
     public void SetValueNonNullableRejectsNull()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Item",
-            "FluentCommand.Entities",
-            "Item",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Item",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Item",
+            Properties = new EntityProperty[]
             {
-                new("Id", "Id", "int", "int", IsKey: true),
-                new("Name", "Name", "string", "string", IsRequired: true),
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "int", MemberTypeName = "int", IsKey = true },
+                new() { PropertyName = "Name", ColumnName = "Name", PropertyType = "string", MemberTypeName = "string", IsRequired = true },
             },
-            TableName: "Item"
-        );
+            TableName = "Item"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -196,18 +203,19 @@ public class TypeAccessorWriterTests
     [Fact]
     public void SetValueNullableAcceptsNull()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Item",
-            "FluentCommand.Entities",
-            "Item",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Item",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Item",
+            Properties = new EntityProperty[]
             {
-                new("Age", "Age", "int?", "int?"),
-                new("Email", "Email", "string?", "string"),
+                new() { PropertyName = "Age", ColumnName = "Age", PropertyType = "int?", MemberTypeName = "int?" },
+                new() { PropertyName = "Email", ColumnName = "Email", PropertyType = "string?", MemberTypeName = "string" },
             },
-            TableName: "Item"
-        );
+            TableName = "Item"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -222,17 +230,18 @@ public class TypeAccessorWriterTests
     [Fact]
     public void GetValueNoGetterThrowsInvalidOperation()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Item",
-            "FluentCommand.Entities",
-            "Item",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Item",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Item",
+            Properties = new EntityProperty[]
             {
-                new("Secret", "Secret", "string", "string", HasGetter: false),
+                new() { PropertyName = "Secret", ColumnName = "Secret", PropertyType = "string", MemberTypeName = "string", HasGetter = false },
             },
-            TableName: "Item"
-        );
+            TableName = "Item"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 
@@ -242,17 +251,18 @@ public class TypeAccessorWriterTests
     [Fact]
     public void SetValueNoSetterThrowsInvalidOperation()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Item",
-            "FluentCommand.Entities",
-            "Item",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Item",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Item",
+            Properties = new EntityProperty[]
             {
-                new("ReadOnly", "ReadOnly", "string", "string", HasSetter: false),
+                new() { PropertyName = "ReadOnly", ColumnName = "ReadOnly", PropertyType = "string", MemberTypeName = "string", HasSetter = false },
             },
-            TableName: "Item"
-        );
+            TableName = "Item"
+        };
 
         var source = TypeAccessorWriter.Generate(entityClass);
 

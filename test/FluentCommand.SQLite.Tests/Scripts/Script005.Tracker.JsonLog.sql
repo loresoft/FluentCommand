@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS "JsonLog" (
+    "Id" integer NOT NULL PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "Data" text NULL,
+    "Created" datetimeoffset NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 using FluentCommand.Generators.Models;
 
 namespace FluentCommand.Generators.Tests;
@@ -9,20 +7,21 @@ public class DataReaderFactoryWriterTests
     [Fact]
     public async Task Generate()
     {
-        var entityClass = new EntityClass(
-            InitializationMode.ObjectInitializer,
-            "global::FluentCommand.Entities.Status",
-            "FluentCommand.Entities",
-            "Status",
-            new EntityProperty[]
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Status",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Status",
+            Properties = new EntityProperty[]
             {
-                new("Id", "Id", typeof(int).FullName!, typeof(int).FullName!),
-                new("Name", "Name", typeof(string).FullName!, typeof(string).FullName!),
-                new("IsActive", "IsActive", typeof(bool).FullName!, typeof(bool).FullName!),
-                new("Updated", "Updated", typeof(DateTimeOffset).FullName!, typeof(DateTimeOffset).FullName!),
-                new("RowVersion", "RowVersion", typeof(byte[]).FullName!, typeof(byte[]).FullName!),
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = typeof(int).FullName!, MemberTypeName = typeof(int).FullName! },
+                new() { PropertyName = "Name", ColumnName = "Name", PropertyType = typeof(string).FullName!, MemberTypeName = typeof(string).FullName! },
+                new() { PropertyName = "IsActive", ColumnName = "IsActive", PropertyType = typeof(bool).FullName!, MemberTypeName = typeof(bool).FullName! },
+                new() { PropertyName = "Updated", ColumnName = "Updated", PropertyType = typeof(DateTimeOffset).FullName!, MemberTypeName = typeof(DateTimeOffset).FullName! },
+                new() { PropertyName = "RowVersion", ColumnName = "RowVersion", PropertyType = typeof(byte[]).FullName!, MemberTypeName = typeof(byte[]).FullName! },
             }
-        );
+        };
 
         var source = DataReaderFactoryWriter.Generate(entityClass);
 
@@ -30,5 +29,30 @@ public class DataReaderFactoryWriterTests
             .Verify(source)
             .UseDirectory("Snapshots")
             .ScrubLinesContaining("GeneratedCodeAttribute");
+    }
+
+    [Fact]
+    public void GenerateJsonColumnReader()
+    {
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.UserLog",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "UserLog",
+            Properties = new EntityProperty[]
+            {
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "int", MemberTypeName = "int" },
+                new() { PropertyName = "Data", ColumnName = "Data", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true },
+                new() { PropertyName = "DataWithOptions", ColumnName = "DataWithOptions", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true, JsonOptionsProviderName = "global::FluentCommand.Entities.UserImportJsonOptionsProvider" },
+                new() { PropertyName = "DataWithContext", ColumnName = "DataWithContext", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true, JsonContextName = "global::FluentCommand.Entities.UserImportJsonContext", JsonTypeInfoPropertyName = "UserImport" },
+            }
+        };
+
+        var source = DataReaderFactoryWriter.Generate(entityClass);
+
+        Assert.Contains("v_data = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport>(__index);", source);
+        Assert.Contains("v_dataWithOptions = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonOptionsProvider.Options);", source);
+        Assert.Contains("v_dataWithContext = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonContext.Default.UserImport);", source);
     }
 }

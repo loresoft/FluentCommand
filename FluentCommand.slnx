@@ -17,10 +17,8 @@
     <Project Path="test/FluentCommand.Tests/FluentCommand.Tests.csproj" />
   </Folder>
   <Project Path="src/FluentCommand.Caching/FluentCommand.Caching.csproj" />
-  <Project Path="src/FluentCommand.Csv/FluentCommand.Csv.csproj" />
   <Project Path="src/FluentCommand.Generators/FluentCommand.Generators.csproj" />
   <Project Path="src/FluentCommand.Import/FluentCommand.Import.csproj" />
-  <Project Path="src/FluentCommand.Json/FluentCommand.Json.csproj" />
   <Project Path="src/FluentCommand.SqlServer/FluentCommand.SqlServer.csproj" />
   <Project Path="src/FluentCommand/FluentCommand.csproj" />
 </Solution>

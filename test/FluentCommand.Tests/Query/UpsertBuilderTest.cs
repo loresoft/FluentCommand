@@ -129,6 +129,25 @@ public class UpsertBuilderTest
             .ScrubLinesContaining("/* Caller;");
     }
 
+    [Fact]
+    public void UpsertValueJsonWithNullAddsStringParameterWithNullValue()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new UpsertBuilder(sqlProvider, parameters)
+            .Into("JsonLog")
+            .Key("Id")
+            .Value("Id", 1)
+            .ValueJson<object>("Data", null);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Last();
+
+        parameter.Value.Should().BeNull();
+        parameter.Type.Should().Be(typeof(string));
+    }
+
 }
 
 [Table("Status", Schema = "dbo")]

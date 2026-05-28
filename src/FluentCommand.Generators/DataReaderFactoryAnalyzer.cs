@@ -84,15 +84,18 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
 
         // Count mappable properties
         var mappableProperties = propertySymbols
-            .Where(p => !classIgnored.Contains(p.Name)
-                        && !HasIgnorePropertyAttribute(p.GetAttributes())
-                        && IsSupportedType(p.Type))
+            .Where(p => IsMappableProperty(p, classIgnored))
             .ToList();
 
         // Report unsupported property types
         foreach (var prop in propertySymbols)
         {
-            if (classIgnored.Contains(prop.Name) || HasIgnorePropertyAttribute(prop.GetAttributes()))
+            var propertyAttributes = prop.GetAttributes();
+
+            if (classIgnored.Contains(prop.Name) || HasIgnorePropertyAttribute(propertyAttributes) || IsNotMapped(propertyAttributes))
+                continue;
+
+            if (HasJsonColumnAttribute(propertyAttributes))
                 continue;
 
             if (!IsSupportedType(prop.Type))
@@ -120,7 +123,7 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
         if (!hasParameterlessCtor)
         {
             var mappableCount = propertySymbols
-                .Count(p => !classIgnored.Contains(p.Name) && !HasIgnorePropertyAttribute(p.GetAttributes()));
+                .Count(p => IsMappableProperty(p, classIgnored));
 
             var constructor = targetSymbol.Constructors.FirstOrDefault(c => c.Parameters.Length == mappableCount);
 
@@ -201,6 +204,33 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
                 ContainingNamespace.Name: "FluentCommand"
             }
         });
+    }
+
+    private static bool HasJsonColumnAttribute(ImmutableArray<AttributeData> attributes)
+    {
+        return attributes.Any(a => a.AttributeClass is
+        {
+            Name: "JsonColumnAttribute",
+            ContainingNamespace:
+            {
+                Name: "Attributes",
+                ContainingNamespace.Name: "FluentCommand"
+            }
+        });
+    }
+
+    private static bool IsNotMapped(ImmutableArray<AttributeData> attributes)
+    {
+        return FindSchemaAttribute(attributes, "NotMappedAttribute") != null;
+    }
+
+    private static bool IsMappableProperty(IPropertySymbol propertySymbol, HashSet<string> classIgnored)
+    {
+        var attributes = propertySymbol.GetAttributes();
+        if (classIgnored.Contains(propertySymbol.Name) || HasIgnorePropertyAttribute(attributes) || IsNotMapped(attributes))
+            return false;
+
+        return HasJsonColumnAttribute(attributes) || IsSupportedType(propertySymbol.Type);
     }
 
     private static HashSet<string> GetClassIgnoredProperties(ImmutableArray<AttributeData> attributes)

@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+
 using FluentCommand.Entities;
 using FluentCommand.Query;
 using FluentCommand.Query.Generators;
@@ -6,6 +9,27 @@ namespace FluentCommand.Tests.Query;
 
 public class UpdateBuilderTest
 {
+    [Fact]
+    public void UpdateValueJsonWithTypeInfoAddsJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        var options = JsonSerializerOptions.Default;
+        var typeInfo = (JsonTypeInfo<ValueJsonModel>)options.GetTypeInfo(typeof(ValueJsonModel));
+        var value = new ValueJsonModel("Json TypeInfo", 42);
+
+        var builder = new UpdateBuilder(sqlProvider, parameters)
+            .Table("JsonLog")
+            .ValueJson("Data", value, typeInfo)
+            .Where("Id", 1);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.First();
+
+        parameter.Value.Should().Be(JsonSerializer.Serialize(value, typeInfo));
+        parameter.Type.Should().Be(typeof(string));
+    }
+
     [Fact]
     public async System.Threading.Tasks.Task UpdateEntityValueWithOutput()
     {
@@ -57,4 +81,6 @@ public class UpdateBuilderTest
             .UseDirectory("Snapshots")
             .ScrubLinesContaining("/* Caller;");
     }
+
+    private sealed record ValueJsonModel(string Name, int Count);
 }

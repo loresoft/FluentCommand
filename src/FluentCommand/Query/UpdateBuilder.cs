@@ -1,3 +1,6 @@
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+
 using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 
@@ -134,8 +137,8 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         object? parameterValue,
         Type parameterType)
     {
-        if (string.IsNullOrWhiteSpace(columnName))
-            throw new ArgumentException($"'{nameof(columnName)}' cannot be null or empty.", nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
+        ArgumentNullException.ThrowIfNull(parameterType);
 
         var paramterName = NextParameter();
         var updateClause = new UpdateExpression(columnName, paramterName);
@@ -168,6 +171,52 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
     /// <summary>
+    /// Adds a value for the specified column name with the value serialized as JSON using the specified <paramref name="options" />.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="columnName">The name of the column to update.</param>
+    /// <param name="parameterValue">The value to serialize as JSON and set for the column.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use when serializing.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
+    public TBuilder ValueJson<TValue>(
+        string columnName,
+        TValue? parameterValue,
+        JsonSerializerOptions? options = null)
+    {
+        var json = parameterValue is not null
+            ? JsonSerializer.Serialize(parameterValue, options)
+            : null;
+
+        return Value(columnName, json);
+    }
+
+    /// <summary>
+    /// Adds a value for the specified column name with the value serialized as JSON using the specified <paramref name="jsonTypeInfo" />.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="columnName">The name of the column to update.</param>
+    /// <param name="parameterValue">The value to serialize as JSON and set for the column.</param>
+    /// <param name="jsonTypeInfo">The <see cref="JsonTypeInfo{T}"/> to use when serializing.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
+    public TBuilder ValueJson<TValue>(
+        string columnName,
+        TValue? parameterValue,
+        JsonTypeInfo<TValue> jsonTypeInfo)
+    {
+        ArgumentNullException.ThrowIfNull(jsonTypeInfo);
+
+        var json = parameterValue is not null
+            ? JsonSerializer.Serialize(parameterValue, jsonTypeInfo)
+            : null;
+
+        return Value(columnName, json);
+    }
+
+    /// <summary>
     /// Adds an OUTPUT clause for the specified column names.
     /// </summary>
     /// <param name="columnNames">The collection of column names to include in the OUTPUT clause.</param>
@@ -180,8 +229,7 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         IEnumerable<string> columnNames,
         string? tableAlias = null)
     {
-        if (columnNames is null)
-            throw new ArgumentNullException(nameof(columnNames));
+        ArgumentNullException.ThrowIfNull(columnNames);
 
         foreach (var column in columnNames)
             Output(column, tableAlias);
