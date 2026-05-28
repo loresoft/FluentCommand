@@ -8,6 +8,7 @@ public record EntityProperty
     public string MemberTypeName { get; init; } = null!;
     public string? ParameterName { get; init; }
     public string? ConverterName { get; init; }
+
     public bool IsKey { get; init; }
     public bool IsNotMapped { get; init; }
     public bool IsDatabaseGenerated { get; init; }

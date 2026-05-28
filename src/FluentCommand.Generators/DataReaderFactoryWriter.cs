@@ -340,7 +340,9 @@ public static class DataReaderFactoryWriter
                     .Append(entityProperty.PropertyType)
                     .Append(">(__index")
                     .Append(GetJsonReaderArgument(entityProperty))
-                    .AppendLine(");")
+                    .Append(")")
+                    .AppendIf("!", _ => !entityProperty.PropertyType.EndsWith("?"))
+                    .AppendLine(";")
                     .AppendLine("break;")
                     .DecrementIndent();
             }
