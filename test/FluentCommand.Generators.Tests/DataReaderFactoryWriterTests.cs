@@ -55,4 +55,43 @@ public class DataReaderFactoryWriterTests
         Assert.Contains("v_dataWithOptions = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonOptionsProvider.Options);", source);
         Assert.Contains("v_dataWithContext = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonContext.Default.UserImport);", source);
     }
+
+    [Fact]
+    public void GenerateEnumColumnReader()
+    {
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.EnumLog",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "EnumLog",
+            Properties = new EntityProperty[]
+            {
+                new()
+                {
+                    PropertyName = "Status",
+                    ColumnName = "Status",
+                    PropertyType = "global::FluentCommand.Entities.BuilderStatus",
+                    MemberTypeName = "global::FluentCommand.Entities.BuilderStatus",
+                    IsEnum = true,
+                    EnumUnderlyingType = "short"
+                },
+                new()
+                {
+                    PropertyName = "OptionalStatus",
+                    ColumnName = "OptionalStatus",
+                    PropertyType = "global::FluentCommand.Entities.BuilderStatus?",
+                    MemberTypeName = "global::FluentCommand.Entities.BuilderStatus",
+                    IsEnum = true,
+                    IsNullableEnum = true,
+                    EnumUnderlyingType = "short"
+                }
+            }
+        };
+
+        var source = DataReaderFactoryWriter.Generate(entityClass);
+
+        Assert.Contains("v_status = (global::FluentCommand.Entities.BuilderStatus)dataRecord.GetInt16(__index);", source);
+        Assert.Contains("v_optionalStatus = (global::FluentCommand.Entities.BuilderStatus?)dataRecord.GetValue<short?>(__index);", source);
+    }
 }

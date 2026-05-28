@@ -344,6 +344,39 @@ public static class DataReaderFactoryWriter
                     .AppendLine("break;")
                     .DecrementIndent();
             }
+            else if (entityProperty.IsEnum)
+            {
+                var underlyingType = entityProperty.EnumUnderlyingType ?? "int";
+
+                codeBuilder
+                    .IncrementIndent()
+                    .Append("v_")
+                    .Append(fieldName)
+                    .Append(" = ");
+
+                if (entityProperty.IsNullableEnum)
+                {
+                    codeBuilder
+                        .Append("(")
+                        .Append(entityProperty.PropertyType)
+                        .Append(")dataRecord.GetValue<")
+                        .Append(underlyingType)
+                        .AppendLine("?>(__index);");
+                }
+                else
+                {
+                    codeBuilder
+                        .Append("(")
+                        .Append(entityProperty.PropertyType)
+                        .Append(")dataRecord.")
+                        .Append(GetReaderName(underlyingType))
+                        .AppendLine("(__index);");
+                }
+
+                codeBuilder
+                    .AppendLine("break;")
+                    .DecrementIndent();
+            }
             else if (string.IsNullOrEmpty(entityProperty.ConverterName))
             {
                 var readerName = GetReaderName(entityProperty.PropertyType);

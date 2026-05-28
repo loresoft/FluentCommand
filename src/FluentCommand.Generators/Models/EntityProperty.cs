@@ -14,14 +14,21 @@ public record EntityProperty
     public bool IsConcurrencyCheck { get; init; }
     public string? ForeignKey { get; init; }
     public bool IsRequired { get; init; }
+
     public bool HasGetter { get; init; } = true;
     public bool HasSetter { get; init; } = true;
+
     public string? DisplayName { get; init; }
     public string? DataFormatString { get; init; }
     public string? ColumnType { get; init; }
     public int? ColumnOrder { get; init; }
+
     public bool IsJsonColumn { get; init; }
     public string? JsonOptionsProviderName { get; init; }
     public string? JsonContextName { get; init; }
     public string? JsonTypeInfoPropertyName { get; init; }
+
+    public bool IsEnum { get; init; }
+    public bool IsNullableEnum { get; init; }
+    public string? EnumUnderlyingType { get; init; }
 }

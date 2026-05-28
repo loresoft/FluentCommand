@@ -229,6 +229,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         var attributes = propertySymbol.GetAttributes();
         var jsonColumn = GetJsonColumn(attributes);
         var isJsonColumn = jsonColumn != null;
+        var enumInfo = GetEnumInfo(propertySymbol.Type);
         var isNotMapped = (classIgnored?.Contains(propertyName) == true) || (!isJsonColumn && !IsSupportedType(propertySymbol.Type));
 
         if (attributes == default || attributes.Length == 0)
@@ -243,7 +244,10 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 IsNotMapped = isNotMapped,
                 HasGetter = hasGetter,
                 HasSetter = hasSetter,
-                IsJsonColumn = isJsonColumn
+                IsJsonColumn = isJsonColumn,
+                IsEnum = enumInfo.IsEnum,
+                IsNullableEnum = enumInfo.IsNullableEnum,
+                EnumUnderlyingType = enumInfo.UnderlyingType
             };
         }
 
@@ -291,8 +295,28 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
             IsJsonColumn = isJsonColumn,
             JsonOptionsProviderName = jsonOptionsProviderName,
             JsonContextName = jsonContextName,
-            JsonTypeInfoPropertyName = jsonTypeInfoPropertyName
+            JsonTypeInfoPropertyName = jsonTypeInfoPropertyName,
+            IsEnum = enumInfo.IsEnum,
+            IsNullableEnum = enumInfo.IsNullableEnum,
+            EnumUnderlyingType = enumInfo.UnderlyingType
         };
+    }
+
+    private static (bool IsEnum, bool IsNullableEnum, string? UnderlyingType) GetEnumInfo(ITypeSymbol type)
+    {
+        var isNullableEnum = false;
+        var enumType = type;
+
+        if (type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T } namedType)
+        {
+            isNullableEnum = true;
+            enumType = namedType.TypeArguments[0];
+        }
+
+        if (enumType is not INamedTypeSymbol { TypeKind: TypeKind.Enum } namedEnum)
+            return (false, false, null);
+
+        return (true, isNullableEnum, namedEnum.EnumUnderlyingType?.ToDisplayString());
     }
 
     private static AttributeData? GetJsonColumn(ImmutableArray<AttributeData> attributes)

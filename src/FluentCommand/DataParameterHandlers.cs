@@ -70,9 +70,19 @@ public static class DataParameterHandlers
     /// <param name="parameter">The parameter to set the value on.</param>
     /// <param name="value">The value to set.</param>
     /// <param name="type">The data type to use.</param>
+    /// <remarks>
+    /// Enum and nullable enum values are converted to their numeric underlying type before mapping.
+    /// </remarks>
     public static void SetValue(DbParameter parameter, object? value, Type type)
     {
         var valueType = type.GetUnderlyingType();
+        if (valueType.IsEnum)
+        {
+            valueType = Enum.GetUnderlyingType(valueType);
+            if (value is not null && value != DBNull.Value)
+                value = Convert.ChangeType(value, valueType);
+        }
+
         var handler = GetTypeHandler(valueType);
 
         value ??= DBNull.Value;

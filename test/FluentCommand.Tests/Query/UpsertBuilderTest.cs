@@ -10,6 +10,43 @@ namespace FluentCommand.Tests.Query;
 public class UpsertBuilderTest
 {
     [Fact]
+    public void UpsertValueWithEnumAddsUnderlyingValueAndType()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new UpsertBuilder(sqlProvider, parameters)
+            .Into("EnumLog")
+            .Key("Id")
+            .Value("Id", 1)
+            .Value("Status", BuilderStatus.Active);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Last();
+
+        parameter.Value.Should().Be((short)BuilderStatus.Active);
+        parameter.Type.Should().Be(typeof(short));
+    }
+
+    [Fact]
+    public void UpsertEntityValueIfWithEnumAddsUnderlyingValueAndType()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new UpsertEntityBuilder<EnumLog>(sqlProvider, parameters)
+            .Key(p => p.Id)
+            .Value(p => p.Id, 1)
+            .ValueIf(p => p.Status, BuilderStatus.Active, (_, _) => true);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Last();
+
+        parameter.Value.Should().Be((short)BuilderStatus.Active);
+        parameter.Type.Should().Be(typeof(short));
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task UpsertExplicitKeySqlServer()
     {
         var sqlProvider = new SqlServerGenerator();
@@ -172,6 +209,20 @@ public class UpsertBuilderTest
 }
 
 public sealed record ValueJsonModel(string Name, int Count);
+
+public enum BuilderStatus : short
+{
+    Inactive = 0,
+    Active = 1
+}
+
+public sealed class EnumLog
+{
+    [Key]
+    public int Id { get; set; }
+
+    public BuilderStatus Status { get; set; }
+}
 
 public sealed class JsonLog
 {

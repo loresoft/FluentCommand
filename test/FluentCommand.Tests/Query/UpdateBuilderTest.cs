@@ -10,6 +10,39 @@ namespace FluentCommand.Tests.Query;
 public class UpdateBuilderTest
 {
     [Fact]
+    public void UpdateValueWithEnumAddsUnderlyingValueAndType()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new UpdateBuilder(sqlProvider, parameters)
+            .Table("EnumLog")
+            .Value("Status", BuilderStatus.Active);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be((short)BuilderStatus.Active);
+        parameter.Type.Should().Be(typeof(short));
+    }
+
+    [Fact]
+    public void UpdateEntityValueWithEnumAddsUnderlyingValueAndType()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new UpdateEntityBuilder<EnumLog>(sqlProvider, parameters)
+            .Value(p => p.Status, BuilderStatus.Active);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be((short)BuilderStatus.Active);
+        parameter.Type.Should().Be(typeof(short));
+    }
+
+    [Fact]
     public void UpdateValueJsonWithTypeInfoAddsJsonStringParameter()
     {
         var sqlProvider = new SqlServerGenerator();
@@ -109,5 +142,16 @@ public class UpdateBuilderTest
         public int Id { get; set; }
 
         public ValueJsonModel Data { get; set; } = null!;
+    }
+
+    private enum BuilderStatus : short
+    {
+        Inactive = 0,
+        Active = 1
+    }
+
+    private sealed class EnumLog
+    {
+        public BuilderStatus Status { get; set; }
     }
 }

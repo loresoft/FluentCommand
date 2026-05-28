@@ -104,6 +104,9 @@ public abstract class UpsertBuilder<TBuilder> : StatementBuilder<TBuilder>
     /// <param name="parameterValue">The value to insert or update for the column.</param>
     /// <param name="parameterType">The type of the parameter value.</param>
     /// <returns>The same builder instance for method chaining.</returns>
+    /// <remarks>
+    /// Enum and nullable enum values are normalized to their numeric underlying type.
+    /// </remarks>
     /// <exception cref="ArgumentException">Thrown if <paramref name="columnName"/> is null or empty.</exception>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="parameterType"/> is <c>null</c>.</exception>
     public TBuilder Value(
@@ -123,7 +126,8 @@ public abstract class UpsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         ColumnExpressions.Add(columnExpression);
         ValueExpressions.Add(paramterName);
 
-        Parameters.Add(new QueryParameter(paramterName, parameterValue, parameterType));
+        var normalized = QueryParameterNormalizer.Normalize(parameterValue, parameterType);
+        Parameters.Add(new QueryParameter(paramterName, normalized.Value, normalized.Type));
 
         return (TBuilder)this;
     }

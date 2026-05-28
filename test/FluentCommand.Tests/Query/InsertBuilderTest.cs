@@ -9,6 +9,76 @@ namespace FluentCommand.Tests.Query;
 public class InsertBuilderTest
 {
     [Fact]
+    public void InsertValueWithEnumAddsUnderlyingValueAndType()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new InsertBuilder(sqlProvider, parameters)
+            .Into("EnumLog")
+            .Value("Status", BuilderStatus.Active);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be((short)BuilderStatus.Active);
+        parameter.Type.Should().Be(typeof(short));
+    }
+
+    [Fact]
+    public void InsertValueWithNullableEnumAddsUnderlyingValueAndType()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        BuilderStatus? value = BuilderStatus.Active;
+
+        var builder = new InsertBuilder(sqlProvider, parameters)
+            .Into("EnumLog")
+            .Value("Status", value);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be((short)BuilderStatus.Active);
+        parameter.Type.Should().Be(typeof(short));
+    }
+
+    [Fact]
+    public void InsertValueWithNullNullableEnumAddsNullWithUnderlyingType()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        BuilderStatus? value = null;
+
+        var builder = new InsertBuilder(sqlProvider, parameters)
+            .Into("EnumLog")
+            .Value("Status", value);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().BeNull();
+        parameter.Type.Should().Be(typeof(short));
+    }
+
+    [Fact]
+    public void InsertEntityValuesWithEnumAddsUnderlyingValueAndType()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        var entity = new EnumLog { Status = BuilderStatus.Active };
+
+        var builder = new InsertEntityBuilder<EnumLog>(sqlProvider, parameters)
+            .Values(entity);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be((short)BuilderStatus.Active);
+        parameter.Type.Should().Be(typeof(short));
+    }
+
+    [Fact]
     public void InsertValueJsonWithOptionsAddsJsonStringParameter()
     {
         var sqlProvider = new SqlServerGenerator();
@@ -74,5 +144,16 @@ public class InsertBuilderTest
     private sealed class JsonLog
     {
         public ValueJsonModel Data { get; set; } = null!;
+    }
+
+    private enum BuilderStatus : short
+    {
+        Inactive = 0,
+        Active = 1
+    }
+
+    private sealed class EnumLog
+    {
+        public BuilderStatus? Status { get; set; }
     }
 }

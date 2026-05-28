@@ -131,7 +131,11 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
     /// <returns>
     /// The same builder instance for method chaining.
     /// </returns>
+    /// <remarks>
+    /// Enum and nullable enum values are normalized to their numeric underlying type.
+    /// </remarks>
     /// <exception cref="ArgumentException">Thrown if <paramref name="columnName"/> is null or empty.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="parameterType"/> is <c>null</c>.</exception>
     public TBuilder Value(
         string columnName,
         object? parameterValue,
@@ -144,7 +148,8 @@ public abstract class UpdateBuilder<TBuilder> : WhereBuilder<TBuilder>
         var updateClause = new UpdateExpression(columnName, paramterName);
 
         UpdateExpressions.Add(updateClause);
-        Parameters.Add(new QueryParameter(paramterName, parameterValue, parameterType));
+        var normalized = QueryParameterNormalizer.Normalize(parameterValue, parameterType);
+        Parameters.Add(new QueryParameter(paramterName, normalized.Value, normalized.Type));
 
         return (TBuilder)this;
     }
