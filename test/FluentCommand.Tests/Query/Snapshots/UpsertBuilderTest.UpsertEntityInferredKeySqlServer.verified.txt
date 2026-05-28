@@ -1,0 +1,10 @@
+MERGE INTO [dbo].[Status] AS TARGET
+USING (VALUES (@p0000, @p0001, @p0002)) AS SOURCE
+([Id], [Name], [Description])
+ON TARGET.[Id] = SOURCE.[Id]
+WHEN MATCHED THEN
+UPDATE SET TARGET.[Name] = SOURCE.[Name], TARGET.[Description] = SOURCE.[Description]
+WHEN NOT MATCHED THEN
+INSERT ([Id], [Name], [Description])
+VALUES (SOURCE.[Id], SOURCE.[Name], SOURCE.[Description])
+OUTPUT [INSERTED].[Id];

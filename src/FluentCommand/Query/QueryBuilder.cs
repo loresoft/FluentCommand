@@ -125,6 +125,39 @@ public class QueryBuilder : IStatementBuilder
     }
 
     /// <summary>
+    /// Starts a new UPSERT statement builder for a specific entity type and adds it to the query.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity to insert or update.</typeparam>
+    /// <returns>
+    /// A new <see cref="UpsertEntityBuilder{TEntity}"/> instance for building an UPSERT statement.
+    /// </returns>
+    public UpsertEntityBuilder<TEntity> Upsert<TEntity>()
+        where TEntity : class
+    {
+        var builder = new UpsertEntityBuilder<TEntity>(QueryGenerator, Parameters);
+
+        _builderQueue.Enqueue(builder);
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Starts a new UPSERT statement builder and adds it to the query.
+    /// </summary>
+    /// <returns>
+    /// A new <see cref="UpsertBuilder"/> instance for building an UPSERT statement.
+    /// </returns>
+    public UpsertBuilder Upsert()
+    {
+        var builder = new UpsertBuilder(QueryGenerator, Parameters);
+
+        _builderQueue.Enqueue(builder);
+
+        return builder;
+
+    }
+
+    /// <summary>
     /// Starts a new UPDATE statement builder for a specific entity type and adds it to the query.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity to update.</typeparam>

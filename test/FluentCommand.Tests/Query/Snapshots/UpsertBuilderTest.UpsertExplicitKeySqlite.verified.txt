@@ -1,0 +1,5 @@
+INSERT INTO "Status" ("Id", "Name", "Description")
+VALUES (@p0000, @p0001, @p0002)
+ON CONFLICT ("Id") DO UPDATE
+SET "Name" = EXCLUDED."Name", "Description" = EXCLUDED."Description"
+RETURNING "Id";

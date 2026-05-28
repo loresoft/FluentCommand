@@ -163,6 +163,25 @@ public record InsertStatement(
     IReadOnlyCollection<string> CommentExpressions);
 
 /// <summary>
+/// Represents a complete SQL UPSERT statement, including table, insert columns, values, key columns, update columns, output, and comments.
+/// </summary>
+/// <param name="TableExpression">The table to insert into or update.</param>
+/// <param name="ColumnExpressions">The columns to insert values into.</param>
+/// <param name="ValueExpressions">The values to insert.</param>
+/// <param name="KeyExpressions">The columns used to determine whether a row already exists.</param>
+/// <param name="UpdateExpressions">The columns to update when a matching row exists.</param>
+/// <param name="OutputExpressions">The columns to return/output after upsert (optional).</param>
+/// <param name="CommentExpressions">The comment expressions to include in the statement.</param>
+public record UpsertStatement(
+    TableExpression TableExpression,
+    IReadOnlyCollection<ColumnExpression> ColumnExpressions,
+    IReadOnlyCollection<string> ValueExpressions,
+    IReadOnlyCollection<ColumnExpression> KeyExpressions,
+    IReadOnlyCollection<UpdateExpression> UpdateExpressions,
+    IReadOnlyCollection<ColumnExpression> OutputExpressions,
+    IReadOnlyCollection<string> CommentExpressions);
+
+/// <summary>
 /// Represents a complete SQL UPDATE statement, including table, assignments, output, joins, where, and comments.
 /// </summary>
 /// <param name="TableExpression">The table to update.</param>

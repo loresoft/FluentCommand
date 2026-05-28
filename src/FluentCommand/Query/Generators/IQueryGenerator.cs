@@ -20,6 +20,13 @@ public interface IQueryGenerator
     string BuildInsert(InsertStatement insertStatement);
 
     /// <summary>
+    /// Builds a SQL UPSERT statement from the specified <see cref="UpsertStatement"/>.
+    /// </summary>
+    /// <param name="upsertStatement">The <see cref="UpsertStatement"/> containing the UPSERT statement configuration.</param>
+    /// <returns>A SQL UPSERT statement string.</returns>
+    string BuildUpsert(UpsertStatement upsertStatement);
+
+    /// <summary>
     /// Builds a SQL SELECT statement from the specified <see cref="SelectStatement"/>.
     /// </summary>
     /// <param name="selectStatement">The <see cref="SelectStatement"/> containing the SELECT statement configuration.</param>

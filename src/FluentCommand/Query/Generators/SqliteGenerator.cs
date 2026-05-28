@@ -70,6 +70,55 @@ public class SqliteGenerator : SqlServerGenerator
     }
 
     /// <summary>
+    /// Builds a SQL UPSERT statement for SQLite using ON CONFLICT syntax, including support for RETURNING and comments.
+    /// </summary>
+    /// <param name="upsertStatement">The <see cref="UpsertStatement"/> containing the UPSERT statement configuration.</param>
+    /// <returns>A SQL UPSERT statement string for SQLite.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="upsertStatement"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the table, values, keys, or update values are not specified.</exception>
+    public override string BuildUpsert(UpsertStatement upsertStatement)
+    {
+        ValidateUpsert(upsertStatement);
+
+        var upsertBuilder = StringBuilderCache.Acquire();
+
+        if (upsertStatement.CommentExpressions?.Count > 0)
+        {
+            upsertBuilder
+                .AppendJoin(Environment.NewLine, upsertStatement.CommentExpressions)
+                .AppendLine();
+        }
+
+        var table = TableExpression(upsertStatement.TableExpression);
+        upsertBuilder
+            .Append("INSERT INTO ")
+            .Append(table)
+            .Append(" (")
+            .AppendJoin(", ", upsertStatement.ColumnExpressions.Select(ColumnExpression))
+            .AppendLine(")")
+            .Append("VALUES (")
+            .AppendJoin(", ", upsertStatement.ValueExpressions)
+            .AppendLine(")")
+            .Append("ON CONFLICT (")
+            .AppendJoin(", ", upsertStatement.KeyExpressions.Select(ColumnExpression))
+            .AppendLine(") DO UPDATE")
+            .Append("SET ")
+            .AppendJoin(", ", upsertStatement.UpdateExpressions.Select(u => $"{ColumnExpression(u)} = EXCLUDED.{ColumnExpression(u)}"));
+
+        if (upsertStatement.OutputExpressions?.Count > 0)
+        {
+            upsertBuilder
+                .AppendLine()
+                .Append("RETURNING ")
+                .AppendJoin(", ", upsertStatement.OutputExpressions.Select(ColumnExpression));
+        }
+
+        upsertBuilder.AppendLine(";");
+
+        return StringBuilderCache.ToString(upsertBuilder);
+    }
+
+    /// <summary>
     /// Builds a SQL UPDATE statement for SQLite, including support for FROM, JOIN, WHERE, RETURNING, and comments.
     /// </summary>
     /// <param name="updateStatement">The <see cref="UpdateStatement"/> containing the UPDATE statement configuration.</param>

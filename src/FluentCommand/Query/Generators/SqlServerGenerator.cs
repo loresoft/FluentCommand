@@ -150,6 +150,67 @@ public class SqlServerGenerator : IQueryGenerator
     }
 
     /// <summary>
+    /// Builds a SQL UPSERT statement for SQL Server using MERGE syntax, including support for OUTPUT and comments.
+    /// </summary>
+    /// <param name="upsertStatement">The <see cref="UpsertStatement"/> containing the UPSERT statement configuration.</param>
+    /// <returns>A SQL UPSERT statement string for SQL Server.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="upsertStatement"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if the table, values, keys, or update values are not specified.</exception>
+    public virtual string BuildUpsert(UpsertStatement upsertStatement)
+    {
+        ValidateUpsert(upsertStatement);
+
+        var upsertBuilder = StringBuilderCache.Acquire();
+
+        if (upsertStatement.CommentExpressions?.Count > 0)
+        {
+            upsertBuilder
+                .AppendJoin(Environment.NewLine, upsertStatement.CommentExpressions)
+                .AppendLine();
+        }
+
+        var table = TableExpression(upsertStatement.TableExpression);
+        var sourceColumns = upsertStatement.ColumnExpressions.Select(c => ColumnExpression(c)).ToArray();
+
+        upsertBuilder
+            .Append("MERGE INTO ")
+            .Append(table)
+            .AppendLine(" AS TARGET")
+            .Append("USING (VALUES (")
+            .AppendJoin(", ", upsertStatement.ValueExpressions)
+            .AppendLine(")) AS SOURCE")
+            .Append("(")
+            .AppendJoin(", ", sourceColumns)
+            .AppendLine(")")
+            .Append("ON ")
+            .AppendJoin(" AND ", upsertStatement.KeyExpressions.Select(k => $"TARGET.{ColumnExpression(k)} = SOURCE.{ColumnExpression(k)}"))
+            .AppendLine()
+            .AppendLine("WHEN MATCHED THEN")
+            .Append("UPDATE SET ")
+            .AppendJoin(", ", upsertStatement.UpdateExpressions.Select(u => $"TARGET.{ColumnExpression(u)} = SOURCE.{ColumnExpression(u)}"))
+            .AppendLine()
+            .AppendLine("WHEN NOT MATCHED THEN")
+            .Append("INSERT (")
+            .AppendJoin(", ", sourceColumns)
+            .AppendLine(")")
+            .Append("VALUES (")
+            .AppendJoin(", ", sourceColumns.Select(c => $"SOURCE.{c}"))
+            .Append(')');
+
+        if (upsertStatement.OutputExpressions?.Count > 0)
+        {
+            upsertBuilder
+                .AppendLine()
+                .Append("OUTPUT ")
+                .AppendJoin(", ", upsertStatement.OutputExpressions.Select(c => ColumnExpression(c, "INSERTED")));
+        }
+
+        upsertBuilder.AppendLine(";");
+
+        return StringBuilderCache.ToString(upsertBuilder);
+    }
+
+    /// <summary>
     /// Builds a SQL UPDATE statement for SQL Server, including support for OUTPUT, FROM, JOIN, WHERE, and comments.
     /// </summary>
     /// <param name="updateStatement">The <see cref="UpdateStatement"/> containing the UPDATE statement configuration.</param>
@@ -582,6 +643,33 @@ public class SqlServerGenerator : IQueryGenerator
         var quotedName = ColumnExpression(updateExpression);
 
         return $"{quotedName} = {updateExpression.ParameterName}";
+    }
+
+    /// <summary>
+    /// Validates that an UPSERT statement has the required table, values, keys, and update expressions.
+    /// </summary>
+    /// <param name="upsertStatement">The <see cref="UpsertStatement"/> to validate.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="upsertStatement"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if required upsert configuration is missing.</exception>
+    protected static void ValidateUpsert(UpsertStatement upsertStatement)
+    {
+        if (upsertStatement is null)
+            throw new ArgumentNullException(nameof(upsertStatement));
+
+        if (upsertStatement.TableExpression == null)
+            throw new ArgumentException("No table specified to upsert into", nameof(upsertStatement));
+
+        if (upsertStatement.ColumnExpressions == null || upsertStatement.ColumnExpressions.Count == 0)
+            throw new ArgumentException("No columns specified for upsert", nameof(upsertStatement));
+
+        if (upsertStatement.ValueExpressions == null || upsertStatement.ValueExpressions.Count == 0)
+            throw new ArgumentException("No values specified for upsert", nameof(upsertStatement));
+
+        if (upsertStatement.KeyExpressions == null || upsertStatement.KeyExpressions.Count == 0)
+            throw new ArgumentException("No keys specified for upsert", nameof(upsertStatement));
+
+        if (upsertStatement.UpdateExpressions == null || upsertStatement.UpdateExpressions.Count == 0)
+            throw new ArgumentException("No update values specified for upsert", nameof(upsertStatement));
     }
 
     /// <summary>
