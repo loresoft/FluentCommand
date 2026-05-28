@@ -316,6 +316,73 @@ await session
     .ExecuteAsync();
 ```
 
+### Strongly typed JSON values
+
+Typed entity builders (`Insert<TEntity>`, `Update<TEntity>`, and `Upsert<TEntity>`) support expression-based `ValueJson` overloads that select the target column from an entity property.
+
+```csharp
+[Table("Import", Schema = "dbo")]
+public class ImportRecord
+{
+    [Key]
+    public int Id { get; set; }
+
+    public ImportMetadata Metadata { get; set; }
+}
+
+var metadata = new ImportMetadata
+{
+    Source = "Upload",
+    Count = 100
+};
+
+var importId = await session
+    .Sql(builder => builder
+        .Insert<ImportRecord>()
+        .Value(r => r.Id, 1)
+        .ValueJson(r => r.Metadata, metadata)
+        .Output(r => r.Id)
+    )
+    .QueryValueAsync<int>();
+```
+
+The expression overload resolves the column name from entity metadata, so it stays consistent with the rest of the typed builder and is checked by the compiler.
+
+Update and upsert work the same way.
+
+```csharp
+await session
+    .Sql(builder => builder
+        .Update<ImportRecord>()
+        .ValueJson(r => r.Metadata, metadata)
+        .Where(r => r.Id, importId)
+    )
+    .ExecuteAsync();
+```
+
+```csharp
+await session
+    .Sql(builder => builder
+        .Upsert<ImportRecord>()
+        .Value(r => r.Id, 1)
+        .ValueJson(r => r.Metadata, metadata)
+    )
+    .ExecuteAsync();
+```
+
+Use `JsonSerializerOptions` or `JsonTypeInfo<T>` with the expression overloads when you need custom serialization.
+
+```csharp
+await session
+    .Sql(builder => builder
+        .Insert<ImportRecord>()
+        .Value(r => r.Id, 1)
+        .ValueJson(r => r.Metadata, metadata, ImportJsonContext.Default.ImportMetadata)
+        .Output(r => r.Id)
+    )
+    .QueryValueAsync<int>();
+```
+
 ## Update rows
 
 Update builders combine `Value`, optional `Output`, and `Where` clauses. Always include a filter unless you intentionally want to update every row.

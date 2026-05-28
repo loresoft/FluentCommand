@@ -28,6 +28,24 @@ public class InsertBuilderTest
     }
 
     [Fact]
+    public void InsertEntityValueJsonWithOptionsAddsJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var value = new ValueJsonModel("Json Options", 42);
+
+        var builder = new InsertEntityBuilder<JsonLog>(sqlProvider, parameters)
+            .ValueJson(p => p.Data, value, options);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be(JsonSerializer.Serialize(value, options));
+        parameter.Type.Should().Be(typeof(string));
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task InsertEntityValueWithOutput()
     {
         var sqlProvider = new SqlServerGenerator();
@@ -52,4 +70,9 @@ public class InsertBuilderTest
     }
 
     private sealed record ValueJsonModel(string Name, int Count);
+
+    private sealed class JsonLog
+    {
+        public ValueJsonModel Data { get; set; } = null!;
+    }
 }

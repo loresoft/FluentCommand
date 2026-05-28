@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 using FluentCommand.Query.Generators;
 using FluentCommand.Reflection;
@@ -57,6 +59,40 @@ public class UpsertEntityBuilder<TEntity> : UpsertBuilder<UpsertEntityBuilder<TE
     {
         var propertyAccessor = GetPropertyAccessor(property);
         return ValueIf(propertyAccessor.Column, parameterValue, condition);
+    }
+
+    /// <summary>
+    /// Adds a value for the specified entity property with the value serialized as JSON using the specified <paramref name="options" />.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">An expression selecting the property to insert or update.</param>
+    /// <param name="parameterValue">The value to serialize as JSON and insert or update for the property.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use when serializing.</param>
+    /// <returns>The same builder instance for method chaining.</returns>
+    public UpsertEntityBuilder<TEntity> ValueJson<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        TValue? parameterValue,
+        JsonSerializerOptions? options = null)
+    {
+        var propertyAccessor = GetPropertyAccessor(property);
+        return ValueJson(propertyAccessor.Column, parameterValue, options);
+    }
+
+    /// <summary>
+    /// Adds a value for the specified entity property with the value serialized as JSON using the specified <paramref name="jsonTypeInfo" />.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="property">An expression selecting the property to insert or update.</param>
+    /// <param name="parameterValue">The value to serialize as JSON and insert or update for the property.</param>
+    /// <param name="jsonTypeInfo">The <see cref="JsonTypeInfo{T}"/> to use when serializing.</param>
+    /// <returns>The same builder instance for method chaining.</returns>
+    public UpsertEntityBuilder<TEntity> ValueJson<TValue>(
+        Expression<Func<TEntity, TValue>> property,
+        TValue? parameterValue,
+        JsonTypeInfo<TValue> jsonTypeInfo)
+    {
+        var propertyAccessor = GetPropertyAccessor(property);
+        return ValueJson(propertyAccessor.Column, parameterValue, jsonTypeInfo);
     }
 
     /// <summary>

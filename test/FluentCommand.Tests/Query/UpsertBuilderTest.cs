@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 using FluentCommand.Query;
 using FluentCommand.Query.Generators;
@@ -148,6 +149,36 @@ public class UpsertBuilderTest
         parameter.Type.Should().Be(typeof(string));
     }
 
+    [Fact]
+    public void UpsertEntityValueJsonWithOptionsAddsJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var value = new ValueJsonModel("Json Options", 42);
+
+        var builder = new UpsertEntityBuilder<JsonLog>(sqlProvider, parameters)
+            .Key(p => p.Id)
+            .Value(p => p.Id, 1)
+            .ValueJson(p => p.Data, value, options);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Last();
+
+        parameter.Value.Should().Be(JsonSerializer.Serialize(value, options));
+        parameter.Type.Should().Be(typeof(string));
+    }
+
+}
+
+public sealed record ValueJsonModel(string Name, int Count);
+
+public sealed class JsonLog
+{
+    [Key]
+    public int Id { get; set; }
+
+    public ValueJsonModel Data { get; set; } = null!;
 }
 
 [Table("Status", Schema = "dbo")]

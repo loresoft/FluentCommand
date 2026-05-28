@@ -31,6 +31,26 @@ public class UpdateBuilderTest
     }
 
     [Fact]
+    public void UpdateEntityValueJsonWithTypeInfoAddsJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        var options = JsonSerializerOptions.Default;
+        var typeInfo = (JsonTypeInfo<ValueJsonModel>)options.GetTypeInfo(typeof(ValueJsonModel));
+        var value = new ValueJsonModel("Json TypeInfo", 42);
+
+        var builder = new UpdateEntityBuilder<JsonLog>(sqlProvider, parameters)
+            .ValueJson(p => p.Data, value, typeInfo)
+            .Where(p => p.Id, 1);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.First();
+
+        parameter.Value.Should().Be(JsonSerializer.Serialize(value, typeInfo));
+        parameter.Type.Should().Be(typeof(string));
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task UpdateEntityValueWithOutput()
     {
         var sqlProvider = new SqlServerGenerator();
@@ -83,4 +103,11 @@ public class UpdateBuilderTest
     }
 
     private sealed record ValueJsonModel(string Name, int Count);
+
+    private sealed class JsonLog
+    {
+        public int Id { get; set; }
+
+        public ValueJsonModel Data { get; set; } = null!;
+    }
 }
