@@ -36,6 +36,9 @@ public static class JsonCommandExtensions
         TParameter value,
         JsonSerializerOptions? options = null)
     {
+        if (value is null)
+            return dataCommand.Parameter(name, (string?)null);
+
         var json = JsonSerializer.Serialize(value, options);
         return dataCommand.Parameter(name, json);
     }
@@ -57,6 +60,9 @@ public static class JsonCommandExtensions
         TParameter value,
         JsonTypeInfo<TParameter> jsonTypeInfo)
     {
+        if (value is null)
+            return dataCommand.Parameter(name, (string?)null);
+
         var json = JsonSerializer.Serialize(value, jsonTypeInfo);
         return dataCommand.Parameter(name, json);
     }

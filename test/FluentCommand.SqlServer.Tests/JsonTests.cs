@@ -279,4 +279,22 @@ public class JsonTests : DatabaseTestBase
         result.EmailAddress.Should().Be(input.EmailAddress);
         result.DisplayName.Should().Be(input.DisplayName);
     }
+
+    [Fact]
+    public void ParameterJsonWithNullInsertsSerializedNull()
+    {
+        using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        UserImport? userImport = null;
+
+        session.Sql("INSERT INTO [JsonLog] ([Data]) VALUES (@Data)")
+            .ParameterJson("@Data", userImport)
+            .Execute();
+
+        var json = session.Sql("SELECT TOP 1 [Data] FROM [JsonLog] ORDER BY [Id] DESC")
+            .QueryValue<string>();
+
+        json.Should().BeNull();
+    }
 }
