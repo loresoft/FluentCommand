@@ -86,4 +86,30 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "The source generator skips static and abstract types annotated with [Table]. Remove the attribute or make the type non-static and non-abstract."
     );
+
+    /// <summary>
+    /// FLC007: [JsonColumn] options provider type is invalid.
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidJsonColumnOptionsProvider = new(
+        id: "FLC007",
+        title: "Invalid JsonColumn options provider",
+        messageFormat: "The [JsonColumn] options provider type '{0}' must expose a static Options property of type System.Text.Json.JsonSerializerOptions",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "The [JsonColumn(typeof(TProvider))] attribute requires a provider type with a static Options property compatible with System.Text.Json.JsonSerializerOptions."
+    );
+
+    /// <summary>
+    /// FLC008: [JsonColumn] serializer context type or property is invalid.
+    /// </summary>
+    public static readonly DiagnosticDescriptor InvalidJsonColumnSerializerContext = new(
+        id: "FLC008",
+        title: "Invalid JsonColumn serializer context",
+        messageFormat: "The [JsonColumn] serializer context type '{0}' must derive from System.Text.Json.Serialization.JsonSerializerContext and expose a property named '{1}'",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "The [JsonColumn(typeof(TContext), name)] attribute requires a serializer context type and a named type-info property that exists on the context."
+    );
 }

@@ -11,3 +11,5 @@ FLC003  | Usage    | Warning  | DataReaderFactoryAnalyzer
 FLC004  | Usage    | Info     | DataReaderFactoryAnalyzer
 FLC005  | Usage    | Error    | DataReaderFactoryAnalyzer
 FLC006  | Usage    | Warning  | DataReaderFactoryAnalyzer
+FLC007  | Usage    | Error    | DataReaderFactoryAnalyzer
+FLC008  | Usage    | Error    | DataReaderFactoryAnalyzer

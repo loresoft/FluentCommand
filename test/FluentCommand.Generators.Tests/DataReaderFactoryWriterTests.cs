@@ -15,11 +15,11 @@ public class DataReaderFactoryWriterTests
             EntityName = "Status",
             Properties = new EntityProperty[]
             {
-                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = typeof(int).FullName!, MemberTypeName = typeof(int).FullName! },
-                new() { PropertyName = "Name", ColumnName = "Name", PropertyType = typeof(string).FullName!, MemberTypeName = typeof(string).FullName! },
-                new() { PropertyName = "IsActive", ColumnName = "IsActive", PropertyType = typeof(bool).FullName!, MemberTypeName = typeof(bool).FullName! },
-                new() { PropertyName = "Updated", ColumnName = "Updated", PropertyType = typeof(DateTimeOffset).FullName!, MemberTypeName = typeof(DateTimeOffset).FullName! },
-                new() { PropertyName = "RowVersion", ColumnName = "RowVersion", PropertyType = typeof(byte[]).FullName!, MemberTypeName = typeof(byte[]).FullName! },
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "global::System.Int32", MemberTypeName = "global::System.Int32" },
+                new() { PropertyName = "Name", ColumnName = "Name", PropertyType = "global::System.String", MemberTypeName = "global::System.String" },
+                new() { PropertyName = "IsActive", ColumnName = "IsActive", PropertyType = "global::System.Boolean", MemberTypeName = "global::System.Boolean" },
+                new() { PropertyName = "Updated", ColumnName = "Updated", PropertyType = "global::System.DateTimeOffset", MemberTypeName = "global::System.DateTimeOffset" },
+                new() { PropertyName = "RowVersion", ColumnName = "RowVersion", PropertyType = "global::System.Byte[]", MemberTypeName = "global::System.Byte[]" },
             }
         };
 
@@ -42,7 +42,7 @@ public class DataReaderFactoryWriterTests
             EntityName = "UserLog",
             Properties = new EntityProperty[]
             {
-                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "int", MemberTypeName = "int" },
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "global::System.Int32", MemberTypeName = "global::System.Int32" },
                 new() { PropertyName = "Data", ColumnName = "Data", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true },
                 new() { PropertyName = "OptionalData", ColumnName = "OptionalData", PropertyType = "global::FluentCommand.Entities.UserImport?", MemberTypeName = "global::FluentCommand.Entities.UserImport?", IsJsonColumn = true, IsNullable = true },
                 new() { PropertyName = "DataWithOptions", ColumnName = "DataWithOptions", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true, JsonOptionsProviderName = "global::FluentCommand.Entities.UserImportJsonOptionsProvider" },
@@ -76,7 +76,7 @@ public class DataReaderFactoryWriterTests
                     PropertyType = "global::FluentCommand.Entities.BuilderStatus",
                     MemberTypeName = "global::FluentCommand.Entities.BuilderStatus",
                     IsEnum = true,
-                    EnumUnderlyingType = "short"
+                    EnumUnderlyingType = "global::System.Int16"
                 },
                 new()
                 {
@@ -87,7 +87,7 @@ public class DataReaderFactoryWriterTests
                     IsEnum = true,
                     IsNullable = true,
                     IsNullableEnum = true,
-                    EnumUnderlyingType = "short"
+                    EnumUnderlyingType = "global::System.Int16"
                 }
             }
         };
@@ -96,5 +96,33 @@ public class DataReaderFactoryWriterTests
 
         Assert.Contains("v_status = (global::FluentCommand.Entities.BuilderStatus)dataRecord.GetInt16(__index);", source);
         Assert.Contains("v_optionalStatus = (global::FluentCommand.Entities.BuilderStatus?)dataRecord.GetValue<short?>(__index);", source);
+    }
+
+    [Fact]
+    public void GenerateConverterColumnReader()
+    {
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.ConverterLog",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "ConverterLog",
+            Properties = new EntityProperty[]
+            {
+                new()
+                {
+                    PropertyName = "Value",
+                    ColumnName = "Value",
+                    PropertyType = "global::FluentCommand.Entities.CustomValue",
+                    MemberTypeName = "global::FluentCommand.Entities.CustomValue",
+                    ConverterName = "global::FluentCommand.Entities.CustomValueConverter"
+                }
+            }
+        };
+
+        var source = DataReaderFactoryWriter.Generate(entityClass);
+
+        Assert.Contains("var c_value = global::FluentCommand.Internal.Singleton<global::FluentCommand.Entities.CustomValueConverter>.Current", source);
+        Assert.Contains("as global::FluentCommand.IDataFieldConverter<global::FluentCommand.Entities.CustomValue>;", source);
     }
 }

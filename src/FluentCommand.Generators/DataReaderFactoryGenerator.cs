@@ -11,6 +11,9 @@ namespace FluentCommand.Generators;
 [Generator(LanguageNames.CSharp)]
 public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
 {
+    private static readonly SymbolDisplayFormat FullyQualifiedNullableFormat = SymbolDisplayFormat.FullyQualifiedFormat
+        .WithMiscellaneousOptions(SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Pipeline for [GenerateReader(typeof(T))] attribute
@@ -178,7 +181,12 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
             if (parameter == null)
                 continue;
 
-            var property = CreateProperty(propertySymbol, parameter.Name, classIgnored: classIgnored);
+            var property = CreateProperty(
+                propertySymbol: propertySymbol,
+                parameterName: parameter.Name,
+                classIgnored: classIgnored,
+                parameterAttributes: parameter.GetAttributes());
+
             properties.Add(property);
         }
 
@@ -219,14 +227,24 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         return [.. properties.Values];
     }
 
-    private static EntityProperty CreateProperty(IPropertySymbol propertySymbol, string? parameterName = null, HashSet<string>? classIgnored = null)
+    private static EntityProperty CreateProperty(
+        IPropertySymbol propertySymbol,
+        string? parameterName = null,
+        HashSet<string>? classIgnored = null,
+        ImmutableArray<AttributeData> parameterAttributes = default)
     {
-        var propertyType = propertySymbol.Type.ToDisplayString();
-        var memberTypeName = propertySymbol.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString();
+        var propertyType = propertySymbol.Type.ToDisplayString(FullyQualifiedNullableFormat);
+        var memberTypeName = propertySymbol.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(FullyQualifiedNullableFormat);
         var propertyName = propertySymbol.Name;
         var hasGetter = propertySymbol.GetMethod != null;
         var hasSetter = propertySymbol.SetMethod?.IsInitOnly == false;
-        var attributes = propertySymbol.GetAttributes();
+
+        // Merge property attributes with constructor parameter attributes (parameter attributes take precedence for converters)
+        var propertyAttributes = propertySymbol.GetAttributes();
+        var attributes = (!parameterAttributes.IsDefaultOrEmpty && !propertyAttributes.IsDefaultOrEmpty)
+            ? propertyAttributes.AddRange(parameterAttributes)
+            : !parameterAttributes.IsDefaultOrEmpty ? parameterAttributes : propertyAttributes;
+
         var jsonColumn = GetJsonColumn(attributes);
         var isJsonColumn = jsonColumn != null;
         var enumInfo = GetEnumInfo(propertySymbol.Type);
@@ -396,7 +414,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         // attribute constructor
         var converterType = converter.ConstructorArguments.FirstOrDefault();
         if (converterType.Value is INamedTypeSymbol converterSymbol)
-            return converterSymbol.ToDisplayString();
+            return converterSymbol.ToDisplayString(FullyQualifiedNullableFormat);
 
         // generic attribute
         var attributeClass = converter.AttributeClass;

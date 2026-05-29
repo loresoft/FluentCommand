@@ -430,7 +430,7 @@ public static class DataReaderFactoryWriter
 
     private static string GetEnumReadExpression(EntityProperty entityProperty)
     {
-        var underlyingType = entityProperty.EnumUnderlyingType ?? "int";
+        var underlyingType = GetAliasMap(entityProperty.EnumUnderlyingType ?? "int");
 
         if (entityProperty.IsNullableEnum)
             return $"({entityProperty.PropertyType})dataRecord.GetValue<{underlyingType}?>(__index)";
@@ -506,6 +506,17 @@ public static class DataReaderFactoryWriter
     {
         return type switch
         {
+            "global::System.Boolean" => "bool",
+            "global::System.Byte" => "byte",
+            "global::System.Byte[]" => "byte[]",
+            "global::System.Char" => "char",
+            "global::System.Decimal" => "decimal",
+            "global::System.Double" => "double",
+            "global::System.Single" => "float",
+            "global::System.Int16" => "short",
+            "global::System.Int32" => "int",
+            "global::System.Int64" => "long",
+            "global::System.String" => "string",
             "System.Boolean" => "bool",
             "System.Byte" => "byte",
             "System.Byte[]" => "byte[]",
@@ -534,6 +545,20 @@ public static class DataReaderFactoryWriter
     {
         return propertyType switch
         {
+            "global::System.Boolean" => "GetBoolean",
+            "global::System.Byte" => "GetByte",
+            "global::System.Byte[]" => "GetBytes",
+            "global::System.Char" => "GetChar",
+            "global::System.DateTime" => "GetDateTime",
+            "global::System.DateTimeOffset" => "GetDateTimeOffset",
+            "global::System.Decimal" => "GetDecimal",
+            "global::System.Double" => "GetDouble",
+            "global::System.Guid" => "GetGuid",
+            "global::System.Single" => "GetFloat",
+            "global::System.Int16" => "GetInt16",
+            "global::System.Int32" => "GetInt32",
+            "global::System.Int64" => "GetInt64",
+            "global::System.String" => "GetString",
             "System.Boolean" => "GetBoolean",
             "System.Byte" => "GetByte",
             "System.Byte[]" => "GetBytes",
@@ -559,7 +584,10 @@ public static class DataReaderFactoryWriter
             "int" => "GetInt32",
             "long" => "GetInt64",
             "string" => "GetString",
+            // special handling for ConcurrencyToken to use GetBytes
+            "global::FluentCommand.ConcurrencyToken" => "GetBytes",
             "FluentCommand.ConcurrencyToken" => "GetBytes",
+            // fallback to GetValue<T> for unsupported types
             _ => $"GetValue<{propertyType}>"
         };
     }

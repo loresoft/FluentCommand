@@ -15,7 +15,9 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
             DiagnosticDescriptors.NoMappableProperties,
             DiagnosticDescriptors.UnsupportedPropertyType,
             DiagnosticDescriptors.InvalidGenerateReaderArgument,
-            DiagnosticDescriptors.TableAttributeOnInvalidType
+            DiagnosticDescriptors.TableAttributeOnInvalidType,
+            DiagnosticDescriptors.InvalidJsonColumnOptionsProvider,
+            DiagnosticDescriptors.InvalidJsonColumnSerializerContext
         );
 
     public override void Initialize(AnalysisContext context)
@@ -95,8 +97,12 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
             if (classIgnored.Contains(prop.Name) || HasIgnorePropertyAttribute(propertyAttributes) || IsNotMapped(propertyAttributes))
                 continue;
 
-            if (HasJsonColumnAttribute(propertyAttributes))
+            var jsonColumn = GetJsonColumnAttribute(propertyAttributes);
+            if (jsonColumn != null)
+            {
+                AnalyzeJsonColumnAttribute(context, prop, jsonColumn);
                 continue;
+            }
 
             if (!IsSupportedType(prop.Type))
             {
@@ -155,6 +161,68 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    private static void AnalyzeJsonColumnAttribute(SymbolAnalysisContext context, IPropertySymbol propertySymbol, AttributeData jsonColumn)
+    {
+        var location = jsonColumn.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken).GetLocation()
+            ?? propertySymbol.Locations.FirstOrDefault()
+            ?? Location.None;
+
+        if (jsonColumn.ConstructorArguments.Length == 1
+            && jsonColumn.ConstructorArguments[0].Value is INamedTypeSymbol optionsProviderType
+            && !HasJsonSerializerOptionsProperty(optionsProviderType))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                DiagnosticDescriptors.InvalidJsonColumnOptionsProvider,
+                location,
+                optionsProviderType.ToDisplayString()));
+        }
+
+        if (jsonColumn.ConstructorArguments.Length == 2
+            && jsonColumn.ConstructorArguments[0].Value is INamedTypeSymbol serializerContextType
+            && jsonColumn.ConstructorArguments[1].Value is string typeInfoPropertyName
+            && (!DerivesFromJsonSerializerContext(serializerContextType) || !HasProperty(serializerContextType, typeInfoPropertyName)))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                DiagnosticDescriptors.InvalidJsonColumnSerializerContext,
+                location,
+                serializerContextType.ToDisplayString(),
+                typeInfoPropertyName));
+        }
+    }
+
+    private static bool HasJsonSerializerOptionsProperty(INamedTypeSymbol typeSymbol)
+    {
+        return typeSymbol.GetMembers("Options")
+            .OfType<IPropertySymbol>()
+            .Any(p => p.IsStatic && IsJsonSerializerOptions(p.Type));
+    }
+
+    private static bool IsJsonSerializerOptions(ITypeSymbol typeSymbol)
+    {
+        return typeSymbol
+            .WithNullableAnnotation(NullableAnnotation.NotAnnotated)
+            .ToDisplayString() == "System.Text.Json.JsonSerializerOptions";
+    }
+
+    private static bool DerivesFromJsonSerializerContext(INamedTypeSymbol typeSymbol)
+    {
+        var current = typeSymbol;
+        while (current != null)
+        {
+            if (current.ToDisplayString() == "System.Text.Json.Serialization.JsonSerializerContext")
+                return true;
+
+            current = current.BaseType;
+        }
+
+        return false;
+    }
+
+    private static bool HasProperty(INamedTypeSymbol typeSymbol, string propertyName)
+    {
+        return typeSymbol.GetMembers(propertyName).OfType<IPropertySymbol>().Any();
+    }
+
     #region Attribute helpers (mirrors generator logic)
 
     private static bool IsGenerateReaderAttribute(AttributeData attr)
@@ -208,7 +276,12 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
 
     private static bool HasJsonColumnAttribute(ImmutableArray<AttributeData> attributes)
     {
-        return attributes.Any(a => a.AttributeClass is
+        return GetJsonColumnAttribute(attributes) != null;
+    }
+
+    private static AttributeData? GetJsonColumnAttribute(ImmutableArray<AttributeData> attributes)
+    {
+        return attributes.FirstOrDefault(a => a.AttributeClass is
         {
             Name: "JsonColumnAttribute",
             ContainingNamespace:
