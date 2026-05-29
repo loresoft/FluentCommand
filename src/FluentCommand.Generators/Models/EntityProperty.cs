@@ -15,6 +15,7 @@ public record EntityProperty
     public bool IsConcurrencyCheck { get; init; }
     public string? ForeignKey { get; init; }
     public bool IsRequired { get; init; }
+    public bool IsNullable { get; init; }
 
     public bool HasGetter { get; init; } = true;
     public bool HasSetter { get; init; } = true;

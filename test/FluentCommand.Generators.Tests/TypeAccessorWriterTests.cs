@@ -96,8 +96,8 @@ public class TypeAccessorWriterTests
             {
                 new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "int", MemberTypeName = "int", IsKey = true, IsDatabaseGenerated = true },
                 new() { PropertyName = "Name", ColumnName = "Name", PropertyType = "string", MemberTypeName = "string", IsRequired = true },
-                new() { PropertyName = "Email", ColumnName = "Email", PropertyType = "string?", MemberTypeName = "string" },
-                new() { PropertyName = "Age", ColumnName = "Age", PropertyType = "int?", MemberTypeName = "int?" },
+                new() { PropertyName = "Email", ColumnName = "Email", PropertyType = "string?", MemberTypeName = "string", IsNullable = true },
+                new() { PropertyName = "Age", ColumnName = "Age", PropertyType = "int?", MemberTypeName = "int?", IsNullable = true },
             },
             TableName = "Contact"
         };
@@ -211,8 +211,8 @@ public class TypeAccessorWriterTests
             EntityName = "Item",
             Properties = new EntityProperty[]
             {
-                new() { PropertyName = "Age", ColumnName = "Age", PropertyType = "int?", MemberTypeName = "int?" },
-                new() { PropertyName = "Email", ColumnName = "Email", PropertyType = "string?", MemberTypeName = "string" },
+                new() { PropertyName = "Age", ColumnName = "Age", PropertyType = "int?", MemberTypeName = "int?", IsNullable = true },
+                new() { PropertyName = "Email", ColumnName = "Email", PropertyType = "string?", MemberTypeName = "string", IsNullable = true },
             },
             TableName = "Item"
         };

@@ -230,6 +230,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         var jsonColumn = GetJsonColumn(attributes);
         var isJsonColumn = jsonColumn != null;
         var enumInfo = GetEnumInfo(propertySymbol.Type);
+        var isNullable = IsNullableType(propertySymbol.Type);
         var isNotMapped = (classIgnored?.Contains(propertyName) == true) || (!isJsonColumn && !IsSupportedType(propertySymbol.Type));
 
         if (attributes == default || attributes.Length == 0)
@@ -244,6 +245,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 IsNotMapped = isNotMapped,
                 HasGetter = hasGetter,
                 HasSetter = hasSetter,
+                IsNullable = isNullable,
                 IsJsonColumn = isJsonColumn,
                 IsEnum = enumInfo.IsEnum,
                 IsNullableEnum = enumInfo.IsNullableEnum,
@@ -286,6 +288,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
             IsConcurrencyCheck = isConcurrencyCheck,
             ForeignKey = foreignKey,
             IsRequired = isRequired,
+            IsNullable = isNullable,
             HasGetter = hasGetter,
             HasSetter = hasSetter,
             DisplayName = displayName,
@@ -317,6 +320,12 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
             return (false, false, null);
 
         return (true, isNullableEnum, namedEnum.EnumUnderlyingType?.ToDisplayString());
+    }
+
+    private static bool IsNullableType(ITypeSymbol type)
+    {
+        return type.NullableAnnotation == NullableAnnotation.Annotated
+            || type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T };
     }
 
     private static AttributeData? GetJsonColumn(ImmutableArray<AttributeData> attributes)

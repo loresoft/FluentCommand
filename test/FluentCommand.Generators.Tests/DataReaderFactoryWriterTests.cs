@@ -44,7 +44,7 @@ public class DataReaderFactoryWriterTests
             {
                 new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "int", MemberTypeName = "int" },
                 new() { PropertyName = "Data", ColumnName = "Data", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true },
-                new() { PropertyName = "OptionalData", ColumnName = "OptionalData", PropertyType = "global::FluentCommand.Entities.UserImport?", MemberTypeName = "global::FluentCommand.Entities.UserImport?", IsJsonColumn = true },
+                new() { PropertyName = "OptionalData", ColumnName = "OptionalData", PropertyType = "global::FluentCommand.Entities.UserImport?", MemberTypeName = "global::FluentCommand.Entities.UserImport?", IsJsonColumn = true, IsNullable = true },
                 new() { PropertyName = "DataWithOptions", ColumnName = "DataWithOptions", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true, JsonOptionsProviderName = "global::FluentCommand.Entities.UserImportJsonOptionsProvider" },
                 new() { PropertyName = "DataWithContext", ColumnName = "DataWithContext", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true, JsonContextName = "global::FluentCommand.Entities.UserImportJsonContext", JsonTypeInfoPropertyName = "UserImport" },
             }
@@ -52,10 +52,10 @@ public class DataReaderFactoryWriterTests
 
         var source = DataReaderFactoryWriter.Generate(entityClass);
 
-        Assert.Contains("v_data = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport>(__index)!;", source);
+        Assert.Contains("v_data = dataRecord.GetRequiredFromJson<global::FluentCommand.Entities.UserImport>(__index);", source);
         Assert.Contains("v_optionalData = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport?>(__index);", source);
-        Assert.Contains("v_dataWithOptions = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonOptionsProvider.Options)!;", source);
-        Assert.Contains("v_dataWithContext = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonContext.Default.UserImport)!;", source);
+        Assert.Contains("v_dataWithOptions = dataRecord.GetRequiredFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonOptionsProvider.Options);", source);
+        Assert.Contains("v_dataWithContext = dataRecord.GetRequiredFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonContext.Default.UserImport);", source);
     }
 
     [Fact]
@@ -85,6 +85,7 @@ public class DataReaderFactoryWriterTests
                     PropertyType = "global::FluentCommand.Entities.BuilderStatus?",
                     MemberTypeName = "global::FluentCommand.Entities.BuilderStatus",
                     IsEnum = true,
+                    IsNullable = true,
                     IsNullableEnum = true,
                     EnumUnderlyingType = "short"
                 }

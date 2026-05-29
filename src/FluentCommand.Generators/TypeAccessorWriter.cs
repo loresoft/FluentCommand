@@ -311,8 +311,6 @@ public static class TypeAccessorWriter
         // SetValue
         if (prop.HasSetter)
         {
-            var isNullableType = prop.PropertyType.EndsWith("?");
-
             codeBuilder
                 .AppendLine("public void SetValue(object instance, object? value)")
                 .AppendLine("{")
@@ -328,7 +326,7 @@ public static class TypeAccessorWriter
                 .DecrementIndent()
                 .AppendLine();
 
-            if (isNullableType)
+            if (prop.IsNullable)
             {
                 codeBuilder
                     .Append("typed.")

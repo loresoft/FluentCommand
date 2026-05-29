@@ -24,6 +24,26 @@ public static class JsonRecordExtensions
         return JsonSerializer.Deserialize<T>(json, options);
     }
 
+    /// <summary>Deserializes the JSON value of the specified column to a required <typeparamref name="T"/> value.</summary>
+    /// <typeparam name="T">The type to deserialize the JSON value into.</typeparam>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="ordinal">The zero-based column ordinal.</param>
+    /// <param name="options">Options to control the behavior during parsing.</param>
+    /// <returns>The deserialized value.</returns>
+    /// <exception cref="DataException">The column is <see langword="null"/> or deserializes to <see langword="null"/>.</exception>
+    public static T GetRequiredFromJson<T>(this IDataRecord dataRecord, int ordinal, JsonSerializerOptions? options = null)
+    {
+        if (dataRecord.IsDBNull(ordinal))
+            throw new DataException($"JSON column at ordinal {ordinal} is null but a value of type '{typeof(T)}' is required.");
+
+        var json = dataRecord.GetString(ordinal);
+        var value = JsonSerializer.Deserialize<T>(json, options);
+
+        return value is null
+            ? throw new DataException($"JSON column at ordinal {ordinal} deserialized to null but a value of type '{typeof(T)}' is required.")
+            : value;
+    }
+
     /// <summary>Deserializes the JSON value of the specified column to <typeparamref name="T"/>.</summary>
     /// <typeparam name="T">The type to deserialize the JSON value into.</typeparam>
     /// <param name="dataRecord">The data record.</param>
@@ -39,6 +59,26 @@ public static class JsonRecordExtensions
         return JsonSerializer.Deserialize(json, jsonTypeInfo);
     }
 
+    /// <summary>Deserializes the JSON value of the specified column to a required <typeparamref name="T"/> value.</summary>
+    /// <typeparam name="T">The type to deserialize the JSON value into.</typeparam>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="ordinal">The zero-based column ordinal.</param>
+    /// <param name="jsonTypeInfo">Metadata about the type to convert.</param>
+    /// <returns>The deserialized value.</returns>
+    /// <exception cref="DataException">The column is <see langword="null"/> or deserializes to <see langword="null"/>.</exception>
+    public static T GetRequiredFromJson<T>(this IDataRecord dataRecord, int ordinal, JsonTypeInfo<T> jsonTypeInfo)
+    {
+        if (dataRecord.IsDBNull(ordinal))
+            throw new DataException($"JSON column at ordinal {ordinal} is null but a value of type '{typeof(T)}' is required.");
+
+        var json = dataRecord.GetString(ordinal);
+        var value = JsonSerializer.Deserialize(json, jsonTypeInfo);
+
+        return value is null
+            ? throw new DataException($"JSON column at ordinal {ordinal} deserialized to null but a value of type '{typeof(T)}' is required.")
+            : value;
+    }
+
     /// <summary>Deserializes the JSON value of the specified column to <typeparamref name="T"/>.</summary>
     /// <typeparam name="T">The type to deserialize the JSON value into.</typeparam>
     /// <param name="dataRecord">The data record.</param>
@@ -51,6 +91,19 @@ public static class JsonRecordExtensions
         return dataRecord.GetFromJson<T>(ordinal, options);
     }
 
+    /// <summary>Deserializes the JSON value of the specified column to a required <typeparamref name="T"/> value.</summary>
+    /// <typeparam name="T">The type to deserialize the JSON value into.</typeparam>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+    /// <param name="options">Options to control the behavior during parsing.</param>
+    /// <returns>The deserialized value.</returns>
+    /// <exception cref="DataException">The column is <see langword="null"/> or deserializes to <see langword="null"/>.</exception>
+    public static T GetRequiredFromJson<T>(this IDataRecord dataRecord, string name, JsonSerializerOptions? options = null)
+    {
+        int ordinal = dataRecord.GetOrdinal(name);
+        return dataRecord.GetRequiredFromJson<T>(ordinal, options);
+    }
+
     /// <summary>Deserializes the JSON value of the specified column to <typeparamref name="T"/>.</summary>
     /// <typeparam name="T">The type to deserialize the JSON value into.</typeparam>
     /// <param name="dataRecord">The data record.</param>
@@ -61,5 +114,18 @@ public static class JsonRecordExtensions
     {
         int ordinal = dataRecord.GetOrdinal(name);
         return dataRecord.GetFromJson<T>(ordinal, jsonTypeInfo);
+    }
+
+    /// <summary>Deserializes the JSON value of the specified column to a required <typeparamref name="T"/> value.</summary>
+    /// <typeparam name="T">The type to deserialize the JSON value into.</typeparam>
+    /// <param name="dataRecord">The data record.</param>
+    /// <param name="name">The <paramref name="name"/> of the field to find.</param>
+    /// <param name="jsonTypeInfo">Metadata about the type to convert.</param>
+    /// <returns>The deserialized value.</returns>
+    /// <exception cref="DataException">The column is <see langword="null"/> or deserializes to <see langword="null"/>.</exception>
+    public static T GetRequiredFromJson<T>(this IDataRecord dataRecord, string name, JsonTypeInfo<T> jsonTypeInfo)
+    {
+        int ordinal = dataRecord.GetOrdinal(name);
+        return dataRecord.GetRequiredFromJson<T>(ordinal, jsonTypeInfo);
     }
 }

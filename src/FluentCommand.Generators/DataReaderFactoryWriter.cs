@@ -297,7 +297,7 @@ public static class DataReaderFactoryWriter
                 .Append(" v_")
                 .Append(fieldName)
                 .Append(" = default")
-                .AppendIf("!", _ => !entityProperty.PropertyType.EndsWith("?"))
+                .AppendIf("!", _ => !entityProperty.IsNullable)
                 .AppendLine(";");
         }
 
@@ -332,56 +332,31 @@ public static class DataReaderFactoryWriter
 
             if (entityProperty.IsJsonColumn)
             {
+                var jsonReaderName = entityProperty.IsNullable
+                    ? "GetFromJson"
+                    : "GetRequiredFromJson";
+
                 codeBuilder
                     .IncrementIndent()
                     .Append("v_")
                     .Append(fieldName)
-                    .Append(" = dataRecord.GetFromJson<")
+                    .Append(" = dataRecord.")
+                    .Append(jsonReaderName)
+                    .Append("<")
                     .Append(entityProperty.PropertyType)
                     .Append(">(__index")
                     .Append(GetJsonReaderArgument(entityProperty))
-                    .Append(")")
-                    .AppendIf("!", _ => !entityProperty.PropertyType.EndsWith("?"))
-                    .AppendLine(";")
+                    .AppendLine(");")
                     .AppendLine("break;")
                     .DecrementIndent();
             }
             else if (entityProperty.IsEnum)
             {
-                var underlyingType = entityProperty.EnumUnderlyingType ?? "int";
-
-                codeBuilder
-                    .IncrementIndent()
-                    .Append("v_")
-                    .Append(fieldName)
-                    .Append(" = ");
-
-                if (entityProperty.IsNullableEnum)
-                {
-                    codeBuilder
-                        .Append("(")
-                        .Append(entityProperty.PropertyType)
-                        .Append(")dataRecord.GetValue<")
-                        .Append(underlyingType)
-                        .AppendLine("?>(__index);");
-                }
-                else
-                {
-                    codeBuilder
-                        .Append("(")
-                        .Append(entityProperty.PropertyType)
-                        .Append(")dataRecord.")
-                        .Append(GetReaderName(underlyingType))
-                        .AppendLine("(__index);");
-                }
-
-                codeBuilder
-                    .AppendLine("break;")
-                    .DecrementIndent();
+                WriteEnumColumnReader(codeBuilder, entityProperty, fieldName);
             }
             else if (string.IsNullOrEmpty(entityProperty.ConverterName))
             {
-                var readerName = GetReaderName(entityProperty.PropertyType);
+                var readerName = GetReaderName(entityProperty);
 
                 codeBuilder
                     .IncrementIndent()
@@ -438,6 +413,29 @@ public static class DataReaderFactoryWriter
             .DecrementIndent()
             .AppendLine("}") // method
             .AppendLine();
+    }
+
+    private static void WriteEnumColumnReader(IndentedStringBuilder codeBuilder, EntityProperty entityProperty, string fieldName)
+    {
+        codeBuilder
+            .IncrementIndent()
+            .Append("v_")
+            .Append(fieldName)
+            .Append(" = ")
+            .Append(GetEnumReadExpression(entityProperty))
+            .AppendLine(";")
+            .AppendLine("break;")
+            .DecrementIndent();
+    }
+
+    private static string GetEnumReadExpression(EntityProperty entityProperty)
+    {
+        var underlyingType = entityProperty.EnumUnderlyingType ?? "int";
+
+        if (entityProperty.IsNullableEnum)
+            return $"({entityProperty.PropertyType})dataRecord.GetValue<{underlyingType}?>(__index)";
+
+        return $"({entityProperty.PropertyType})dataRecord.{GetReaderName(underlyingType)}(__index)";
     }
 
     private static void WriteReturnConstructor(IndentedStringBuilder codeBuilder, EntityClass entity)
@@ -523,12 +521,18 @@ public static class DataReaderFactoryWriter
         };
     }
 
+    private static string GetReaderName(EntityProperty entityProperty)
+    {
+        var propertyType = entityProperty.IsNullable
+            ? entityProperty.PropertyType.Substring(0, entityProperty.PropertyType.Length - 1)
+            : entityProperty.PropertyType;
+
+        return GetReaderName(propertyType);
+    }
+
     private static string GetReaderName(string propertyType)
     {
-        // remove nullable
-        var type = propertyType.EndsWith("?") ? propertyType.Substring(0, propertyType.Length - 1) : propertyType;
-
-        return type switch
+        return propertyType switch
         {
             "System.Boolean" => "GetBoolean",
             "System.Byte" => "GetByte",
@@ -556,7 +560,7 @@ public static class DataReaderFactoryWriter
             "long" => "GetInt64",
             "string" => "GetString",
             "FluentCommand.ConcurrencyToken" => "GetBytes",
-            _ => $"GetValue<{type}>"
+            _ => $"GetValue<{propertyType}>"
         };
     }
 
