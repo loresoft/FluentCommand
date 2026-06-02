@@ -241,6 +241,20 @@ public class DataCommandSqlTests : DatabaseTestBase
     }
 
     [Fact]
+    public void SqlQueryValueNullableDateOnly()
+    {
+        var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        const string sql = "select date('2024-02-03')";
+
+        var value = session.Sql(sql)
+            .QueryValue<DateOnly?>();
+
+        value.Should().Be(new DateOnly(2024, 2, 3));
+    }
+
+    [Fact]
     public void SqlReader()
     {
         var session = Services.GetRequiredService<IDataSession>();

@@ -687,6 +687,31 @@ public static class ConvertExtensions
         if (result is string stringValue)
             return (TValue?)SafeConvert(typeof(TValue), stringValue);
 
+#if NET6_0_OR_GREATER
+        var underlyingType = typeof(TValue).GetUnderlyingType();
+
+        if (underlyingType == typeof(DateOnly))
+        {
+            if (result is DateTime dateTime)
+                return (TValue)(object)DateOnly.FromDateTime(dateTime);
+
+            if (result is DateTimeOffset dateTimeOffset)
+                return (TValue)(object)DateOnly.FromDateTime(dateTimeOffset.DateTime);
+        }
+
+        if (underlyingType == typeof(TimeOnly))
+        {
+            if (result is TimeSpan timeSpan)
+                return (TValue)(object)TimeOnly.FromTimeSpan(timeSpan);
+
+            if (result is DateTime dateTime)
+                return (TValue)(object)TimeOnly.FromDateTime(dateTime);
+
+            if (result is DateTimeOffset dateTimeOffset)
+                return (TValue)(object)TimeOnly.FromDateTime(dateTimeOffset.DateTime);
+        }
+#endif
+
         try
         {
             return (TValue)Convert.ChangeType(result, typeof(TValue));

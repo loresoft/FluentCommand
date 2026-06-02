@@ -266,6 +266,20 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
     }
 
     [Fact]
+    public async System.Threading.Tasks.Task SqlQueryValueNullableDateOnlyAsync()
+    {
+        await using var session = Services.GetRequiredService<IDataSession>();
+        session.Should().NotBeNull();
+
+        const string sql = "select cast('2024-02-03' as date)";
+
+        var value = await session.Sql(sql)
+            .QueryValueAsync<DateOnly?>(cancellationToken: TestCancellation);
+
+        value.Should().Be(new DateOnly(2024, 2, 3));
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task SqlReaderAsync()
     {
         await using var session = Services.GetRequiredService<IDataSession>();
