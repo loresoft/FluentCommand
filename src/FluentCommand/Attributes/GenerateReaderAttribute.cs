@@ -25,4 +25,19 @@ public class GenerateReaderAttribute(Type type) : Attribute
     /// Gets the type for which the data reader will be generated.
     /// </summary>
     public Type Type { get; } = type ?? throw new ArgumentNullException(nameof(type));
+
+    /// <summary>
+    /// Gets or sets property names to ignore when generating the data reader.
+    /// </summary>
+    public string[] IgnoreProperties { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets property names to deserialize from JSON columns when generating the data reader.
+    /// </summary>
+    public string[] JsonProperties { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the type that provides JSON serializer options for configured JSON properties.
+    /// </summary>
+    public Type? JsonOptionsProviderType { get; set; }
 }

@@ -112,4 +112,17 @@ internal static class DiagnosticDescriptors
         isEnabledByDefault: true,
         description: "The [JsonColumn(typeof(TContext), name)] attribute requires a serializer context type and a named type-info property that exists on the context."
     );
+
+    /// <summary>
+    /// FLC009: [GenerateReader] references an unknown property name.
+    /// </summary>
+    public static readonly DiagnosticDescriptor UnknownGenerateReaderProperty = new(
+        id: "FLC009",
+        title: "Unknown GenerateReader property name",
+        messageFormat: "The [GenerateReader] {0} value '{1}' does not match a public property on type '{2}'",
+        category: Category,
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Property names listed in GenerateReaderAttribute IgnoreProperties or JsonProperties must match public properties on the generated type."
+    );
 }

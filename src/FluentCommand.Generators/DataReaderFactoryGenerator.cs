@@ -17,72 +17,77 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Pipeline for [GenerateReader(typeof(T))] attribute
-        var generateAttributeClasses = context.SyntaxProvider.ForAttributeWithMetadataName(
-            fullyQualifiedMetadataName: "FluentCommand.Attributes.GenerateReaderAttribute",
-            predicate: static (_, __) => true,
-            transform: static (context, _) =>
-            {
-                if (context.Attributes.Length == 0)
-                    return [];
-
-                var classes = new List<EntityClass>();
-
-                foreach (var attribute in context.Attributes)
+        var generateAttributeClasses = context.SyntaxProvider
+            .ForAttributeWithMetadataName(
+                fullyQualifiedMetadataName: "FluentCommand.Attributes.GenerateReaderAttribute",
+                predicate: static (_, __) => true,
+                transform: static (context, _) =>
                 {
-                    if (attribute == null)
+                    if (context.Attributes.Length == 0)
                         return [];
 
-                    if (attribute.ConstructorArguments.Length != 1)
-                        return [];
+                    var classes = new List<EntityClass>();
 
-                    var comparerArgument = attribute.ConstructorArguments[0];
-                    if (comparerArgument.Value is not INamedTypeSymbol targetSymbol)
-                        return [];
+                    foreach (var attribute in context.Attributes)
+                    {
+                        if (attribute == null)
+                            return [];
 
-                    var entityClass = CreateClass(targetSymbol);
-                    if (entityClass != null)
-                        classes.Add(entityClass);
+                        if (attribute.ConstructorArguments.Length != 1)
+                            return [];
+
+                        if (GetTypeArgument(attribute.ConstructorArguments[0]) is not INamedTypeSymbol targetSymbol)
+                            return [];
+
+                        var ignoreProperties = GetNamedStringArray(attribute, "IgnoreProperties");
+                        var jsonProperties = GetNamedStringArray(attribute, "JsonProperties");
+                        var jsonOptionsProviderType = GetNamedType(attribute, "JsonOptionsProviderType");
+
+                        var entityClass = CreateClass(targetSymbol, ignoreProperties, jsonProperties, jsonOptionsProviderType);
+                        if (entityClass != null)
+                            classes.Add(entityClass);
+                    }
+
+                    return new EquatableArray<EntityClass>(classes);
                 }
-
-                return new EquatableArray<EntityClass>(classes);
-            }
-        )
-        .Where(static context => context.Count > 0)
-        .SelectMany(static (item, _) => item)
-        .WithTrackingName("GenerateAttributeGenerator");
+            )
+            .Where(static context => context.Count > 0)
+            .SelectMany(static (item, _) => item)
+            .WithTrackingName("GenerateAttributeGenerator");
 
         context.RegisterSourceOutput(generateAttributeClasses, WriteDataReaderSource);
         context.RegisterSourceOutput(generateAttributeClasses, WriteTypeAccessorSource);
 
         // Pipeline for [Table] attribute
-        var tableAttributeClasses = context.SyntaxProvider.ForAttributeWithMetadataName(
-            fullyQualifiedMetadataName: "System.ComponentModel.DataAnnotations.Schema.TableAttribute",
-            predicate: static (syntaxNode, _) =>
-            {
-                return
-                    (
-                        syntaxNode is ClassDeclarationSyntax { AttributeLists.Count: > 0 } classDeclaration
-                            && !classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
-                            && !classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
-                    )
-                    ||
-                    (
-                        syntaxNode is RecordDeclarationSyntax { AttributeLists.Count: > 0 } recordDeclaration
-                            && !recordDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
-                            && !recordDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
-                    );
-            },
-            transform: static (context, _) =>
-            {
-                if (context.TargetSymbol is not INamedTypeSymbol targetSymbol)
-                    return null;
+        var tableAttributeClasses = context.SyntaxProvider
+            .ForAttributeWithMetadataName(
+                fullyQualifiedMetadataName: "System.ComponentModel.DataAnnotations.Schema.TableAttribute",
+                predicate: static (syntaxNode, _) =>
+                {
+                    return
+                        (
+                            syntaxNode is ClassDeclarationSyntax { AttributeLists.Count: > 0 } classDeclaration
+                                && !classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
+                                && !classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
+                        )
+                        ||
+                        (
+                            syntaxNode is RecordDeclarationSyntax { AttributeLists.Count: > 0 } recordDeclaration
+                                && !recordDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword)
+                                && !recordDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword)
+                        );
+                },
+                transform: static (context, _) =>
+                {
+                    if (context.TargetSymbol is not INamedTypeSymbol targetSymbol)
+                        return null;
 
-                return CreateClass(targetSymbol);
-            }
-        )
-        .Where(static context => context is not null)
-        .Select(static (context, _) => context!)
-        .WithTrackingName("TableAttributeGenerator");
+                    return CreateClass(targetSymbol);
+                }
+            )
+            .Where(static context => context is not null)
+            .Select(static (context, _) => context!)
+            .WithTrackingName("TableAttributeGenerator");
 
         context.RegisterSourceOutput(tableAttributeClasses, WriteDataReaderSource);
         context.RegisterSourceOutput(tableAttributeClasses, WriteTypeAccessorSource);
@@ -113,6 +118,15 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
 
     private static EntityClass? CreateClass(INamedTypeSymbol targetSymbol)
     {
+        return CreateClass(targetSymbol, [], [], null);
+    }
+
+    private static EntityClass? CreateClass(
+        INamedTypeSymbol targetSymbol,
+        IEnumerable<string> ignoreProperties,
+        IEnumerable<string> jsonPropertyNames,
+        INamedTypeSymbol? jsonOptionsProviderType)
+    {
         if (targetSymbol == null)
             return null;
 
@@ -140,12 +154,22 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
             : InitializationMode.Constructor;
 
         var classIgnored = GetClassIgnoredProperties(typeAttributes);
+        foreach (var ignoredProperty in ignoreProperties)
+            classIgnored.Add(ignoredProperty);
+
+        var jsonProperties = new HashSet<string>(jsonPropertyNames, StringComparer.Ordinal);
+
         var propertySymbols = GetProperties(targetSymbol);
 
         if (mode == InitializationMode.ObjectInitializer)
         {
             var propertyArray = propertySymbols
-                .Select(p => CreateProperty(p, classIgnored: classIgnored))
+                .Select(propertySymbol => CreateProperty(
+                    propertySymbol: propertySymbol,
+                    classIgnored: classIgnored,
+                    jsonProperties: jsonProperties,
+                    jsonOptionsProviderType: jsonOptionsProviderType)
+                )
                 .ToArray();
 
             return new EntityClass
@@ -164,7 +188,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
 
         // constructor with same number of parameters as mappable properties
         var mappableCount = propertySymbols
-            .Count(p => IsMappableProperty(p, classIgnored));
+            .Count(p => IsMappableProperty(p, classIgnored, jsonProperties));
 
         var constructor = targetSymbol.Constructors.FirstOrDefault(c => c.Parameters.Length == mappableCount);
         if (constructor == null)
@@ -185,6 +209,8 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 propertySymbol: propertySymbol,
                 parameterName: parameter.Name,
                 classIgnored: classIgnored,
+                jsonProperties: jsonProperties,
+                jsonOptionsProviderType: jsonOptionsProviderType,
                 parameterAttributes: parameter.GetAttributes());
 
             properties.Add(property);
@@ -231,6 +257,8 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         IPropertySymbol propertySymbol,
         string? parameterName = null,
         HashSet<string>? classIgnored = null,
+        HashSet<string>? jsonProperties = null,
+        INamedTypeSymbol? jsonOptionsProviderType = null,
         ImmutableArray<AttributeData> parameterAttributes = default)
     {
         var propertyType = propertySymbol.Type.ToDisplayString(FullyQualifiedNullableFormat);
@@ -246,10 +274,14 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
             : !parameterAttributes.IsDefaultOrEmpty ? parameterAttributes : propertyAttributes;
 
         var jsonColumn = GetJsonColumn(attributes);
-        var isJsonColumn = jsonColumn != null;
+        var isConfiguredJsonColumn = jsonProperties?.Contains(propertyName) == true;
+        var isJsonColumn = jsonColumn != null || isConfiguredJsonColumn;
         var enumInfo = GetEnumInfo(propertySymbol.Type);
         var isNullable = IsNullableType(propertySymbol.Type);
         var isNotMapped = (classIgnored?.Contains(propertyName) == true) || (!isJsonColumn && !IsSupportedType(propertySymbol.Type));
+        var configuredJsonOptionsProviderName = isConfiguredJsonColumn
+            ? jsonOptionsProviderType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+            : null;
 
         if (attributes == default || attributes.Length == 0)
         {
@@ -265,6 +297,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 HasSetter = hasSetter,
                 IsNullable = isNullable,
                 IsJsonColumn = isJsonColumn,
+                JsonOptionsProviderName = configuredJsonOptionsProviderName,
                 IsEnum = enumInfo.IsEnum,
                 IsNullableEnum = enumInfo.IsNullableEnum,
                 EnumUnderlyingType = enumInfo.UnderlyingType
@@ -288,7 +321,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         var dataFormatString = GetNamedString(FindDataAnnotationAttribute(attributes, "DisplayFormatAttribute"), "DataFormatString");
         var columnType = GetNamedString(FindSchemaAttribute(attributes, "ColumnAttribute"), "TypeName");
         var columnOrder = GetNamedNumber(FindSchemaAttribute(attributes, "ColumnAttribute"), "Order");
-        var jsonOptionsProviderName = GetJsonOptionsProviderName(jsonColumn);
+        var jsonOptionsProviderName = GetJsonOptionsProviderName(jsonColumn) ?? configuredJsonOptionsProviderName;
         var jsonContextName = GetJsonContextName(jsonColumn);
         var jsonTypeInfoPropertyName = GetJsonTypeInfoPropertyName(jsonColumn);
 
@@ -397,7 +430,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
 
         return null;
     }
-
 
     private static string? GetConverterName(ImmutableArray<AttributeData> attributes)
     {
@@ -508,6 +540,40 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         return null;
     }
 
+    private static string[] GetNamedStringArray(AttributeData attribute, string argName)
+    {
+        foreach (var namedArg in attribute.NamedArguments)
+        {
+            if (namedArg.Key != argName || namedArg.Value.Kind != TypedConstantKind.Array)
+                continue;
+
+            return namedArg.Value.Values
+                .Select(static v => v.Value)
+                .OfType<string>()
+                .ToArray();
+        }
+
+        return [];
+    }
+
+    private static INamedTypeSymbol? GetNamedType(AttributeData attribute, string argName)
+    {
+        foreach (var namedArg in attribute.NamedArguments)
+        {
+            if (namedArg.Key == argName && namedArg.Value.Value is INamedTypeSymbol typeSymbol)
+                return typeSymbol;
+        }
+
+        return null;
+    }
+
+    private static ITypeSymbol? GetTypeArgument(TypedConstant argument)
+    {
+        return argument.Kind == TypedConstantKind.Type
+            ? argument.Value as ITypeSymbol
+            : null;
+    }
+
     private static int? GetNamedNumber(AttributeData? attribute, string argName)
     {
         if (attribute == null)
@@ -606,13 +672,13 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         });
     }
 
-    private static bool IsMappableProperty(IPropertySymbol propertySymbol, HashSet<string> classIgnored)
+    private static bool IsMappableProperty(IPropertySymbol propertySymbol, HashSet<string> classIgnored, HashSet<string>? jsonProperties = null)
     {
         var attributes = propertySymbol.GetAttributes();
         if (classIgnored.Contains(propertySymbol.Name) || HasIgnorePropertyAttribute(attributes) || IsNotMapped(attributes))
             return false;
 
-        return GetJsonColumn(attributes) != null || IsSupportedType(propertySymbol.Type);
+        return jsonProperties?.Contains(propertySymbol.Name) == true || GetJsonColumn(attributes) != null || IsSupportedType(propertySymbol.Type);
     }
 
     private static HashSet<string> GetClassIgnoredProperties(ImmutableArray<AttributeData> attributes)
