@@ -42,14 +42,12 @@ public class DataReaderFactoryGeneratorTests
         var source = """
             using System;
             using System.ComponentModel.DataAnnotations.Schema;
-            using System.Text.Json;
             using FluentCommand.Attributes;
 
             [assembly: GenerateReader(
                 typeof(TestModels.ExternalProduct),
                 IgnoreProperties = new[] { nameof(TestModels.ExternalProduct.InternalState) },
-                JsonProperties = new[] { nameof(TestModels.ExternalProduct.Metadata) },
-                JsonOptionsProviderType = typeof(TestModels.ProductJsonOptionsProvider))]
+                JsonProperties = new[] { nameof(TestModels.ExternalProduct.Metadata) })]
 
             namespace TestModels;
 
@@ -68,11 +66,6 @@ public class DataReaderFactoryGeneratorTests
             public sealed class ProductMetadata
             {
                 public string Source { get; set; } = "";
-            }
-
-            public sealed class ProductJsonOptionsProvider
-            {
-                public static JsonSerializerOptions Options { get; } = new();
             }
             """;
 

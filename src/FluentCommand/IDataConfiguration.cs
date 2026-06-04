@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Text.Json;
 
 using FluentCommand.Query.Generators;
 
@@ -64,6 +65,11 @@ public interface IDataConfiguration : IDataSessionFactory
     /// The list of <see cref="IDataInterceptor"/> instances that will be applied to each session created from this configuration.
     /// </value>
     IEnumerable<IDataInterceptor>? Interceptors { get; }
+
+    /// <summary>
+    /// Gets the JSON serializer options used by generated JSON column readers.
+    /// </summary>
+    JsonSerializerOptions? JsonSerializerOptions { get; }
 
     /// <summary>
     /// Creates a new <see cref="DbConnection" /> instance from this database configuration.

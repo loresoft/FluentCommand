@@ -28,7 +28,8 @@ public static class QueryBuilderExtensions
     public static IDataCommand Sql(this IDataSession dataSession, Action<QueryBuilder> builder)
     {
         var queryParameters = new List<QueryParameter>();
-        var queryBuilder = new QueryBuilder(dataSession.QueryGenerator, queryParameters);
+        var queryBuilder = new QueryBuilder(dataSession.QueryGenerator, queryParameters)
+            .UseJsonSerializerOptions(dataSession.JsonSerializerOptions);
 
         builder(queryBuilder);
 

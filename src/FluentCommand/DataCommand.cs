@@ -1,6 +1,7 @@
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Text.Json;
 
 using FluentCommand.Extensions;
 using FluentCommand.Internal;
@@ -40,6 +41,7 @@ public class DataCommand : DisposableBase, IDataCommand
 
         Command = dataSession.Connection.CreateCommand();
         Command.Transaction = transaction;
+
         if (commandTimeout.HasValue)
             Command.CommandTimeout = commandTimeout.Value;
 
@@ -50,6 +52,11 @@ public class DataCommand : DisposableBase, IDataCommand
     /// Gets the underlying <see cref="DbCommand"/> for this <see cref="DataCommand"/>.
     /// </summary>
     public DbCommand Command { get; }
+
+    /// <summary>
+    /// Gets the JSON serializer options used by JSON command helpers.
+    /// </summary>
+    public JsonSerializerOptions? JsonSerializerOptions => _dataSession.JsonSerializerOptions;
 
 
     /// <summary>
@@ -223,9 +230,11 @@ public class DataCommand : DisposableBase, IDataCommand
             var results = new List<TEntity>();
 
             using var reader = Command.ExecuteReader(commandBehavior);
-            while (reader.Read())
+            var contextReader = CreateContextReader(reader);
+
+            while (contextReader.Read())
             {
-                var entity = factory(reader);
+                var entity = factory(contextReader);
                 results.Add(entity);
             }
 
@@ -256,9 +265,11 @@ public class DataCommand : DisposableBase, IDataCommand
             var results = new List<TEntity>();
 
             using var reader = await Command.ExecuteReaderAsync(commandBehavior, token).ConfigureAwait(false);
+            var contextReader = CreateContextReader(reader);
+
             while (await reader.ReadAsync(token).ConfigureAwait(false))
             {
-                var entity = factory(reader);
+                var entity = factory(contextReader);
                 results.Add(entity);
             }
 
@@ -287,8 +298,11 @@ public class DataCommand : DisposableBase, IDataCommand
         return QueryFactory(() =>
         {
             using var reader = Command.ExecuteReader(commandBehavior);
-            return reader.Read()
-                ? factory(reader)
+
+            var contextReader = CreateContextReader(reader);
+
+            return contextReader.Read()
+                ? factory(contextReader)
                 : default;
 
         }, true);
@@ -318,8 +332,10 @@ public class DataCommand : DisposableBase, IDataCommand
                 .ExecuteReaderAsync(commandBehavior, token)
                 .ConfigureAwait(false);
 
+            var contextReader = CreateContextReader(reader);
+
             return await reader.ReadAsync(token).ConfigureAwait(false)
-               ? factory(reader)
+               ? factory(contextReader)
                : default;
 
         }, true, cancellationToken).ConfigureAwait(false);
@@ -416,7 +432,9 @@ public class DataCommand : DisposableBase, IDataCommand
         QueryFactory(() =>
         {
             using var reader = Command.ExecuteReader();
-            var query = new QueryMultipleResult(reader);
+
+            var query = new QueryMultipleResult(reader, _dataSession.JsonSerializerOptions);
+
             queryAction(query);
 
             return true;
@@ -438,7 +456,9 @@ public class DataCommand : DisposableBase, IDataCommand
         await QueryFactoryAsync(async (token) =>
         {
             using var reader = await Command.ExecuteReaderAsync(token).ConfigureAwait(false);
-            var query = new QueryMultipleResult(reader);
+
+            var query = new QueryMultipleResult(reader, _dataSession.JsonSerializerOptions);
+
             await queryAction(query).ConfigureAwait(false);
 
             return true;
@@ -454,11 +474,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </returns>
     public int Execute()
     {
-        return QueryFactory(() =>
-        {
-            int result = Command.ExecuteNonQuery();
-            return result;
-        }, false);
+        return QueryFactory(Command.ExecuteNonQuery, false);
     }
 
     /// <summary>
@@ -469,12 +485,7 @@ public class DataCommand : DisposableBase, IDataCommand
     /// </returns>
     public async Task<int> ExecuteAsync(CancellationToken cancellationToken = default)
     {
-        return await QueryFactoryAsync(async (token) =>
-        {
-            int result = await Command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
-
-            return result;
-        }, false, cancellationToken).ConfigureAwait(false);
+        return await QueryFactoryAsync(Command.ExecuteNonQueryAsync, false, cancellationToken).ConfigureAwait(false);
     }
 
 
@@ -490,7 +501,10 @@ public class DataCommand : DisposableBase, IDataCommand
         QueryFactory(() =>
         {
             using var reader = Command.ExecuteReader(commandBehavior);
-            readAction(reader);
+
+            var contextReader = CreateContextReader(reader);
+
+            readAction(contextReader);
 
             return true;
         }, false);
@@ -510,10 +524,20 @@ public class DataCommand : DisposableBase, IDataCommand
         await QueryFactoryAsync(async (token) =>
         {
             using var reader = await Command.ExecuteReaderAsync(commandBehavior, token).ConfigureAwait(false);
-            await readAction(reader, token).ConfigureAwait(false);
+
+            var contextReader = CreateContextReader(reader);
+
+            await readAction(contextReader, token).ConfigureAwait(false);
 
             return true;
         }, false, cancellationToken).ConfigureAwait(false);
+    }
+
+    private IDataReader CreateContextReader(IDataReader reader)
+    {
+        return _dataSession.JsonSerializerOptions is not null
+            ? new ContextDataReader(reader, _dataSession.JsonSerializerOptions)
+            : reader;
     }
 
 
@@ -532,7 +556,7 @@ public class DataCommand : DisposableBase, IDataCommand
     protected override async ValueTask DisposeResourcesAsync()
     {
         if (Command != null)
-            await Command.DisposeAsync();
+            await Command.DisposeAsync().ConfigureAwait(false);
     }
 #endif
 

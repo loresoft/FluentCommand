@@ -45,17 +45,38 @@ public class DataReaderFactoryWriterTests
                 new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "global::System.Int32", MemberTypeName = "global::System.Int32" },
                 new() { PropertyName = "Data", ColumnName = "Data", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true },
                 new() { PropertyName = "OptionalData", ColumnName = "OptionalData", PropertyType = "global::FluentCommand.Entities.UserImport?", MemberTypeName = "global::FluentCommand.Entities.UserImport?", IsJsonColumn = true, IsNullable = true },
-                new() { PropertyName = "DataWithOptions", ColumnName = "DataWithOptions", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true, JsonOptionsProviderName = "global::FluentCommand.Entities.UserImportJsonOptionsProvider" },
-                new() { PropertyName = "DataWithContext", ColumnName = "DataWithContext", PropertyType = "global::FluentCommand.Entities.UserImport", MemberTypeName = "global::FluentCommand.Entities.UserImport", IsJsonColumn = true, JsonContextName = "global::FluentCommand.Entities.UserImportJsonContext", JsonTypeInfoPropertyName = "UserImport" },
             }
         };
 
         var source = DataReaderFactoryWriter.Generate(entityClass);
 
-        Assert.Contains("v_data = dataRecord.GetRequiredFromJson<global::FluentCommand.Entities.UserImport>(__index);", source);
-        Assert.Contains("v_optionalData = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport?>(__index);", source);
-        Assert.Contains("v_dataWithOptions = dataRecord.GetRequiredFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonOptionsProvider.Options);", source);
-        Assert.Contains("v_dataWithContext = dataRecord.GetRequiredFromJson<global::FluentCommand.Entities.UserImport>(__index, global::FluentCommand.Entities.UserImportJsonContext.Default.UserImport);", source);
+        Assert.Contains("global::System.Text.Json.JsonSerializerOptions? jsonSerializerOptions", source);
+        Assert.Contains("dataRecord is global::FluentCommand.IDataReaderContext __context", source);
+        Assert.Contains("v_data = dataRecord.GetRequiredFromJson<global::FluentCommand.Entities.UserImport>(__index, jsonSerializerOptions);", source);
+        Assert.Contains("v_optionalData = dataRecord.GetFromJson<global::FluentCommand.Entities.UserImport?>(__index, jsonSerializerOptions);", source);
+        Assert.Contains("Factory(r, jsonSerializerOptions)", source);
+    }
+
+    [Fact]
+    public void GenerateNonJsonColumnReaderDoesNotGenerateJsonOptionsOverloads()
+    {
+        var entityClass = new EntityClass
+        {
+            InitializationMode = InitializationMode.ObjectInitializer,
+            FullyQualified = "global::FluentCommand.Entities.Status",
+            EntityNamespace = "FluentCommand.Entities",
+            EntityName = "Status",
+            Properties = new EntityProperty[]
+            {
+                new() { PropertyName = "Id", ColumnName = "Id", PropertyType = "global::System.Int32", MemberTypeName = "global::System.Int32" },
+                new() { PropertyName = "Name", ColumnName = "Name", PropertyType = "global::System.String", MemberTypeName = "global::System.String" },
+            }
+        };
+
+        var source = DataReaderFactoryWriter.Generate(entityClass);
+
+        Assert.DoesNotContain("JsonSerializerOptions? jsonSerializerOptions", source);
+        Assert.DoesNotContain("IDataReaderContext", source);
     }
 
     [Fact]

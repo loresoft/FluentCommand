@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.Common;
+using System.Text.Json;
 
 namespace FluentCommand;
 
@@ -12,6 +13,11 @@ public interface IDataCommand : IDataQuery, IDataQueryAsync
     /// Gets the underlying <see cref="DbCommand"/> for this <see cref="DataCommand"/>.
     /// </summary>
     DbCommand Command { get; }
+
+    /// <summary>
+    /// Gets the JSON serializer options used by JSON command helpers.
+    /// </summary>
+    JsonSerializerOptions? JsonSerializerOptions { get; }
 
 
     /// <summary>

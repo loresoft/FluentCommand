@@ -165,7 +165,7 @@ public abstract class UpsertBuilder<TBuilder> : StatementBuilder<TBuilder>
         JsonSerializerOptions? options = null)
     {
         var json = parameterValue is not null
-            ? JsonSerializer.Serialize(parameterValue, options)
+            ? JsonSerializer.Serialize(parameterValue, options ?? JsonSerializerOptions)
             : null;
 
         return Value(columnName, json);

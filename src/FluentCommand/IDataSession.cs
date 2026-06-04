@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.Common;
+using System.Text.Json;
 
 using FluentCommand.Query.Generators;
 
@@ -60,6 +61,11 @@ public interface IDataSession
     /// The list of <see cref="IDataInterceptor"/> instances active for this session.
     /// </value>
     IReadOnlyList<IDataInterceptor> Interceptors { get; }
+
+    /// <summary>
+    /// Gets the JSON serializer options used by generated JSON column readers.
+    /// </summary>
+    JsonSerializerOptions? JsonSerializerOptions { get; }
 
     /// <summary>
     /// Starts a database transaction with the specified isolation level.

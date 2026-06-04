@@ -16,8 +16,6 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
             DiagnosticDescriptors.UnsupportedPropertyType,
             DiagnosticDescriptors.InvalidGenerateReaderArgument,
             DiagnosticDescriptors.TableAttributeOnInvalidType,
-            DiagnosticDescriptors.InvalidJsonColumnOptionsProvider,
-            DiagnosticDescriptors.InvalidJsonColumnSerializerContext,
             DiagnosticDescriptors.UnknownGenerateReaderProperty
         );
 
@@ -61,10 +59,14 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
             if (typeSymbol.IsStatic || typeSymbol.IsAbstract)
             {
                 var modifier = typeSymbol.IsStatic ? "static" : "abstract";
+
+                var location = tableAttribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken).GetLocation()
+                    ?? typeSymbol.Locations.FirstOrDefault()
+                    ?? Location.None;
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     DiagnosticDescriptors.TableAttributeOnInvalidType,
-                    tableAttribute.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken).GetLocation()
-                        ?? typeSymbol.Locations.FirstOrDefault() ?? Location.None,
+                    location,
                     typeSymbol.Name,
                     modifier));
             }
@@ -97,18 +99,22 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
             if (attr.ConstructorArguments.Length != 1 ||
                 GetTypeArgument(attr.ConstructorArguments[0]) is not INamedTypeSymbol targetSymbol)
             {
-                reportDiagnostic(Diagnostic.Create(
-                    DiagnosticDescriptors.InvalidGenerateReaderArgument,
-                    attr.ApplicationSyntaxReference?.GetSyntax(cancellationToken).GetLocation() ?? fallbackLocation,
-                    ownerName));
+                var location = attr.ApplicationSyntaxReference?.GetSyntax(cancellationToken).GetLocation() ?? fallbackLocation;
+
+                var diagnostic = Diagnostic.Create(
+                    descriptor: DiagnosticDescriptors.InvalidGenerateReaderArgument,
+                    location: location,
+                    messageArgs: ownerName);
+
+                reportDiagnostic(diagnostic);
+
                 continue;
             }
 
             var ignoreProperties = GetNamedStringArray(attr, "IgnoreProperties");
             var jsonProperties = GetNamedStringArray(attr, "JsonProperties");
-            var jsonOptionsProviderType = GetNamedType(attr, "JsonOptionsProviderType");
 
-            AnalyzeEntityType(reportDiagnostic, cancellationToken, targetSymbol, ignoreProperties, jsonProperties, jsonOptionsProviderType, attr);
+            AnalyzeEntityType(reportDiagnostic, cancellationToken, targetSymbol, ignoreProperties, jsonProperties, attr);
         }
     }
 
@@ -125,22 +131,37 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
         INamedTypeSymbol targetSymbol,
         string[]? ignoreProperties = null,
         string[]? jsonPropertyNames = null,
-        INamedTypeSymbol? jsonOptionsProviderType = null,
         AttributeData? generateReaderAttribute = null)
     {
         var typeAttributes = targetSymbol.GetAttributes();
         var classIgnored = GetClassIgnoredProperties(typeAttributes);
+
         if (ignoreProperties != null)
+        {
             foreach (var ignoredProperty in ignoreProperties)
                 classIgnored.Add(ignoredProperty);
+        }
 
         var jsonProperties = jsonPropertyNames == null
             ? new HashSet<string>(StringComparer.Ordinal)
             : new HashSet<string>(jsonPropertyNames, StringComparer.Ordinal);
+
         var propertySymbols = GetProperties(targetSymbol);
 
+        ignoreProperties ??= [];
+        jsonPropertyNames ??= [];
+
         if (generateReaderAttribute != null)
-            AnalyzeGenerateReaderOptions(reportDiagnostic, cancellationToken, targetSymbol, propertySymbols, ignoreProperties ?? [], jsonPropertyNames ?? [], jsonOptionsProviderType, generateReaderAttribute);
+        {
+            AnalyzeGenerateReaderOptions(
+                reportDiagnostic: reportDiagnostic,
+                cancellationToken: cancellationToken,
+                targetSymbol: targetSymbol,
+                propertySymbols: propertySymbols,
+                ignoreProperties: ignoreProperties,
+                jsonProperties: jsonPropertyNames,
+                attribute: generateReaderAttribute);
+        }
 
         var hasParameterlessCtor = targetSymbol.Constructors.Any(c => c.Parameters.Length == 0);
 
@@ -159,32 +180,33 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
 
             var jsonColumn = GetJsonColumnAttribute(propertyAttributes);
             if (jsonColumn != null)
-            {
-                AnalyzeJsonColumnAttribute(reportDiagnostic, cancellationToken, prop, jsonColumn);
                 continue;
-            }
 
             if (jsonProperties.Contains(prop.Name))
                 continue;
 
             if (!IsSupportedType(prop.Type))
             {
-                reportDiagnostic(Diagnostic.Create(
+                var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptors.UnsupportedPropertyType,
                     prop.Locations.FirstOrDefault() ?? Location.None,
                     prop.Name,
                     targetSymbol.Name,
-                    prop.Type.ToDisplayString()));
+                    prop.Type.ToDisplayString());
+
+                reportDiagnostic(diagnostic);
             }
         }
 
         // Report no mappable properties
         if (mappableProperties.Count == 0)
         {
-            reportDiagnostic(Diagnostic.Create(
+            var diagnostic = Diagnostic.Create(
                 DiagnosticDescriptors.NoMappableProperties,
                 targetSymbol.Locations.FirstOrDefault() ?? Location.None,
-                targetSymbol.Name));
+                targetSymbol.Name);
+
+            reportDiagnostic(diagnostic);
             return;
         }
 
@@ -198,11 +220,13 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
 
             if (constructor == null)
             {
-                reportDiagnostic(Diagnostic.Create(
+                var diagnostic = Diagnostic.Create(
                     DiagnosticDescriptors.NoMatchingConstructor,
                     targetSymbol.Locations.FirstOrDefault() ?? Location.None,
                     targetSymbol.Name,
-                    mappableCount));
+                    mappableCount);
+
+                reportDiagnostic(diagnostic);
                 return;
             }
 
@@ -214,11 +238,13 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
 
                 if (!hasMatch)
                 {
-                    reportDiagnostic(Diagnostic.Create(
+                    var diagnostic = Diagnostic.Create(
                         DiagnosticDescriptors.ConstructorParameterNotMatched,
                         parameter.Locations.FirstOrDefault() ?? constructor.Locations.FirstOrDefault() ?? Location.None,
                         parameter.Name,
-                        targetSymbol.Name));
+                        targetSymbol.Name);
+
+                    reportDiagnostic(diagnostic);
                 }
             }
         }
@@ -231,20 +257,11 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
         List<IPropertySymbol> propertySymbols,
         string[] ignoreProperties,
         string[] jsonProperties,
-        INamedTypeSymbol? jsonOptionsProviderType,
         AttributeData attribute)
     {
         var location = attribute.ApplicationSyntaxReference?.GetSyntax(cancellationToken).GetLocation()
             ?? targetSymbol.Locations.FirstOrDefault()
             ?? Location.None;
-
-        if (jsonOptionsProviderType != null && !HasJsonSerializerOptionsProperty(jsonOptionsProviderType))
-        {
-            reportDiagnostic(Diagnostic.Create(
-                DiagnosticDescriptors.InvalidJsonColumnOptionsProvider,
-                location,
-                jsonOptionsProviderType.ToDisplayString()));
-        }
 
         var propertyNames = new HashSet<string>(propertySymbols.Select(static p => p.Name), StringComparer.Ordinal);
 
@@ -265,79 +282,15 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
             if (propertyNames.Contains(configuredName))
                 continue;
 
-            reportDiagnostic(Diagnostic.Create(
+            var diagnostic = Diagnostic.Create(
                 DiagnosticDescriptors.UnknownGenerateReaderProperty,
                 location,
                 optionName,
                 configuredName,
-                targetSymbol.Name));
+                targetSymbol.Name);
+
+            reportDiagnostic(diagnostic);
         }
-    }
-
-    private static void AnalyzeJsonColumnAttribute(
-        Action<Diagnostic> reportDiagnostic,
-        CancellationToken cancellationToken,
-        IPropertySymbol propertySymbol,
-        AttributeData jsonColumn)
-    {
-        var location = jsonColumn.ApplicationSyntaxReference?.GetSyntax(cancellationToken).GetLocation()
-            ?? propertySymbol.Locations.FirstOrDefault()
-            ?? Location.None;
-
-        if (jsonColumn.ConstructorArguments.Length == 1
-            && jsonColumn.ConstructorArguments[0].Value is INamedTypeSymbol optionsProviderType
-            && !HasJsonSerializerOptionsProperty(optionsProviderType))
-        {
-            reportDiagnostic(Diagnostic.Create(
-                DiagnosticDescriptors.InvalidJsonColumnOptionsProvider,
-                location,
-                optionsProviderType.ToDisplayString()));
-        }
-
-        if (jsonColumn.ConstructorArguments.Length == 2
-            && jsonColumn.ConstructorArguments[0].Value is INamedTypeSymbol serializerContextType
-            && jsonColumn.ConstructorArguments[1].Value is string typeInfoPropertyName
-            && (!DerivesFromJsonSerializerContext(serializerContextType) || !HasProperty(serializerContextType, typeInfoPropertyName)))
-        {
-            reportDiagnostic(Diagnostic.Create(
-                DiagnosticDescriptors.InvalidJsonColumnSerializerContext,
-                location,
-                serializerContextType.ToDisplayString(),
-                typeInfoPropertyName));
-        }
-    }
-
-    private static bool HasJsonSerializerOptionsProperty(INamedTypeSymbol typeSymbol)
-    {
-        return typeSymbol.GetMembers("Options")
-            .OfType<IPropertySymbol>()
-            .Any(p => p.IsStatic && IsJsonSerializerOptions(p.Type));
-    }
-
-    private static bool IsJsonSerializerOptions(ITypeSymbol typeSymbol)
-    {
-        return typeSymbol
-            .WithNullableAnnotation(NullableAnnotation.NotAnnotated)
-            .ToDisplayString() == "System.Text.Json.JsonSerializerOptions";
-    }
-
-    private static bool DerivesFromJsonSerializerContext(INamedTypeSymbol typeSymbol)
-    {
-        var current = typeSymbol;
-        while (current != null)
-        {
-            if (current.ToDisplayString() == "System.Text.Json.Serialization.JsonSerializerContext")
-                return true;
-
-            current = current.BaseType;
-        }
-
-        return false;
-    }
-
-    private static bool HasProperty(INamedTypeSymbol typeSymbol, string propertyName)
-    {
-        return typeSymbol.GetMembers(propertyName).OfType<IPropertySymbol>().Any();
     }
 
     #region Attribute helpers (mirrors generator logic)
@@ -439,17 +392,6 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
         return [];
     }
 
-    private static INamedTypeSymbol? GetNamedType(AttributeData attribute, string argName)
-    {
-        foreach (var namedArg in attribute.NamedArguments)
-        {
-            if (namedArg.Key == argName && namedArg.Value.Value is INamedTypeSymbol typeSymbol)
-                return typeSymbol;
-        }
-
-        return null;
-    }
-
     private static HashSet<string> GetClassIgnoredProperties(ImmutableArray<AttributeData> attributes)
     {
         var ignored = new HashSet<string>(StringComparer.Ordinal);
@@ -496,8 +438,11 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
                 .GetMembers()
                 .Where(m => m.Kind == SymbolKind.Property)
                 .OfType<IPropertySymbol>()
-                .Where(p => !p.IsIndexer && !p.IsAbstract && p.DeclaredAccessibility == Accessibility.Public)
-                .Where(p => !properties.ContainsKey(p.Name));
+                .Where(p => !p.IsIndexer
+                    && !p.IsAbstract
+                    && p.DeclaredAccessibility == Accessibility.Public
+                    && !properties.ContainsKey(p.Name)
+                );
 
             foreach (var propertySymbol in propertySymbols)
                 properties.Add(propertySymbol.Name, propertySymbol);
@@ -535,6 +480,7 @@ public sealed class DataReaderFactoryAnalyzer : DiagnosticAnalyzer
             return true;
 
         var fullName = type.ToDisplayString();
+
         return fullName is
             "System.DateTime" or
             "System.DateTimeOffset" or

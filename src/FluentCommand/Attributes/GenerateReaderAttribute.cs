@@ -35,9 +35,4 @@ public class GenerateReaderAttribute(Type type) : Attribute
     /// Gets or sets property names to deserialize from JSON columns when generating the data reader.
     /// </summary>
     public string[] JsonProperties { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the type that provides JSON serializer options for configured JSON properties.
-    /// </summary>
-    public Type? JsonOptionsProviderType { get; set; }
 }

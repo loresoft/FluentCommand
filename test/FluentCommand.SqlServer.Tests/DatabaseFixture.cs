@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using Azure.Storage.Blobs;
 
 using DotNet.Testcontainers.Builders;
@@ -88,6 +90,13 @@ public class DatabaseFixture : TestApplicationFixture, IAsyncLifetime
         services.AddFluentCommand<ReadOnlyIntent>(builder => builder
             .UseConnectionString(readOnlyConnection)
             .UseSqlServer()
+            .AddDistributedDataCache()
+        );
+
+        services.AddFluentCommand<JsonOptionsIntent>(builder => builder
+            .UseConnectionString(trackerConnection)
+            .UseSqlServer()
+            .UseJsonSerializerOptions(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })
             .AddDistributedDataCache()
         );
     }

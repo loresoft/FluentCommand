@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 
 using FluentCommand.Query.Generators;
 
@@ -42,6 +43,17 @@ public class QueryBuilder : IStatementBuilder
     /// </value>
     protected List<QueryParameter> Parameters { get; }
 
+    /// <summary>
+    /// Gets the JSON serializer options used by JSON value helpers.
+    /// </summary>
+    protected JsonSerializerOptions? JsonSerializerOptions { get; private set; }
+
+    internal QueryBuilder UseJsonSerializerOptions(JsonSerializerOptions? options)
+    {
+        JsonSerializerOptions = options;
+        return this;
+    }
+
 
     /// <summary>
     /// Starts a new raw SQL statement builder and adds it to the query.
@@ -51,7 +63,8 @@ public class QueryBuilder : IStatementBuilder
     /// </returns>
     public StatementBuilder Statement()
     {
-        var builder = new StatementBuilder(QueryGenerator, Parameters);
+        var builder = new StatementBuilder(QueryGenerator, Parameters)
+            .UseJsonSerializerOptions(JsonSerializerOptions);
 
         _builderQueue.Enqueue(builder);
 
@@ -101,7 +114,8 @@ public class QueryBuilder : IStatementBuilder
     public InsertEntityBuilder<TEntity> Insert<TEntity>()
         where TEntity : class
     {
-        var builder = new InsertEntityBuilder<TEntity>(QueryGenerator, Parameters);
+        var builder = new InsertEntityBuilder<TEntity>(QueryGenerator, Parameters)
+            .UseJsonSerializerOptions(JsonSerializerOptions);
 
         _builderQueue.Enqueue(builder);
 
@@ -116,7 +130,8 @@ public class QueryBuilder : IStatementBuilder
     /// </returns>
     public InsertBuilder Insert()
     {
-        var builder = new InsertBuilder(QueryGenerator, Parameters);
+        var builder = new InsertBuilder(QueryGenerator, Parameters)
+            .UseJsonSerializerOptions(JsonSerializerOptions);
 
         _builderQueue.Enqueue(builder);
 
@@ -134,7 +149,8 @@ public class QueryBuilder : IStatementBuilder
     public UpsertEntityBuilder<TEntity> Upsert<TEntity>()
         where TEntity : class
     {
-        var builder = new UpsertEntityBuilder<TEntity>(QueryGenerator, Parameters);
+        var builder = new UpsertEntityBuilder<TEntity>(QueryGenerator, Parameters)
+            .UseJsonSerializerOptions(JsonSerializerOptions);
 
         _builderQueue.Enqueue(builder);
 
@@ -149,7 +165,8 @@ public class QueryBuilder : IStatementBuilder
     /// </returns>
     public UpsertBuilder Upsert()
     {
-        var builder = new UpsertBuilder(QueryGenerator, Parameters);
+        var builder = new UpsertBuilder(QueryGenerator, Parameters)
+            .UseJsonSerializerOptions(JsonSerializerOptions);
 
         _builderQueue.Enqueue(builder);
 

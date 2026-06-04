@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.Common;
+using System.Text.Json;
 
 using FluentCommand.Extensions;
 
@@ -11,16 +12,21 @@ namespace FluentCommand;
 internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
 {
     private readonly DbDataReader _reader;
+    private readonly IDataReader _dataRecord;
     private int _readCount;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="QueryMultipleResult"/> class.
     /// </summary>
     /// <param name="reader">The reader.</param>
-    internal QueryMultipleResult(DbDataReader reader)
+    /// <param name="jsonSerializerOptions">The JSON serializer options used by generated JSON column readers.</param>
+    internal QueryMultipleResult(DbDataReader reader, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         _readCount = 0;
         _reader = reader;
+        _dataRecord = jsonSerializerOptions is null
+            ? reader
+            : new ContextDataReader(reader, jsonSerializerOptions);
     }
 
     /// <summary>
@@ -41,7 +47,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
         var results = new List<TEntity>();
         while (_reader.Read())
         {
-            var entity = factory(_reader);
+            var entity = factory(_dataRecord);
             results.Add(entity);
         }
 
@@ -68,7 +74,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
         var results = new List<TEntity>();
         while (await _reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
-            var entity = factory(_reader);
+            var entity = factory(_dataRecord);
             results.Add(entity);
         }
 
@@ -92,7 +98,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
         NextResult();
 
         return _reader.Read()
-            ? factory(_reader)
+            ? factory(_dataRecord)
             : default;
     }
 
@@ -114,7 +120,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
         await NextResultAsync(cancellationToken).ConfigureAwait(false);
 
         return await _reader.ReadAsync(cancellationToken).ConfigureAwait(false)
-            ? factory(_reader)
+            ? factory(_dataRecord)
             : default;
     }
 
@@ -207,7 +213,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     {
         NextResult();
 
-        readAction(_reader);
+        readAction(_dataRecord);
     }
 
     /// <summary>
@@ -225,7 +231,7 @@ internal class QueryMultipleResult : DisposableBase, IDataQuery, IDataQueryAsync
     {
         await NextResultAsync(cancellationToken);
 
-        await readAction(_reader, cancellationToken);
+        await readAction(_dataRecord, cancellationToken);
     }
 
 

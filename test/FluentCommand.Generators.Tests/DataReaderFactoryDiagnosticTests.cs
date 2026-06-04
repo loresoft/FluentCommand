@@ -154,60 +154,6 @@ public class DataReaderFactoryDiagnosticTests
     }
 
     [Fact]
-    public async Task AnalyzerReportsInvalidJsonColumnOptionsProvider()
-    {
-        var source = """
-            using FluentCommand.Attributes;
-
-            [assembly: GenerateReader(typeof(TestModels.Product))]
-
-            namespace TestModels;
-
-            public sealed class Product
-            {
-                public int Id { get; set; }
-
-                [JsonColumn(typeof(InvalidJsonOptionsProvider))]
-                public ProductMetadata Metadata { get; set; } = new();
-            }
-
-            public sealed class ProductMetadata;
-            public sealed class InvalidJsonOptionsProvider;
-            """;
-
-        var diagnostics = await GetAnalyzerDiagnosticsAsync(source);
-
-        AssertDiagnosticCount(diagnostics, "FLC007", 1);
-    }
-
-    [Fact]
-    public async Task AnalyzerReportsInvalidJsonColumnSerializerContext()
-    {
-        var source = """
-            using FluentCommand.Attributes;
-
-            [assembly: GenerateReader(typeof(TestModels.Product))]
-
-            namespace TestModels;
-
-            public sealed class Product
-            {
-                public int Id { get; set; }
-
-                [JsonColumn(typeof(InvalidJsonContext), "ProductMetadata")]
-                public ProductMetadata Metadata { get; set; } = new();
-            }
-
-            public sealed class ProductMetadata;
-            public sealed class InvalidJsonContext;
-            """;
-
-        var diagnostics = await GetAnalyzerDiagnosticsAsync(source);
-
-        AssertDiagnosticCount(diagnostics, "FLC008", 1);
-    }
-
-    [Fact]
     public async Task AnalyzerReportsInvalidGenerateReaderOptions()
     {
         var source = """
@@ -217,8 +163,7 @@ public class DataReaderFactoryDiagnosticTests
             [assembly: GenerateReader(
                 typeof(TestModels.ExternalProduct),
                 IgnoreProperties = new[] { "MissingIgnore" },
-                JsonProperties = new[] { "MissingJson", nameof(TestModels.ExternalProduct.Metadata) },
-                JsonOptionsProviderType = typeof(TestModels.InvalidJsonOptionsProvider))]
+                JsonProperties = new[] { "MissingJson", nameof(TestModels.ExternalProduct.Metadata) })]
 
             namespace TestModels;
 
@@ -229,14 +174,11 @@ public class DataReaderFactoryDiagnosticTests
             }
 
             public sealed class ProductMetadata;
-
-            public sealed class InvalidJsonOptionsProvider;
             """;
 
         var diagnostics = await GetAnalyzerDiagnosticsAsync(source);
 
-        Assert.Contains(diagnostics, static d => d.Id == "FLC007");
-        Assert.Equal(2, diagnostics.Count(static d => d.Id == "FLC009"));
+        Assert.Equal(2, diagnostics.Count(static d => d.Id == "FLC007"));
     }
 
     [Fact]

@@ -35,7 +35,7 @@ public static class JsonCommandExtensions
         if (value is null)
             return dataCommand.Parameter(name, (string?)null);
 
-        var json = JsonSerializer.Serialize(value, options);
+        var json = JsonSerializer.Serialize(value, options ?? dataCommand.JsonSerializerOptions);
         return dataCommand.Parameter(name, json);
     }
 

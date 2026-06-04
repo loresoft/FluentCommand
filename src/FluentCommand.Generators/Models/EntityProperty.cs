@@ -26,9 +26,6 @@ public record EntityProperty
     public int? ColumnOrder { get; init; }
 
     public bool IsJsonColumn { get; init; }
-    public string? JsonOptionsProviderName { get; init; }
-    public string? JsonContextName { get; init; }
-    public string? JsonTypeInfoPropertyName { get; init; }
 
     public bool IsEnum { get; init; }
     public bool IsNullableEnum { get; init; }

@@ -88,36 +88,10 @@ internal static class DiagnosticDescriptors
     );
 
     /// <summary>
-    /// FLC007: [JsonColumn] options provider type is invalid.
-    /// </summary>
-    public static readonly DiagnosticDescriptor InvalidJsonColumnOptionsProvider = new(
-        id: "FLC007",
-        title: "Invalid JsonColumn options provider",
-        messageFormat: "The [JsonColumn] options provider type '{0}' must expose a static Options property of type System.Text.Json.JsonSerializerOptions",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "The [JsonColumn(typeof(TProvider))] attribute requires a provider type with a static Options property compatible with System.Text.Json.JsonSerializerOptions."
-    );
-
-    /// <summary>
-    /// FLC008: [JsonColumn] serializer context type or property is invalid.
-    /// </summary>
-    public static readonly DiagnosticDescriptor InvalidJsonColumnSerializerContext = new(
-        id: "FLC008",
-        title: "Invalid JsonColumn serializer context",
-        messageFormat: "The [JsonColumn] serializer context type '{0}' must derive from System.Text.Json.Serialization.JsonSerializerContext and expose a property named '{1}'",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "The [JsonColumn(typeof(TContext), name)] attribute requires a serializer context type and a named type-info property that exists on the context."
-    );
-
-    /// <summary>
-    /// FLC009: [GenerateReader] references an unknown property name.
+    /// FLC007: [GenerateReader] references an unknown property name.
     /// </summary>
     public static readonly DiagnosticDescriptor UnknownGenerateReaderProperty = new(
-        id: "FLC009",
+        id: "FLC007",
         title: "Unknown GenerateReader property name",
         messageFormat: "The [GenerateReader] {0} value '{1}' does not match a public property on type '{2}'",
         category: Category,

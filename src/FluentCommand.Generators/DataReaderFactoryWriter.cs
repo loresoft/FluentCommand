@@ -35,13 +35,27 @@ public static class DataReaderFactoryWriter
             .AppendLine("{")
             .IncrementIndent();
 
+        var hasJsonColumns = HasJsonColumns(entityClass);
+
         WriteQueryEntity(codeBuilder, entityClass);
+
+        if (hasJsonColumns)
+            WriteQueryEntityJsonOptions(codeBuilder, entityClass);
 
         WriteQuerySingleEntity(codeBuilder, entityClass);
 
+        if (hasJsonColumns)
+            WriteQuerySingleEntityJsonOptions(codeBuilder, entityClass);
+
         WriteQueryEntityTask(codeBuilder, entityClass);
 
+        if (hasJsonColumns)
+            WriteQueryEntityTaskJsonOptions(codeBuilder, entityClass);
+
         WriteQuerySingleEntityTask(codeBuilder, entityClass);
+
+        if (hasJsonColumns)
+            WriteQuerySingleEntityTaskJsonOptions(codeBuilder, entityClass);
 
         WriteEntityFactory(codeBuilder, entityClass);
 
@@ -106,6 +120,59 @@ public static class DataReaderFactoryWriter
             .AppendLine();
     }
 
+    private static void WriteQuerySingleEntityTaskJsonOptions(IndentedStringBuilder codeBuilder, EntityClass entity)
+    {
+        codeBuilder
+            .AppendLine("/// <summary>")
+            .Append("/// Executes the query and returns the first row in the result as a <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/> object.")
+            .AppendLine("/// </summary>")
+            .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQueryAsync\"/> for this extension method.</param>")
+            .AppendLine("/// <param name=\"jsonSerializerOptions\">The JSON serializer options to use for JSON columns.</param>")
+            .AppendLine("/// <param name=\"cancellationToken\">The cancellation instruction.</param>")
+            .AppendLine("/// <returns>")
+            .Append("/// A instance of <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/>  if row exists; otherwise null.")
+            .AppendLine("/// </returns>")
+            .Append("[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"")
+            .Append(ThisAssembly.Product)
+            .Append("\", \"")
+            .Append(ThisAssembly.InformationalVersion)
+            .AppendLine("\")]")
+            .Append("public static global::System.Threading.Tasks.Task<")
+            .Append(entity.FullyQualified)
+            .Append("?> QuerySingle")
+            .AppendLine("Async<TEntity>(")
+            .IncrementIndent()
+            .AppendLine("this global::FluentCommand.IDataQueryAsync dataQuery,")
+            .AppendLine("global::System.Text.Json.JsonSerializerOptions? jsonSerializerOptions,")
+            .AppendLine("global::System.Threading.CancellationToken cancellationToken = default)")
+            .Append("where TEntity : ")
+            .AppendLine(entity.FullyQualified)
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .Append("return dataQuery.QuerySingleAsync<")
+            .Append(entity.FullyQualified)
+            .AppendLine(">(")
+            .IncrementIndent()
+            .Append("factory: r => ")
+            .Append(entity.EntityName)
+            .Append("DataReaderExtensions.")
+            .Append(entity.EntityName)
+            .AppendLine("Factory(r, jsonSerializerOptions),")
+            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleResult |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleRow,")
+            .AppendLine("cancellationToken: cancellationToken);")
+            .DecrementIndent()
+            .DecrementIndent()
+            .AppendLine("}")
+            .AppendLine();
+    }
+
     private static void WriteQueryEntityTask(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
         // public static Task<IEnumerable<Entity>> QueryEntityAsync(this IDataQueryAsync dataQuery) => QueryAsync(dataQuery, EntityFactory);
@@ -147,6 +214,57 @@ public static class DataReaderFactoryWriter
             .Append("DataReaderExtensions.")
             .Append(entity.EntityName)
             .AppendLine("Factory,")
+            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleResult,")
+            .AppendLine("cancellationToken: cancellationToken);")
+            .DecrementIndent()
+            .DecrementIndent()
+            .AppendLine("}")
+            .AppendLine();
+    }
+
+    private static void WriteQueryEntityTaskJsonOptions(IndentedStringBuilder codeBuilder, EntityClass entity)
+    {
+        codeBuilder
+            .AppendLine("/// <summary>")
+            .Append("/// Executes the command against the connection and converts the results to <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/> objects.")
+            .AppendLine("/// </summary>")
+            .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQueryAsync\"/> for this extension method.</param>")
+            .AppendLine("/// <param name=\"jsonSerializerOptions\">The JSON serializer options to use for JSON columns.</param>")
+            .AppendLine("/// <param name=\"cancellationToken\">The cancellation instruction.</param>")
+            .AppendLine("/// <returns>")
+            .Append("/// An <see cref=\"T:System.Collections.Generic.IEnumerable`1\" /> of <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/> objects.")
+            .AppendLine("/// </returns>")
+            .Append("[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"")
+            .Append(ThisAssembly.Product)
+            .Append("\", \"")
+            .Append(ThisAssembly.InformationalVersion)
+            .AppendLine("\")]")
+            .Append("public static global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<")
+            .Append(entity.FullyQualified)
+            .AppendLine(">> QueryAsync<TEntity>(")
+            .IncrementIndent()
+            .AppendLine("this global::FluentCommand.IDataQueryAsync dataQuery,")
+            .AppendLine("global::System.Text.Json.JsonSerializerOptions? jsonSerializerOptions,")
+            .AppendLine("global::System.Threading.CancellationToken cancellationToken = default)")
+            .Append("where TEntity : ")
+            .AppendLine(entity.FullyQualified)
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .Append("return dataQuery.QueryAsync<")
+            .Append(entity.FullyQualified)
+            .AppendLine(">(")
+            .IncrementIndent()
+            .Append("factory: r => ")
+            .Append(entity.EntityName)
+            .Append("DataReaderExtensions.")
+            .Append(entity.EntityName)
+            .AppendLine("Factory(r, jsonSerializerOptions),")
             .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
             .AppendLine("                 global::System.Data.CommandBehavior.SingleResult,")
             .AppendLine("cancellationToken: cancellationToken);")
@@ -204,6 +322,55 @@ public static class DataReaderFactoryWriter
             .AppendLine();
     }
 
+    private static void WriteQuerySingleEntityJsonOptions(IndentedStringBuilder codeBuilder, EntityClass entity)
+    {
+        codeBuilder
+            .AppendLine("/// <summary>")
+            .Append("/// Executes the query and returns the first row in the result as a <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/> object.")
+            .AppendLine("/// </summary>")
+            .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQuery\"/> for this extension method.</param>")
+            .AppendLine("/// <param name=\"jsonSerializerOptions\">The JSON serializer options to use for JSON columns.</param>")
+            .AppendLine("/// <returns>")
+            .Append("/// A instance of <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/>  if row exists; otherwise null.")
+            .AppendLine("/// </returns>")
+            .Append("[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"")
+            .Append(ThisAssembly.Product)
+            .Append("\", \"")
+            .Append(ThisAssembly.InformationalVersion)
+            .AppendLine("\")]")
+            .Append("public static ")
+            .Append(entity.FullyQualified)
+            .AppendLine("? QuerySingle<TEntity>(")
+            .IncrementIndent()
+            .AppendLine("this global::FluentCommand.IDataQuery dataQuery,")
+            .AppendLine("global::System.Text.Json.JsonSerializerOptions? jsonSerializerOptions)")
+            .Append("where TEntity : ")
+            .AppendLine(entity.FullyQualified)
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .Append("return dataQuery.QuerySingle<")
+            .Append(entity.FullyQualified)
+            .AppendLine(">(")
+            .IncrementIndent()
+            .Append("factory: r => ")
+            .Append(entity.EntityName)
+            .Append("DataReaderExtensions.")
+            .Append(entity.EntityName)
+            .AppendLine("Factory(r, jsonSerializerOptions),")
+            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleResult |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleRow);")
+            .DecrementIndent()
+            .DecrementIndent()
+            .AppendLine("}")
+            .AppendLine();
+    }
+
     private static void WriteQueryEntity(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
         // public static IEnumerable<Entity> QueryEntity(this IDataQuery dataQuery) => Query(dataQuery, EntityFactory);
@@ -251,8 +418,58 @@ public static class DataReaderFactoryWriter
             .AppendLine();
     }
 
+    private static void WriteQueryEntityJsonOptions(IndentedStringBuilder codeBuilder, EntityClass entity)
+    {
+        codeBuilder
+            .AppendLine("/// <summary>")
+            .Append("/// Executes the command against the connection and converts the results to <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/> objects.")
+            .AppendLine("/// </summary>")
+            .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQuery\"/> for this extension method.</param>")
+            .AppendLine("/// <param name=\"jsonSerializerOptions\">The JSON serializer options to use for JSON columns.</param>")
+            .AppendLine("/// <returns>")
+            .Append("/// An <see cref=\"T:System.Collections.Generic.IEnumerable`1\" /> of <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/> objects.")
+            .AppendLine("/// </returns>")
+            .Append("[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"")
+            .Append(ThisAssembly.Product)
+            .Append("\", \"")
+            .Append(ThisAssembly.InformationalVersion)
+            .AppendLine("\")]")
+            .Append("public static global::System.Collections.Generic.IEnumerable<")
+            .Append(entity.FullyQualified)
+            .AppendLine("> Query<TEntity>(")
+            .IncrementIndent()
+            .AppendLine("this global::FluentCommand.IDataQuery dataQuery,")
+            .AppendLine("global::System.Text.Json.JsonSerializerOptions? jsonSerializerOptions)")
+            .Append("where TEntity : ")
+            .AppendLine(entity.FullyQualified)
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .Append("return dataQuery.Query<")
+            .Append(entity.FullyQualified)
+            .AppendLine(">(")
+            .IncrementIndent()
+            .Append("factory: r => ")
+            .Append(entity.EntityName)
+            .Append("DataReaderExtensions.")
+            .Append(entity.EntityName)
+            .AppendLine("Factory(r, jsonSerializerOptions),")
+            .AppendLine("commandBehavior: global::System.Data.CommandBehavior.SequentialAccess |")
+            .AppendLine("                 global::System.Data.CommandBehavior.SingleResult);")
+            .DecrementIndent()
+            .DecrementIndent()
+            .AppendLine("}")
+            .AppendLine();
+    }
+
     private static void WriteEntityFactory(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
+        var hasJsonColumns = HasJsonColumns(entity);
+
         codeBuilder
             .AppendLine("/// <summary>")
             .Append("/// A factory for creating <see cref=\"T:")
@@ -282,6 +499,72 @@ public static class DataReaderFactoryWriter
             .AppendLine("throw new global::System.ArgumentNullException(nameof(dataRecord));")
             .DecrementIndent()
             .AppendLine();
+
+        if (hasJsonColumns)
+        {
+            codeBuilder
+                .AppendLine("var __jsonSerializerOptions = dataRecord is global::FluentCommand.IDataReaderContext __context")
+                .IncrementIndent()
+                .AppendLine("? __context.JsonSerializerOptions")
+                .AppendLine(": null;")
+                .DecrementIndent()
+                .AppendLine()
+                .Append("return ")
+                .Append(entity.EntityName)
+                .AppendLine("Factory(dataRecord, __jsonSerializerOptions);")
+                .DecrementIndent()
+                .AppendLine("}")
+                .AppendLine();
+
+            WriteEntityFactoryWithJsonOptions(codeBuilder, entity);
+            return;
+        }
+
+        WriteEntityFactoryBody(codeBuilder, entity, false);
+    }
+
+    private static void WriteEntityFactoryWithJsonOptions(IndentedStringBuilder codeBuilder, EntityClass entity)
+    {
+        codeBuilder
+            .AppendLine("/// <summary>")
+            .Append("/// A factory for creating <see cref=\"T:")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/> objects from the current row in the specified <paramref name=\"dataRecord\"/>.")
+            .AppendLine("/// </summary>")
+            .AppendLine("/// <param name=\"dataRecord\">The open <see cref=\"T:System.Data.IDataReader\"/> to get the object from.</param>")
+            .AppendLine("/// <param name=\"jsonSerializerOptions\">The JSON serializer options to use for JSON columns.</param>")
+            .AppendLine("/// <returns>")
+            .Append("/// A instance of <see cref=\"")
+            .Append(entity.FullyQualified)
+            .AppendLine("\"/>  having property names set that match the field names in the <paramref name=\"dataRecord\"/>.")
+            .AppendLine("/// </returns>")
+            .Append("[global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"")
+            .Append(ThisAssembly.Product)
+            .Append("\", \"")
+            .Append(ThisAssembly.InformationalVersion)
+            .AppendLine("\")]")
+            .Append("public static ")
+            .Append(entity.FullyQualified)
+            .Append(" ")
+            .Append(entity.EntityName)
+            .AppendLine("Factory(")
+            .IncrementIndent()
+            .AppendLine("this global::System.Data.IDataReader dataRecord,")
+            .AppendLine("global::System.Text.Json.JsonSerializerOptions? jsonSerializerOptions)")
+            .DecrementIndent()
+            .AppendLine("{")
+            .IncrementIndent()
+            .AppendLine("if (dataRecord == null)")
+            .IncrementIndent()
+            .AppendLine("throw new global::System.ArgumentNullException(nameof(dataRecord));")
+            .DecrementIndent()
+            .AppendLine();
+
+        WriteEntityFactoryBody(codeBuilder, entity, true);
+    }
+
+    private static void WriteEntityFactoryBody(IndentedStringBuilder codeBuilder, EntityClass entity, bool hasJsonOptionsParameter)
+    {
 
         foreach (var entityProperty in entity.Properties)
         {
@@ -345,7 +628,7 @@ public static class DataReaderFactoryWriter
                     .Append("<")
                     .Append(entityProperty.PropertyType)
                     .Append(">(__index")
-                    .Append(GetJsonReaderArgument(entityProperty))
+                    .AppendIf(", jsonSerializerOptions", _ => hasJsonOptionsParameter)
                     .AppendLine(");")
                     .AppendLine("break;")
                     .DecrementIndent();
@@ -592,18 +875,9 @@ public static class DataReaderFactoryWriter
         };
     }
 
-    private static string GetJsonReaderArgument(EntityProperty entityProperty)
+    private static bool HasJsonColumns(EntityClass entityClass)
     {
-        if (!string.IsNullOrEmpty(entityProperty.JsonOptionsProviderName))
-            return $", {entityProperty.JsonOptionsProviderName}.Options";
-
-        if (!string.IsNullOrEmpty(entityProperty.JsonContextName)
-            && !string.IsNullOrEmpty(entityProperty.JsonTypeInfoPropertyName))
-        {
-            return $", {entityProperty.JsonContextName}.Default.{entityProperty.JsonTypeInfoPropertyName}";
-        }
-
-        return string.Empty;
+        return entityClass.Properties.Any(static p => p.IsJsonColumn && !p.IsNotMapped);
     }
 
     private static string CamelCase(string name)

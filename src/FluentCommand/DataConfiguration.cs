@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Text.Json;
 
 using FluentCommand.Query.Generators;
 
@@ -20,6 +21,7 @@ public class DataConfiguration : IDataConfiguration
     /// <param name="queryLogger">The query command logger.</param>
     /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply to each session created from this configuration.</param>
+    /// <param name="jsonSerializerOptions">The JSON serializer options used by generated JSON column readers.</param>
     /// <exception cref="ArgumentNullException">The <paramref name="providerFactory"/> is null</exception>
     public DataConfiguration(
         DbProviderFactory providerFactory,
@@ -28,7 +30,8 @@ public class DataConfiguration : IDataConfiguration
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? queryLogger = null,
         IEnumerable<IDataInterceptor>? interceptors = null,
-        int? commandTimeout = null)
+        int? commandTimeout = null,
+        JsonSerializerOptions? jsonSerializerOptions = null)
     {
         ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
         ConnectionString = connectionString;
@@ -37,6 +40,7 @@ public class DataConfiguration : IDataConfiguration
         DataCache = cache;
         QueryGenerator = queryGenerator ?? new SqlServerGenerator();
         Interceptors = interceptors ?? [];
+        JsonSerializerOptions = jsonSerializerOptions;
     }
 
     /// <summary>
@@ -96,6 +100,11 @@ public class DataConfiguration : IDataConfiguration
     public IEnumerable<IDataInterceptor> Interceptors { get; }
 
     /// <summary>
+    /// Gets the JSON serializer options used by generated JSON column readers.
+    /// </summary>
+    public JsonSerializerOptions? JsonSerializerOptions { get; }
+
+    /// <summary>
     /// Creates a new data session from this database configuration
     /// </summary>
     /// <param name="connectionString">The connection string to use for the session.  If <paramref name="connectionString" /> is <c>null</c>, <see cref="ConnectionString" /> will be used.</param>
@@ -105,7 +114,7 @@ public class DataConfiguration : IDataConfiguration
     public virtual IDataSession CreateSession(string? connectionString = null)
     {
         var connection = CreateConnection(connectionString);
-        return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger, Interceptors, CommandTimeout);
+        return new DataSession(connection, true, DataCache, QueryGenerator, QueryLogger, Interceptors, CommandTimeout, JsonSerializerOptions);
     }
 
     /// <summary>
@@ -124,7 +133,7 @@ public class DataConfiguration : IDataConfiguration
         if (transaction.Connection == null)
             throw new ArgumentException("The specified transaction doesn't have a vaild connection", nameof(transaction));
 
-        return new DataSession(transaction, false, DataCache, QueryGenerator, QueryLogger, Interceptors, CommandTimeout);
+        return new DataSession(transaction, false, DataCache, QueryGenerator, QueryLogger, Interceptors, CommandTimeout, JsonSerializerOptions);
     }
 
     /// <summary>
@@ -169,6 +178,7 @@ public class DataConfiguration<TDiscriminator> : DataConfiguration, IDataConfigu
     /// <param name="queryLogger">The query command logger.</param>
     /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply during this configuration's lifetime.</param>
+    /// <param name="jsonSerializerOptions">The JSON serializer options used by generated JSON column readers.</param>
     public DataConfiguration(
         DbProviderFactory providerFactory,
         string connectionString,
@@ -176,8 +186,9 @@ public class DataConfiguration<TDiscriminator> : DataConfiguration, IDataConfigu
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? queryLogger = null,
         IEnumerable<IDataInterceptor>? interceptors = null,
-        int? commandTimeout = null)
-        : base(providerFactory, connectionString, cache, queryGenerator, queryLogger, interceptors, commandTimeout)
+        int? commandTimeout = null,
+        JsonSerializerOptions? jsonSerializerOptions = null)
+        : base(providerFactory, connectionString, cache, queryGenerator, queryLogger, interceptors, commandTimeout, jsonSerializerOptions)
     {
     }
 }

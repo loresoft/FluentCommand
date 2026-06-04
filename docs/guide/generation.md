@@ -209,11 +209,13 @@ The generated reader creates the converter and calls `ReadValue` for that proper
 
 ## JSON columns
 
-Use `JsonColumnAttribute` for properties whose database column stores JSON text. The generated reader deserializes the column with `GetFromJson<T>`.
+Use `JsonColumnAttribute` for properties whose database column stores JSON text. The generated reader deserializes the column with `GetFromJson<T>` and uses JSON serializer options in this order:
+
+1. An explicit `JsonSerializerOptions?` argument passed to the generated overload.
+2. Options configured on FluentCommand with `UseJsonSerializerOptions(...)`.
+3. `null`, which uses default `System.Text.Json` behavior.
 
 ```csharp
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using FluentCommand;
 using FluentCommand.Attributes;
 
@@ -224,12 +226,6 @@ public class ImportRecord
 
     [JsonColumn]
     public ImportMetadata Metadata { get; set; }
-
-    [JsonColumn(typeof(ImportJsonOptionsProvider))]
-    public ImportMetadata MetadataWithOptions { get; set; }
-
-    [JsonColumn(typeof(ImportJsonContext), nameof(ImportJsonContext.ImportMetadata))]
-    public ImportMetadata MetadataWithContext { get; set; }
 }
 
 public class ImportMetadata
@@ -237,19 +233,27 @@ public class ImportMetadata
     public string FileName { get; set; }
     public int RowCount { get; set; }
 }
-
-public sealed class ImportJsonOptionsProvider : IJsonOptionsProvider
-{
-    public static JsonSerializerOptions? Options { get; } = new(JsonSerializerDefaults.Web);
-}
-
-[JsonSerializable(typeof(ImportMetadata))]
-public partial class ImportJsonContext : JsonSerializerContext
-{
-}
 ```
 
-`[JsonColumn]` uses the default JSON serializer options. Use the options-provider overload when you need a shared `JsonSerializerOptions` instance, or the serializer-context overload when you want source-generated `System.Text.Json` metadata.
+Configure shared JSON options on the FluentCommand configuration builder:
+
+```csharp
+using System.Text.Json;
+
+services.AddFluentCommand(builder => builder
+    .UseConnectionString(connectionString)
+    .UseJsonSerializerOptions(new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+```
+
+Generated query extensions for entities with JSON columns also include overloads that accept explicit options. Explicit options override configured context options for that call.
+
+```csharp
+var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+var imports = session.Sql("select Id, Metadata from dbo.Import")
+    .Query<ImportRecord>(options);
+```
+
+For assembly-level generated readers, use `GenerateReaderAttribute.JsonProperties` to identify JSON properties on types you cannot annotate directly.
 
 ## Constructor initialization
 

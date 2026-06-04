@@ -18,9 +18,9 @@ Fluent wrapper for ADO.NET `DbCommand` with automatic object mapping, caching, q
 - Automatic connection state management
 - Source-generated `IDataReader` mapping (no reflection)
 - SQL query builder with Select, Insert, Update, Delete, and Upsert support
-- JSON column support with `[JsonColumn]` attribute for source-generated readers
+- JSON column support with `[JsonColumn]` and configurable `JsonSerializerOptions`
 - JSON and CSV export directly from query results
-- JSON parameter serialization with `ParameterJson`
+- JSON parameter and query-builder value serialization with `ParameterJson` and `ValueJson`
 - Parameterized queries with output, input-output, and return value callbacks
 - Conditional parameters and query builder filters (`ParameterIf`, `WhereIf`, `ValueIf`)
 - Result caching with sliding or absolute expiration
@@ -62,6 +62,19 @@ Register with dependency injection for SQL Server:
 services.AddFluentCommand(builder => builder
     .UseConnectionString(connectionString)
     .UseSqlServer()
+);
+```
+
+Configure JSON serialization once when using JSON parameters, JSON query-builder values, or `[JsonColumn]` generated readers:
+
+```csharp
+services.AddFluentCommand(builder => builder
+    .UseConnectionString(connectionString)
+    .UseSqlServer()
+    .UseJsonSerializerOptions(new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    })
 );
 ```
 
@@ -241,6 +254,8 @@ session
     .Execute();
 ```
 
+`ParameterJson` uses the configured `JsonSerializerOptions` from the session by default. You can also pass options or a source-generated `JsonTypeInfo<T>` for a single parameter.
+
 ## SQL Query Builder
 
 Build parameterized SQL statements using fluent expressions. The builder uses `DataAnnotations` schema attributes to extract table and column information.
@@ -368,6 +383,20 @@ await session
     .ExecuteAsync();
 ```
 
+`ValueJson` is available for insert, update, and upsert builders. It uses the session's configured `JsonSerializerOptions` unless options or `JsonTypeInfo<T>` are passed explicitly.
+
+```csharp
+await session
+    .Sql(builder => builder
+        .Upsert()
+        .Into("JsonLog")
+        .Key("Id")
+        .Value("Id", id)
+        .ValueJson("Data", audit)
+    )
+    .ExecuteAsync();
+```
+
 ### Aggregates and Grouping
 
 ```csharp
@@ -464,14 +493,10 @@ public class ImportRecord
 
     [JsonColumn]
     public ImportMetadata Metadata { get; set; }
-
-    [JsonColumn(typeof(ImportJsonOptionsProvider))]
-    public ImportMetadata MetadataWithOptions { get; set; }
-
-    [JsonColumn(typeof(ImportJsonContext), nameof(ImportJsonContext.ImportMetadata))]
-    public ImportMetadata MetadataWithContext { get; set; }
 }
 ```
+
+Generated readers deserialize JSON columns with the `JsonSerializerOptions` configured on the active `IDataSession`.
 
 ### Records and Constructor Initialization
 

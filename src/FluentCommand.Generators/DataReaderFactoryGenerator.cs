@@ -41,9 +41,8 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
 
                         var ignoreProperties = GetNamedStringArray(attribute, "IgnoreProperties");
                         var jsonProperties = GetNamedStringArray(attribute, "JsonProperties");
-                        var jsonOptionsProviderType = GetNamedType(attribute, "JsonOptionsProviderType");
 
-                        var entityClass = CreateClass(targetSymbol, ignoreProperties, jsonProperties, jsonOptionsProviderType);
+                        var entityClass = CreateClass(targetSymbol, ignoreProperties, jsonProperties);
                         if (entityClass != null)
                             classes.Add(entityClass);
                     }
@@ -118,14 +117,13 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
 
     private static EntityClass? CreateClass(INamedTypeSymbol targetSymbol)
     {
-        return CreateClass(targetSymbol, [], [], null);
+        return CreateClass(targetSymbol, [], []);
     }
 
     private static EntityClass? CreateClass(
         INamedTypeSymbol targetSymbol,
         IEnumerable<string> ignoreProperties,
-        IEnumerable<string> jsonPropertyNames,
-        INamedTypeSymbol? jsonOptionsProviderType)
+        IEnumerable<string> jsonPropertyNames)
     {
         if (targetSymbol == null)
             return null;
@@ -167,8 +165,7 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 .Select(propertySymbol => CreateProperty(
                     propertySymbol: propertySymbol,
                     classIgnored: classIgnored,
-                    jsonProperties: jsonProperties,
-                    jsonOptionsProviderType: jsonOptionsProviderType)
+                    jsonProperties: jsonProperties)
                 )
                 .ToArray();
 
@@ -210,7 +207,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 parameterName: parameter.Name,
                 classIgnored: classIgnored,
                 jsonProperties: jsonProperties,
-                jsonOptionsProviderType: jsonOptionsProviderType,
                 parameterAttributes: parameter.GetAttributes());
 
             properties.Add(property);
@@ -258,7 +254,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         string? parameterName = null,
         HashSet<string>? classIgnored = null,
         HashSet<string>? jsonProperties = null,
-        INamedTypeSymbol? jsonOptionsProviderType = null,
         ImmutableArray<AttributeData> parameterAttributes = default)
     {
         var propertyType = propertySymbol.Type.ToDisplayString(FullyQualifiedNullableFormat);
@@ -279,9 +274,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         var enumInfo = GetEnumInfo(propertySymbol.Type);
         var isNullable = IsNullableType(propertySymbol.Type);
         var isNotMapped = (classIgnored?.Contains(propertyName) == true) || (!isJsonColumn && !IsSupportedType(propertySymbol.Type));
-        var configuredJsonOptionsProviderName = isConfiguredJsonColumn
-            ? jsonOptionsProviderType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-            : null;
 
         if (attributes == default || attributes.Length == 0)
         {
@@ -297,7 +289,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 HasSetter = hasSetter,
                 IsNullable = isNullable,
                 IsJsonColumn = isJsonColumn,
-                JsonOptionsProviderName = configuredJsonOptionsProviderName,
                 IsEnum = enumInfo.IsEnum,
                 IsNullableEnum = enumInfo.IsNullableEnum,
                 EnumUnderlyingType = enumInfo.UnderlyingType
@@ -321,9 +312,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         var dataFormatString = GetNamedString(FindDataAnnotationAttribute(attributes, "DisplayFormatAttribute"), "DataFormatString");
         var columnType = GetNamedString(FindSchemaAttribute(attributes, "ColumnAttribute"), "TypeName");
         var columnOrder = GetNamedNumber(FindSchemaAttribute(attributes, "ColumnAttribute"), "Order");
-        var jsonOptionsProviderName = GetJsonOptionsProviderName(jsonColumn) ?? configuredJsonOptionsProviderName;
-        var jsonContextName = GetJsonContextName(jsonColumn);
-        var jsonTypeInfoPropertyName = GetJsonTypeInfoPropertyName(jsonColumn);
 
         return new EntityProperty
         {
@@ -347,9 +335,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
             ColumnType = columnType,
             ColumnOrder = columnOrder,
             IsJsonColumn = isJsonColumn,
-            JsonOptionsProviderName = jsonOptionsProviderName,
-            JsonContextName = jsonContextName,
-            JsonTypeInfoPropertyName = jsonTypeInfoPropertyName,
             IsEnum = enumInfo.IsEnum,
             IsNullableEnum = enumInfo.IsNullableEnum,
             EnumUnderlyingType = enumInfo.UnderlyingType
@@ -390,30 +375,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
                 ContainingNamespace.Name: "FluentCommand"
             }
         });
-    }
-
-    private static string? GetJsonOptionsProviderName(AttributeData? attribute)
-    {
-        if (attribute?.ConstructorArguments.Length == 1 && attribute.ConstructorArguments[0].Value is INamedTypeSymbol providerSymbol)
-            return providerSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        return null;
-    }
-
-    private static string? GetJsonContextName(AttributeData? attribute)
-    {
-        if (attribute?.ConstructorArguments.Length == 2 && attribute.ConstructorArguments[0].Value is INamedTypeSymbol contextSymbol)
-            return contextSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        return null;
-    }
-
-    private static string? GetJsonTypeInfoPropertyName(AttributeData? attribute)
-    {
-        if (attribute?.ConstructorArguments.Length == 2 && attribute.ConstructorArguments[1].Value is string propertyName)
-            return propertyName;
-
-        return null;
     }
 
     private static string? GetColumnName(ImmutableArray<AttributeData> attributes)
@@ -554,17 +515,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         }
 
         return [];
-    }
-
-    private static INamedTypeSymbol? GetNamedType(AttributeData attribute, string argName)
-    {
-        foreach (var namedArg in attribute.NamedArguments)
-        {
-            if (namedArg.Key == argName && namedArg.Value.Value is INamedTypeSymbol typeSymbol)
-                return typeSymbol;
-        }
-
-        return null;
     }
 
     private static ITypeSymbol? GetTypeArgument(TypedConstant argument)

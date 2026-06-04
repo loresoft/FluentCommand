@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.Common;
+using System.Text.Json;
 
 using FluentCommand.Query.Generators;
 
@@ -68,6 +69,11 @@ public class DataSession : DisposableBase, IDataSession
     /// </value>
     public IReadOnlyList<IDataInterceptor> Interceptors => _interceptors;
 
+    /// <summary>
+    /// Gets the JSON serializer options used by generated JSON column readers.
+    /// </summary>
+    public JsonSerializerOptions? JsonSerializerOptions { get; }
+
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataSession" /> class.
@@ -79,6 +85,7 @@ public class DataSession : DisposableBase, IDataSession
     /// <param name="logger">The logger delegate for writing log messages.</param>
     /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
+    /// <param name="jsonSerializerOptions">The JSON serializer options used by generated JSON column readers.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="connection" /> instance.</exception>
     public DataSession(
@@ -88,7 +95,8 @@ public class DataSession : DisposableBase, IDataSession
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? logger = null,
         IEnumerable<IDataInterceptor>? interceptors = null,
-        int? commandTimeout = null)
+        int? commandTimeout = null,
+        JsonSerializerOptions? jsonSerializerOptions = null)
     {
         ArgumentNullException.ThrowIfNull(connection);
 
@@ -100,6 +108,7 @@ public class DataSession : DisposableBase, IDataSession
         QueryGenerator = queryGenerator ?? new SqlServerGenerator();
         QueryLogger = logger;
         CommandTimeout = commandTimeout;
+        JsonSerializerOptions = jsonSerializerOptions;
 
         _interceptors = interceptors is null ? [] : [.. interceptors];
         _connectionInterceptors = [.. _interceptors.OfType<IDataConnectionInterceptor>()];
@@ -118,6 +127,7 @@ public class DataSession : DisposableBase, IDataSession
     /// <param name="logger">The logger delegate for writing log messages.</param>
     /// <param name="commandTimeout">The default command timeout in seconds.</param>
     /// <param name="interceptors">The interceptors to apply during this session's lifetime.</param>
+    /// <param name="jsonSerializerOptions">The JSON serializer options used by generated JSON column readers.</param>
     /// <exception cref="ArgumentNullException"><paramref name="transaction" /> is null</exception>
     /// <exception cref="ArgumentException">Invalid connection string on <paramref name="transaction" /> instance.</exception>
     public DataSession(
@@ -127,8 +137,9 @@ public class DataSession : DisposableBase, IDataSession
         IQueryGenerator? queryGenerator = null,
         IDataQueryLogger? logger = null,
         IEnumerable<IDataInterceptor>? interceptors = null,
-        int? commandTimeout = null)
-        : this(GetTransactionConnection(transaction), disposeConnection, cache, queryGenerator, logger, interceptors, commandTimeout)
+        int? commandTimeout = null,
+        JsonSerializerOptions? jsonSerializerOptions = null)
+        : this(GetTransactionConnection(transaction), disposeConnection, cache, queryGenerator, logger, interceptors, commandTimeout, jsonSerializerOptions)
     {
         Transaction = transaction;
     }
@@ -147,6 +158,7 @@ public class DataSession : DisposableBase, IDataSession
         QueryGenerator = dataConfiguration.QueryGenerator;
         QueryLogger = dataConfiguration.QueryLogger;
         CommandTimeout = dataConfiguration.CommandTimeout;
+        JsonSerializerOptions = dataConfiguration.JsonSerializerOptions;
 
         _interceptors = dataConfiguration.Interceptors is null ? [] : [.. dataConfiguration.Interceptors];
         _connectionInterceptors = [.. _interceptors.OfType<IDataConnectionInterceptor>()];

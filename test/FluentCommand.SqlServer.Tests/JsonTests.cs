@@ -249,6 +249,37 @@ public class JsonTests : DatabaseTestBase
     }
 
     [Fact]
+    public void ParameterJsonWithConfiguredOptionsInsertsSerializedValue()
+    {
+        using var session = Services.GetRequiredService<IDataSession<JsonOptionsIntent>>();
+        session.Should().NotBeNull();
+
+        var input = new UserImport
+        {
+            EmailAddress = "json.configured.options@test.com",
+            DisplayName = "Json Configured Options",
+            FirstName = "Json",
+            LastName = "Configured",
+        };
+
+        session.Sql("INSERT INTO [JsonLog] ([Data]) VALUES (@Data)")
+            .ParameterJson("@Data", input)
+            .Execute();
+
+        var json = session.Sql("SELECT TOP 1 [Data] FROM [JsonLog] ORDER BY [Id] DESC")
+            .QueryValue<string>();
+
+        json.Should().NotBeNullOrEmpty();
+        json.Should().Contain("\"emailAddress\"");
+        json.Should().NotContain("\"EmailAddress\"");
+
+        var result = JsonSerializer.Deserialize<UserImport>(json, session.JsonSerializerOptions);
+        result.Should().NotBeNull();
+        result.EmailAddress.Should().Be(input.EmailAddress);
+        result.DisplayName.Should().Be(input.DisplayName);
+    }
+
+    [Fact]
     public void InsertValueJsonWithOptionsInsertsSerializedValue()
     {
         using var session = Services.GetRequiredService<IDataSession>();
@@ -278,6 +309,41 @@ public class JsonTests : DatabaseTestBase
         json.Should().Contain("\"emailAddress\"");
 
         var result = JsonSerializer.Deserialize<UserImport>(json, options);
+        result.Should().NotBeNull();
+        result.EmailAddress.Should().Be(input.EmailAddress);
+        result.DisplayName.Should().Be(input.DisplayName);
+    }
+
+    [Fact]
+    public void InsertValueJsonWithConfiguredOptionsInsertsSerializedValue()
+    {
+        using var session = Services.GetRequiredService<IDataSession<JsonOptionsIntent>>();
+        session.Should().NotBeNull();
+
+        var input = new UserImport
+        {
+            EmailAddress = "insert.valuejson.configured.options@test.com",
+            DisplayName = "Insert ValueJson Configured Options",
+            FirstName = "Insert",
+            LastName = "Configured",
+        };
+
+        session
+            .Sql(builder => builder
+                .Insert()
+                .Into("JsonLog")
+                .ValueJson("Data", input)
+            )
+            .Execute();
+
+        var json = session.Sql("SELECT TOP 1 [Data] FROM [JsonLog] ORDER BY [Id] DESC")
+            .QueryValue<string>();
+
+        json.Should().NotBeNullOrEmpty();
+        json.Should().Contain("\"emailAddress\"");
+        json.Should().NotContain("\"EmailAddress\"");
+
+        var result = JsonSerializer.Deserialize<UserImport>(json, session.JsonSerializerOptions);
         result.Should().NotBeNull();
         result.EmailAddress.Should().Be(input.EmailAddress);
         result.DisplayName.Should().Be(input.DisplayName);
@@ -392,7 +458,8 @@ public class JsonTests : DatabaseTestBase
 
         try
         {
-            session.Sql("DELETE FROM [JsonLog] WHERE JSON_VALUE([Data], '$.EmailAddress') = @EmailAddress")
+            session
+                .Sql("DELETE FROM [JsonLog] WHERE JSON_VALUE([Data], '$.EmailAddress') = @EmailAddress")
                 .Parameter("@EmailAddress", emailAddress)
                 .Execute();
 
@@ -405,7 +472,8 @@ public class JsonTests : DatabaseTestBase
                 )
                 .Execute();
 
-            var jsonLog = session.Sql("SELECT TOP 1 [Id], [Data], [Created] FROM [JsonLog] WHERE JSON_VALUE([Data], '$.EmailAddress') = @EmailAddress")
+            var jsonLog = session
+                .Sql("SELECT TOP 1 [Id], [Data], [Created] FROM [JsonLog] WHERE JSON_VALUE([Data], '$.EmailAddress') = @EmailAddress")
                 .Parameter("@EmailAddress", emailAddress)
                 .QuerySingle<JsonLog>();
 
@@ -419,6 +487,69 @@ public class JsonTests : DatabaseTestBase
         finally
         {
             session.Sql("DELETE FROM [JsonLog] WHERE JSON_VALUE([Data], '$.EmailAddress') = @EmailAddress")
+                .Parameter("@EmailAddress", emailAddress)
+                .Execute();
+        }
+    }
+
+    [Fact]
+    public void UpsertValueJsonWithConfiguredOptionsRoundTripsGeneratedReader()
+    {
+        using var session = Services.GetRequiredService<IDataSession<JsonOptionsIntent>>();
+        session.Should().NotBeNull();
+
+        var input = new UserImport
+        {
+            EmailAddress = "upsert.valuejson.configured.options@test.com",
+            DisplayName = "Upsert ValueJson Configured Options",
+            FirstName = "Upsert",
+            LastName = "Configured",
+        };
+
+        const string emailAddress = "upsert.valuejson.configured.options@test.com";
+
+        try
+        {
+            session
+                .Sql("DELETE FROM [JsonLog] WHERE JSON_VALUE([Data], '$.emailAddress') = @EmailAddress OR JSON_VALUE([Data], '$.EmailAddress') = @EmailAddress")
+                .Parameter("@EmailAddress", emailAddress)
+                .Execute();
+
+            session
+                .Sql(builder => builder
+                    .Upsert()
+                    .Into("JsonLog")
+                    .Key("Data")
+                    .ValueJson("Data", input)
+                    .Value("Created", DateTimeOffset.UtcNow)
+                )
+                .Execute();
+
+            var json = session
+                .Sql("SELECT TOP 1 [Data] FROM [JsonLog] WHERE JSON_VALUE([Data], '$.emailAddress') = @EmailAddress")
+                .Parameter("@EmailAddress", emailAddress)
+                .QueryValue<string>();
+
+            json.Should().NotBeNullOrEmpty();
+            json.Should().Contain("\"emailAddress\"");
+            json.Should().NotContain("\"EmailAddress\"");
+
+            var jsonLog = session
+                .Sql("SELECT TOP 1 [Id], [Data], [Created] FROM [JsonLog] WHERE JSON_VALUE([Data], '$.emailAddress') = @EmailAddress")
+                .Parameter("@EmailAddress", emailAddress)
+                .QuerySingle<JsonLog>();
+
+            jsonLog.Should().NotBeNull();
+            jsonLog.Data.Should().NotBeNull();
+            jsonLog.Data!.EmailAddress.Should().Be(input.EmailAddress);
+            jsonLog.Data.DisplayName.Should().Be(input.DisplayName);
+            jsonLog.Data.FirstName.Should().Be(input.FirstName);
+            jsonLog.Data.LastName.Should().Be(input.LastName);
+        }
+        finally
+        {
+            session
+                .Sql("DELETE FROM [JsonLog] WHERE JSON_VALUE([Data], '$.emailAddress') = @EmailAddress OR JSON_VALUE([Data], '$.EmailAddress') = @EmailAddress")
                 .Parameter("@EmailAddress", emailAddress)
                 .Execute();
         }

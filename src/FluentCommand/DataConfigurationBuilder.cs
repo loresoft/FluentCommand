@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Text.Json;
 
 using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
@@ -21,6 +22,7 @@ public class DataConfigurationBuilder
     private Type? _queryGeneratorType;
     private Type? _queryLoggerType;
     private int? _commandTimeout;
+    private Func<IServiceProvider, JsonSerializerOptions?>? _jsonSerializerOptionsFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataConfigurationBuilder"/> class.
@@ -81,6 +83,32 @@ public class DataConfigurationBuilder
     public DataConfigurationBuilder UseCommandTimeout(TimeSpan timeout)
     {
         _commandTimeout = (int)timeout.TotalSeconds;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the JSON serializer options used by generated JSON column readers.
+    /// </summary>
+    /// <param name="options">The JSON serializer options.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    public DataConfigurationBuilder UseJsonSerializerOptions(JsonSerializerOptions? options)
+    {
+        _jsonSerializerOptionsFactory = _ => options;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets a factory for JSON serializer options used by generated JSON column readers.
+    /// </summary>
+    /// <param name="optionsFactory">The JSON serializer options factory.</param>
+    /// <returns>
+    /// The same configuration builder so that multiple calls can be chained.
+    /// </returns>
+    public DataConfigurationBuilder UseJsonSerializerOptions(Func<IServiceProvider, JsonSerializerOptions?> optionsFactory)
+    {
+        _jsonSerializerOptionsFactory = optionsFactory ?? throw new ArgumentNullException(nameof(optionsFactory));
         return this;
     }
 
@@ -408,7 +436,8 @@ public class DataConfigurationBuilder
                 sp.GetService(queryGenerator) as IQueryGenerator,
                 sp.GetService(queryLogger) as IDataQueryLogger,
                 sp.GetServices<IDataInterceptor>(),
-                _commandTimeout
+                _commandTimeout,
+                _jsonSerializerOptionsFactory?.Invoke(sp)
             );
         });
 
@@ -438,7 +467,8 @@ public class DataConfigurationBuilder
                 sp.GetService(queryGenerator) as IQueryGenerator,
                 sp.GetService(queryLogger) as IDataQueryLogger,
                 sp.GetServices<IDataInterceptor>(),
-                _commandTimeout
+                _commandTimeout,
+                _jsonSerializerOptionsFactory?.Invoke(sp)
             );
         });
 

@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
@@ -101,6 +102,17 @@ public abstract class StatementBuilder<TBuilder> : IStatementBuilder, IQueryBuil
     /// The list of query parameters.
     /// </value>
     protected List<QueryParameter> Parameters { get; }
+
+    /// <summary>
+    /// Gets the JSON serializer options used by JSON value helpers.
+    /// </summary>
+    protected JsonSerializerOptions? JsonSerializerOptions { get; private set; }
+
+    internal TBuilder UseJsonSerializerOptions(JsonSerializerOptions? options)
+    {
+        JsonSerializerOptions = options;
+        return (TBuilder)this;
+    }
 
     /// <summary>
     /// Gets or sets the list of comment expressions to be included in the query.
