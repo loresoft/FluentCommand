@@ -101,5 +101,5 @@ public partial class MessageInterceptor : IDataConnectionInterceptor
     }
 
     [LoggerMessage(0, LogLevel.Information, "SQL Server Message: {Message}")]
-    protected static partial void LogInfoMessage(ILogger logger, string message);
+    private static partial void LogInfoMessage(ILogger logger, string message);
 }
