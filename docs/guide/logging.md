@@ -153,6 +153,18 @@ The `PRINT` output is logged as an informational message.
 SQL Server message: starting user query
 ```
 
+Rendered SQL Server messages are limited to `1024` characters by default so very large `InfoMessage` output does not produce oversized log entries. The original untrimmed message is included in the logging scope as `FullMessage` for logging providers configured to capture scopes.
+
+Configure the rendered message length by passing the maximum length to `CaptureMessages`.
+
+```csharp
+services.AddFluentCommand(builder => builder
+    .UseConnectionString(ConnectionString)
+    .UseSqlServer()
+    .CaptureMessages(maxMessageLength: 256)
+);
+```
+
 Register `MessageInterceptor` manually if you are not using `CaptureMessages`.
 
 ```csharp

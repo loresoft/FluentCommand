@@ -1,4 +1,6 @@
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FluentCommand;
 
@@ -34,6 +36,21 @@ public static class DataConfigurationBuilderExtensions
     public static DataConfigurationBuilder CaptureMessages(this DataConfigurationBuilder builder)
     {
         builder.AddInterceptor<MessageInterceptor>();
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Configures the <see cref="DataConfigurationBuilder"/> to capture SQL Server informational messages such as PRINT output.
+    /// </summary>
+    /// <param name="builder">The data configuration builder to configure.</param>
+    /// <param name="maxMessageLength">The maximum length of the rendered SQL Server message.</param>
+    /// <returns>
+    /// The same <see cref="DataConfigurationBuilder"/> instance so that multiple calls can be chained.
+    /// </returns>
+    public static DataConfigurationBuilder CaptureMessages(this DataConfigurationBuilder builder, int maxMessageLength)
+    {
+        builder.AddInterceptor(sp => new MessageInterceptor(sp.GetRequiredService<ILogger<MessageInterceptor>>(), maxMessageLength));
 
         return builder;
     }

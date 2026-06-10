@@ -1,5 +1,7 @@
 using System.Data.Common;
 
+using FluentCommand.Extensions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -164,6 +166,32 @@ public class DataInterceptorTests : DatabaseTestBase
         logger.Messages.Should().Contain(m => m.Contains("fluent command print message", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void WhenSqlPrintMessageExceedsMaxLength_RenderedMessageIsTrimmedAndFullMessageIsScoped()
+    {
+        const int maxMessageLength = 16;
+
+        var fullMessage = new string('a', 40);
+        var expectedMessage = fullMessage.Truncate(maxMessageLength);
+
+        var config = Services.GetRequiredService<IDataConfiguration>();
+
+        var logger = new TrackingLogger<MessageInterceptor>();
+        var interceptor = new MessageInterceptor(logger, maxMessageLength);
+
+        using var session = new DataSession(config.CreateConnection(), interceptors: [interceptor]);
+
+        session.Sql($"PRINT '{fullMessage}'; SELECT 1").QueryValue<int>().Should().Be(1);
+
+        logger.Messages.Should().Contain(m => m.Contains(expectedMessage, StringComparison.Ordinal));
+        logger.Messages.Should().NotContain(m => m.Contains(fullMessage, StringComparison.Ordinal));
+
+        logger.ScopeProperties
+            .Any(p => p.Key == "FullMessage" && object.Equals(p.Value, fullMessage))
+            .Should()
+            .BeTrue();
+    }
+
 
     private sealed class TrackingConnectionInterceptor : IDataConnectionInterceptor
     {
@@ -210,9 +238,16 @@ public class DataInterceptorTests : DatabaseTestBase
     {
         public List<string> Messages { get; } = [];
 
+        public List<KeyValuePair<string, object?>> ScopeProperties { get; } = [];
+
         public IDisposable? BeginScope<TState>(TState state)
             where TState : notnull
-            => null;
+        {
+            if (state is IEnumerable<KeyValuePair<string, object?>> properties)
+                ScopeProperties.AddRange(properties);
+
+            return null;
+        }
 
         public bool IsEnabled(LogLevel logLevel) => true;
 
