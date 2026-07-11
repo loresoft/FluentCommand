@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text.Json;
 
 namespace FluentCommand;
 
@@ -28,6 +29,7 @@ public static class SqlTypeMapping
         {typeof(DateTime), "datetime2"},
         {typeof(DateTimeOffset), "datetimeoffset"},
         {typeof(Guid), "uniqueidentifier"},
+        {typeof(JsonElement), "nvarchar(MAX)"},
         #if NET6_0_OR_GREATER
         {typeof(DateOnly), "date"},
         {typeof(TimeOnly), "time"},
@@ -55,6 +57,7 @@ public static class SqlTypeMapping
         {typeof(DateTime), SqlDbType.DateTime2},
         {typeof(DateTimeOffset), SqlDbType.DateTimeOffset},
         {typeof(Guid), SqlDbType.UniqueIdentifier},
+        {typeof(JsonElement), SqlDbType.NVarChar},
         #if NET6_0_OR_GREATER
         {typeof(DateOnly), SqlDbType.Date},
         {typeof(TimeOnly), SqlDbType.Time},

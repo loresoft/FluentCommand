@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Data;
 using System.Data.Common;
+using System.Text.Json;
 
 using FluentCommand.Extensions;
 using FluentCommand.Reflection;
@@ -94,7 +95,7 @@ public class ListDataReader<T> : DbDataReader where T : class
             var rowData = new object[5];
             rowData[0] = i;
             rowData[1] = _activeColumns[i].Column;
-            rowData[2] = _activeColumns[i].MemberType.GetUnderlyingType();
+            rowData[2] = GetFieldType(_activeColumns[i]);
             rowData[3] = -1;
             rowData[4] = _activeColumns[i].MemberType.IsNullable();
 
@@ -153,13 +154,13 @@ public class ListDataReader<T> : DbDataReader where T : class
     public override string GetName(int i) => _activeColumns[i].Column;
 
     /// <inheritdoc/>
-    public override string GetDataTypeName(int i) => _activeColumns[i].MemberType.Name;
+    public override string GetDataTypeName(int i) => GetFieldType(i).Name;
 
     /// <inheritdoc/>
-    public override Type GetFieldType(int i) => _activeColumns[i].MemberType;
+    public override Type GetFieldType(int i) => GetFieldType(_activeColumns[i]);
 
     /// <inheritdoc/>
-    public override object GetValue(int i) => _activeColumns[i].GetValue(_iterator.Current)!;
+    public override object GetValue(int i) => GetValue(_activeColumns[i]);
 
     /// <inheritdoc/>
     public override int GetValues(object[] values)
@@ -265,4 +266,26 @@ public class ListDataReader<T> : DbDataReader where T : class
 
     /// <inheritdoc/>
     public override object this[string name] => GetValue(GetOrdinal(name));
+
+
+    private static Type GetFieldType(IMemberAccessor column)
+    {
+        var memberType = column.MemberType.GetUnderlyingType();
+        return memberType == typeof(JsonElement) ? typeof(string) : column.MemberType;
+    }
+
+    private object GetValue(IMemberAccessor column)
+    {
+        var value = column.GetValue(_iterator.Current);
+        return value is JsonElement jsonElement
+            ? GetJsonValue(jsonElement)!
+            : value!;
+    }
+
+    private static string? GetJsonValue(JsonElement jsonElement)
+    {
+        return jsonElement.ValueKind != JsonValueKind.Undefined
+            ? jsonElement.GetRawText()
+            : null;
+    }
 }

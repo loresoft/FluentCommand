@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace FluentCommand.Tests;
 
 public class ListDataReaderTests
@@ -7,6 +9,12 @@ public class ListDataReaderTests
         public int Id { get; set; }
         public string? Name { get; set; }
         public DateTime Created { get; set; }
+    }
+
+    private class JsonItem
+    {
+        public int Id { get; set; }
+        public JsonElement Payload { get; set; }
     }
 
     [Fact]
@@ -256,5 +264,22 @@ public class ListDataReaderTests
             row++;
         }
         row.Should().Be(items.Count);
+    }
+
+    [Fact]
+    public void JsonElement_ShouldReadAsJsonString()
+    {
+        // Arrange
+        using var document = JsonDocument.Parse("""{"name":"Test's","active":true}""");
+        var item = new JsonItem { Id = 1, Payload = document.RootElement.Clone() };
+        using var reader = new ListDataReader<JsonItem>([item]);
+
+        // Act
+        reader.Read();
+        int ordinal = reader.GetOrdinal("Payload");
+
+        // Assert
+        reader.GetFieldType(ordinal).Should().Be(typeof(string));
+        reader.GetValue(ordinal).Should().Be("""{"name":"Test's","active":true}""");
     }
 }

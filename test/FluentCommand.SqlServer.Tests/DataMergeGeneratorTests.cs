@@ -1,10 +1,18 @@
 using FluentCommand.Entities;
 using FluentCommand.Merge;
 
+using System.Text.Json;
+
 namespace FluentCommand.SqlServer.Tests;
 
 public class DataMergeGeneratorTests
 {
+    private class JsonItem
+    {
+        public int Id { get; set; }
+        public JsonElement Payload { get; set; }
+    }
+
     public DataMergeGeneratorTests(ITestOutputHelper output)
     {
         Output = output;
@@ -349,5 +357,37 @@ public class DataMergeGeneratorTests
         await Verifier
             .Verify(mergeDataStatement)
             .UseDirectory("Snapshots");
+    }
+
+    [Fact]
+    public void BuildMergeDataJsonElementTests()
+    {
+        var definition = new DataMergeDefinition();
+
+        DataMergeDefinition.AutoMap<JsonItem>(definition);
+        definition.TargetTable = "dbo.JsonItem";
+
+        var keyColumn = definition.Columns.Find(c => c.SourceColumn == "Id");
+        keyColumn.Should().NotBeNull();
+
+        keyColumn.IsKey = true;
+        keyColumn.CanUpdate = false;
+
+        var payloadColumn = definition.Columns.Find(c => c.SourceColumn == "Payload");
+        payloadColumn.Should().NotBeNull();
+        payloadColumn.NativeType.Should().Be("nvarchar(MAX)");
+        payloadColumn.IsIgnored.Should().BeFalse();
+
+        using var document = JsonDocument.Parse("""{"name":"Test's","active":true}""");
+        var items = new List<JsonItem>
+        {
+            new() { Id = 1, Payload = document.RootElement.Clone() }
+        };
+
+        var dataTable = new ListDataReader<JsonItem>(items);
+
+        var mergeDataStatement = DataMergeGenerator.BuildMerge(definition, dataTable);
+
+        mergeDataStatement.Should().Contain("""'{"name":"Test''s","active":true}'""");
     }
 }

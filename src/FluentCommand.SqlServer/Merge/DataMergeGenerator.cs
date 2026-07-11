@@ -1,5 +1,6 @@
 using System.Data;
 using System.Text;
+using System.Text.Json;
 
 using FluentCommand.Extensions;
 using FluentCommand.Internal;
@@ -76,7 +77,7 @@ public static class DataMergeGenerator
             .Append("CREATE TABLE ")
             .Append(TableIdentifier(mergeDefinition.TemporaryTable))
             .AppendLine()
-            .Append("(")
+            .Append('(')
             .AppendLine();
 
         bool hasColumn = false;
@@ -88,7 +89,7 @@ public static class DataMergeGenerator
                 .AppendLineIf(",", v => writeComma)
                 .Append(' ', TabSize)
                 .Append(QuoteIdentifier(mergeColumn.SourceColumn))
-                .Append(" ")
+                .Append(' ')
                 .Append(mergeColumn.NativeType)
                 .Append(" NULL");
 
@@ -97,7 +98,7 @@ public static class DataMergeGenerator
 
         builder
             .AppendLine()
-            .Append(")")
+            .Append(')')
             .AppendLine();
 
         return StringBuilderCache.ToString(builder);
@@ -162,7 +163,7 @@ public static class DataMergeGenerator
         AppendOutput(mergeDefinition, builder);
 
         // merge must end with ;
-        builder.Append(";");
+        builder.Append(';');
 
         if (mergeDefinition.IdentityInsert && mergeDefinition.IncludeInsert)
         {
@@ -201,7 +202,7 @@ public static class DataMergeGenerator
             builder
                 .AppendLineIf(", ", s => wroteRow)
                 .Append(' ', TabSize)
-                .Append("(");
+                .Append('(');
 
             for (int i = 0; i < reader.FieldCount; i++)
             {
@@ -227,7 +228,7 @@ public static class DataMergeGenerator
 
                 wrote = true;
             }
-            builder.Append(")");
+            builder.Append(')');
 
             wroteRow = true;
         }
@@ -320,7 +321,7 @@ public static class DataMergeGenerator
 
         builder
             .AppendLine()
-            .Append(")")
+            .Append(')')
             .AppendLine();
     }
 
@@ -363,7 +364,7 @@ public static class DataMergeGenerator
                 .Append(" as [")
                 .Append(CurrentPrefix)
                 .Append(ParseIdentifier(mergeColumn.SourceColumn))
-                .Append("]");
+                .Append(']');
         }
 
     }
@@ -500,6 +501,8 @@ public static class DataMergeGenerator
             return true;
         if (underType == typeof(Guid))
             return true;
+        if (underType == typeof(JsonElement))
+            return true;
 #if NET6_0_OR_GREATER
         if (underType == typeof(DateOnly))
             return true;
@@ -515,7 +518,7 @@ public static class DataMergeGenerator
     /// </summary>
     /// <param name="value">The value to convert.</param>
     /// <returns>The SQL literal as a string.</returns>
-    private static string GetValue(object value)
+    private static string GetValue(object? value)
     {
         if (value == null || value == DBNull.Value)
             return "NULL";
@@ -527,12 +530,25 @@ public static class DataMergeGenerator
             DateTimeOffset dateTimeOffset => dateTimeOffset.ToString("yyyy-MM-dd HH:mm:ss.ffffffzzz"),
             byte[] byteArray => ToHex(byteArray),
             bool boolValue => boolValue ? "1" : "0",
+            JsonElement jsonElement => GetJsonValue(jsonElement) ?? "NULL",
 #if NET6_0_OR_GREATER
             DateOnly dateValue => dateValue.ToString("yyyy-MM-dd"),
             TimeOnly timeValue => timeValue.ToString("hh:mm:ss.ffffff"),
 #endif
             _ => Convert.ToString(value) ?? string.Empty
         };
+    }
+
+    /// <summary>
+    /// Converts a JSON element to its string representation for use in SQL statements.
+    /// </summary>
+    /// <param name="jsonElement">The JSON element to convert.</param>
+    /// <returns>The string representation of the JSON element, or <c>null</c> if undefined.</returns>
+    private static string? GetJsonValue(JsonElement jsonElement)
+    {
+        return jsonElement.ValueKind != JsonValueKind.Undefined
+            ? jsonElement.GetRawText()
+            : null;
     }
 
     /// <summary>
