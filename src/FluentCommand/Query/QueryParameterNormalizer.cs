@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace FluentCommand.Query;
 
 /// <summary>
@@ -17,6 +19,16 @@ internal static class QueryParameterNormalizer
     public static (object? Value, Type Type) Normalize(object? value, Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
+
+        if (value is JsonElement element)
+        {
+            type = typeof(string);
+            value = element.ValueKind != JsonValueKind.Undefined
+                ? element.GetRawText()
+                : null;
+
+            return (value, type);
+        }
 
         var enumType = Nullable.GetUnderlyingType(type) ?? type;
         if (!enumType.IsEnum)

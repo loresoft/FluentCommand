@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace FluentCommand.Query;
 
 /// <summary>
 /// Specifies the sort direction to use in SQL ORDER BY clauses.
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<SortDirections>))]
 public enum SortDirections
 {
     /// <summary>

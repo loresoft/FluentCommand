@@ -315,6 +315,69 @@ public class SelectBuilderTest
             .UseDirectory("Snapshots")
             .ScrubLinesContaining("/* Caller;");
     }
+
+    [Fact]
+    public void QueryAppliesFilterSortAndPaging()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+
+        var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters)
+            .Column(p => p.Id)
+            .Column(p => p.Name)
+            .Query(new QueryRequest
+            {
+                Filter = new QueryFilter
+                {
+                    Name = "Name",
+                    Value = "Test",
+                    Operator = FilterOperators.Contains,
+                },
+                Sort = new List<QuerySort>
+                {
+                    new()
+                    {
+                        Name = "DisplayOrder",
+                        Direction = SortDirections.Descending,
+                    },
+                },
+                Page = 2,
+                PageSize = 10,
+            });
+
+        var queryStatement = builder.BuildStatement();
+
+        queryStatement!.Statement.Should().Be(string.Join(Environment.NewLine,
+            "SELECT [Id], [Name]",
+            "FROM [dbo].[Status]",
+            "WHERE ([Name] LIKE '%' + @p0000 + '%')",
+            "ORDER BY [DisplayOrder] DESC",
+            "OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY;",
+            string.Empty));
+
+        parameters.Select(p => p.Value).Should().Equal("Test");
+        parameters.Select(p => p.Type).Should().Equal(typeof(string));
+    }
+
+    [Fact]
+    public void QueryWithNullRequestLeavesBuilderUnchanged()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        var builder = new SelectEntityBuilder<Status>(sqlProvider, parameters)
+            .Column(p => p.Id);
+
+        var result = builder.Query(null);
+        var queryStatement = builder.BuildStatement();
+
+        result.Should().BeSameAs(builder);
+        queryStatement!.Statement.Should().Be(string.Join(Environment.NewLine,
+            "SELECT [Id]",
+            "FROM [dbo].[Status];",
+            string.Empty));
+        parameters.Should().BeEmpty();
+    }
+
     private class EntityAlias
     {
         [Column("EntityId")]

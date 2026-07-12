@@ -462,6 +462,33 @@ public abstract class SelectBuilder<TBuilder> : WhereBuilder<TBuilder>
     }
 
     /// <summary>
+    /// Applies filtering, sorting, and paging options from the specified query request.
+    /// </summary>
+    /// <param name="request">The query request to apply, or <c>null</c> to leave the builder unchanged.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
+    public TBuilder Query(QueryRequest? request)
+    {
+        if (request == null)
+            return (TBuilder)this;
+
+        if (request.Filter != null)
+            Where(request.Filter);
+
+        if (request.Sort?.Count > 0)
+        {
+            foreach (var sort in request.Sort)
+                OrderBy(sort.Name, sort.Direction ?? SortDirections.Ascending);
+        }
+
+        if (request.Page > 0 && request.PageSize > 0)
+            Page(request.Page.Value, request.PageSize.Value);
+
+        return (TBuilder)this;
+    }
+
+    /// <summary>
     /// Builds the SQL SELECT statement using the current configuration.
     /// </summary>
     /// <returns>

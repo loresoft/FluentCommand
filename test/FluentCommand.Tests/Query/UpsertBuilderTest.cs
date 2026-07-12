@@ -47,6 +47,43 @@ public class UpsertBuilderTest
     }
 
     [Fact]
+    public void UpsertValueWithJsonElementAddsRawJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        using var document = JsonDocument.Parse("""{"name":"Json Element","count":42}""");
+
+        var builder = new UpsertBuilder(sqlProvider, parameters)
+            .Into("JsonLog")
+            .Key("Id")
+            .Value("Id", 1)
+            .Value("Data", document.RootElement);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Last();
+
+        parameter.Value.Should().Be("""{"name":"Json Element","count":42}""");
+        parameter.Type.Should().Be(typeof(string));
+    }
+
+    [Fact]
+    public void UpsertEntityValuesWithJsonElementAddsRawJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        using var document = JsonDocument.Parse("""{"name":"Json Element","count":42}""");
+        var entity = new JsonElementLog { Id = 1, Data = document.RootElement };
+
+        var builder = new UpsertEntityBuilder<JsonElementLog>(sqlProvider, parameters)
+            .Values(entity);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single(p => p.Type == typeof(string));
+
+        parameter.Value.Should().Be("""{"name":"Json Element","count":42}""");
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task UpsertExplicitKeySqlServer()
     {
         var sqlProvider = new SqlServerGenerator();
@@ -204,6 +241,14 @@ public class UpsertBuilderTest
 
         parameter.Value.Should().Be(JsonSerializer.Serialize(value, options));
         parameter.Type.Should().Be(typeof(string));
+    }
+
+    private sealed class JsonElementLog
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public JsonElement Data { get; set; }
     }
 
 }

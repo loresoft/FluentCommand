@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace FluentCommand.Query;
 
 /// <summary>
 /// Specifies the logical operators used to combine Boolean expressions in SQL WHERE clauses.
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<LogicalOperators>))]
 public enum LogicalOperators
 {
     /// <summary>

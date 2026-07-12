@@ -36,5 +36,69 @@ public class QueryBuilderTests
             .UseDirectory("Snapshots")
             .ScrubLinesContaining("/* Caller;");
     }
+
+    [Fact]
+    public void QueryFilterBuildsNestedWhereExpression()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var queryParameters = new List<QueryParameter>();
+        var builder = new WhereBuilder(sqlProvider, queryParameters);
+
+        builder.Where(new QueryFilter
+        {
+            Logic = LogicalOperators.And,
+            Filters = new List<QueryFilter>
+            {
+                new()
+                {
+                    Name = "Name",
+                    Value = "Test",
+                    Operator = FilterOperators.Contains,
+                },
+                new()
+                {
+                    Logic = LogicalOperators.Or,
+                    Filters = new List<QueryFilter>
+                    {
+                        new()
+                        {
+                            Name = "IsActive",
+                            Value = true,
+                        },
+                        new()
+                        {
+                            Name = "Id",
+                            Value = new[] { 1, 2 },
+                            Operator = FilterOperators.In,
+                        },
+                    },
+                },
+            },
+        });
+
+        var queryStatement = builder.BuildStatement();
+
+        queryStatement!.Statement.Should().Be("(([Name] LIKE '%' + @p0000 + '%' AND ([IsActive] = @p0001 OR [Id] IN (@p0002,@p0003))))");
+        queryParameters.Select(p => p.Value).Should().Equal("Test", true, 1, 2);
+        queryParameters.Select(p => p.Type).Should().Equal(typeof(string), typeof(bool), typeof(int), typeof(int));
+    }
+
+    [Fact]
+    public void QueryFilterBuildsParameterlessWhereExpression()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var queryParameters = new List<QueryParameter>();
+        var builder = new WhereBuilder(sqlProvider, queryParameters);
+
+        builder.Where(new QueryFilter
+        {
+            Name = "Deleted",
+            Operator = FilterOperators.IsNull,
+        });
+
+        var queryStatement = builder.BuildStatement();
+
+        queryStatement!.Statement.Should().Be("([Deleted] IS NULL)");
+    }
 }
 

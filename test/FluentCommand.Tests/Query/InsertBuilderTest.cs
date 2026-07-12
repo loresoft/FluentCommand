@@ -79,6 +79,42 @@ public class InsertBuilderTest
     }
 
     [Fact]
+    public void InsertValueWithJsonElementAddsRawJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        using var document = JsonDocument.Parse("""{"name":"Json Element","count":42}""");
+
+        var builder = new InsertBuilder(sqlProvider, parameters)
+            .Into("JsonLog")
+            .Value("Data", document.RootElement);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be("""{"name":"Json Element","count":42}""");
+        parameter.Type.Should().Be(typeof(string));
+    }
+
+    [Fact]
+    public void InsertEntityValuesWithJsonElementAddsRawJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        using var document = JsonDocument.Parse("""{"name":"Json Element","count":42}""");
+        var entity = new JsonElementLog { Data = document.RootElement };
+
+        var builder = new InsertEntityBuilder<JsonElementLog>(sqlProvider, parameters)
+            .Values(entity);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be("""{"name":"Json Element","count":42}""");
+        parameter.Type.Should().Be(typeof(string));
+    }
+
+    [Fact]
     public void InsertValueJsonWithOptionsAddsJsonStringParameter()
     {
         var sqlProvider = new SqlServerGenerator();
@@ -144,6 +180,11 @@ public class InsertBuilderTest
     private sealed class JsonLog
     {
         public ValueJsonModel Data { get; set; } = null!;
+    }
+
+    private sealed class JsonElementLog
+    {
+        public JsonElement Data { get; set; }
     }
 
     private enum BuilderStatus : short

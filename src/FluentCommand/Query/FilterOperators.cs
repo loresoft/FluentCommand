@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace FluentCommand.Query;
 
 /// <summary>
 /// Specifies the available filter operators for use in SQL WHERE clauses.
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<FilterOperators>))]
 public enum FilterOperators
 {
     /// <summary>

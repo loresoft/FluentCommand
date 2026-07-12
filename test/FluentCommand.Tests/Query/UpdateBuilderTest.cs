@@ -43,6 +43,43 @@ public class UpdateBuilderTest
     }
 
     [Fact]
+    public void UpdateValueWithJsonElementAddsRawJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        using var document = JsonDocument.Parse("""{"name":"Json Element","count":42}""");
+
+        var builder = new UpdateBuilder(sqlProvider, parameters)
+            .Table("JsonLog")
+            .Value("Data", document.RootElement)
+            .Where("Id", 1);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.First();
+
+        parameter.Value.Should().Be("""{"name":"Json Element","count":42}""");
+        parameter.Type.Should().Be(typeof(string));
+    }
+
+    [Fact]
+    public void UpdateEntityValuesWithJsonElementAddsRawJsonStringParameter()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        using var document = JsonDocument.Parse("""{"name":"Json Element","count":42}""");
+        var entity = new JsonElementLog { Data = document.RootElement };
+
+        var builder = new UpdateEntityBuilder<JsonElementLog>(sqlProvider, parameters)
+            .Values(entity);
+
+        var queryStatement = builder.BuildStatement();
+        var parameter = queryStatement!.Parameters.Single();
+
+        parameter.Value.Should().Be("""{"name":"Json Element","count":42}""");
+        parameter.Type.Should().Be(typeof(string));
+    }
+
+    [Fact]
     public void UpdateValueJsonWithTypeInfoAddsJsonStringParameter()
     {
         var sqlProvider = new SqlServerGenerator();
@@ -142,6 +179,11 @@ public class UpdateBuilderTest
         public int Id { get; set; }
 
         public ValueJsonModel Data { get; set; } = null!;
+    }
+
+    private sealed class JsonElementLog
+    {
+        public JsonElement Data { get; set; }
     }
 
     private enum BuilderStatus : short

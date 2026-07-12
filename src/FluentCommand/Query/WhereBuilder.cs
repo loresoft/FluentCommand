@@ -1,3 +1,5 @@
+using System.Collections;
+
 using FluentCommand.Extensions;
 using FluentCommand.Query.Generators;
 
@@ -115,6 +117,31 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
     }
 
     /// <summary>
+    /// Adds a WHERE clause for the specified column, value, operator, and table alias.
+    /// </summary>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValue">The value to compare.</param>
+    /// <param name="tableAlias">The table alias, or <c>null</c> if not applicable.</param>
+    /// <param name="filterOperator">The filter operator (<see cref="FilterOperators"/>). Defaults to <see cref="FilterOperators.Equal"/>.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
+    public TBuilder Where(
+        string columnName,
+        object? parameterValue,
+        string? tableAlias,
+        FilterOperators filterOperator = FilterOperators.Equal)
+    {
+        var parameterName = NextParameter();
+        var parameterType = parameterValue?.GetType() ?? typeof(object);
+
+        WhereExpressions.Add(new WhereExpression(columnName, parameterName, tableAlias, filterOperator));
+        Parameters.Add(new QueryParameter(parameterName, parameterValue, parameterType));
+
+        return (TBuilder)this;
+    }
+
+    /// <summary>
     /// Adds a WHERE IN clause for the specified column, values, and optional table alias.
     /// </summary>
     /// <typeparam name="TValue">The type of the values.</typeparam>
@@ -134,6 +161,39 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
         {
             var parameterName = NextParameter();
             var parameter = new QueryParameter(parameterName, parameterValue, typeof(TValue));
+
+            Parameters.Add(parameter);
+            parameterNames.Add(parameterName);
+        }
+
+        var whereParameter = parameterNames.ToDelimitedString();
+
+        WhereExpressions.Add(new WhereExpression(columnName, whereParameter, tableAlias, FilterOperators.In));
+
+        return (TBuilder)this;
+    }
+
+    /// <summary>
+    /// Adds a WHERE IN clause for the specified column, values, and optional table alias.
+    /// </summary>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="parameterValues">The collection of values for the IN clause.</param>
+    /// <param name="tableAlias">The table alias, or <c>null</c> if not applicable.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
+    public TBuilder WhereIn(
+        string columnName,
+        IEnumerable parameterValues,
+        string? tableAlias = null)
+    {
+        var parameterNames = new List<string>();
+        foreach (var parameterValue in parameterValues)
+        {
+            var parameterName = NextParameter();
+            var parameterType = parameterValue?.GetType() ?? typeof(object);
+
+            var parameter = new QueryParameter(parameterName, parameterValue, parameterType);
 
             Parameters.Add(parameter);
             parameterNames.Add(parameterName);
@@ -318,5 +378,45 @@ public abstract class WhereBuilder<TBuilder> : StatementBuilder<TBuilder>
             WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
 
         return (TBuilder)this;
+    }
+
+    /// <summary>
+    /// Adds WHERE clauses from the specified query filter tree.
+    /// </summary>
+    /// <param name="filter">The query filter to add, or <c>null</c> to leave the builder unchanged.</param>
+    /// <returns>
+    /// The same builder instance for method chaining.
+    /// </returns>
+    public TBuilder Where(QueryFilter? filter)
+    {
+        if (filter == null)
+            return (TBuilder)this;
+
+        // use logical builder to build the filter tree into a SQL statement
+        if (filter.Filters?.Count > 0)
+        {
+            var innerBuilder = new LogicalBuilder(QueryGenerator, Parameters, filter.Logic ?? LogicalOperators.And);
+
+            foreach (var childFilter in filter.Filters)
+                innerBuilder.Where(childFilter);
+
+            var statement = innerBuilder.BuildStatement();
+
+            if (statement?.Statement.HasValue() == true)
+                WhereExpressions.Add(new WhereExpression(statement.Statement, IsRaw: true));
+
+            return (TBuilder)this;
+        }
+
+        // name required for leaf filters
+        if (filter.Name.IsNullOrWhiteSpace())
+            throw new ArgumentException($"'{nameof(filter.Name)}' property cannot be null or empty.", nameof(filter));
+
+        var filterOperator = filter.Operator ?? FilterOperators.Equal;
+
+        if (filterOperator == FilterOperators.In && filter.Value is IEnumerable objects && filter.Value is not string)
+            return WhereIn(filter.Name, objects, tableAlias: null);
+        else
+            return Where(filter.Name, filter.Value, tableAlias: null, filterOperator);
     }
 }
