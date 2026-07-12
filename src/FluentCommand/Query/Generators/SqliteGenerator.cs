@@ -271,6 +271,50 @@ public class SqliteGenerator : SqlServerGenerator
     }
 
     /// <summary>
+    /// Builds a SQL WHERE expression for SQLite, handling various filter operators and parameterization.
+    /// </summary>
+    /// <param name="whereExpression">The <see cref="WhereExpression"/> representing the condition.</param>
+    /// <returns>A SQL WHERE expression string for SQLite.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="whereExpression"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentException">Thrown if required properties are not specified.</exception>
+    public override string WhereExpression(WhereExpression whereExpression)
+    {
+        ArgumentNullException.ThrowIfNull(whereExpression);
+
+        if (whereExpression.ColumnName.IsNullOrWhiteSpace())
+            throw new ArgumentException($"'{nameof(whereExpression.ColumnName)}' property cannot be null or empty.", nameof(whereExpression));
+
+        if (whereExpression.IsRaw)
+            return whereExpression.ColumnName;
+
+        var parameterlessFilters = new[] { FilterOperators.IsNull, FilterOperators.IsNotNull };
+        if (!parameterlessFilters.Contains(whereExpression.FilterOperator) && whereExpression.ParameterName.IsNullOrWhiteSpace())
+            throw new ArgumentException($"'{nameof(whereExpression.ParameterName)}' property cannot be null or empty.", nameof(whereExpression));
+
+        var columnName = ColumnExpression(whereExpression);
+
+        return whereExpression.FilterOperator switch
+        {
+            FilterOperators.StartsWith => $"{columnName} LIKE {whereExpression.ParameterName} || '%'",
+            FilterOperators.NotStartsWith => $"{columnName} NOT LIKE {whereExpression.ParameterName} || '%'",
+            FilterOperators.EndsWith => $"{columnName} LIKE '%' || {whereExpression.ParameterName}",
+            FilterOperators.NotEndsWith => $"{columnName} NOT LIKE '%' || {whereExpression.ParameterName}",
+            FilterOperators.Contains => $"{columnName} LIKE '%' || {whereExpression.ParameterName} || '%'",
+            FilterOperators.NotContains => $"{columnName} NOT LIKE '%' || {whereExpression.ParameterName} || '%'",
+            FilterOperators.Equal => $"{columnName} = {whereExpression.ParameterName}",
+            FilterOperators.NotEqual => $"{columnName} != {whereExpression.ParameterName}",
+            FilterOperators.LessThan => $"{columnName} < {whereExpression.ParameterName}",
+            FilterOperators.LessThanOrEqual => $"{columnName} <= {whereExpression.ParameterName}",
+            FilterOperators.GreaterThan => $"{columnName} > {whereExpression.ParameterName}",
+            FilterOperators.GreaterThanOrEqual => $"{columnName} >= {whereExpression.ParameterName}",
+            FilterOperators.IsNull => $"{columnName} IS NULL",
+            FilterOperators.IsNotNull => $"{columnName} IS NOT NULL",
+            FilterOperators.In => $"{columnName} IN ({whereExpression.ParameterName})",
+            _ => $"{columnName} = {whereExpression.ParameterName}",
+        };
+    }
+
+    /// <summary>
     /// Builds a SQL LIMIT/OFFSET expression for SQLite.
     /// </summary>
     /// <param name="limitExpression">The <see cref="LimitExpression"/> representing the limit and offset.</param>

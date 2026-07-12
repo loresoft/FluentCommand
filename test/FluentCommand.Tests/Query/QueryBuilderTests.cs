@@ -7,6 +7,45 @@ namespace FluentCommand.Tests.Query;
 public class QueryBuilderTests
 {
     [Fact]
+    public void SqlServerWhereExpressionBuildsNegatedStringFilters()
+    {
+        var sqlProvider = new SqlServerGenerator();
+
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotStartsWith))
+            .Should().Be("[Name] NOT LIKE @p0 + '%'");
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotEndsWith))
+            .Should().Be("[Name] NOT LIKE '%' + @p0");
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotContains))
+            .Should().Be("[Name] NOT LIKE '%' + @p0 + '%'");
+    }
+
+    [Fact]
+    public void PostgreSqlWhereExpressionBuildsNegatedStringFilters()
+    {
+        var sqlProvider = new PostgreSqlGenerator();
+
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotStartsWith))
+            .Should().Be("\"Name\" NOT LIKE @p0 || '%'");
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotEndsWith))
+            .Should().Be("\"Name\" NOT LIKE '%' || @p0");
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotContains))
+            .Should().Be("\"Name\" NOT LIKE '%' || @p0 || '%'");
+    }
+
+    [Fact]
+    public void SqliteWhereExpressionBuildsNegatedStringFilters()
+    {
+        var sqlProvider = new SqliteGenerator();
+
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotStartsWith))
+            .Should().Be("\"Name\" NOT LIKE @p0 || '%'");
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotEndsWith))
+            .Should().Be("\"Name\" NOT LIKE '%' || @p0");
+        sqlProvider.WhereExpression(new WhereExpression("Name", "@p0", FilterOperator: FilterOperators.NotContains))
+            .Should().Be("\"Name\" NOT LIKE '%' || @p0 || '%'");
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task QueryBuilderSelect()
     {
         var sqlProvider = new SqlServerGenerator();

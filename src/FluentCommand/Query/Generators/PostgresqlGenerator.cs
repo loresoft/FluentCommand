@@ -296,8 +296,11 @@ public class PostgreSqlGenerator : SqlServerGenerator
         return whereExpression.FilterOperator switch
         {
             FilterOperators.StartsWith => $"{columnName} LIKE {whereExpression.ParameterName} || '%'",
+            FilterOperators.NotStartsWith => $"{columnName} NOT LIKE {whereExpression.ParameterName} || '%'",
             FilterOperators.EndsWith => $"{columnName} LIKE '%' || {whereExpression.ParameterName}",
+            FilterOperators.NotEndsWith => $"{columnName} NOT LIKE '%' || {whereExpression.ParameterName}",
             FilterOperators.Contains => $"{columnName} LIKE '%' || {whereExpression.ParameterName} || '%'",
+            FilterOperators.NotContains => $"{columnName} NOT LIKE '%' || {whereExpression.ParameterName} || '%'",
             FilterOperators.Equal => $"{columnName} = {whereExpression.ParameterName}",
             FilterOperators.NotEqual => $"{columnName} != {whereExpression.ParameterName}",
             FilterOperators.LessThan => $"{columnName} < {whereExpression.ParameterName}",

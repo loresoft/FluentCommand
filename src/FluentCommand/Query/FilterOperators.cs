@@ -15,16 +15,34 @@ public enum FilterOperators
     StartsWith,
 
     /// <summary>
+    /// Checks if the column value does not start with the specified value.
+    /// Corresponds to the SQL <c>NOT LIKE 'value%'</c> pattern.
+    /// </summary>
+    NotStartsWith,
+
+    /// <summary>
     /// Checks if the column value ends with the specified value.
     /// Corresponds to the SQL <c>LIKE '%value'</c> pattern.
     /// </summary>
     EndsWith,
 
     /// <summary>
+    /// Checks if the column value does not end with the specified value.
+    /// Corresponds to the SQL <c>NOT LIKE '%value'</c> pattern.
+    /// </summary>
+    NotEndsWith,
+
+    /// <summary>
     /// Checks if the column value contains the specified value.
     /// Corresponds to the SQL <c>LIKE '%value%'</c> pattern.
     /// </summary>
     Contains,
+
+    /// <summary>
+    /// Checks if the column value does not contain the specified value.
+    /// Corresponds to the SQL <c>NOT LIKE '%value%'</c> pattern.
+    /// </summary>
+    NotContains,
 
     /// <summary>
     /// Checks if the column value is equal to the specified value.
