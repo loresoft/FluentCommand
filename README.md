@@ -393,6 +393,8 @@ await session
 
 ### JSON Values in Query Builder
 
+JSON values using `ValueJson`:
+
 ```csharp
 await session
     .Sql(builder => builder
@@ -406,17 +408,28 @@ await session
 
 `ValueJson` is available for insert, update, and upsert builders. It uses the session's configured `JsonSerializerOptions` unless options or `JsonTypeInfo<T>` are passed explicitly.
 
+If the value is already a `JsonElement`, pass it with `Value`. The query builder stores the raw JSON text as a string parameter.
+
 ```csharp
+using var document = JsonDocument.Parse("""
+{
+  "Source": "Import",
+  "Count": 42
+}
+""");
+
+JsonElement jsonElement = document.RootElement;
+
 await session
     .Sql(builder => builder
-        .Upsert()
+        .Insert()
         .Into("JsonLog")
-        .Key("Id")
-        .Value("Id", id)
-        .ValueJson("Data", audit)
+        .Value("Id", Guid.NewGuid())
+        .Value("Data", jsonElement)
     )
     .ExecuteAsync();
 ```
+
 
 ### Aggregates and Grouping
 
