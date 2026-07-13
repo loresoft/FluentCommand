@@ -144,6 +144,34 @@ public class DataReaderFactoryGeneratorTests
         return Verify(source, "TestModels.AuditLogDataReaderExtensions.g.cs");
     }
 
+    [Fact]
+    public Task DataFieldConverterAttributeWithJsonElementGeneratesReader()
+    {
+        var source = """
+            using System.Text.Json;
+            using FluentCommand;
+            using FluentCommand.Attributes;
+            using FluentCommand.Handlers;
+
+            namespace TestModels;
+
+            [GenerateReader(typeof(AuditEvent))]
+            public static class AuditEventReaderGeneration
+            {
+            }
+
+            public sealed class AuditEvent
+            {
+                public int Id { get; set; }
+
+                [DataFieldConverter(typeof(JsonElementHandler))]
+                public JsonElement Payload { get; set; }
+            }
+            """;
+
+        return Verify(source, "TestModels.AuditEventDataReaderExtensions.g.cs");
+    }
+
 
     private static Task Verify(string source, string generatedFileName)
     {
@@ -174,6 +202,7 @@ public class DataReaderFactoryGeneratorTests
                 MetadataReference.CreateFromFile(typeof(T).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(GenerateReaderAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(IServiceCollection).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(JsonElement).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(TableAttribute).Assembly.Location),
             ]);
 

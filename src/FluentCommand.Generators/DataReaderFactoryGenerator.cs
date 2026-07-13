@@ -271,9 +271,10 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         var jsonColumn = GetJsonColumn(attributes);
         var isConfiguredJsonColumn = jsonProperties?.Contains(propertyName) == true;
         var isJsonColumn = jsonColumn != null || isConfiguredJsonColumn;
+        var converterName = attributes.IsDefaultOrEmpty ? null : GetConverterName(attributes);
         var enumInfo = GetEnumInfo(propertySymbol.Type);
         var isNullable = IsNullableType(propertySymbol.Type);
-        var isNotMapped = (classIgnored?.Contains(propertyName) == true) || (!isJsonColumn && !IsSupportedType(propertySymbol.Type));
+        var isNotMapped = (classIgnored?.Contains(propertyName) == true) || (converterName == null && !isJsonColumn && !IsSupportedType(propertySymbol.Type));
 
         if (attributes == default || attributes.Length == 0)
         {
@@ -296,7 +297,6 @@ public sealed class DataReaderFactoryGenerator : IIncrementalGenerator
         }
 
         var columnName = GetColumnName(attributes) ?? propertyName;
-        var converterName = GetConverterName(attributes);
 
         var isKey = HasDataAnnotationAttribute(attributes, "KeyAttribute");
 

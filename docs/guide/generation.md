@@ -235,6 +235,23 @@ public class ImportMetadata
 }
 ```
 
+Use `DataFieldConverterAttribute` with `JsonElementHandler` when you want to keep the JSON payload as a raw `JsonElement` instead of deserializing it into a POCO. The handler reads JSON text from the data record and returns a `JsonElement`. Database `NULL` values are returned as the default `JsonElement` with `JsonValueKind.Undefined`.
+
+```csharp
+using System.Text.Json;
+using FluentCommand;
+using FluentCommand.Handlers;
+
+[Table("Import", Schema = "dbo")]
+public class ImportRecord
+{
+    public int Id { get; set; }
+
+    [DataFieldConverter(typeof(JsonElementHandler))]
+    public JsonElement Metadata { get; set; }
+}
+```
+
 Configure shared JSON options on the FluentCommand configuration builder:
 
 ```csharp

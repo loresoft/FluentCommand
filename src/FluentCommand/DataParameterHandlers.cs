@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Data.Common;
+using System.Text.Json;
 
 using FluentCommand.Extensions;
 using FluentCommand.Handlers;
@@ -22,6 +23,7 @@ public static class DataParameterHandlers
     {
         _dataTypeHandlers = new ConcurrentDictionary<Type, IDataParameterHandler>();
         _dataTypeHandlers.TryAdd(typeof(ConcurrencyToken), new ConcurrencyTokenHandler());
+        _dataTypeHandlers.TryAdd(typeof(JsonElement), new JsonElementHandler());
 
 #if NET6_0_OR_GREATER
         // once ADO supports DateOnly & TimeOnly, this can be removed

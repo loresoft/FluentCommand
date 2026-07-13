@@ -499,6 +499,18 @@ public class ImportRecord
 
 Generated readers deserialize JSON columns with the `JsonSerializerOptions` configured on the active `IDataSession`.
 
+To keep JSON text as a raw `JsonElement`, use `JsonElementHandler` with `[DataFieldConverter]` instead of `[JsonColumn]`:
+
+```csharp
+public class ImportRecord
+{
+    public int Id { get; set; }
+
+    [DataFieldConverter(typeof(JsonElementHandler))]
+    public JsonElement Metadata { get; set; }
+}
+```
+
 ### Records and Constructor Initialization
 
 Records with primary constructors are supported:
