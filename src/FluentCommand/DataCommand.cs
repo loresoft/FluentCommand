@@ -217,9 +217,9 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
+    /// An <see cref="T:System.Collections.Generic.IReadOnlyList`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
-    public IEnumerable<TEntity> Query<TEntity>(
+    public IReadOnlyList<TEntity> Query<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult)
     {
@@ -250,10 +250,10 @@ public class DataCommand : DisposableBase, IDataCommand
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
+    /// An <see cref="T:System.Collections.Generic.IReadOnlyList`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    public async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(
+    public async Task<IReadOnlyList<TEntity>> QueryAsync<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult,
         CancellationToken cancellationToken = default)

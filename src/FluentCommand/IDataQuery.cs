@@ -14,9 +14,9 @@ public interface IDataQuery : IDisposable
     /// <param name="factory">The <see langword="delegate"/> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
+    /// An <see cref="T:System.Collections.Generic.IReadOnlyList`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
-    IEnumerable<TEntity> Query<TEntity>(
+    IReadOnlyList<TEntity> Query<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult);
 

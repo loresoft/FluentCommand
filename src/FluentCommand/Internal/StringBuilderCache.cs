@@ -14,11 +14,7 @@ public static class StringBuilderCache
     /// <summary>
     /// The maximum size, in characters, for a <see cref="StringBuilder"/> instance to be cached.
     /// </summary>
-    /// <remarks>
-    /// The value 360 was chosen as a compromise between minimizing memory usage per thread and covering
-    /// a large portion of short-lived <see cref="StringBuilder"/> creations, especially during application startup.
-    /// </remarks>
-    internal const int MaxBuilderSize = 360;
+    internal const int MaxBuilderSize = 1024;
 
     private const int DefaultCapacity = 16; // == StringBuilder.DefaultCapacity
 

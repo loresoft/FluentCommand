@@ -17,10 +17,10 @@ public static class DataQueryExtensions
     /// <param name="factory">The <see langword="delegate" /> factory to convert the <see cref="T:System.Data.IDataReader" /> to <typeparamref name="TEntity" />.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
+    /// An <see cref="T:System.Collections.Generic.IReadOnlyList`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    public static Task<IEnumerable<TEntity>> QueryAsync<TEntity>(
+    public static Task<IReadOnlyList<TEntity>> QueryAsync<TEntity>(
         this IDataQueryAsync dataQuery,
         Func<IDataReader, TEntity> factory,
         CancellationToken cancellationToken = default)
@@ -86,7 +86,7 @@ public static class DataQueryExtensions
     /// <returns>
     /// The value of the first column values in the result set.
     /// </returns>
-    public static IEnumerable<TValue?> QueryValues<TValue>(this IDataQuery dataQuery)
+    public static IReadOnlyList<TValue?> QueryValues<TValue>(this IDataQuery dataQuery)
     {
         return dataQuery.Query(r => r.GetValue<TValue>(0));
     }
@@ -100,7 +100,7 @@ public static class DataQueryExtensions
     /// <returns>
     /// The value of the first column values in the result set.
     /// </returns>
-    public static async Task<IEnumerable<TValue?>> QueryValuesAsync<TValue>(
+    public static async Task<IReadOnlyList<TValue?>> QueryValuesAsync<TValue>(
         this IDataQueryAsync dataQuery,
         CancellationToken cancellationToken = default)
     {
@@ -113,9 +113,9 @@ public static class DataQueryExtensions
     /// </summary>
     /// <param name="dataQuery">The <see cref="IDataQuery"/> for this extension method.</param>
     /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of dynamic objects.
+    /// An <see cref="T:System.Collections.Generic.IReadOnlyList`1" /> of dynamic objects.
     /// </returns>
-    public static IEnumerable<dynamic> Query(this IDataQuery dataQuery)
+    public static IReadOnlyList<dynamic> Query(this IDataQuery dataQuery)
     {
         return dataQuery.Query(DataReaderExtensions.DynamicFactory);
     }
@@ -138,9 +138,9 @@ public static class DataQueryExtensions
     /// <param name="dataQuery">The <see cref="IDataQueryAsync"/> for this extension method.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of dynamic objects.
+    /// An <see cref="T:System.Collections.Generic.IReadOnlyList`1" /> of dynamic objects.
     /// </returns>
-    public static Task<IEnumerable<dynamic>> QueryAsync(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default)
+    public static Task<IReadOnlyList<dynamic>> QueryAsync(this IDataQueryAsync dataQuery, CancellationToken cancellationToken = default)
     {
         return dataQuery.QueryAsync(DataReaderExtensions.DynamicFactory, cancellationToken);
     }

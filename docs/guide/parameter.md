@@ -75,8 +75,7 @@ var users = session
         .Direction(ParameterDirection.Output)
         .Output(value => total = value ?? -1)
     )
-    .Query<User>()
-    .ToList();
+    .Query<User>();
 ```
 
 The fluent parameter API supports:
@@ -102,8 +101,7 @@ var users = session
     .Parameter("@Offset", 0)
     .Parameter("@Size", 10)
     .ParameterOut<long>("@Total", value => total = value ?? -1)
-    .Query<User>()
-    .ToList();
+    .Query<User>();
 ```
 
 Output string and binary parameters need a size. `ParameterOut` defaults output parameter size to `-1`.
@@ -257,8 +255,7 @@ var parameters = new[]
 var users = session
     .StoredProcedure("[dbo].[UserPage]")
     .Parameter(parameters)
-    .Query<User>()
-    .ToList();
+    .Query<User>();
 ```
 
 ## Custom parameter handlers

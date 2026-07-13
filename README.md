@@ -162,6 +162,8 @@ var users = await session
     .QueryAsync<User>();
 ```
 
+`Query<T>` and `QueryAsync<T>` materialize all rows and return `IReadOnlyList<T>`.
+
 ### Query a Single Row
 
 ```csharp
@@ -194,8 +196,8 @@ var affected = await session
 
 ```csharp
 User? user = null;
-List<Role> roles = [];
-List<Priority> priorities = [];
+IReadOnlyList<Role> roles = [];
+IReadOnlyList<Priority> priorities = [];
 
 await session
     .Sql("""
@@ -207,8 +209,8 @@ await session
     .QueryMultipleAsync(async query =>
     {
         user = await query.QuerySingleAsync<User>();
-        roles = (await query.QueryAsync<Role>()).ToList();
-        priorities = (await query.QueryAsync<Priority>()).ToList();
+        roles = await query.QueryAsync<Role>();
+        priorities = await query.QueryAsync<Priority>();
     });
 ```
 
@@ -223,8 +225,7 @@ var users = session
     .Parameter("@Offset", 0)
     .Parameter("@Size", 10)
     .ParameterOut<long>("@Total", value => total = value ?? -1)
-    .Query<User>()
-    .ToList();
+    .Query<User>();
 ```
 
 ### JSON Export
@@ -464,7 +465,7 @@ public class Status
 }
 ```
 
-Generated extension methods are used automatically by `QueryAsync<T>` and `QuerySingleAsync<T>`:
+Generated extension methods are used automatically by `Query<T>`, `QueryAsync<T>`, `QuerySingle<T>`, and `QuerySingleAsync<T>`. List queries return `IReadOnlyList<T>`:
 
 ```csharp
 var statuses = await session

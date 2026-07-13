@@ -19,10 +19,10 @@ public interface IDataQueryAsync
     /// <param name="commandBehavior">Provides a description of the results of the query and its effect on the database.</param>
     /// <param name="cancellationToken">The cancellation instruction.</param>
     /// <returns>
-    /// An <see cref="T:System.Collections.Generic.IEnumerable`1" /> of <typeparamref name="TEntity" /> objects.
+    /// An <see cref="T:System.Collections.Generic.IReadOnlyList`1" /> of <typeparamref name="TEntity" /> objects.
     /// </returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="factory"/> is null</exception>
-    Task<IEnumerable<TEntity>> QueryAsync<TEntity>(
+    Task<IReadOnlyList<TEntity>> QueryAsync<TEntity>(
         Func<IDataReader, TEntity> factory,
         CommandBehavior commandBehavior = CommandBehavior.SingleResult,
         CancellationToken cancellationToken = default);

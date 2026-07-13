@@ -296,8 +296,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
                      "select * from [Priority]; ";
 
         User? user = null;
-        List<Role>? roles = null;
-        List<Priority>? priorities = null;
+        IReadOnlyList<Role>? roles = null;
+        IReadOnlyList<Priority>? priorities = null;
 
         await using var session = Services.GetRequiredService<IDataSession>();
         session.Should().NotBeNull();
@@ -307,8 +307,8 @@ public class DataCommandSqlAsyncTests : DatabaseTestBase
             .QueryMultipleAsync(async q =>
             {
                 user = await q.QuerySingleAsync<User>(cancellationToken: TestCancellation);
-                roles = (await q.QueryAsync<Role>(cancellationToken: TestCancellation)).ToList();
-                priorities = (await q.QueryAsync<Priority>(cancellationToken: TestCancellation)).ToList();
+                roles = await q.QueryAsync<Role>(cancellationToken: TestCancellation);
+                priorities = await q.QueryAsync<Priority>(cancellationToken: TestCancellation);
             }, cancellationToken: TestCancellation);
 
         user.Should().NotBeNull();

@@ -32,7 +32,7 @@ var result = session
 
 ## Query entities
 
-Use `Query<TEntity>` or `QueryAsync<TEntity>` to materialize every row into an entity.
+Use `Query<TEntity>` or `QueryAsync<TEntity>` to materialize every row into an entity. List queries return `IReadOnlyList<TEntity>`.
 
 ```csharp
 await using var session = Services.GetRequiredService<IDataSession>();
@@ -61,8 +61,7 @@ var users = session
         IsDeleted = reader.GetBoolean("IsDeleted"),
         Created = reader.GetDateTimeOffset("Created"),
         Updated = reader.GetDateTimeOffset("Updated")
-    })
-    .ToList();
+    });
 ```
 
 ## Query a single row
@@ -95,13 +94,12 @@ var user = session
 
 ## Query dynamic rows
 
-Use `Query()` or `QuerySingle()` without a type argument to return dynamic rows. This is useful for ad-hoc projections.
+Use `Query()` or `QuerySingle()` without a type argument to return dynamic rows. This is useful for ad-hoc projections. Dynamic list queries return `IReadOnlyList<dynamic>`.
 
 ```csharp
 var rows = session
     .Sql("select [Id], [EmailAddress], [DisplayName] from [User]")
-    .Query()
-    .ToList();
+    .Query();
 
 foreach (var row in rows)
 {
@@ -154,8 +152,8 @@ var sql = """
     """;
 
 User? user = null;
-List<Role> roles = [];
-List<Priority> priorities = [];
+IReadOnlyList<Role> roles = [];
+IReadOnlyList<Priority> priorities = [];
 
 await session
     .Sql(sql)
@@ -163,8 +161,8 @@ await session
     .QueryMultipleAsync(async query =>
     {
         user = await query.QuerySingleAsync<User>(cancellationToken);
-        roles = (await query.QueryAsync<Role>(cancellationToken)).ToList();
-        priorities = (await query.QueryAsync<Priority>(cancellationToken)).ToList();
+        roles = await query.QueryAsync<Role>(cancellationToken);
+        priorities = await query.QueryAsync<Priority>(cancellationToken);
     }, cancellationToken);
 ```
 

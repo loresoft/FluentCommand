@@ -175,7 +175,7 @@ public static class DataReaderFactoryWriter
 
     private static void WriteQueryEntityTask(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
-        // public static Task<IEnumerable<Entity>> QueryEntityAsync(this IDataQueryAsync dataQuery) => QueryAsync(dataQuery, EntityFactory);
+        // public static Task<IReadOnlyList<Entity>> QueryEntityAsync(this IDataQueryAsync dataQuery) => QueryAsync(dataQuery, EntityFactory);
         codeBuilder
             .AppendLine("/// <summary>")
             .Append("/// Executes the command against the connection and converts the results to <see cref=\"T:")
@@ -185,7 +185,7 @@ public static class DataReaderFactoryWriter
             .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQueryAsync\"/> for this extension method.</param>")
             .AppendLine("/// <param name=\"cancellationToken\">The cancellation instruction.</param>")
             .AppendLine("/// <returns>")
-            .Append("/// An <see cref=\"T:System.Collections.Generic.IEnumerable`1\" /> of <see cref=\"T:")
+            .Append("/// An <see cref=\"T:System.Collections.Generic.IReadOnlyList`1\" /> of <see cref=\"T:")
             .Append(entity.FullyQualified)
             .AppendLine("\"/> objects.")
             .AppendLine("/// </returns>")
@@ -194,7 +194,7 @@ public static class DataReaderFactoryWriter
             .Append("\", \"")
             .Append(ThisAssembly.InformationalVersion)
             .AppendLine("\")]")
-            .Append("public static global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<")
+            .Append("public static global::System.Threading.Tasks.Task<global::System.Collections.Generic.IReadOnlyList<")
             .Append(entity.FullyQualified)
             .AppendLine(">> QueryAsync<TEntity>(")
             .IncrementIndent()
@@ -235,7 +235,7 @@ public static class DataReaderFactoryWriter
             .AppendLine("/// <param name=\"jsonSerializerOptions\">The JSON serializer options to use for JSON columns.</param>")
             .AppendLine("/// <param name=\"cancellationToken\">The cancellation instruction.</param>")
             .AppendLine("/// <returns>")
-            .Append("/// An <see cref=\"T:System.Collections.Generic.IEnumerable`1\" /> of <see cref=\"T:")
+            .Append("/// An <see cref=\"T:System.Collections.Generic.IReadOnlyList`1\" /> of <see cref=\"T:")
             .Append(entity.FullyQualified)
             .AppendLine("\"/> objects.")
             .AppendLine("/// </returns>")
@@ -244,7 +244,7 @@ public static class DataReaderFactoryWriter
             .Append("\", \"")
             .Append(ThisAssembly.InformationalVersion)
             .AppendLine("\")]")
-            .Append("public static global::System.Threading.Tasks.Task<global::System.Collections.Generic.IEnumerable<")
+            .Append("public static global::System.Threading.Tasks.Task<global::System.Collections.Generic.IReadOnlyList<")
             .Append(entity.FullyQualified)
             .AppendLine(">> QueryAsync<TEntity>(")
             .IncrementIndent()
@@ -373,7 +373,7 @@ public static class DataReaderFactoryWriter
 
     private static void WriteQueryEntity(IndentedStringBuilder codeBuilder, EntityClass entity)
     {
-        // public static IEnumerable<Entity> QueryEntity(this IDataQuery dataQuery) => Query(dataQuery, EntityFactory);
+        // public static IReadOnlyList<Entity> QueryEntity(this IDataQuery dataQuery) => Query(dataQuery, EntityFactory);
         codeBuilder
             .AppendLine("/// <summary>")
             .Append("/// Executes the command against the connection and converts the results to <see cref=\"T:")
@@ -382,7 +382,7 @@ public static class DataReaderFactoryWriter
             .AppendLine("/// </summary>")
             .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQuery\"/> for this extension method.</param>")
             .AppendLine("/// <returns>")
-            .Append("/// An <see cref=\"T:System.Collections.Generic.IEnumerable`1\" /> of <see cref=\"T:")
+            .Append("/// An <see cref=\"T:System.Collections.Generic.IReadOnlyList`1\" /> of <see cref=\"T:")
             .Append(entity.FullyQualified)
             .AppendLine("\"/> objects.")
             .AppendLine("/// </returns>")
@@ -391,7 +391,7 @@ public static class DataReaderFactoryWriter
             .Append("\", \"")
             .Append(ThisAssembly.InformationalVersion)
             .AppendLine("\")]")
-            .Append("public static global::System.Collections.Generic.IEnumerable<")
+            .Append("public static global::System.Collections.Generic.IReadOnlyList<")
             .Append(entity.FullyQualified)
             .AppendLine("> Query<TEntity>(")
             .IncrementIndent()
@@ -429,7 +429,7 @@ public static class DataReaderFactoryWriter
             .AppendLine("/// <param name=\"dataQuery\">The <see cref=\"T:FluentCommand.IDataQuery\"/> for this extension method.</param>")
             .AppendLine("/// <param name=\"jsonSerializerOptions\">The JSON serializer options to use for JSON columns.</param>")
             .AppendLine("/// <returns>")
-            .Append("/// An <see cref=\"T:System.Collections.Generic.IEnumerable`1\" /> of <see cref=\"T:")
+            .Append("/// An <see cref=\"T:System.Collections.Generic.IReadOnlyList`1\" /> of <see cref=\"T:")
             .Append(entity.FullyQualified)
             .AppendLine("\"/> objects.")
             .AppendLine("/// </returns>")
@@ -438,7 +438,7 @@ public static class DataReaderFactoryWriter
             .Append("\", \"")
             .Append(ThisAssembly.InformationalVersion)
             .AppendLine("\")]")
-            .Append("public static global::System.Collections.Generic.IEnumerable<")
+            .Append("public static global::System.Collections.Generic.IReadOnlyList<")
             .Append(entity.FullyQualified)
             .AppendLine("> Query<TEntity>(")
             .IncrementIndent()
