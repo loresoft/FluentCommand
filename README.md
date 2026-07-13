@@ -257,6 +257,24 @@ session
 
 `ParameterJson` uses the configured `JsonSerializerOptions` from the session by default. You can also pass options or a source-generated `JsonTypeInfo<T>` for a single parameter.
 
+If the JSON value is already represented as a `JsonElement`, pass it as a regular parameter:
+
+```csharp
+using var document = JsonDocument.Parse("""
+{
+  "Source": "Import",
+  "Count": 42
+}
+""");
+
+JsonElement jsonElement = document.RootElement;
+
+session
+    .Sql("insert into [JsonLog] ([Data]) values (@Json)")
+    .Parameter("@Json", jsonElement)
+    .Execute();
+```
+
 ## SQL Query Builder
 
 Build parameterized SQL statements using fluent expressions. The builder uses `DataAnnotations` schema attributes to extract table and column information.
@@ -284,14 +302,16 @@ var users = await session
     .Sql(builder => builder
         .Select<User>()
         .WhereIf(
-            u => u.EmailAddress,
-            emailFilter,
-            FilterOperators.Contains,
-            (_, value) => !string.IsNullOrWhiteSpace(value))
+            property: u => u.EmailAddress,
+            parameterValue: emailFilter,
+            filterOperator: FilterOperators.Contains,
+            condition: (_, value) => !string.IsNullOrWhiteSpace(value)
+        )
         .WhereInIf(
-            u => u.Id,
-            selectedUserIds,
-            (_, values) => values.Any())
+            property: u => u.Id,
+            parameterValues: selectedUserIds,
+            condition: (_, values) => values.Any()
+        )
     )
     .QueryAsync<User>();
 ```
