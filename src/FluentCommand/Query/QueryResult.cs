@@ -13,7 +13,7 @@ public class QueryResult<T>
     /// </summary>
     [JsonPropertyName("data")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IList<T>? Data { get; set; }
+    public IReadOnlyList<T>? Data { get; set; }
 
     /// <summary>
     /// Gets or sets the total number of available items.
