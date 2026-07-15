@@ -248,8 +248,8 @@ public class DataSession : DisposableBase, IDataSession
             _connectionRequestCount++;
 
         // Check the connection was opened correctly
-        if (Connection.State is ConnectionState.Closed or ConnectionState.Broken)
-            throw new InvalidOperationException($"Execution of the command requires an open and available connection. The connection's current state is {Connection.State}.");
+        if (Connection.State is ConnectionState.Closed or ConnectionState.Broken or ConnectionState.Connecting)
+            throw new InvalidOperationException(CreateConnectionUnavailableMessage(Connection.State));
 
         // run connection opened interceptors only when the connection was just opened by this context
         if (justOpened)
@@ -281,8 +281,8 @@ public class DataSession : DisposableBase, IDataSession
             _connectionRequestCount++;
 
         // Check the connection was opened correctly
-        if (Connection.State is ConnectionState.Closed or ConnectionState.Broken)
-            throw new InvalidOperationException($"Execution of the command requires an open and available connection. The connection's current state is {Connection.State}.");
+        if (Connection.State is ConnectionState.Closed or ConnectionState.Broken or ConnectionState.Connecting)
+            throw new InvalidOperationException(CreateConnectionUnavailableMessage(Connection.State));
 
         // run connection opened interceptors only when the connection was just opened by this context
         if (justOpened)
@@ -393,6 +393,16 @@ public class DataSession : DisposableBase, IDataSession
 
         return transaction.Connection
             ?? throw new ArgumentException("Transaction has no associated connection.", nameof(transaction));
+    }
+
+    private static string CreateConnectionUnavailableMessage(ConnectionState state)
+    {
+        var message = $"Execution of the command requires an open and available connection. The connection's current state is {state}.";
+
+        if (state == ConnectionState.Connecting)
+            return message + " The Connecting state usually indicates the same DataSession is being used by multiple operations at the same time. DataSession is not thread-safe; create a separate session per operation.";
+
+        return message;
     }
 }
 
