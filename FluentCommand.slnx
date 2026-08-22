@@ -18,6 +18,7 @@
   </Folder>
   <Project Path="src/FluentCommand.Caching/FluentCommand.Caching.csproj" />
   <Project Path="src/FluentCommand.Generators/FluentCommand.Generators.csproj" />
+  <Project Path="src/FluentCommand.Health/FluentCommand.Health.csproj" Id="fffb3fce-e0a8-47fa-80e6-75428d243f54" />
   <Project Path="src/FluentCommand.Import/FluentCommand.Import.csproj" />
   <Project Path="src/FluentCommand.SqlServer/FluentCommand.SqlServer.csproj" />
   <Project Path="src/FluentCommand/FluentCommand.csproj" />
