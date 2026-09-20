@@ -16,6 +16,8 @@ updates:
       timezone: "America/Chicago"
     open-pull-requests-limit: 10
     ignore:
+      - dependency-name: Verify*
+        versions: [">=33.0.0"]
       - dependency-name: "Microsoft.CodeAnalysis.CSharp"
     groups:
       Azure:
