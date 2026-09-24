@@ -51,6 +51,18 @@ public class DataMerge : DisposableBase, IDataMerge
     }
 
     /// <inheritdoc/>
+    public IDataMerge SoftDelete(string column, object? value = null)
+    {
+        if (string.IsNullOrWhiteSpace(column))
+            throw new ArgumentException("The soft delete column name is required.", nameof(column));
+
+        _mergeDefinition.SoftDeleteColumn = column;
+        _mergeDefinition.SoftDeleteValue = value ?? true;
+        _mergeDefinition.IncludeDelete = true;
+        return this;
+    }
+
+    /// <inheritdoc/>
     public IDataMerge IdentityInsert(bool value = true)
     {
         _mergeDefinition.IdentityInsert = value;

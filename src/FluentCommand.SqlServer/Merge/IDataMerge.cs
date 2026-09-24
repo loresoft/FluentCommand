@@ -29,6 +29,16 @@ public interface IDataMerge
     IDataMerge IncludeDelete(bool value = true);
 
     /// <summary>
+    /// Specifies that target rows not found in the source data are soft deleted by setting <paramref name="column"/> to <paramref name="value"/>.
+    /// This also enables <see cref="IncludeDelete(bool)"/>.
+    /// </summary>
+    /// <param name="column">The target column used to flag rows as deleted.</param>
+    /// <param name="value">The value assigned to the column for soft deleted rows. Defaults to <c>true</c> when <c>null</c>.</param>
+    /// <returns>The same <see cref="IDataMerge"/> instance for fluent chaining.</returns>
+    /// <remarks>Soft deleted rows are reported with an <c>UPDATE</c> action in merge output.</remarks>
+    IDataMerge SoftDelete(string column, object? value = null);
+
+    /// <summary>
     /// Specifies whether to allow identity insert on the target table during the merge operation.
     /// </summary>
     /// <param name="value"><c>true</c> to allow identity insert on the target table; otherwise, <c>false</c>.</param>

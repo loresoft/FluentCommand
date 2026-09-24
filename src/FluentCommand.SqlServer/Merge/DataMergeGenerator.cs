@@ -379,6 +379,32 @@ public static class DataMergeGenerator
         if (!mergeDefinition.IncludeDelete)
             return;
 
+        if (mergeDefinition.SoftDeleteColumn.HasValue())
+        {
+            var column = QuoteIdentifier(mergeDefinition.SoftDeleteColumn!);
+            var value = mergeDefinition.SoftDeleteValue;
+            var literal = GetValue(value);
+
+            if (value != null && value != DBNull.Value && NeedQuote(value.GetType()))
+                literal = $"'{literal.Replace("'", "''")}'";
+
+            builder
+                .Append("WHEN NOT MATCHED BY SOURCE AND (t.")
+                .Append(column)
+                .Append(" IS NULL OR t.")
+                .Append(column)
+                .Append(" <> ")
+                .Append(literal)
+                .AppendLine(") THEN ")
+                .Append(' ', TabSize)
+                .Append("UPDATE SET t.")
+                .Append(column)
+                .Append(" = ")
+                .AppendLine(literal);
+
+            return;
+        }
+
         builder
             .AppendLine("WHEN NOT MATCHED BY SOURCE THEN ")
             .Append(' ', TabSize)

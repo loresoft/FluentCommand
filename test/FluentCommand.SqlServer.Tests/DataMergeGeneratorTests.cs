@@ -69,6 +69,60 @@ public class DataMergeGeneratorTests
     }
 
     [Fact]
+    public void BuildMergeSoftDeleteBoolean()
+    {
+        var definition = DataMergeDefinition.Create<UserImport>();
+        definition.TargetTable = "dbo.User";
+        definition.IncludeDelete = true;
+        definition.SoftDeleteColumn = "IsDeleted";
+        definition.SoftDeleteValue = true;
+
+        var sql = DataMergeGenerator.BuildMerge(definition);
+
+        sql.Should().Contain("WHEN NOT MATCHED BY SOURCE AND (t.[IsDeleted] IS NULL OR t.[IsDeleted] <> 1) THEN \r\n    UPDATE SET t.[IsDeleted] = 1".ReplaceLineEndings());
+    }
+
+    [Fact]
+    public void BuildMergeSoftDeleteString()
+    {
+        var definition = DataMergeDefinition.Create<UserImport>();
+        definition.TargetTable = "dbo.User";
+        definition.IncludeDelete = true;
+        definition.SoftDeleteColumn = "Status";
+        definition.SoftDeleteValue = "O'Deleted";
+
+        var sql = DataMergeGenerator.BuildMerge(definition);
+
+        sql.Should().Contain("UPDATE SET t.[Status] = 'O''Deleted'");
+    }
+
+    [Fact]
+    public void BuildMergeHardDeleteWithoutSoftDeleteColumn()
+    {
+        var definition = DataMergeDefinition.Create<UserImport>();
+        definition.TargetTable = "dbo.User";
+        definition.IncludeDelete = true;
+
+        var sql = DataMergeGenerator.BuildMerge(definition);
+
+        sql.Should().Contain("WHEN NOT MATCHED BY SOURCE THEN \r\n    DELETE".ReplaceLineEndings());
+    }
+
+    [Fact]
+    public void BuildMergeNoDeleteWhenIncludeDeleteFalse()
+    {
+        var definition = DataMergeDefinition.Create<UserImport>();
+        definition.TargetTable = "dbo.User";
+        definition.IncludeDelete = false;
+        definition.SoftDeleteColumn = "IsDeleted";
+        definition.SoftDeleteValue = true;
+
+        var sql = DataMergeGenerator.BuildMerge(definition);
+
+        sql.Should().NotContain("NOT MATCHED BY SOURCE");
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task BuildMergeTests()
     {
         var definition = new DataMergeDefinition();

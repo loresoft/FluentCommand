@@ -66,6 +66,27 @@ public class DataMergeDefinition
     public bool IncludeDelete { get; set; }
 
     /// <summary>
+    /// Gets or sets the name of the column in the <see cref="TargetTable"/> used to flag rows as soft deleted.
+    /// When <see cref="IncludeDelete"/> is <c>true</c> and this value is set, target rows not found in the source
+    /// are updated with <see cref="SoftDeleteValue"/> instead of being deleted.
+    /// </summary>
+    /// <value>
+    /// The soft delete column name, or <c>null</c> to use hard delete.
+    /// </value>
+    /// <remarks>
+    /// Soft deleted rows are reported with an <c>UPDATE</c> action in merge output.
+    /// </remarks>
+    public string? SoftDeleteColumn { get; set; }
+
+    /// <summary>
+    /// Gets or sets the value assigned to <see cref="SoftDeleteColumn"/> when a row is soft deleted.
+    /// </summary>
+    /// <value>
+    /// The soft delete value.
+    /// </value>
+    public object? SoftDeleteValue { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether to output the inserted, updated, or deleted values from the <see cref="TargetTable"/> after the merge operation.
     /// </summary>
     /// <value>
