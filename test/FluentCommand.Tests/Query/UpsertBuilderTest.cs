@@ -243,6 +243,52 @@ public class UpsertBuilderTest
         parameter.Type.Should().Be(typeof(string));
     }
 
+    [Fact]
+    public void UpsertEntityExplicitKeyAfterValuesOverridesInferredKey()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        var entity = new UpsertStatus
+        {
+            Id = 1,
+            Name = "test",
+            Description = "test"
+        };
+
+        var builder = new UpsertEntityBuilder<UpsertStatus>(sqlProvider, parameters)
+            .Values(entity)
+            .Key(p => p.Name);
+
+        var queryStatement = builder.BuildStatement();
+        var sql = queryStatement!.Statement;
+
+        sql.Should().Contain("ON TARGET.[Name] = SOURCE.[Name]");
+        sql.Should().NotContain("TARGET.[Id] = SOURCE.[Id] AND");
+        sql.Should().NotContain("AND TARGET.[Id] = SOURCE.[Id]");
+        sql.Should().Contain("TARGET.[Id] = SOURCE.[Id], ");
+    }
+
+    [Fact]
+    public void UpsertEntityWithoutExplicitKeyUsesInferredKey()
+    {
+        var sqlProvider = new SqlServerGenerator();
+        var parameters = new List<QueryParameter>();
+        var entity = new UpsertStatus
+        {
+            Id = 1,
+            Name = "test",
+            Description = "test"
+        };
+
+        var builder = new UpsertEntityBuilder<UpsertStatus>(sqlProvider, parameters)
+            .Values(entity);
+
+        var queryStatement = builder.BuildStatement();
+        var sql = queryStatement!.Statement;
+
+        sql.Should().Contain("ON TARGET.[Id] = SOURCE.[Id]");
+    }
+
     private sealed class JsonElementLog
     {
         [Key]

@@ -126,8 +126,6 @@ public class UpsertEntityBuilder<TEntity> : UpsertBuilder<UpsertEntityBuilder<TE
             Value(property.Column, property.GetValue(entity), property.MemberType);
         }
 
-        AddEntityKeys();
-
         return this;
     }
 
@@ -210,6 +208,9 @@ public class UpsertEntityBuilder<TEntity> : UpsertBuilder<UpsertEntityBuilder<TE
 
     private void AddEntityKeys()
     {
+        if (KeyExpressions.Count > 0)
+            return;
+
         var properties = _typeAccessor.GetProperties();
         foreach (var property in properties)
         {
