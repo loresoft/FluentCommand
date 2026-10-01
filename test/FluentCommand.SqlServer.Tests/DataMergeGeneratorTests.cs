@@ -76,6 +76,7 @@ public class DataMergeGeneratorTests
         definition.IncludeDelete = true;
         definition.SoftDeleteColumn = "IsDeleted";
         definition.SoftDeleteValue = true;
+        definition.Columns.Find(c => c.SourceColumn == "EmailAddress")!.IsKey = true;
 
         var sql = DataMergeGenerator.BuildMerge(definition);
 
@@ -90,6 +91,7 @@ public class DataMergeGeneratorTests
         definition.IncludeDelete = true;
         definition.SoftDeleteColumn = "Status";
         definition.SoftDeleteValue = "O'Deleted";
+        definition.Columns.Find(c => c.SourceColumn == "EmailAddress")!.IsKey = true;
 
         var sql = DataMergeGenerator.BuildMerge(definition);
 
@@ -102,6 +104,7 @@ public class DataMergeGeneratorTests
         var definition = DataMergeDefinition.Create<UserImport>();
         definition.TargetTable = "dbo.User";
         definition.IncludeDelete = true;
+        definition.Columns.Find(c => c.SourceColumn == "EmailAddress")!.IsKey = true;
 
         var sql = DataMergeGenerator.BuildMerge(definition);
 
@@ -116,6 +119,7 @@ public class DataMergeGeneratorTests
         definition.IncludeDelete = false;
         definition.SoftDeleteColumn = "IsDeleted";
         definition.SoftDeleteValue = true;
+        definition.Columns.Find(c => c.SourceColumn == "EmailAddress")!.IsKey = true;
 
         var sql = DataMergeGenerator.BuildMerge(definition);
 

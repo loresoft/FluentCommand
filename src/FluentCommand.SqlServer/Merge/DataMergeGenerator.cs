@@ -32,9 +32,46 @@ public static class DataMergeGenerator
     /// <returns>The quoted table identifier (e.g., <c>[dbo].[TableName]</c>).</returns>
     public static string TableIdentifier(string name)
     {
-        var parts = name.Split('.');
-        for (int i = 0; i < parts.Length; i++)
-            parts[i] = QuoteIdentifier(parts[i]);
+        var parts = new List<string>();
+        var current = StringBuilderCache.Acquire();
+        bool inBracket = false;
+
+        for (int i = 0; i < name.Length; i++)
+        {
+            var c = name[i];
+            if (inBracket)
+            {
+                current.Append(c);
+                if (c != ']')
+                    continue;
+
+                // escaped closing bracket
+                if (i + 1 < name.Length && name[i + 1] == ']')
+                {
+                    current.Append(']');
+                    i++;
+                    continue;
+                }
+
+                inBracket = false;
+            }
+            else if (c == '[')
+            {
+                inBracket = true;
+                current.Append(c);
+            }
+            else if (c == '.')
+            {
+                parts.Add(QuoteIdentifier(current.ToString()));
+                current.Clear();
+            }
+            else
+            {
+                current.Append(c);
+            }
+        }
+
+        parts.Add(QuoteIdentifier(StringBuilderCache.ToString(current)));
 
         return string.Join(".", parts);
     }
@@ -168,6 +205,7 @@ public static class DataMergeGenerator
         if (mergeDefinition.IdentityInsert && mergeDefinition.IncludeInsert)
         {
             builder
+                .AppendLine()
                 .Append("SET IDENTITY_INSERT ")
                 .Append(TableIdentifier(mergeDefinition.TargetTable))
                 .AppendLine(" OFF;")
@@ -192,7 +230,21 @@ public static class DataMergeGenerator
             .Append(' ', TabSize)
             .AppendLine("VALUES");
 
-        var fields = new HashSet<string>();
+        var columnNames = new HashSet<string>(
+            mergeColumns.Select(c => ParseIdentifier(c.SourceColumn)),
+            StringComparer.OrdinalIgnoreCase);
+
+        var fields = new List<string>();
+        var included = new bool[reader.FieldCount];
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            var fieldName = reader.GetName(i);
+            if (!columnNames.Contains(ParseIdentifier(fieldName)))
+                continue;
+
+            included[i] = true;
+            fields.Add(fieldName);
+        }
 
         bool wroteRow = false;
         while (reader.Read())
@@ -206,13 +258,8 @@ public static class DataMergeGenerator
 
             for (int i = 0; i < reader.FieldCount; i++)
             {
-                var fieldName = reader.GetName(i);
-
-                var isFound = mergeColumns.Any(c => c.SourceColumn == fieldName);
-                if (!isFound)
+                if (!included[i])
                     continue;
-
-                fields.Add(fieldName);
 
                 builder.AppendIf(", ", v => wrote);
 
@@ -232,6 +279,9 @@ public static class DataMergeGenerator
 
             wroteRow = true;
         }
+
+        if (!wroteRow)
+            throw new InvalidOperationException("The data reader did not return any rows to merge.");
 
         builder
             .AppendLine()
@@ -299,12 +349,14 @@ public static class DataMergeGenerator
     /// <param name="builder">The <see cref="StringBuilder"/> to append SQL to.</param>
     private static void AppendJoin(List<DataMergeColumn> mergeColumns, StringBuilder builder)
     {
-        bool hasColumn;
+        if (!mergeColumns.Any(c => c.IsKey))
+            throw new InvalidOperationException("The merge definition requires at least one key column.");
+
         builder
             .AppendLine("ON")
             .AppendLine("(");
 
-        hasColumn = false;
+        bool hasColumn = false;
         foreach (var mergeColumn in mergeColumns.Where(c => c.IsKey))
         {
             bool writeComma = hasColumn;
@@ -350,23 +402,19 @@ public static class DataMergeGenerator
                 .AppendLine(",")
                 .Append(' ', TabSize)
                 .Append("DELETED.")
-                .Append(QuoteIdentifier(mergeColumn.SourceColumn))
-                .Append(" as [")
-                .Append(OriginalPrefix)
-                .Append(ParseIdentifier(mergeColumn.SourceColumn))
-                .Append("],")
+                .Append(QuoteIdentifier(mergeColumn.TargetColumn))
+                .Append(" as ")
+                .Append(QuoteIdentifier(OriginalPrefix + ParseIdentifier(mergeColumn.SourceColumn)))
+                .Append(',')
                 .AppendLine();
 
             builder
                 .Append(' ', TabSize)
                 .Append("INSERTED.")
-                .Append(QuoteIdentifier(mergeColumn.SourceColumn))
-                .Append(" as [")
-                .Append(CurrentPrefix)
-                .Append(ParseIdentifier(mergeColumn.SourceColumn))
-                .Append(']');
+                .Append(QuoteIdentifier(mergeColumn.TargetColumn))
+                .Append(" as ")
+                .Append(QuoteIdentifier(CurrentPrefix + ParseIdentifier(mergeColumn.SourceColumn)));
         }
-
     }
 
     /// <summary>
@@ -383,6 +431,9 @@ public static class DataMergeGenerator
         {
             var column = QuoteIdentifier(mergeDefinition.SoftDeleteColumn!);
             var value = mergeDefinition.SoftDeleteValue;
+            if (value == null || value == DBNull.Value)
+                throw new InvalidOperationException("A soft delete value is required when a soft delete column is specified.");
+
             var literal = GetValue(value);
 
             if (value != null && value != DBNull.Value && NeedQuote(value.GetType()))
@@ -425,6 +476,9 @@ public static class DataMergeGenerator
             .Where(c => !c.IsIgnored && c.CanUpdate)
             .ToList();
 
+        if (mergeColumns.Count == 0)
+            return;
+
         builder
             .AppendLine("WHEN MATCHED THEN ")
             .Append(' ', TabSize)
@@ -460,6 +514,9 @@ public static class DataMergeGenerator
         var mergeColumns = mergeDefinition.Columns
             .Where(c => !c.IsIgnored && c.CanInsert)
             .ToList();
+
+        if (mergeColumns.Count == 0)
+            return;
 
         builder
             .AppendLine("WHEN NOT MATCHED BY TARGET THEN ")
@@ -519,6 +576,8 @@ public static class DataMergeGenerator
 
         if (underType == typeof(string))
             return true;
+        if (underType == typeof(char))
+            return true;
         if (underType == typeof(TimeSpan))
             return true;
         if (underType == typeof(DateTime))
@@ -552,21 +611,42 @@ public static class DataMergeGenerator
         return value switch
         {
             string stringValue => stringValue,
-            DateTime dateTimeValue => dateTimeValue.ToString("yyyy-MM-dd HH:mm:ss.fff"),
-            DateTimeOffset dateTimeOffset => dateTimeOffset.ToString("yyyy-MM-dd HH:mm:ss.ffffffzzz"),
+            DateTime dateTimeValue => dateTimeValue.ToString("yyyy-MM-dd HH:mm:ss.fffffff", System.Globalization.CultureInfo.InvariantCulture),
+            TimeSpan timeSpanValue => timeSpanValue.ToString(@"hh\:mm\:ss\.fffffff", System.Globalization.CultureInfo.InvariantCulture),
+            Enum enumValue => Convert.ToString(Convert.ChangeType(enumValue, Enum.GetUnderlyingType(enumValue.GetType()), System.Globalization.CultureInfo.InvariantCulture), System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+            double doubleValue => FormatDouble(doubleValue),
+            float floatValue => FormatDouble(floatValue),
+            DateTimeOffset dateTimeOffset => dateTimeOffset.ToString("yyyy-MM-dd HH:mm:ss.ffffffzzz", System.Globalization.CultureInfo.InvariantCulture),
             byte[] byteArray => ToHex(byteArray),
             bool boolValue => boolValue ? "1" : "0",
             JsonElement jsonElement => GetJsonValue(jsonElement) ?? "NULL",
 #if NET6_0_OR_GREATER
-            DateOnly dateValue => dateValue.ToString("yyyy-MM-dd"),
-            TimeOnly timeValue => timeValue.ToString("hh:mm:ss.ffffff"),
+            DateOnly dateValue => dateValue.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+            TimeOnly timeValue => timeValue.ToString("HH:mm:ss.ffffff", System.Globalization.CultureInfo.InvariantCulture),
 #endif
-            _ => Convert.ToString(value) ?? string.Empty
+            IFormattable formattable => formattable.ToString(null, System.Globalization.CultureInfo.InvariantCulture),
+            _ => Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty
         };
     }
 
+    private static string FormatDouble(float value)
+    {
+        if (float.IsNaN(value) || float.IsInfinity(value))
+            throw new InvalidOperationException($"The value '{value}' cannot be represented as a SQL literal.");
+
+        return value.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatDouble(double value)
+    {
+        if (double.IsNaN(value) || double.IsInfinity(value))
+            throw new InvalidOperationException($"The value '{value}' cannot be represented as a SQL literal.");
+
+        return value.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
     /// <summary>
-    /// Converts a JSON element to its string representation for use in SQL statements.
+    /// Converts a JSON element
     /// </summary>
     /// <param name="jsonElement">The JSON element to convert.</param>
     /// <returns>The string representation of the JSON element, or <c>null</c> if undefined.</returns>
@@ -585,7 +665,7 @@ public static class DataMergeGenerator
     private static string ToHex(byte[] bytes)
     {
 #if NET5_0_OR_GREATER
-        return Convert.ToHexString(bytes);
+        return "0x" + Convert.ToHexString(bytes);
 #else
         var s = StringBuilderCache.Acquire();
         s.Append("0x");
