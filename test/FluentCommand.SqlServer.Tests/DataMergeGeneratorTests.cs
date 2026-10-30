@@ -40,6 +40,9 @@ public class DataMergeGeneratorTests
 
         result = DataMergeGenerator.ParseIdentifier("B");
         result.Should().Be("B");
+
+        result = DataMergeGenerator.ParseIdentifier("[Nam]]e]");
+        result.Should().Be("Nam]e");
     }
 
     [Fact]
@@ -66,6 +69,156 @@ public class DataMergeGeneratorTests
         result = DataMergeGenerator.QuoteIdentifier("B");
         result.Should().Be("[B]");
 
+        result = DataMergeGenerator.QuoteIdentifier("[Nam]]e]");
+        result.Should().Be("[Nam]]e]");
+
+        result = DataMergeGenerator.QuoteIdentifier("[x]; DROP TABLE y; --[z]");
+        result.Should().Be("[[x]]; DROP TABLE y; --[z]]]");
+
+        result = DataMergeGenerator.QuoteIdentifier("[a]]");
+        result.Should().Be("[[a]]]]]");
+    }
+
+    [Fact]
+    public void TableIdentifierInjection()
+    {
+        var result = DataMergeGenerator.TableIdentifier("dbo.[x]; DROP TABLE y; --[z]");
+        result.Should().Be("[dbo].[[x]]; DROP TABLE y; --[z]]]");
+    }
+
+    [Fact]
+    public void BuildTableWithoutColumnsThrows()
+    {
+        var definition = new DataMergeDefinition { TargetTable = "dbo.Item" };
+        definition.Columns.Add(new DataMergeColumn { SourceColumn = "Id", TargetColumn = "Id", NativeType = "int", IsIgnored = true });
+
+        var action = () => DataMergeGenerator.BuildTable(definition);
+
+        action.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void BuildMergeWithoutActionThrows()
+    {
+        var definition = CreateObjectDefinition();
+        definition.IncludeInsert = false;
+        definition.IncludeUpdate = false;
+        definition.IncludeDelete = false;
+
+        var action = () => DataMergeGenerator.BuildMerge(definition);
+
+        action.Should().Throw<InvalidOperationException>().WithMessage("*insert, update, or delete*");
+    }
+
+    [Fact]
+    public void BuildMergeIdentityInsertResetsOnError()
+    {
+        var definition = CreateObjectDefinition();
+        definition.IdentityInsert = true;
+
+        var sql = DataMergeGenerator.BuildMerge(definition);
+
+        sql.Should().StartWith("SET IDENTITY_INSERT [dbo].[Item] ON;");
+        sql.Should().Contain("BEGIN TRY");
+        sql.Should().Contain("BEGIN CATCH\r\n    SET IDENTITY_INSERT [dbo].[Item] OFF;\r\n    THROW;\r\nEND CATCH;".ReplaceLineEndings());
+        sql.TrimEnd().Should().EndWith("SET IDENTITY_INSERT [dbo].[Item] OFF;");
+    }
+
+    [Fact]
+    public void BuildMergeDataObjectColumnIsQuoted()
+    {
+        var definition = CreateObjectDefinition();
+
+        var table = new System.Data.DataTable();
+        table.Columns.Add("Id", typeof(int));
+        table.Columns.Add("Value", typeof(object));
+        table.Rows.Add(1, "x'); DROP TABLE y; --");
+        table.Rows.Add(2, new DateTime(2024, 5, 13, 8, 30, 15));
+        table.Rows.Add(3, 42);
+
+        using var reader = table.CreateDataReader();
+
+        var sql = DataMergeGenerator.BuildMerge(definition, reader);
+
+        sql.Should().Contain("(1, N'x''); DROP TABLE y; --')");
+        sql.Should().Contain("(2, CAST('2024-05-13 08:30:15.0000000' AS datetime2))");
+        sql.Should().Contain("(3, 42)");
+    }
+
+    [Fact]
+    public void BuildMergeDataUnicodeString()
+    {
+        var definition = CreateObjectDefinition();
+
+        var table = new System.Data.DataTable();
+        table.Columns.Add("Id", typeof(int));
+        table.Columns.Add("Value", typeof(string));
+        table.Rows.Add(1, "Привет 日本");
+
+        using var reader = table.CreateDataReader();
+
+        var sql = DataMergeGenerator.BuildMerge(definition, reader);
+
+        sql.Should().Contain("(1, N'Привет 日本')");
+    }
+
+    [Fact]
+    public void BuildMergeDataTimeSpanOutOfRangeThrows()
+    {
+        var definition = CreateObjectDefinition();
+
+        var table = new System.Data.DataTable();
+        table.Columns.Add("Id", typeof(int));
+        table.Columns.Add("Value", typeof(TimeSpan));
+        table.Rows.Add(1, TimeSpan.FromHours(26));
+
+        using var reader = table.CreateDataReader();
+
+        var action = () => DataMergeGenerator.BuildMerge(definition, reader);
+
+        action.Should().Throw<InvalidOperationException>().WithMessage("*outside the range*");
+    }
+
+    [Fact]
+    public void BuildMergeDataMissingColumnThrows()
+    {
+        var definition = CreateObjectDefinition();
+
+        var table = new System.Data.DataTable();
+        table.Columns.Add("Id", typeof(int));
+        table.Rows.Add(1);
+
+        using var reader = table.CreateDataReader();
+
+        var action = () => DataMergeGenerator.BuildMerge(definition, reader);
+
+        action.Should().Throw<InvalidOperationException>().WithMessage("*missing*Value*");
+    }
+
+    [Fact]
+    public void BuildMergeDataUsesMergeColumnName()
+    {
+        var definition = CreateObjectDefinition();
+
+        var table = new System.Data.DataTable();
+        table.Columns.Add("id", typeof(int));
+        table.Columns.Add("VALUE", typeof(int));
+        table.Rows.Add(1, 2);
+
+        using var reader = table.CreateDataReader();
+
+        var sql = DataMergeGenerator.BuildMerge(definition, reader);
+
+        sql.Should().Contain("[Id], [Value]");
+    }
+
+    private static DataMergeDefinition CreateObjectDefinition()
+    {
+        var definition = new DataMergeDefinition { TargetTable = "dbo.Item" };
+        definition.Columns.Add(new DataMergeColumn { SourceColumn = "Id", TargetColumn = "Id", NativeType = "int", IsKey = true, CanUpdate = false });
+        definition.Columns.Add(new DataMergeColumn { SourceColumn = "Value", TargetColumn = "Value", NativeType = "sql_variant" });
+
+        return definition;
     }
 
     [Fact]
@@ -95,7 +248,7 @@ public class DataMergeGeneratorTests
 
         var sql = DataMergeGenerator.BuildMerge(definition);
 
-        sql.Should().Contain("UPDATE SET t.[Status] = 'O''Deleted'");
+        sql.Should().Contain("UPDATE SET t.[Status] = N'O''Deleted'");
     }
 
     [Fact]
@@ -446,6 +599,32 @@ public class DataMergeGeneratorTests
 
         var mergeDataStatement = DataMergeGenerator.BuildMerge(definition, dataTable);
 
-        mergeDataStatement.Should().Contain("""'{"name":"Test''s","active":true}'""");
+        mergeDataStatement.Should().Contain("""N'{"name":"Test''s","active":true}'""");
+    }
+
+    [Fact]
+    public void BuildMergeDataUndefinedJsonElementIsNull()
+    {
+        var definition = new DataMergeDefinition();
+
+        DataMergeDefinition.AutoMap<JsonItem>(definition);
+        definition.TargetTable = "dbo.JsonItem";
+
+        var keyColumn = definition.Columns.Find(c => c.SourceColumn == "Id");
+        keyColumn.Should().NotBeNull();
+
+        keyColumn.IsKey = true;
+        keyColumn.CanUpdate = false;
+
+        var items = new List<JsonItem>
+        {
+            new() { Id = 1, Payload = default }
+        };
+
+        var dataTable = new ListDataReader<JsonItem>(items);
+
+        var mergeDataStatement = DataMergeGenerator.BuildMerge(definition, dataTable);
+
+        mergeDataStatement.Should().Contain("(1, NULL)");
     }
 }

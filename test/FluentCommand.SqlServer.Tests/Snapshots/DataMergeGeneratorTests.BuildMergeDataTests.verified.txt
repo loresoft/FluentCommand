@@ -2,8 +2,8 @@
 USING
 (
     VALUES
-    ('test@email.com', 'Test User', 'Test', 'User', NULL, NULL), 
-    ('blah@email.com', 'Blah User', 'Blah', 'User', NULL, NULL)
+    (N'test@email.com', N'Test User', N'Test', N'User', NULL, NULL), 
+    (N'blah@email.com', N'Blah User', N'Blah', N'User', NULL, NULL)
 )
 AS s
 (

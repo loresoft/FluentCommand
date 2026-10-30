@@ -2,9 +2,9 @@
 USING
 (
     VALUES
-    ('00000000-0000-0000-0000-000000000000', 'test@email.com', 'Test User', 'Test', 'User'), 
-    ('00000000-0000-0000-0000-000000000000', 'blah@email.com', 'Blah User', 'Blah', 'User'), 
-    ('00000000-0000-0000-0000-000000000000', 'random@email.com', 'Random User', 'Random', 'User')
+    ('00000000-0000-0000-0000-000000000000', N'test@email.com', N'Test User', N'Test', N'User'), 
+    ('00000000-0000-0000-0000-000000000000', N'blah@email.com', N'Blah User', N'Blah', N'User'), 
+    ('00000000-0000-0000-0000-000000000000', N'random@email.com', N'Random User', N'Random', N'User')
 )
 AS s
 (
