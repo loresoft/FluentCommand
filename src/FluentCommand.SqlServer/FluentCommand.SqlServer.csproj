@@ -16,5 +16,6 @@
 
   <ItemGroup>
     <PackageReference Include="MicroSoft.Data.SqlClient" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>
 </Project>
