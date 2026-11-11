@@ -4,10 +4,16 @@
     <RootNamespace>FluentCommand</RootNamespace>
     <Description>Fluent Wrapper for DbCommand with SQL Server support using Microsoft.Data.SqlClient</Description>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <Features>runtime-async=on</Features>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\FluentCommand.Import\FluentCommand.Import.csproj" />
     <ProjectReference Include="..\FluentCommand\FluentCommand.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="MicroSoft.Data.SqlClient" />
   </ItemGroup>
