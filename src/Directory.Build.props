@@ -2,7 +2,6 @@
   <PropertyGroup Label="Package">
     <Copyright>Copyright © $([System.DateTime]::Now.ToString(yyyy)) LoreSoft</Copyright>
     <Authors>LoreSoft</Authors>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>orm;sql;micro-orm;database</PackageTags>
     <PackageProjectUrl>https://github.com/loresoft/FluentCommand</PackageProjectUrl>
@@ -13,28 +12,39 @@
     <RepositoryUrl>https://github.com/loresoft/FluentCommand</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
+
   <PropertyGroup Label="Debug">
     <DebugType>embedded</DebugType>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
   <PropertyGroup Label="Options">
     <DefaultLanguage>en-US</DefaultLanguage>
+    <NeutralLanguage>en-US</NeutralLanguage>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <Features>runtime-async=on</Features>
+  </PropertyGroup>
+
   <PropertyGroup>
     <MinVerTagPrefix>v</MinVerTagPrefix>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AssemblyMetadata.Generators" PrivateAssets="All" />
     <PackageReference Include="MinVer" PrivateAssets="All" />
   </ItemGroup>
+
   <ItemGroup>
     <None Include=".\..\..\logo.png">
       <Pack>true</Pack>
