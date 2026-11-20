@@ -46,8 +46,7 @@ public abstract class DisposableBase
     /// </summary>
     protected void AssertDisposed()
     {
-        if (_disposeState != 0)
-            throw new ObjectDisposedException(GetType().FullName);
+        ObjectDisposedException.ThrowIf(_disposeState != 0, this);
     }
 
     /// <summary>

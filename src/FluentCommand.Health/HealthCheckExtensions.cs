@@ -17,7 +17,7 @@ public static class HealthCheckExtensions
     /// An optional SQL command text to execute as the health check query.
     /// Defaults to <c>SELECT 1</c> when <see langword="null"/>.
     /// </param>
-    public static void AddFluentCommand(this IHealthChecksBuilder health, string? commandText = null)
+    public static IHealthChecksBuilder AddFluentCommand(this IHealthChecksBuilder health, string? commandText = null)
     {
         var healthCheckRegistration = new HealthCheckRegistration(
             name: "FluentCommand",
@@ -32,6 +32,8 @@ public static class HealthCheckExtensions
             tags: ["SQL"]);
 
         health.Add(healthCheckRegistration);
+
+        return health;
     }
 
     /// <summary>
@@ -46,7 +48,7 @@ public static class HealthCheckExtensions
     /// An optional SQL command text to execute as the health check query.
     /// Defaults to <c>SELECT 1</c> when <see langword="null"/>.
     /// </param>
-    public static void AddFluentCommand<TDiscriminator>(this IHealthChecksBuilder health, string? commandText = null)
+    public static IHealthChecksBuilder AddFluentCommand<TDiscriminator>(this IHealthChecksBuilder health, string? commandText = null)
     {
         var healthCheckRegistration = new HealthCheckRegistration(
             name: $"FluentCommand: {typeof(TDiscriminator).Name}",
@@ -61,6 +63,8 @@ public static class HealthCheckExtensions
             tags: ["SQL"]);
 
         health.Add(healthCheckRegistration);
+
+        return health;
     }
 
 }
